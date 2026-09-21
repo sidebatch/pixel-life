@@ -41,9 +41,12 @@ assets/              원본 게임 이미지
   world/             월드 오브젝트
 src/
   assets.js          런타임 에셋 목록
+  data/world-map.js  맵 크기, 지형, 엔티티 배치 데이터
   config.js          프로젝트 설정과 에셋 로더
-  world.js           맵과 엔티티 데이터
+  world.js           맵 데이터로 런타임 월드 구성
+  world-validation.js 좌표·충돌·입구 자동 검사
   simulation.js      이동, 충돌, 카메라, NPC 업데이트
+  debug.js           F3 월드 디버그 오버레이
   rendering.js       지형과 월드 렌더링
   interactions.js    대화, 메뉴, 입력
   main.js            게임 루프
@@ -60,12 +63,13 @@ dist/index.html      생성되는 독립 실행형 배포 파일
 
 구현됨:
 
-- 34×24 타일 월드와 카메라
+- 64×48 타일 확장 월드와 카메라
 - 플레이어 이동 및 충돌
 - NPC 6명의 로밍과 대화
 - 건물 2채와 문 상호작용
 - 모바일·키보드 입력
 - Y축 기반 가림과 식생 레이어
+- 월드 배치 자동 검사와 F3 디버그 오버레이
 
 다음 기능:
 

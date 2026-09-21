@@ -1,6 +1,8 @@
+const playerSpawn=WORLD_DEFINITION.playerSpawn;
 const player={
-  x:10,y:16,px:10*TILE+TILE/2,py:16*TILE+TILE/2,
-  fromX:0,fromY:0,toX:0,toY:0,t:0,moving:false,duration:128,face:'down'
+  x:playerSpawn.x,y:playerSpawn.y,
+  px:playerSpawn.x*TILE+TILE/2,py:playerSpawn.y*TILE+TILE/2,
+  fromX:0,fromY:0,toX:0,toY:0,t:0,moving:false,duration:128,face:playerSpawn.face||'down'
 };
 const inputs={up:false,down:false,left:false,right:false};
 let lastDir='down', activeDir=null, dialogOpen=false, menuOpen=false, tNow=0;

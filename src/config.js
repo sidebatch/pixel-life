@@ -36,7 +36,9 @@ const GAME_STATE = {
   activity:{active:null}
 };
 
-const TILE=48, MAP_W=34, MAP_H=24, WORLD_W=MAP_W*TILE, WORLD_H=MAP_H*TILE;
+const TILE=WORLD_DEFINITION.tileSize;
+const MAP_W=WORLD_DEFINITION.width, MAP_H=WORLD_DEFINITION.height;
+const WORLD_W=MAP_W*TILE, WORLD_H=MAP_H*TILE;
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
 const imgs={}, playerImgs={}, npcImgs={};

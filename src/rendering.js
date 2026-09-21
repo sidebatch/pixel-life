@@ -128,11 +128,14 @@ function drawTerrain(){
   // Smaller pavers make the plaza read as one area rather than 48px square tiles.
   ctx.save();
   ctx.strokeStyle='rgba(77,84,94,.34)';ctx.lineWidth=2;
-  const stoneMinX=8*TILE, stoneMaxX=14*TILE, stoneMinY=10*TILE, stoneMaxY=15*TILE;
-  for(let y=stoneMinY;y<=stoneMaxY;y+=24){
-    for(let x=stoneMinX;x<=stoneMaxX;x+=32){
-      const ox=((Math.floor((y-stoneMinY)/24)&1)?16:0);
-      ctx.strokeRect(Math.round(x+ox-camX),Math.round(y-camY),32,24);
+  for(const area of WORLD_DEFINITION.stoneAreas){
+    const stoneMinX=area.x*TILE, stoneMaxX=(area.x+area.w)*TILE;
+    const stoneMinY=area.y*TILE, stoneMaxY=(area.y+area.h)*TILE;
+    for(let y=stoneMinY;y<=stoneMaxY;y+=24){
+      for(let x=stoneMinX;x<=stoneMaxX;x+=32){
+        const ox=((Math.floor((y-stoneMinY)/24)&1)?16:0);
+        ctx.strokeRect(Math.round(x+ox-camX),Math.round(y-camY),32,24);
+      }
     }
   }
   ctx.restore();
@@ -331,7 +334,8 @@ function drawWorld(){
   reeds.forEach(o=>drawDecor(imgs.reeds,o.x,o.y,70,92,o.s,o.flip,5));
 
   // bridge rail hint / fishing sparkle
-  const fx=20*TILE-camX-2, fy=11*TILE-camY+12;
+  const fishingSpot=WORLD_DEFINITION.fishingSpot;
+  const fx=fishingSpot.x*TILE-camX-2, fy=fishingSpot.y*TILE-camY+12;
   ctx.fillStyle=`rgba(255,244,145,${.55+.4*Math.sin(tNow/260)})`;
   ctx.beginPath();ctx.arc(fx,fy,4,0,Math.PI*2);ctx.fill();
 
@@ -351,5 +355,7 @@ function drawWorld(){
   npcs.forEach(n=>renderables.push({y:n.y*TILE+TILE,draw:()=>drawNPC(n)}));
   renderables.push({y:player.py+20,draw:drawPlayer});
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());
+
+  drawWorldDebug();
 
 }

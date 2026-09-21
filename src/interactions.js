@@ -116,6 +116,7 @@ function refreshContext(){
 }
 const keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
 window.addEventListener('keydown',e=>{
+  if(e.code==='F3'&&!e.repeat){e.preventDefault();toggleWorldDebug();return;}
   if(keyMap[e.code]){e.preventDefault();inputs[keyMap[e.code]]=true;activeDir=keyMap[e.code];lastDir=keyMap[e.code];}
   if((e.code==='Space'||e.code==='KeyZ')&&!e.repeat){e.preventDefault();interact();}
   if((e.code==='KeyX'||e.code==='Escape')&&!e.repeat){e.preventDefault();pressB();}
@@ -128,4 +129,3 @@ window.addEventListener('pagehide',resetJoystick);
 
 window.addEventListener('error',e=>console.error('[Pixel Life runtime]',e.error||e.message));
 window.addEventListener('unhandledrejection',e=>console.error('[Pixel Life promise]',e.reason));
-

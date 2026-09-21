@@ -4,9 +4,12 @@ import path from 'node:path';
 const root = process.cwd();
 const scriptFiles = [
   'src/assets.js',
+  'src/data/world-map.js',
   'src/config.js',
   'src/world.js',
+  'src/world-validation.js',
   'src/simulation.js',
+  'src/debug.js',
   'src/rendering.js',
   'src/interactions.js',
   'src/main.js'

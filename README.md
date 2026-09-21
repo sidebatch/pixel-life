@@ -2,6 +2,9 @@
 
 세로형 모바일 화면을 기준으로 제작 중인 탑다운 픽셀 생활 어드벤처입니다. 현재 빌드는 라일락 연못 마을의 이동, 충돌, 카메라, NPC 로밍, 대화와 월드 렌더링을 구현한 코어 프로토타입입니다.
 
+- 공개 게임: https://sidebatch.github.io/pixel-life-web/
+- 배포 방법: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
+
 ## 실행
 
 Node.js 20 이상에서 별도 패키지 설치 없이 실행할 수 있습니다.

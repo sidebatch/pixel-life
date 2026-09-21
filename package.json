@@ -1,0 +1,15 @@
+{
+  "name": "pixel-life",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Portrait-first pixel life adventure prototype",
+  "scripts": {
+    "start": "node scripts/serve.mjs",
+    "build": "node scripts/build.mjs",
+    "check": "node scripts/check.mjs",
+    "test": "npm run check && npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

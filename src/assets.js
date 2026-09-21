@@ -1,0 +1,46 @@
+const ASSET_URLS = Object.freeze({
+  bridge: 'assets/world/bridge.png',
+  tree: 'assets/world/tree.png',
+  treeStage24: 'assets/world/treeStage24.png',
+  rock: 'assets/world/rock.png',
+  sign: 'assets/world/sign.png',
+  bench: 'assets/world/bench.png',
+  lamp: 'assets/world/lamp.png',
+  bush1: 'assets/world/bush1.png',
+  bush2: 'assets/world/bush2.png',
+  flower1: 'assets/world/flower1.png',
+  flower2: 'assets/world/flower2.png',
+  grassTuft: 'assets/world/grassTuft.png',
+  reeds: 'assets/world/reeds.png'
+});
+
+const PLAYER_URLS = Object.freeze({
+  down_0: 'assets/player/legacy/down_0.png',
+  down_1: 'assets/player/legacy/down_1.png',
+  down_2: 'assets/player/legacy/down_2.png',
+  left_0: 'assets/player/legacy/left_0.png',
+  left_1: 'assets/player/legacy/left_1.png',
+  left_2: 'assets/player/legacy/left_2.png',
+  right_0: 'assets/player/legacy/right_0.png',
+  right_1: 'assets/player/legacy/right_1.png',
+  right_2: 'assets/player/legacy/right_2.png',
+  up_0: 'assets/player/legacy/up_0.png',
+  up_1: 'assets/player/legacy/up_1.png',
+  up_2: 'assets/player/legacy/up_2.png'
+});
+
+const NPC_SHEET_URLS = Object.freeze({
+  mina: 'assets/npcs/mina.png',
+  thomas: 'assets/npcs/thomas.png',
+  elli: 'assets/npcs/elli.png',
+  noah: 'assets/npcs/noah.png',
+  hana: 'assets/npcs/hana.png',
+  jun: 'assets/npcs/jun.png'
+});
+
+const PLAYER_SHEET_URL = 'assets/player/player.png';
+
+const BUILDING_URLS = Object.freeze({
+  buildingHome: 'assets/buildings/home_cottage.png',
+  buildingWorkshop: 'assets/buildings/carpenter_workshop.png'
+});

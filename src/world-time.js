@@ -21,6 +21,37 @@ const worldTime={
   debugLocked:debugTime!==null
 };
 
+const WORLD_TIME_VISUAL_STOPS=Object.freeze([
+  {minutes:0,tint:[24,38,88],alpha:.34,light:1},
+  {minutes:300,tint:[30,48,102],alpha:.30,light:1},
+  {minutes:420,tint:[82,108,158],alpha:.14,light:.42},
+  {minutes:480,tint:[255,255,255],alpha:0,light:0},
+  {minutes:1020,tint:[255,255,255],alpha:0,light:0},
+  {minutes:1140,tint:[255,214,160],alpha:.06,light:.18},
+  {minutes:1200,tint:[245,132,64],alpha:.16,light:.58},
+  {minutes:1320,tint:[27,39,92],alpha:.32,light:1}
+]);
+
+function lerp(a,b,t){ return a+(b-a)*t; }
+function getWorldTimeVisuals(minutes=worldTime.minutes){
+  const dayMinutes=WORLD_TIME_CONFIG.minutesPerDay;
+  const value=((minutes%dayMinutes)+dayMinutes)%dayMinutes;
+  let before=WORLD_TIME_VISUAL_STOPS[WORLD_TIME_VISUAL_STOPS.length-1];
+  let after={...WORLD_TIME_VISUAL_STOPS[0],minutes:dayMinutes};
+  for(let i=0;i<WORLD_TIME_VISUAL_STOPS.length-1;i++){
+    if(value>=WORLD_TIME_VISUAL_STOPS[i].minutes&&value<WORLD_TIME_VISUAL_STOPS[i+1].minutes){
+      before=WORLD_TIME_VISUAL_STOPS[i];after=WORLD_TIME_VISUAL_STOPS[i+1];break;
+    }
+  }
+  const span=after.minutes-before.minutes;
+  const t=span<=0?0:(value-before.minutes)/span;
+  return {
+    tint:before.tint.map((channel,index)=>Math.round(lerp(channel,after.tint[index],t))),
+    alpha:lerp(before.alpha,after.alpha,t),
+    light:lerp(before.light,after.light,t)
+  };
+}
+
 function updateWorldTime(dt){
   if(worldTime.debugLocked) return;
   const minutesPerMs=WORLD_TIME_CONFIG.minutesPerDay/WORLD_TIME_CONFIG.realDayDurationMs;

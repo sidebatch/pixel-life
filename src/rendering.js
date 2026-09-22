@@ -307,6 +307,36 @@ function drawDecor(img, tileX, tileY, baseW, baseH, scale=1, flip=false, yNudge=
   }
 }
 
+function drawWorldTimeEffects(){
+  const visual=getWorldTimeVisuals();
+  if(visual.alpha>0.002){
+    ctx.save();
+    ctx.fillStyle=`rgba(${visual.tint[0]},${visual.tint[1]},${visual.tint[2]},${visual.alpha.toFixed(3)})`;
+    ctx.fillRect(0,0,VIEW_W,VIEW_H);
+    ctx.restore();
+  }
+  if(visual.light<=0.01) return;
+
+  const drawGlow=(worldX,worldY,radius,alpha)=>{
+    const x=worldX-camX,y=worldY-camY;
+    if(x+radius<0||y+radius<0||x-radius>VIEW_W||y-radius>VIEW_H) return;
+    const gradient=ctx.createRadialGradient(x,y,0,x,y,radius);
+    gradient.addColorStop(0,`rgba(255,226,143,${(alpha*visual.light).toFixed(3)})`);
+    gradient.addColorStop(.42,`rgba(255,190,91,${(alpha*.35*visual.light).toFixed(3)})`);
+    gradient.addColorStop(1,'rgba(255,166,66,0)');
+    ctx.fillStyle=gradient;
+    ctx.fillRect(x-radius,y-radius,radius*2,radius*2);
+  };
+
+  ctx.save();
+  ctx.globalCompositeOperation='screen';
+  drawGlow((lamp.x+.5)*TILE,(lamp.y+.15)*TILE,150,.48);
+  buildings.forEach(building=>{
+    drawGlow((building.entrance.door.x+.5)*TILE,(building.entrance.door.y+.5)*TILE,105,.24);
+  });
+  ctx.restore();
+}
+
 function drawWorld(){
   ctx.clearRect(0,0,VIEW_W,VIEW_H);
   // Visual terrain is blended independently from the reliable tile movement/collision logic.
@@ -357,6 +387,7 @@ function drawWorld(){
   renderables.push({y:player.py+20,draw:drawPlayer});
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());
 
+  drawWorldTimeEffects();
   drawWorldDebug();
 
 }

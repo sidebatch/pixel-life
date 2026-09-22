@@ -31,6 +31,7 @@
 - PASS — WorldTime runs from a shared 30-minute real-time day and updates the HUD clock
 - PASS — debug URL time override and F3 30-minute time stepping are available for period QA
 - PASS — debug time controls are available as touch/click buttons inside the game screen
+- PASS — time-of-day tint and warm night light glows render from the shared WorldTime value
 
 ## Debug tools
 

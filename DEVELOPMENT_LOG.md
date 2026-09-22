@@ -54,3 +54,11 @@ Previous NPC normalization drew colored rectangles and vector accessories direct
 - Passable vegetation now renders permanently below actors.
 - Bushes and reeds removed from Y-depth sorting.
 - Trees/buildings and other occluding objects keep Y-depth behavior.
+
+## World time, weather, and fishing vertical slice
+- Added a shared 30-minute world clock with dawn/day/dusk/night interpolation.
+- Added clear/rain/storm weather selection and full-screen layered precipitation.
+- Added developer controls for fixed time and weather through `?debug`.
+- Added the first guaranteed-catch fishing loop with a bobber, bite cue, random crucian carp size and price.
+- Added a mobile fishing cancel control and prevented cancel-release ghost clicks from opening bag/settings.
+- Fishing data pools, progression, codex, persistence, and final fish assets remain intentionally unfinished.

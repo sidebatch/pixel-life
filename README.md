@@ -1,8 +1,9 @@
 # Pixel Life
 
-세로형 모바일 화면을 기준으로 제작 중인 탑다운 픽셀 생활 어드벤처입니다. 현재 빌드는 라일락 연못 마을의 이동, 충돌, 카메라, NPC 로밍, 대화와 월드 렌더링을 구현한 코어 프로토타입입니다.
+세로형 모바일 화면을 기준으로 제작 중인 탑다운 픽셀 생활 어드벤처입니다. 현재 빌드는 라일락 연못 마을의 이동·NPC·월드 렌더링 기반 위에 월드 시간, 비·폭풍 날씨와 낚시 기본 루프를 구현한 코어 프로토타입입니다.
 
 - 공개 게임: https://sidebatch.github.io/pixel-life/
+- 다음 세션 인수인계: [`docs/HANDOFF.md`](docs/HANDOFF.md)
 - 배포 방법: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
 ## 실행
@@ -42,6 +43,8 @@ assets/              원본 게임 이미지
 src/
   assets.js          런타임 에셋 목록
   data/world-map.js  맵 크기, 지형, 엔티티 배치 데이터
+  world-time.js      월드 공용 시간과 시간대 판정
+  weather.js         맑음·비·폭풍 상태와 자동 판정
   config.js          프로젝트 설정과 에셋 로더
   world.js           맵 데이터로 런타임 월드 구성
   world-validation.js 좌표·충돌·입구 자동 검사
@@ -49,6 +52,7 @@ src/
   debug.js           F3 월드 디버그 오버레이
   rendering.js       지형과 월드 렌더링
   interactions.js    대화, 메뉴, 입력
+  fishing.js         낚시 상태와 획득 처리
   main.js            게임 루프
 styles/game.css      세로형 HUD와 조작 UI
 scripts/             검사, 개발 서버, 단일 HTML 빌드
@@ -70,11 +74,14 @@ dist/index.html      생성되는 독립 실행형 배포 파일
 - 모바일·키보드 입력
 - Y축 기반 가림과 식생 레이어
 - 월드 배치 자동 검사와 F3 디버그 오버레이
+- 현실 30분 기준 월드 시계와 시간대별 화면·조명
+- 맑음·비·폭풍 자동 날씨와 화면 전체 강수 효과
+- 물가 낚시 기본 루프, 찌·입질·붕어 결과·모바일 취소
 
 다음 기능:
 
-- 낚시
-- 인벤토리와 저장
+- 물고기 20종과 시간·날씨별 Fish Pool
+- 낚시 XP·도감·인벤토리 UI와 저장
 - 채집, 요리, 제작
 - 상점과 퀘스트
 - 추가 지역

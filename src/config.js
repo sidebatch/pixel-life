@@ -23,7 +23,7 @@ const WORLD_REGIONS = Object.freeze({
 });
 
 const ACTIVITY_MODULES = Object.freeze({
-  fishing:{id:'fishing',label:'낚시',status:'next',entry:'water'},
+  fishing:{id:'fishing',label:'낚시',status:'prototype',entry:'water'},
   gathering:{id:'gathering',label:'채집',status:'planned',entry:'resource-node'},
   cooking:{id:'cooking',label:'요리',status:'planned',entry:'kitchen'},
   defense:{id:'defense',label:'디펜스',status:'planned',entry:'world-event'},

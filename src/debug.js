@@ -51,10 +51,12 @@ function drawWorldDebug(){
   }
 
   ctx.fillStyle='rgba(4,18,22,.86)';
-  roundedRectPath(ctx,10,78,222,58,8);ctx.fill();
+  roundedRectPath(ctx,10,78,250,90,8);ctx.fill();
   ctx.fillStyle='#dffcff';
   ctx.fillText(`DEBUG WORLD · F3`,20,88);
   ctx.fillText(`map ${MAP_W}x${MAP_H} · tile ${TILE}px`,20,104);
   ctx.fillText(`player ${player.x},${player.y} · blocked ${blocked.size}`,20,120);
+  ctx.fillText(`time ${formatWorldTime()} · ${getWorldTimePeriod()}${isWorldTimeDebugLocked()?' · LOCKED':''}`,20,136);
+  ctx.fillText(`time: [ / ] ±30m · URL ?debug&time=HH:MM`,20,152);
   ctx.restore();
 }

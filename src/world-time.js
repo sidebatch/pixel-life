@@ -4,12 +4,25 @@ const WORLD_TIME_CONFIG=Object.freeze({
   minutesPerDay:24*60
 });
 
+function parseWorldTime(value){
+  if(typeof value!=='string') return null;
+  const match=/^(\d{1,2}):(\d{2})$/.exec(value.trim());
+  if(!match) return null;
+  const hour=Number(match[1]), minute=Number(match[2]);
+  if(hour>23||minute>59) return null;
+  return hour*60+minute;
+}
+
+const worldTimeParams=typeof window!=='undefined' ? new URLSearchParams(window.location.search) : null;
+const debugTime=worldTimeParams?.has('debug') ? parseWorldTime(worldTimeParams.get('time')) : null;
 const worldTime={
   day:0,
-  minutes:WORLD_TIME_CONFIG.startMinutes
+  minutes:debugTime ?? WORLD_TIME_CONFIG.startMinutes,
+  debugLocked:debugTime!==null
 };
 
 function updateWorldTime(dt){
+  if(worldTime.debugLocked) return;
   const minutesPerMs=WORLD_TIME_CONFIG.minutesPerDay/WORLD_TIME_CONFIG.realDayDurationMs;
   worldTime.minutes+=Math.max(0,dt)*minutesPerMs;
   while(worldTime.minutes>=WORLD_TIME_CONFIG.minutesPerDay){
@@ -17,6 +30,17 @@ function updateWorldTime(dt){
     worldTime.day+=1;
   }
 }
+
+function setWorldTimeDebug(minutes){
+  worldTime.minutes=((minutes%WORLD_TIME_CONFIG.minutesPerDay)+WORLD_TIME_CONFIG.minutesPerDay)%WORLD_TIME_CONFIG.minutesPerDay;
+  worldTime.debugLocked=true;
+}
+
+function adjustWorldTimeDebug(deltaMinutes){
+  setWorldTimeDebug(worldTime.minutes+deltaMinutes);
+}
+
+function isWorldTimeDebugLocked(){ return worldTime.debugLocked; }
 
 function getWorldTimeMinutes(){ return worldTime.minutes; }
 

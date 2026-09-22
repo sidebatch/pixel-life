@@ -29,6 +29,7 @@
 - PASS — player movement uses constant-speed interpolation to avoid a hitch at held-movement tile boundaries
 - PASS — desktop keyboard buffering and subpixel actor rendering are isolated from the mobile path
 - PASS — WorldTime runs from a shared 30-minute real-time day and updates the HUD clock
+- PASS — debug URL time override and F3 30-minute time stepping are available for period QA
 
 ## Debug tools
 

@@ -2,7 +2,7 @@
 
 세로형 모바일 화면을 기준으로 제작 중인 탑다운 픽셀 생활 어드벤처입니다. 현재 빌드는 라일락 연못 마을의 이동, 충돌, 카메라, NPC 로밍, 대화와 월드 렌더링을 구현한 코어 프로토타입입니다.
 
-- 공개 게임: https://sidebatch.github.io/pixel-life-web/
+- 공개 게임: https://sidebatch.github.io/pixel-life/
 - 배포 방법: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
 ## 실행
@@ -81,4 +81,4 @@ dist/index.html      생성되는 독립 실행형 배포 파일
 
 ## 버전 관리
 
-리팩터링 전 단일 HTML 프로토타입은 Git 태그 `prototype-v5`로 보존되어 있습니다.
+리팩터링 전 단일 HTML 프로토타입은 Git 태그 `prototype-v5`로 보존되어 있습니다. 현재 저장소 자체가 공개 소스 저장소이자 GitHub Pages 배포 소스입니다.

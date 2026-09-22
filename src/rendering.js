@@ -341,24 +341,58 @@ function drawWeatherEffects(){
   const kind=getWeatherKind();
   if(kind==='clear') return;
   const storm=kind==='storm';
-  const count=storm?150:92;
   ctx.save();
+  const pulseA=Math.pow(Math.max(0,Math.sin(tNow/2300+1.2)),42);
+  const pulseB=Math.pow(Math.max(0,Math.sin(tNow/1570+2.1)),38);
+  const flash=storm?Math.max(pulseA,pulseB):0;
+  ctx.fillStyle=storm
+    ? `rgba(18,30,65,${(.13+.16*flash).toFixed(3)})`
+    : 'rgba(95,155,190,.055)';
+  ctx.fillRect(0,0,VIEW_W,VIEW_H);
+
+  const drawRainLayer=(count,speed,length,slope,alpha,width,phase)=>{
+    ctx.strokeStyle=storm?'rgba(198,224,255,.72)':'rgba(202,237,255,.58)';
+    ctx.lineWidth=width;ctx.lineCap='round';
+    for(let i=0;i<count;i++){
+      const seed=i*83.17+(i%11)*19.3+phase;
+      const variation=.72+hash2(i*17+phase,phase+i)*.56;
+      const x=((seed+tNow*speed*variation)%(VIEW_W+100))-50;
+      const y=((seed*1.73+tNow*(speed*1.7)*variation)%(VIEW_H+120))-60;
+      ctx.globalAlpha=alpha*(.72+hash2(i*29+phase,phase)*.45);
+      ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-slope,y+length);ctx.stroke();
+    }
+  };
+
   if(storm){
-    const flash=Math.pow(Math.max(0,Math.sin(tNow/1700)),36);
-    ctx.fillStyle=`rgba(22,35,72,${(.10+.13*flash).toFixed(3)})`;
-    ctx.fillRect(0,0,VIEW_W,VIEW_H);
+    // A dense short-drop layer plus a sparse foreground layer makes the storm
+    // read as depth and wind instead of a repeated single-line texture.
+    drawRainLayer(260,.76,18,7,.32,1,11);
+    drawRainLayer(125,1.16,38,13,.56,1.6,37);
+  }else{
+    drawRainLayer(260,.58,14,4,.27,1,5);
+    drawRainLayer(78,.92,27,7,.34,1.2,23);
   }
-  ctx.strokeStyle=storm?'rgba(189,218,255,.52)':'rgba(201,235,255,.42)';
-  ctx.lineWidth=storm?1.5:1;
-  ctx.lineCap='round';
-  const speed=storm?1.05:.72;
-  for(let i=0;i<count;i++){
-    const seed=i*83.17+(i%7)*19.3;
-    const x=((seed+tNow*speed)% (VIEW_W+80))-40;
-    const y=((seed*1.73+tNow*(storm?1.8:1.2))%(VIEW_H+100))-50;
-    const length=storm?18:13;
-    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-5,y+length);ctx.stroke();
+
+  // Small impact rings add motion to the ground and water without extra assets.
+  ctx.strokeStyle=storm?'rgba(208,235,255,.32)':'rgba(210,241,255,.22)';
+  ctx.lineWidth=1;
+  const splashCount=storm?34:18;
+  for(let i=0;i<splashCount;i++){
+    const seed=i*147.31+9;
+    const x=((seed+tNow*.12)%(VIEW_W+40))-20;
+    const y=((seed*2.17+tNow*.22)%(VIEW_H+40))-20;
+    const r=2+hash2(i*7,seed)*3;
+    ctx.globalAlpha=.16+hash2(i*13,seed)*.18;
+    ctx.beginPath();ctx.ellipse(x,y,r*1.8,r*.65,0,0,Math.PI*2);ctx.stroke();
   }
+
+  if(storm&&flash>.18){
+    const x=80+hash2(Math.floor(tNow/1700),7)*Math.max(1,VIEW_W-160);
+    ctx.globalAlpha=Math.min(.9,flash*1.5);
+    ctx.strokeStyle='rgba(235,246,255,.95)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-18,VIEW_H*.25);ctx.lineTo(x+8,VIEW_H*.25);ctx.lineTo(x-28,VIEW_H*.58);ctx.stroke();
+  }
+  ctx.globalAlpha=1;
   ctx.restore();
 }
 

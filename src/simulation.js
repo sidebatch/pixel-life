@@ -96,8 +96,10 @@ function updateNPCs(dt){
 }
 
 function update(dt){
+  if(typeof updateFishing==='function') updateFishing(dt);
   updateNPCs(dt);
-  if(player.moving){
+  const fishingLocked=typeof isFishingActive==='function'&&isFishingActive();
+  if(!fishingLocked&&player.moving){
     player.t+=dt;
     const p=Math.min(1,player.t/player.duration);
     // Keep player velocity consistent across tile boundaries. Resetting an
@@ -109,7 +111,7 @@ function update(dt){
       player.px=player.toX;player.py=player.toY;player.moving=false;
       const d=preferredDir()||bufferedDir; bufferedDir=null; if(d) tryMove(d);
     }
-  }else{
+  }else if(!fishingLocked){
     const d=preferredDir(); if(d) tryMove(d);
   }
   const targetX=player.px-VIEW_W/2, targetY=player.py-VIEW_H/2;

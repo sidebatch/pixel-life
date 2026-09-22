@@ -7,20 +7,29 @@ function showDialog(speaker,text){
   document.getElementById('dialogText').textContent=text;
   document.getElementById('dialog').classList.add('show');
 }
-function closeDialog(){ dialogOpen=false;document.getElementById('dialog').classList.remove('show'); }
+function closeDialog(){
+  const wasFishingResult=typeof isFishingResult==='function'&&isFishingResult();
+  dialogOpen=false;document.getElementById('dialog').classList.remove('show');
+  if(wasFishingResult) finishFishingResult();
+}
 function interact(){
   if(menuOpen) return;
   if(dialogOpen){ closeDialog(); return; }
+  if(typeof isFishingActive==='function'&&isFishingActive()) return handleFishingAction();
   const t=facingTile(), k=key(t.x,t.y);
   const targetNpc=npcs.find(n=>n.x===t.x&&n.y===t.y);
   if(targetNpc) return showDialog(targetNpc.name,targetNpc.dialog);
   if(t.x===sign.x&&t.y===sign.y) return showDialog('표지판','→ 연못   ← 마을 광장   ↑ 오래된 숲');
-  if(waterSet.has(k)) return showDialog('물가','잔잔한 물결이 보인다. 🎣 이 지점은 첫 Activity Module인 낚시의 진입점으로 사용된다.');
+  if(waterSet.has(k)) return startFishing();
   const targetBuilding=buildingForPlayerInteraction();
   if(targetBuilding) return showDialog(targetBuilding.name,targetBuilding.dialog);
   showDialog('SYSTEM','조사할 것이 없다.');
 }
-function pressB(){ if(dialogOpen) closeDialog(); else if(menuOpen) toggleMenu(false); }
+function pressB(){
+  if(dialogOpen) closeDialog();
+  else if(menuOpen) toggleMenu(false);
+  else if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
+}
 
 function toggleMenu(force){
   menuOpen = force===undefined ? !menuOpen : force;
@@ -103,6 +112,8 @@ document.getElementById('closeMenu').addEventListener('click',()=>toggleMenu(fal
 document.getElementById('coinCount').textContent=Number(GAME_STATE.progression.coins||0).toLocaleString();
 
 function contextInfo(){
+  const fishingText=typeof getFishingContextText==='function'?getFishingContextText():'';
+  if(fishingText) return fishingText;
   const t=facingTile(),k=key(t.x,t.y);
   if(npcs.some(n=>n.x===t.x&&n.y===t.y)) return '대화';
   if(t.x===sign.x&&t.y===sign.y) return '표지판';

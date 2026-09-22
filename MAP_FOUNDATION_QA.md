@@ -25,6 +25,7 @@
 - PASS — fishing marker on water
 - PASS — ground decoration/water overlap
 - PASS — standalone HTML build
+- PASS — player step duration centralized at 165ms
 
 ## Debug tools
 

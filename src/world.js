@@ -38,7 +38,7 @@ const npcs=WORLD_DEFINITION.npcs.map(n=>({...n}));
 npcs.forEach((n,i)=>{
   n.px=n.x*TILE+TILE/2;n.py=n.y*TILE+TILE/2;
   n.fromX=n.px;n.fromY=n.py;n.toX=n.px;n.toY=n.py;
-  n.t=0;n.duration=260;n.stepSeed=i*7+3;
+  n.t=0;n.duration=MOVEMENT_CONFIG.npcStepDuration;n.stepSeed=i*7+3;
 });
 
 const sign={...WORLD_DEFINITION.fixedObjects.sign};

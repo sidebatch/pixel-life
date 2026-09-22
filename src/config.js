@@ -34,8 +34,12 @@ const ACTIVITY_MODULES = Object.freeze({
 const GAME_STATE = {
   regionId:'lilacVillage',
   inventory:[],
-  collections:{},
-  progression:{coins:1230,flags:{}},
+  collections:{fish:{}},
+  progression:{
+    coins:1230,
+    flags:{},
+    fishing:{level:1,xp:0,totalXp:0}
+  },
   activity:{active:null}
 };
 
@@ -48,7 +52,7 @@ const MOVEMENT_CONFIG=Object.freeze({
 });
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
-const imgs={}, playerImgs={}, npcImgs={};
+const imgs={}, playerImgs={}, npcImgs={}, fishImgs={};
 let playerSheet=null;
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
 async function loadImageMap(target, urls, optional=false){
@@ -64,6 +68,7 @@ async function loadAll(){
   await Promise.all([
     loadImageMap(imgs,ASSET_URLS),
     loadImageMap(imgs,BUILDING_URLS),
+    loadImageMap(fishImgs,FISH_URLS),
     loadImageMap(npcImgs,NPC_SHEET_URLS,true)
   ]);
 

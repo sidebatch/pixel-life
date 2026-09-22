@@ -29,7 +29,8 @@
         </div>
       </div>
       <div id="timeDebugPanel" class="timeDebugPanel" aria-label="시간 디버그 패널">
-        <div class="timeDebugTitle"><span>TIME DEBUG</span><b id="timeDebugValue">10:24</b></div>
+        <div class="timeDebugTitle"><span id="timeDebugModeLabel">TIME DEBUG</span><b id="timeDebugValue">10:24</b></div>
+        <div class="weatherPreviewHint" id="weatherPreviewHint">날씨 효과를 터치해서 바꿔보세요</div>
         <div class="timeDebugRow">
           <button id="timeBack30" type="button">−30분</button>
           <button id="timeResume" type="button">실시간</button>
@@ -43,9 +44,9 @@
         </div>
         <div class="timeDebugWeatherLabel">날씨</div>
         <div class="timeDebugRow timeDebugPresets">
-          <button id="weatherClear" type="button">☀ 맑음</button>
-          <button id="weatherRain" type="button">🌧 비</button>
-          <button id="weatherStorm" type="button">⛈ 폭풍</button>
+          <button id="weatherClear" data-weather-kind="clear" type="button">☀ 맑음</button>
+          <button id="weatherRain" data-weather-kind="rain" type="button">🌧 비</button>
+          <button id="weatherStorm" data-weather-kind="storm" type="button">⛈ 폭풍</button>
           <button id="weatherAuto" type="button">자동</button>
         </div>
       </div>
@@ -74,11 +75,28 @@
           <div class="menuCard"><b>🗺️ 월드</b><span>지역과 발견 장소</span></div>
           <div class="menuCard"><b>🎒 가방</b><span>공용 인벤토리</span></div>
           <div class="menuCard"><b>🎣 낚시</b><span>첫 Activity Module</span></div>
-          <div class="menuCard"><b>📖 도감</b><span>발견·수집 기록</span></div>
+          <button class="menuCard" id="openFishDexBtn" type="button"><b>📖 도감</b><span>발견·수집 기록</span></button>
           <div class="menuCard"><b>🛡️ 디펜스</b><span>지역 이벤트</span></div>
           <div class="menuCard"><b>🍳 생활</b><span>채집·요리·제작</span></div>
         </div>
         <button class="closeMenu" id="closeMenu">게임으로 돌아가기</button>
+      </div>
+      <div id="fishDexPanel" class="fishDexPanel" aria-label="물고기 도감" aria-hidden="true">
+        <div class="fishDexHeader">
+          <div><span>FISH COLLECTION</span><h2>물고기 도감</h2></div>
+          <div class="fishDexHeaderRight"><b id="fishDexProgress">0 / 20</b><button id="fishDexClose" type="button" aria-label="도감 닫기">×</button></div>
+        </div>
+        <div class="fishDexTabs" role="tablist" aria-label="도감 지역 필터">
+          <button type="button" data-fish-filter="all" class="active">전체</button>
+          <button type="button" data-fish-filter="pond">연못</button>
+          <button type="button" data-fish-filter="river">강</button>
+          <button type="button" data-fish-filter="coast">바다</button>
+        </div>
+        <div class="fishDexReward" id="fishDexReward" aria-live="polite"></div>
+        <div class="fishDexScroll">
+          <div class="fishDexGrid" id="fishDexGrid"></div>
+          <section class="fishDexDetail" id="fishDexDetail" aria-live="polite"></section>
+        </div>
       </div>
     </div>
     <div class="landscapeHint"><div><div class="phone">↻</div><b>세로 화면으로 돌려주세요</b><p>이번 버전부터 세로형 UI를 기준으로 개발합니다.</p></div></div>
@@ -87,9 +105,11 @@
   <!-- build:scripts -->
   <script src="src/assets.js"></script>
   <script src="src/data/world-map.js"></script>
+  <script src="src/data/fish-data.js"></script>
   <script src="src/world-time.js"></script>
   <script src="src/weather.js"></script>
   <script src="src/config.js"></script>
+  <script src="src/save.js"></script>
   <script src="src/world.js"></script>
   <script src="src/world-validation.js"></script>
   <script src="src/simulation.js"></script>
@@ -97,6 +117,7 @@
   <script src="src/rendering.js"></script>
   <script src="src/interactions.js"></script>
   <script src="src/fishing.js"></script>
+  <script src="src/fish-dex.js"></script>
   <script src="src/main.js"></script>
   <!-- /build:scripts -->
 </body>

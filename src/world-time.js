@@ -14,11 +14,13 @@ function parseWorldTime(value){
 }
 
 const worldTimeParams=typeof window!=='undefined' ? new URLSearchParams(window.location.search) : null;
-const debugTime=worldTimeParams?.has('debug') ? parseWorldTime(worldTimeParams.get('time')) : null;
+const isWorldDebugMode=worldTimeParams?.has('debug')===true;
+const isWeatherPreviewMode=worldTimeParams?.has('weather-preview')===true;
+const debugTime=(isWorldDebugMode||isWeatherPreviewMode) ? parseWorldTime(worldTimeParams.get('time')) : null;
 const worldTime={
   day:0,
-  minutes:debugTime ?? WORLD_TIME_CONFIG.startMinutes,
-  debugLocked:debugTime!==null
+  minutes:debugTime ?? (isWeatherPreviewMode ? 18*60+30 : WORLD_TIME_CONFIG.startMinutes),
+  debugLocked:debugTime!==null||isWeatherPreviewMode
 };
 
 const WORLD_TIME_VISUAL_STOPS=Object.freeze([
@@ -77,7 +79,12 @@ let worldTimeDebugUIReady=false;
 function setupWorldTimeDebugUI(){
   const panel=document.getElementById('timeDebugPanel');
   if(!panel) return;
-  panel.classList.toggle('show',worldTimeParams?.has('debug')===true);
+  panel.classList.toggle('show',isWorldDebugMode||isWeatherPreviewMode);
+  document.body.classList.toggle('weatherPreviewMode',isWeatherPreviewMode);
+  const modeLabel=document.getElementById('timeDebugModeLabel');
+  if(modeLabel) modeLabel.textContent=isWeatherPreviewMode?'WEATHER PREVIEW':'TIME DEBUG';
+  const previewHint=document.getElementById('weatherPreviewHint');
+  if(previewHint) previewHint.hidden=!isWeatherPreviewMode;
   if(worldTimeDebugUIReady) return;
   worldTimeDebugUIReady=true;
   document.getElementById('timeBack30')?.addEventListener('click',()=>adjustWorldTimeDebug(-30));
@@ -111,6 +118,7 @@ function formatWorldTime(minutes=worldTime.minutes){
 
 function updateWorldClockUI(){
   setupWorldTimeDebugUI();
+  updateWeatherDebugUI();
   const clock=document.getElementById('worldClock');
   if(!clock) return;
   const mapLabel=`WORLD ${WORLD_DEFINITION.width}×${WORLD_DEFINITION.height}`;

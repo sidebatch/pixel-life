@@ -9,7 +9,10 @@ function showDialog(speaker,text){
 }
 function closeDialog(){
   const wasFishingResult=typeof isFishingResult==='function'&&isFishingResult();
-  dialogOpen=false;document.getElementById('dialog').classList.remove('show');
+  dialogOpen=false;
+  const dialog=document.getElementById('dialog');
+  dialog.classList.remove('show','fishingResult','firstDiscovery');
+  delete dialog.dataset.rarity;
   if(wasFishingResult) finishFishingResult();
 }
 function interact(){
@@ -27,6 +30,7 @@ function interact(){
 }
 function pressB(){
   if(dialogOpen) closeDialog();
+  else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
   else if(menuOpen) toggleMenu(false);
   else if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 }

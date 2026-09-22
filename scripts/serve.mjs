@@ -4,6 +4,7 @@ import path from 'node:path';
 
 const root = process.cwd();
 const port = Number(process.env.PORT || 4173);
+const host = process.env.HOST || '0.0.0.0';
 const mimeTypes = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
@@ -25,6 +26,7 @@ const server = http.createServer((request, response) => {
   fs.createReadStream(filePath).pipe(response);
 });
 
-server.listen(port, '127.0.0.1', () => {
+server.listen(port, host, () => {
   console.log(`Pixel Life is running at http://127.0.0.1:${port}`);
+  if (host !== '127.0.0.1') console.log(`Android on the same Wi-Fi: http://<PC-IP>:${port}/?weather-preview`);
 });

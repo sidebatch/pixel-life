@@ -1,18 +1,15 @@
-// Fishing System v0.1 — the first vertical slice is intentionally simple:
-// every cast succeeds, and the player's choice is only when to reel in.
 const FISHING_CONFIG = Object.freeze({
   castMs: 320,
   minWaitMs: 1000,
   maxWaitMs: 3000,
-  starterFish: Object.freeze({
-    id: 'crucianCarp',
-    name: '붕어',
-    emoji: '🐟',
-    minSizeCm: 12,
-    maxSizeCm: 35,
-    basePrice: 25,
-    xp: 8
-  })
+  maxLevel: 20
+});
+
+const FISHING_HABITAT_BY_REGION=Object.freeze({
+  lilacVillage:FISH_HABITATS.POND,
+  oldForest:FISH_HABITATS.RIVER,
+  riverValley:FISH_HABITATS.RIVER,
+  coast:FISH_HABITATS.COAST
 });
 
 const fishingState = {
@@ -20,8 +17,11 @@ const fishingState = {
   timer: 0,
   biteDelay: 0,
   result: null,
-  spot: null
+  spot: null,
+  context: null
 };
+
+const fishingCatchStreak={fishId:null,count:0};
 
 function isFishingActive(){ return fishingState.phase !== 'idle'; }
 function isFishingResult(){ return fishingState.phase === 'result'; }
@@ -29,6 +29,174 @@ function isFishingResult(){ return fishingState.phase === 'result'; }
 function fishingWaterInFront(){
   const t=facingTile();
   return waterSet.has(key(t.x,t.y));
+}
+
+function getFishingHabitat(regionId=GAME_STATE.regionId){
+  return FISHING_HABITAT_BY_REGION[regionId]||FISH_HABITATS.POND;
+}
+
+function getFishingContext(){
+  return {
+    habitat:getFishingHabitat(),
+    period:getWorldTimePeriod(),
+    weather:getWeatherKind()
+  };
+}
+
+function fishMatchesContext(fish,context){
+  if(fish.habitat!==context.habitat) return false;
+  if(fish.periods&&!fish.periods.includes(context.period)) return false;
+  if(fish.weather&&!fish.weather.includes(context.weather)) return false;
+  return true;
+}
+
+function getEligibleFishPool(context=getFishingContext()){
+  return FISH_DATA.filter(fish=>fishMatchesContext(fish,context));
+}
+
+function getEffectiveFishWeight(fish,streak=fishingCatchStreak){
+  const repeatPenalty=streak.fishId===fish.id&&streak.count>=3 ? .5 : 1;
+  return fish.weight*repeatPenalty;
+}
+
+function chooseWeightedFish(pool,randomValue=Math.random(),streak=fishingCatchStreak){
+  const totalWeight=pool.reduce((sum,fish)=>sum+getEffectiveFishWeight(fish,streak),0);
+  if(totalWeight<=0) return null;
+  let roll=Math.min(Math.max(randomValue,0),1-Number.EPSILON)*totalWeight;
+  for(const fish of pool){
+    roll-=getEffectiveFishWeight(fish,streak);
+    if(roll<0) return fish;
+  }
+  return pool[pool.length-1]||null;
+}
+
+function recordFishingSelection(fishId){
+  if(fishingCatchStreak.fishId===fishId){
+    fishingCatchStreak.count+=1;
+    return;
+  }
+  fishingCatchStreak.fishId=fishId;
+  fishingCatchStreak.count=1;
+}
+
+function fishingXpForNextLevel(level){
+  if(level>=FISHING_CONFIG.maxLevel) return null;
+  return 60+level*12;
+}
+
+function addFishingXp(amount){
+  const gained=Math.max(0,Math.floor(Number(amount)||0));
+  const progress=GAME_STATE.progression.fishing;
+  const previousLevel=progress.level;
+  progress.totalXp+=gained;
+  progress.xp+=gained;
+  while(progress.level<FISHING_CONFIG.maxLevel){
+    const required=fishingXpForNextLevel(progress.level);
+    if(progress.xp<required) break;
+    progress.xp-=required;
+    progress.level+=1;
+  }
+  if(progress.level>=FISHING_CONFIG.maxLevel) progress.xp=0;
+  return {
+    gained,
+    level:progress.level,
+    xp:progress.xp,
+    totalXp:progress.totalXp,
+    nextLevelXp:fishingXpForNextLevel(progress.level),
+    leveledUp:progress.level>previousLevel
+  };
+}
+
+function recordFishDiscovery(fish,sizeCm){
+  const collection=GAME_STATE.collections.fish;
+  let record=collection[fish.id];
+  const isFirst=!record;
+  if(!record){
+    record={
+      fishId:fish.id,
+      name:fish.name,
+      rarity:fish.rarity,
+      count:0,
+      minSizeCm:sizeCm,
+      maxSizeCm:sizeCm,
+      totalSizeCm:0,
+      averageSizeCm:0
+    };
+    collection[fish.id]=record;
+  }
+  record.count+=1;
+  record.minSizeCm=Math.min(record.minSizeCm,sizeCm);
+  record.maxSizeCm=Math.max(record.maxSizeCm,sizeCm);
+  record.totalSizeCm+=sizeCm;
+  record.averageSizeCm=record.totalSizeCm/record.count;
+  return {isFirst,record};
+}
+
+function getDiscoveredFishCount(){
+  return FISH_DATA.reduce((count,fish)=>count+(GAME_STATE.collections.fish[fish.id]?1:0),0);
+}
+
+function fishingProgressSnapshot(gained=0,previousLevel=GAME_STATE.progression.fishing.level){
+  const progress=GAME_STATE.progression.fishing;
+  return {
+    gained,
+    level:progress.level,
+    xp:progress.xp,
+    totalXp:progress.totalXp,
+    nextLevelXp:fishingXpForNextLevel(progress.level),
+    leveledUp:progress.level>previousLevel
+  };
+}
+
+function ensureMasterAnglerRod(){
+  const inventory=GAME_STATE.inventory;
+  if(inventory.some(item=>item.type==='equipment'&&item.id==='rod.master_angler')) return;
+  inventory.push({type:'equipment',id:'rod.master_angler',name:'강태공의 낚싯대',quantity:1});
+}
+
+function applyFishCollectionRewards(){
+  const discovered=getDiscoveredFishCount();
+  const flags=GAME_STATE.progression.flags||(GAME_STATE.progression.flags={});
+  const claimed=flags.fishCollectionRewards||(flags.fishCollectionRewards={});
+  const unlocked=[];
+  const messages=[];
+  let xpGained=0;
+  for(const reward of FISH_COLLECTION_REWARDS){
+    if(discovered<reward.count||claimed[reward.count]) continue;
+    claimed[reward.count]=true;
+    unlocked.push(reward.count);
+    if(reward.kind==='coins'){
+      GAME_STATE.progression.coins+=reward.amount;
+      messages.push(`${reward.count}종 보상 · +${reward.amount}G`);
+    }else if(reward.kind==='fishingXp'){
+      addFishingXp(reward.amount);
+      xpGained+=reward.amount;
+      messages.push(`${reward.count}종 보상 · +${reward.amount} Fishing XP`);
+    }else if(reward.kind==='rareHints'){
+      flags.rareFishHints=true;
+      messages.push(`${reward.count}종 보상 · 희귀어 상세 힌트 해금`);
+    }else if(reward.kind==='finalClue'){
+      flags.finalFishClue=true;
+      messages.push(`${reward.count}종 보상 · 마지막 물고기 단서 해금`);
+    }else if(reward.kind==='masterReward'){
+      flags.masterAnglerTitle=true;
+      flags.masterRod=true;
+      ensureMasterAnglerRod();
+      messages.push(`${reward.count}종 보상 · 강태공 칭호와 특별 낚싯대`);
+    }
+  }
+  if(claimed[15]) flags.rareFishHints=true;
+  if(claimed[19]) flags.finalFishClue=true;
+  if(claimed[20]){
+    flags.masterAnglerTitle=true;
+    flags.masterRod=true;
+    ensureMasterAnglerRod();
+  }
+  if(typeof document!=='undefined'){
+    const coinCount=document.getElementById('coinCount');
+    if(coinCount) coinCount.textContent=Number(GAME_STATE.progression.coins||0).toLocaleString();
+  }
+  return {discovered,unlocked,messages,xpGained};
 }
 
 function startFishing(){
@@ -40,6 +208,7 @@ function startFishing(){
   fishingState.result=null;
   const target=facingTile();
   fishingState.spot={x:target.x,y:target.y};
+  fishingState.context=getFishingContext();
   GAME_STATE.activity.active='fishing';
   inputs.up=inputs.down=inputs.left=inputs.right=false;
   activeDir=null;
@@ -53,28 +222,75 @@ function finishFishing(){
   fishingState.biteDelay=0;
   fishingState.result=null;
   fishingState.spot=null;
+  fishingState.context=null;
   if(GAME_STATE.activity.active==='fishing') GAME_STATE.activity.active=null;
 }
 
 function finishFishingResult(){ finishFishing(); }
 
-function createStarterCatch(){
-  const fish=FISHING_CONFIG.starterFish;
-  const sizeCm=fish.minSizeCm+Math.random()*(fish.maxSizeCm-fish.minSizeCm);
+function calculateFishPrice(fish,sizeCm){
   const ratio=(sizeCm-fish.minSizeCm)/(fish.maxSizeCm-fish.minSizeCm);
-  const price=Math.round(fish.basePrice*(0.8+ratio*0.4));
-  const result={fishId:fish.id,name:fish.name,emoji:fish.emoji,sizeCm,price,xp:fish.xp};
+  const sizeMultiplier=ratio>=.95?1.5:0.8+ratio*0.4;
+  return Math.round(fish.basePrice*sizeMultiplier);
+}
+
+function createFishingCatch(){
+  const pool=getEligibleFishPool(fishingState.context||getFishingContext());
+  const fish=chooseWeightedFish(pool);
+  if(!fish) throw new Error('No eligible fish for the current fishing context');
+  recordFishingSelection(fish.id);
+  const sizeCm=fish.minSizeCm+Math.random()*(fish.maxSizeCm-fish.minSizeCm);
+  const price=calculateFishPrice(fish,sizeCm);
   GAME_STATE.inventory.push({
-    type:'fish', id:fish.id, name:fish.name, sizeCm, price, quantity:1
+    type:'fish',id:fish.id,name:fish.name,rarity:fish.rarity,sizeCm,price,quantity:1
   });
-  return result;
+  const discovery=recordFishDiscovery(fish,sizeCm);
+  const previousLevel=GAME_STATE.progression.fishing.level;
+  addFishingXp(fish.xp);
+  const rewards=applyFishCollectionRewards();
+  const progression=fishingProgressSnapshot(fish.xp+rewards.xpGained,previousLevel);
+  saveGame();
+  return {
+    fishId:fish.id,
+    name:fish.name,
+    emoji:fish.emoji,
+    rarity:fish.rarity,
+    sizeCm,
+    price,
+    xp:fish.xp,
+    firstDiscovery:discovery.isFirst,
+    collection:discovery.record,
+    progression,
+    rewards
+  };
 }
 
 function showFishingResult(){
-  fishingState.result=createStarterCatch();
+  fishingState.result=createFishingCatch();
   fishingState.phase='result';
   const r=fishingState.result;
-  showDialog('낚시 결과',`${r.emoji} ${r.name} · ${r.sizeCm.toFixed(1)}cm\n판매가 ${r.price}G · +${r.xp} Fishing XP`);
+  const fish=FISH_DATA.find(item=>item.id===r.fishId);
+  const discoveryText=r.firstDiscovery?'\n✨ 첫 발견! 도감 기록 완료':'';
+  const levelText=r.progression.leveledUp?`\n🎣 Fishing Lv.${r.progression.level} 달성!`:'';
+  const rewardText=r.rewards.messages.length?`\n🎁 ${r.rewards.messages.join('\n🎁 ')}`:'';
+  const levelProgress=r.progression.nextLevelXp===null?'MAX':`${r.progression.xp}/${r.progression.nextLevelXp} XP`;
+  const resultCopy=`${r.name} · ${r.sizeCm.toFixed(1)}cm\n${FISH_RARITY_LABELS[r.rarity]} · 판매가 ${r.price}G\n+${r.xp} Fishing XP · Lv.${r.progression.level} ${levelProgress}${discoveryText}${rewardText}${levelText}`;
+  showDialog(`낚시 결과 · ${FISH_RARITY_LABELS[r.rarity]}`,resultCopy);
+  const layout=document.createElement('div');
+  layout.className='fishingResultLayout';
+  const image=document.createElement('img');
+  image.className='fishingResultFish';
+  image.src=getFishImageUrl(fish);
+  image.alt='';
+  const copy=document.createElement('div');
+  copy.className='fishingResultCopy';
+  copy.textContent=resultCopy;
+  layout.append(image,copy);
+  document.getElementById('dialogText').replaceChildren(layout);
+  const dialog=document.getElementById('dialog');
+  dialog.classList.add('fishingResult');
+  dialog.classList.toggle('firstDiscovery',r.firstDiscovery);
+  dialog.dataset.rarity=r.rarity;
 }
 
 function updateFishing(dt){

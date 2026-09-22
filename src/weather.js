@@ -4,13 +4,14 @@ const WEATHER_CONFIG=Object.freeze({
 });
 
 const weatherParams=typeof window!=='undefined' ? new URLSearchParams(window.location.search) : null;
-const requestedWeather=weatherParams?.has('debug') ? weatherParams.get('weather') : null;
+const weatherPreviewMode=weatherParams?.has('weather-preview')===true;
+const requestedWeather=(weatherParams?.has('debug')||weatherPreviewMode) ? weatherParams.get('weather') : null;
 const WEATHER_TYPES=new Set(['clear','rain','storm']);
 const initialWeather=WEATHER_TYPES.has(requestedWeather)?requestedWeather:'clear';
 const weatherState={
   kind:initialWeather,
   segment:-1,
-  debugLocked:WEATHER_TYPES.has(requestedWeather),
+  debugLocked:WEATHER_TYPES.has(requestedWeather)||weatherPreviewMode,
   wetSegments:0,
   day:0
 };
@@ -44,13 +45,21 @@ function setWeatherDebug(kind){
   if(!WEATHER_TYPES.has(kind)) return;
   weatherState.kind=kind;
   weatherState.debugLocked=true;
+  updateWeatherDebugUI();
 }
 
 function resumeWeather(){
   weatherState.debugLocked=false;
   weatherState.segment=-1;
   updateWeather();
+  updateWeatherDebugUI();
 }
 
 function getWeatherKind(){ return weatherState.kind; }
 function getWeatherIcon(){ return weatherState.kind==='storm'?'⛈':weatherState.kind==='rain'?'🌧':'☀'; }
+
+function updateWeatherDebugUI(){
+  for(const button of document.querySelectorAll('[data-weather-kind]')){
+    button.classList.toggle('active',button.dataset.weatherKind===weatherState.kind&&weatherState.debugLocked);
+  }
+}

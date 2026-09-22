@@ -44,3 +44,26 @@ const BUILDING_URLS = Object.freeze({
   buildingHome: 'assets/buildings/home_cottage.png',
   buildingWorkshop: 'assets/buildings/carpenter_workshop.png'
 });
+
+const FISH_URLS = Object.freeze({
+  crucian_carp: 'assets/fishing/crucian_carp.png',
+  koi: 'assets/fishing/koi.png',
+  goldfish: 'assets/fishing/goldfish.png',
+  largemouth_bass: 'assets/fishing/largemouth_bass.png',
+  catfish: 'assets/fishing/catfish.png',
+  golden_koi: 'assets/fishing/golden_koi.png',
+  minnow: 'assets/fishing/minnow.png',
+  trout: 'assets/fishing/trout.png',
+  ayu: 'assets/fishing/ayu.png',
+  salmon: 'assets/fishing/salmon.png',
+  snakehead: 'assets/fishing/snakehead.png',
+  rainbow_trout: 'assets/fishing/rainbow_trout.png',
+  masou_salmon: 'assets/fishing/masou_salmon.png',
+  sardine: 'assets/fishing/sardine.png',
+  mackerel: 'assets/fishing/mackerel.png',
+  horse_mackerel: 'assets/fishing/horse_mackerel.png',
+  red_seabream: 'assets/fishing/red_seabream.png',
+  seabass: 'assets/fishing/seabass.png',
+  flounder: 'assets/fishing/flounder.png',
+  coelacanth: 'assets/fishing/coelacanth.png'
+});

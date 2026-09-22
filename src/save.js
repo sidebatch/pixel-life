@@ -1,0 +1,154 @@
+const SAVE_CONFIG=Object.freeze({
+  key:'pixel-life.save',
+  version:1
+});
+
+const SAVE_FISH_BY_ID=new Map(FISH_DATA.map(fish=>[fish.id,fish]));
+const SAVE_EQUIPMENT=Object.freeze({
+  'rod.master_angler':Object.freeze({name:'강태공의 낚싯대'})
+});
+
+function saveFiniteNumber(value,fallback=0){
+  const number=Number(value);
+  return Number.isFinite(number)?number:fallback;
+}
+
+function saveClamp(value,min,max){
+  return Math.max(min,Math.min(max,value));
+}
+
+function normalizeSavedInventory(rawInventory){
+  if(!Array.isArray(rawInventory)) return [];
+  const inventory=[];
+  for(const item of rawInventory){
+    if(!item) continue;
+    if(item.type==='equipment'){
+      const equipment=SAVE_EQUIPMENT[item.id];
+      if(!equipment||inventory.some(saved=>saved.type==='equipment'&&saved.id===item.id)) continue;
+      inventory.push({type:'equipment',id:item.id,name:equipment.name,quantity:1});
+      continue;
+    }
+    if(item.type!=='fish') continue;
+    const fish=SAVE_FISH_BY_ID.get(item.id);
+    if(!fish) continue;
+    inventory.push({
+      type:'fish',
+      id:fish.id,
+      name:fish.name,
+      rarity:fish.rarity,
+      sizeCm:saveClamp(saveFiniteNumber(item.sizeCm,fish.minSizeCm),fish.minSizeCm,fish.maxSizeCm),
+      price:Math.max(0,Math.round(saveFiniteNumber(item.price,fish.basePrice))),
+      quantity:saveClamp(Math.floor(saveFiniteNumber(item.quantity,1)),1,999)
+    });
+  }
+  return inventory;
+}
+
+function normalizeSavedFishCollections(rawCollections){
+  const source=rawCollections&&typeof rawCollections==='object'?rawCollections:{};
+  const collections={};
+  for(const fish of FISH_DATA){
+    const saved=source[fish.id];
+    if(!saved||typeof saved!=='object') continue;
+    const count=Math.max(0,Math.floor(saveFiniteNumber(saved.count,0)));
+    if(count===0) continue;
+    const firstSize=saveClamp(saveFiniteNumber(saved.minSizeCm,fish.minSizeCm),fish.minSizeCm,fish.maxSizeCm);
+    const secondSize=saveClamp(saveFiniteNumber(saved.maxSizeCm,firstSize),fish.minSizeCm,fish.maxSizeCm);
+    const minSizeCm=Math.min(firstSize,secondSize);
+    const maxSizeCm=Math.max(firstSize,secondSize);
+    const fallbackTotal=(minSizeCm+maxSizeCm)*.5*count;
+    const totalSizeCm=saveClamp(
+      saveFiniteNumber(saved.totalSizeCm,fallbackTotal),
+      minSizeCm*count,
+      maxSizeCm*count
+    );
+    collections[fish.id]={
+      fishId:fish.id,
+      name:fish.name,
+      rarity:fish.rarity,
+      count,
+      minSizeCm,
+      maxSizeCm,
+      totalSizeCm,
+      averageSizeCm:totalSizeCm/count
+    };
+  }
+  return collections;
+}
+
+function normalizeSavedFishingProgress(rawProgress){
+  const source=rawProgress&&typeof rawProgress==='object'?rawProgress:{};
+  const level=saveClamp(Math.floor(saveFiniteNumber(source.level,1)),1,20);
+  const nextLevelXp=level<20?60+level*12:null;
+  const xp=nextLevelXp===null?0:saveClamp(Math.floor(saveFiniteNumber(source.xp,0)),0,nextLevelXp-1);
+  const totalXp=Math.max(xp,Math.floor(saveFiniteNumber(source.totalXp,xp)));
+  return {level,xp,totalXp};
+}
+
+function normalizeSavedProgressionFlags(rawFlags){
+  const source=rawFlags&&typeof rawFlags==='object'?rawFlags:{};
+  const sourceRewards=source.fishCollectionRewards&&typeof source.fishCollectionRewards==='object'?
+    source.fishCollectionRewards:{};
+  const fishCollectionRewards={};
+  for(const reward of FISH_COLLECTION_REWARDS){
+    if(sourceRewards[reward.count]===true) fishCollectionRewards[reward.count]=true;
+  }
+  return {
+    fishCollectionRewards,
+    rareFishHints:source.rareFishHints===true||fishCollectionRewards[15]===true,
+    finalFishClue:source.finalFishClue===true||fishCollectionRewards[19]===true,
+    masterAnglerTitle:source.masterAnglerTitle===true||fishCollectionRewards[20]===true,
+    masterRod:source.masterRod===true||fishCollectionRewards[20]===true
+  };
+}
+
+function createSaveData(){
+  return {
+    version:SAVE_CONFIG.version,
+    savedAt:new Date().toISOString(),
+    state:{
+      inventory:GAME_STATE.inventory,
+      collections:{fish:GAME_STATE.collections.fish},
+      progression:{
+        coins:GAME_STATE.progression.coins,
+        flags:GAME_STATE.progression.flags,
+        fishing:GAME_STATE.progression.fishing
+      }
+    }
+  };
+}
+
+function applySaveData(saveData){
+  if(!saveData||saveData.version!==SAVE_CONFIG.version||!saveData.state) return false;
+  const savedState=saveData.state;
+  GAME_STATE.inventory=normalizeSavedInventory(savedState.inventory);
+  GAME_STATE.collections.fish=normalizeSavedFishCollections(savedState.collections?.fish);
+  GAME_STATE.progression.coins=Math.max(0,Math.floor(saveFiniteNumber(savedState.progression?.coins,GAME_STATE.progression.coins)));
+  GAME_STATE.progression.flags=normalizeSavedProgressionFlags(savedState.progression?.flags);
+  GAME_STATE.progression.fishing=normalizeSavedFishingProgress(savedState.progression?.fishing);
+  return true;
+}
+
+function saveGame(){
+  try{
+    localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(createSaveData()));
+    return true;
+  }catch(error){
+    console.warn('Pixel Life save failed.',error);
+    return false;
+  }
+}
+
+function loadGame(){
+  try{
+    const rawSave=localStorage.getItem(SAVE_CONFIG.key);
+    if(!rawSave) return false;
+    return applySaveData(JSON.parse(rawSave));
+  }catch(error){
+    console.warn('Pixel Life save could not be loaded.',error);
+    return false;
+  }
+}
+
+loadGame();
+window.addEventListener('pagehide',saveGame);

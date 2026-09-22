@@ -135,6 +135,8 @@ function refreshContext(){
   const canCancel=typeof isFishingActive==='function'&&isFishingActive()&&
     !(typeof isFishingResult==='function'&&isFishingResult());
   document.getElementById('actionCluster')?.classList.toggle('fishing',canCancel);
+  document.getElementById('topBagBtn')?.classList.toggle('fishingDisabled',canCancel);
+  document.getElementById('settingsBtn')?.classList.toggle('fishingDisabled',canCancel);
   if(cancel) cancel.hidden=!canCancel;
   cancel?.classList.toggle('show',canCancel);
 }

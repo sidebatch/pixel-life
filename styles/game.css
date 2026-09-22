@@ -47,7 +47,8 @@
   .contextChip.show{opacity:1;transform:translateY(0)}
   .fishingCancelBtn{position:absolute;top:-72px;right:0;z-index:3;width:126px;height:58px;border:1px solid rgba(255,255,255,.72);border-radius:22px;background:linear-gradient(180deg,rgba(190,63,75,.96),rgba(116,31,47,.96));box-shadow:0 8px 22px rgba(0,0,0,.34),inset 0 1px 0 rgba(255,255,255,.25);color:#fff;font:900 14px system-ui;white-space:nowrap;opacity:0;transform:translateY(4px);pointer-events:none;transition:.15s ease}
   .fishingCancelBtn[hidden]{display:none}.fishingCancelBtn.show{opacity:1;transform:translateY(0);pointer-events:auto}.fishingCancelBtn:active{transform:scale(.96);filter:brightness(1.12)}
-  .actionCluster.fishing .miniRow{opacity:0;pointer-events:none;transform:translateY(4px)}
+  .actionCluster.fishing .miniRow{opacity:.48;pointer-events:none;filter:saturate(.45) brightness(.82)}
+  .fishingDisabled{opacity:.52!important;pointer-events:none!important;filter:saturate(.4) brightness(.82)}
 
   #dialog{position:absolute;left:50%;bottom:max(20px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 38px);min-height:104px;padding:16px 18px 17px;border-radius:20px;background:rgba(250,248,236,.97);color:#20313a;border:1px solid rgba(255,255,255,.95);box-shadow:0 14px 40px rgba(0,0,0,.36);display:none;pointer-events:auto}
   #dialog.show{display:block}.dialogTop{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px}

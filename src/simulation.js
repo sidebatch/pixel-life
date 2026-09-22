@@ -5,7 +5,7 @@ const player={
   fromX:0,fromY:0,toX:0,toY:0,t:0,moving:false,duration:MOVEMENT_CONFIG.playerStepDuration,face:playerSpawn.face||'down'
 };
 const inputs={up:false,down:false,left:false,right:false};
-let lastDir='down', activeDir=null, dialogOpen=false, menuOpen=false, tNow=0;
+let lastDir='down', activeDir=null, bufferedDir=null, dialogOpen=false, menuOpen=false, tNow=0;
 let camX=0,camY=0;
 
 const dirVec={up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]};
@@ -23,6 +23,10 @@ function preferredDir(){
 function syncActiveDir(){
   activeDir = preferredDir();
 }
+function bufferPlayerDirection(d){
+  if(d && player.moving && !dialogOpen && !menuOpen) bufferedDir=d;
+}
+function clearPlayerInputBuffer(){ bufferedDir=null; }
 function tryMove(d){
   if(!d||dialogOpen||menuOpen||player.moving) return;
   player.face=d;
@@ -103,7 +107,7 @@ function update(dt){
     player.py=player.fromY+(player.toY-player.fromY)*e;
     if(p>=1){
       player.px=player.toX;player.py=player.toY;player.moving=false;
-      const d=preferredDir(); if(d) tryMove(d);
+      const d=preferredDir()||bufferedDir; bufferedDir=null; if(d) tryMove(d);
     }
   }else{
     const d=preferredDir(); if(d) tryMove(d);

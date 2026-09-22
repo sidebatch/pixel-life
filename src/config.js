@@ -3,6 +3,9 @@ const ctx = canvas.getContext('2d');
 ctx.imageSmoothingEnabled = false;
 ctx.webkitImageSmoothingEnabled = false;
 ctx.mozImageSmoothingEnabled = false;
+// Keep the phone's existing pixel-snapped rendering untouched. Desktop
+// pointer/keyboard play benefits from fractional actor positions at 60Hz.
+const DESKTOP_SMOOTH_RENDER = typeof window !== 'undefined' && window.matchMedia?.('(pointer:fine)').matches === true && (navigator.maxTouchPoints||0) === 0;
 
 const PROJECT = Object.freeze({
   name:'Pixel Life',

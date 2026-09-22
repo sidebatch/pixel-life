@@ -27,6 +27,7 @@
 - PASS — standalone HTML build
 - PASS — player step duration centralized at 185ms
 - PASS — player movement uses constant-speed interpolation to avoid a hitch at held-movement tile boundaries
+- PASS — desktop keyboard buffering and subpixel actor rendering are isolated from the mobile path
 
 ## Debug tools
 

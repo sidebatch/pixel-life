@@ -260,15 +260,16 @@ function drawPlayer(){
   const frame=player.moving ? [0,1,2,1][walkCycle] : 1;
   const CELL=96;
   const size=100; // same render cell size as NPCs
-  const dx=Math.round(wx-size/2), dy=Math.round(wy-size+26);
+  const actorX=DESKTOP_SMOOTH_RENDER?wx:Math.round(wx), actorY=DESKTOP_SMOOTH_RENDER?wy:Math.round(wy);
+  const dx=actorX-size/2, dy=actorY-size+26;
 
   ctx.fillStyle='rgba(10,25,26,.22)';
-  ctx.beginPath();ctx.ellipse(Math.round(wx),Math.round(wy+13),18,7,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(actorX,actorY+13,18,7,0,0,Math.PI*2);ctx.fill();
 
   if(playerSheet){
     if(mirrorLeft){
       ctx.save();
-      ctx.translate(Math.round(wx),0);
+      ctx.translate(actorX,0);
       ctx.scale(-1,1);
       ctx.drawImage(playerSheet,frame*CELL,row*CELL,CELL,CELL,-size/2,dy,size,size);
       ctx.restore();
@@ -283,9 +284,9 @@ function drawPlayer(){
   const legacy=playerImgs[`${legacyFace}_${frame===2?2:frame===1?1:0}`] || playerImgs[`${legacyFace}_0`] || playerImgs['down_0'];
   if(legacy){
     const h=71,w=legacy.width*h/legacy.height;
-    const lx=Math.round(wx-w/2), ly=Math.round(wy-h+24);
+    const lx=actorX-w/2, ly=actorY-h+24;
     if(mirrorLeft){
-      ctx.save();ctx.translate(Math.round(wx),0);ctx.scale(-1,1);
+      ctx.save();ctx.translate(actorX,0);ctx.scale(-1,1);
       ctx.drawImage(legacy,-w/2,ly,w,h);ctx.restore();
     }else{
       ctx.drawImage(legacy,lx,ly,w,h);

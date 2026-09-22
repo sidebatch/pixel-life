@@ -28,7 +28,7 @@ function toggleMenu(force){
   if(menuOpen){inputs.up=inputs.down=inputs.left=inputs.right=false;}
 }
 
-function clearMovement(){for(const k of Object.keys(inputs)) inputs[k]=false; activeDir=null;}
+function clearMovement(){for(const k of Object.keys(inputs)) inputs[k]=false; activeDir=null;clearPlayerInputBuffer?.();}
 const joystick=document.getElementById('joystick');
 const stick=document.getElementById('stick');
 let joyPointer=null;
@@ -117,7 +117,7 @@ function refreshContext(){
 const keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
 window.addEventListener('keydown',e=>{
   if(e.code==='F3'&&!e.repeat){e.preventDefault();toggleWorldDebug();return;}
-  if(keyMap[e.code]){e.preventDefault();inputs[keyMap[e.code]]=true;activeDir=keyMap[e.code];lastDir=keyMap[e.code];}
+  if(keyMap[e.code]){e.preventDefault();const d=keyMap[e.code];inputs[d]=true;activeDir=d;lastDir=d;if(!e.repeat) bufferPlayerDirection(d);}
   if((e.code==='Space'||e.code==='KeyZ')&&!e.repeat){e.preventDefault();interact();}
   if((e.code==='KeyX'||e.code==='Escape')&&!e.repeat){e.preventDefault();pressB();}
 });

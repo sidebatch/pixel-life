@@ -28,6 +28,20 @@
           <button class="iconBtn glass" id="settingsBtn" aria-label="설정">⚙</button>
         </div>
       </div>
+      <div id="timeDebugPanel" class="timeDebugPanel" aria-label="시간 디버그 패널">
+        <div class="timeDebugTitle"><span>TIME DEBUG</span><b id="timeDebugValue">10:24</b></div>
+        <div class="timeDebugRow">
+          <button id="timeBack30" type="button">−30분</button>
+          <button id="timeResume" type="button">실시간</button>
+          <button id="timeForward30" type="button">+30분</button>
+        </div>
+        <div class="timeDebugRow timeDebugPresets">
+          <button id="timeDawn" type="button">새벽</button>
+          <button id="timeDay" type="button">낮</button>
+          <button id="timeDusk" type="button">저녁</button>
+          <button id="timeNight" type="button">밤</button>
+        </div>
+      </div>
       <div class="controls">
         <div class="joystick" id="joystick" aria-label="이동 조이스틱">
           <div class="joyMarks"><span class="jm up">▲</span><span class="jm down">▼</span><span class="jm left">◀</span><span class="jm right">▶</span></div>

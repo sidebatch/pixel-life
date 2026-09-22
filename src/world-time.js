@@ -42,6 +42,22 @@ function adjustWorldTimeDebug(deltaMinutes){
 
 function isWorldTimeDebugLocked(){ return worldTime.debugLocked; }
 
+let worldTimeDebugUIReady=false;
+function setupWorldTimeDebugUI(){
+  const panel=document.getElementById('timeDebugPanel');
+  if(!panel) return;
+  panel.classList.toggle('show',worldTimeParams?.has('debug')===true);
+  if(worldTimeDebugUIReady) return;
+  worldTimeDebugUIReady=true;
+  document.getElementById('timeBack30')?.addEventListener('click',()=>adjustWorldTimeDebug(-30));
+  document.getElementById('timeForward30')?.addEventListener('click',()=>adjustWorldTimeDebug(30));
+  document.getElementById('timeResume')?.addEventListener('click',()=>{worldTime.debugLocked=false;});
+  document.getElementById('timeDawn')?.addEventListener('click',()=>setWorldTimeDebug(6*60+30));
+  document.getElementById('timeDay')?.addEventListener('click',()=>setWorldTimeDebug(12*60));
+  document.getElementById('timeDusk')?.addEventListener('click',()=>setWorldTimeDebug(18*60+30));
+  document.getElementById('timeNight')?.addEventListener('click',()=>setWorldTimeDebug(22*60));
+}
+
 function getWorldTimeMinutes(){ return worldTime.minutes; }
 
 function getWorldTimePeriod(minutes=worldTime.minutes){
@@ -59,8 +75,11 @@ function formatWorldTime(minutes=worldTime.minutes){
 }
 
 function updateWorldClockUI(){
+  setupWorldTimeDebugUI();
   const clock=document.getElementById('worldClock');
   if(!clock) return;
   const mapLabel=`WORLD ${WORLD_DEFINITION.width}×${WORLD_DEFINITION.height}`;
   clock.textContent=`☀ ${formatWorldTime()} · ${mapLabel}`;
+  const debugValue=document.getElementById('timeDebugValue');
+  if(debugValue) debugValue.textContent=formatWorldTime();
 }

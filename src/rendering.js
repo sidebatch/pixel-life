@@ -337,6 +337,31 @@ function drawWorldTimeEffects(){
   ctx.restore();
 }
 
+function drawWeatherEffects(){
+  const kind=getWeatherKind();
+  if(kind==='clear') return;
+  const storm=kind==='storm';
+  const count=storm?150:92;
+  ctx.save();
+  if(storm){
+    const flash=Math.pow(Math.max(0,Math.sin(tNow/1700)),36);
+    ctx.fillStyle=`rgba(22,35,72,${(.10+.13*flash).toFixed(3)})`;
+    ctx.fillRect(0,0,VIEW_W,VIEW_H);
+  }
+  ctx.strokeStyle=storm?'rgba(189,218,255,.52)':'rgba(201,235,255,.42)';
+  ctx.lineWidth=storm?1.5:1;
+  ctx.lineCap='round';
+  const speed=storm?1.05:.72;
+  for(let i=0;i<count;i++){
+    const seed=i*83.17+(i%7)*19.3;
+    const x=((seed+tNow*speed)% (VIEW_W+80))-40;
+    const y=((seed*1.73+tNow*(storm?1.8:1.2))%(VIEW_H+100))-50;
+    const length=storm?18:13;
+    ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-5,y+length);ctx.stroke();
+  }
+  ctx.restore();
+}
+
 function drawWorld(){
   ctx.clearRect(0,0,VIEW_W,VIEW_H);
   // Visual terrain is blended independently from the reliable tile movement/collision logic.
@@ -388,6 +413,7 @@ function drawWorld(){
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());
 
   drawWorldTimeEffects();
+  drawWeatherEffects();
   drawWorldDebug();
 
 }

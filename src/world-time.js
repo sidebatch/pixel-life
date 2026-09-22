@@ -87,6 +87,10 @@ function setupWorldTimeDebugUI(){
   document.getElementById('timeDay')?.addEventListener('click',()=>setWorldTimeDebug(12*60));
   document.getElementById('timeDusk')?.addEventListener('click',()=>setWorldTimeDebug(18*60+30));
   document.getElementById('timeNight')?.addEventListener('click',()=>setWorldTimeDebug(22*60));
+  document.getElementById('weatherClear')?.addEventListener('click',()=>setWeatherDebug('clear'));
+  document.getElementById('weatherRain')?.addEventListener('click',()=>setWeatherDebug('rain'));
+  document.getElementById('weatherStorm')?.addEventListener('click',()=>setWeatherDebug('storm'));
+  document.getElementById('weatherAuto')?.addEventListener('click',resumeWeather);
 }
 
 function getWorldTimeMinutes(){ return worldTime.minutes; }
@@ -110,7 +114,7 @@ function updateWorldClockUI(){
   const clock=document.getElementById('worldClock');
   if(!clock) return;
   const mapLabel=`WORLD ${WORLD_DEFINITION.width}×${WORLD_DEFINITION.height}`;
-  clock.textContent=`☀ ${formatWorldTime()} · ${mapLabel}`;
+  clock.textContent=`${getWeatherIcon()} ${formatWorldTime()} · ${mapLabel}`;
   const debugValue=document.getElementById('timeDebugValue');
   if(debugValue) debugValue.textContent=formatWorldTime();
 }

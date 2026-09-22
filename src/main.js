@@ -1,7 +1,7 @@
 let last=performance.now();
 function loop(now){
   tNow=now;const dt=Math.min(40,now-last);last=now;
-  updateWorldTime(dt);updateWorldClockUI();
+  updateWorldTime(dt);updateWeather();updateWorldClockUI();
   update(dt);drawWorld();refreshContext();requestAnimationFrame(loop);
 }
 loadAll().then(()=>{

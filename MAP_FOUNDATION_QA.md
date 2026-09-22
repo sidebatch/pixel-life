@@ -32,6 +32,7 @@
 - PASS — debug URL time override and F3 30-minute time stepping are available for period QA
 - PASS — debug time controls are available as touch/click buttons inside the game screen
 - PASS — time-of-day tint and warm night light glows render from the shared WorldTime value
+- PASS — clear, rain and storm weather effects can be forced from the in-game debug panel
 
 ## Debug tools
 

@@ -5,6 +5,7 @@ const root = process.cwd();
 const scriptFiles = [
   'src/assets.js',
   'src/data/world-map.js',
+  'src/world-time.js',
   'src/config.js',
   'src/world.js',
   'src/world-validation.js',

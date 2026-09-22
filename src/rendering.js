@@ -337,11 +337,40 @@ function drawDecor(img, tileX, tileY, baseW, baseH, scale=1, flip=false, yNudge=
 
 function drawWorldTimeEffects(){
   const visual=getWorldTimeVisuals();
+  const period=getWorldTimePeriod();
   if(visual.alpha>0.002){
     ctx.save();
-    ctx.fillStyle=`rgba(${visual.tint[0]},${visual.tint[1]},${visual.tint[2]},${visual.alpha.toFixed(3)})`;
+    const gradient=ctx.createLinearGradient(0,0,0,VIEW_H);
+    const color=`${visual.tint[0]},${visual.tint[1]},${visual.tint[2]}`;
+    gradient.addColorStop(0,`rgba(${color},${Math.min(.58,visual.alpha*1.22).toFixed(3)})`);
+    gradient.addColorStop(.52,`rgba(${color},${(visual.alpha*.88).toFixed(3)})`);
+    gradient.addColorStop(1,`rgba(${color},${(visual.alpha*.58).toFixed(3)})`);
+    ctx.fillStyle=gradient;
     ctx.fillRect(0,0,VIEW_W,VIEW_H);
     ctx.restore();
+  }
+
+  // Dawn and dusk receive a soft warm horizon instead of a flat color wash.
+  if(period==='DAWN'||period==='DUSK'){
+    ctx.save();
+    const warm=ctx.createLinearGradient(0,VIEW_H*.05,0,VIEW_H*.72);
+    const strength=period==='DUSK'?.15:.10;
+    warm.addColorStop(0,'rgba(255,198,128,0)');
+    warm.addColorStop(.42,`rgba(255,174,94,${strength})`);
+    warm.addColorStop(1,'rgba(255,129,73,0)');
+    ctx.globalCompositeOperation='screen';ctx.fillStyle=warm;ctx.fillRect(0,0,VIEW_W,VIEW_H);
+    ctx.restore();
+  }
+
+  // A gentle vignette gives night depth while keeping the player readable.
+  if(period==='NIGHT'){
+    const px=player.px-camX,py=player.py-camY;
+    const radius=Math.max(VIEW_W,VIEW_H)*.72;
+    const vignette=ctx.createRadialGradient(px,py,70,px,py,radius);
+    vignette.addColorStop(0,'rgba(5,12,35,0)');
+    vignette.addColorStop(.55,'rgba(5,12,35,.035)');
+    vignette.addColorStop(1,'rgba(3,8,28,.22)');
+    ctx.save();ctx.fillStyle=vignette;ctx.fillRect(0,0,VIEW_W,VIEW_H);ctx.restore();
   }
   if(visual.light<=0.01) return;
 
@@ -374,43 +403,54 @@ function drawWeatherEffects(){
   const pulseB=Math.pow(Math.max(0,Math.sin(tNow/1570+2.1)),38);
   const flash=storm?Math.max(pulseA,pulseB):0;
   ctx.fillStyle=storm
-    ? `rgba(18,30,65,${(.13+.16*flash).toFixed(3)})`
-    : 'rgba(95,155,190,.055)';
+    ? `rgba(18,30,65,${(.16+.17*flash).toFixed(3)})`
+    : 'rgba(75,135,172,.075)';
   ctx.fillRect(0,0,VIEW_W,VIEW_H);
 
+  // Moving translucent curtains make precipitation read across the full screen.
+  const curtain=ctx.createLinearGradient(0,0,VIEW_W,VIEW_H);
+  curtain.addColorStop(0,storm?'rgba(120,157,196,.08)':'rgba(155,202,224,.045)');
+  curtain.addColorStop(.45,'rgba(205,232,245,0)');
+  curtain.addColorStop(1,storm?'rgba(85,119,168,.10)':'rgba(118,173,204,.05)');
+  ctx.fillStyle=curtain;ctx.fillRect(0,0,VIEW_W,VIEW_H);
+
+  const wrap=(value,size)=>((value%size)+size)%size;
   const drawRainLayer=(count,speed,length,slope,alpha,width,phase)=>{
     ctx.strokeStyle=storm?'rgba(198,224,255,.72)':'rgba(202,237,255,.58)';
     ctx.lineWidth=width;ctx.lineCap='round';
+    const spanX=VIEW_W+160,spanY=VIEW_H+180;
     for(let i=0;i<count;i++){
-      const seed=i*83.17+(i%11)*19.3+phase;
-      const variation=.72+hash2(i*17+phase,phase+i)*.56;
-      const x=((seed+tNow*speed*variation)%(VIEW_W+100))-50;
-      const y=((seed*1.73+tNow*(speed*1.7)*variation)%(VIEW_H+120))-60;
-      ctx.globalAlpha=alpha*(.72+hash2(i*29+phase,phase)*.45);
+      // Independent X/Y seeds prevent diagonal bands and empty screen regions.
+      const seedX=hash2(i*19.17+phase,phase*7.31+i*.13);
+      const seedY=hash2(i*41.73+phase*2.7,phase*13.11+i*.37);
+      const variation=.76+hash2(i*11.3+phase,phase+i*3.1)*.48;
+      const y=wrap(seedY*spanY+tNow*speed*variation,spanY)-90;
+      const windDrift=tNow*speed*.16-y*(slope/Math.max(1,length));
+      const x=wrap(seedX*spanX+windDrift,spanX)-80;
+      ctx.globalAlpha=alpha*(.7+hash2(i*29+phase,phase*5+i)*.45);
       ctx.beginPath();ctx.moveTo(x,y);ctx.lineTo(x-slope,y+length);ctx.stroke();
     }
   };
 
   if(storm){
-    // A dense short-drop layer plus a sparse foreground layer makes the storm
-    // read as depth and wind instead of a repeated single-line texture.
-    drawRainLayer(260,.76,18,7,.32,1,11);
-    drawRainLayer(125,1.16,38,13,.56,1.6,37);
+    drawRainLayer(360,.86,18,8,.34,1,11);
+    drawRainLayer(150,1.24,42,15,.61,1.7,37);
+    drawRainLayer(70,1.55,58,21,.52,2.1,71);
   }else{
-    drawRainLayer(260,.58,14,4,.27,1,5);
-    drawRainLayer(78,.92,27,7,.34,1.2,23);
+    drawRainLayer(320,.64,15,5,.29,1,5);
+    drawRainLayer(110,.98,30,9,.39,1.3,23);
   }
 
   // Small impact rings add motion to the ground and water without extra assets.
   ctx.strokeStyle=storm?'rgba(208,235,255,.32)':'rgba(210,241,255,.22)';
   ctx.lineWidth=1;
-  const splashCount=storm?34:18;
+  const splashCount=storm?52:28;
   for(let i=0;i<splashCount;i++){
-    const seed=i*147.31+9;
-    const x=((seed+tNow*.12)%(VIEW_W+40))-20;
-    const y=((seed*2.17+tNow*.22)%(VIEW_H+40))-20;
-    const r=2+hash2(i*7,seed)*3;
-    ctx.globalAlpha=.16+hash2(i*13,seed)*.18;
+    const seedX=hash2(i*31.7+9,17+i*.2),seedY=hash2(i*67.1+3,41+i*.4);
+    const x=seedX*VIEW_W,y=seedY*VIEW_H;
+    const life=wrap(tNow*.0018+i*.137,1);
+    const r=1.5+life*4;
+    ctx.globalAlpha=(.24+hash2(i*13,seedX)*.18)*(1-life);
     ctx.beginPath();ctx.ellipse(x,y,r*1.8,r*.65,0,0,Math.PI*2);ctx.stroke();
   }
 

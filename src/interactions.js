@@ -102,7 +102,11 @@ function pulseButton(id,fn){
   b.addEventListener('pointerdown',e=>{e.preventDefault();fn();});
 }
 pulseButton('btnA',interact);
-pulseButton('fishingCancelBtn',()=>{
+const fishingCancelButton=document.getElementById('fishingCancelBtn');
+fishingCancelButton?.addEventListener('click',e=>{
+  // Finish on click (after pointerup). Hiding the button on pointerdown can
+  // retarget the release to the bag/settings buttons underneath on mobile.
+  e.preventDefault();e.stopPropagation();
   if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 });
 document.getElementById('dialogClose').addEventListener('click',closeDialog);

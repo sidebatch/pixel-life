@@ -130,6 +130,8 @@ function refreshContext(){
   const cancel=document.getElementById('fishingCancelBtn');
   const canCancel=typeof isFishingActive==='function'&&isFishingActive()&&
     !(typeof isFishingResult==='function'&&isFishingResult());
+  document.getElementById('actionCluster')?.classList.toggle('fishing',canCancel);
+  if(cancel) cancel.hidden=!canCancel;
   cancel?.classList.toggle('show',canCancel);
 }
 const keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};

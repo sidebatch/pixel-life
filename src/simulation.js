@@ -96,7 +96,9 @@ function update(dt){
   if(player.moving){
     player.t+=dt;
     const p=Math.min(1,player.t/player.duration);
-    const e=1-Math.pow(1-p,3);
+    // Keep player velocity consistent across tile boundaries. Resetting an
+    // ease-out curve every tile makes held movement visibly hitch at each step.
+    const e=p;
     player.px=player.fromX+(player.toX-player.fromX)*e;
     player.py=player.fromY+(player.toY-player.fromY)*e;
     if(p>=1){

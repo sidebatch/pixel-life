@@ -102,6 +102,9 @@ function pulseButton(id,fn){
   b.addEventListener('pointerdown',e=>{e.preventDefault();fn();});
 }
 pulseButton('btnA',interact);
+pulseButton('fishingCancelBtn',()=>{
+  if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
+});
 document.getElementById('dialogClose').addEventListener('click',closeDialog);
 document.getElementById('dialog').addEventListener('pointerdown',e=>{if(e.target.id!=='dialogClose'&&dialogOpen) closeDialog();});
 document.getElementById('bagBtn').addEventListener('click',()=>toggleMenu());
@@ -124,6 +127,10 @@ function contextInfo(){
 function refreshContext(){
   const chip=document.getElementById('contextChip');
   const text=contextInfo();chip.textContent=text||'조사';chip.classList.toggle('show',!!text);
+  const cancel=document.getElementById('fishingCancelBtn');
+  const canCancel=typeof isFishingActive==='function'&&isFishingActive()&&
+    !(typeof isFishingResult==='function'&&isFishingResult());
+  cancel?.classList.toggle('show',canCancel);
 }
 const keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
 window.addEventListener('keydown',e=>{

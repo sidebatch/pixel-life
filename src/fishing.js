@@ -19,7 +19,8 @@ const fishingState = {
   phase: 'idle',
   timer: 0,
   biteDelay: 0,
-  result: null
+  result: null,
+  spot: null
 };
 
 function isFishingActive(){ return fishingState.phase !== 'idle'; }
@@ -37,6 +38,8 @@ function startFishing(){
   fishingState.biteDelay=FISHING_CONFIG.minWaitMs+
     Math.random()*(FISHING_CONFIG.maxWaitMs-FISHING_CONFIG.minWaitMs);
   fishingState.result=null;
+  const target=facingTile();
+  fishingState.spot={x:target.x,y:target.y};
   GAME_STATE.activity.active='fishing';
   inputs.up=inputs.down=inputs.left=inputs.right=false;
   activeDir=null;
@@ -49,6 +52,7 @@ function finishFishing(){
   fishingState.timer=0;
   fishingState.biteDelay=0;
   fishingState.result=null;
+  fishingState.spot=null;
   if(GAME_STATE.activity.active==='fishing') GAME_STATE.activity.active=null;
 }
 

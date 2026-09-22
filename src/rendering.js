@@ -294,6 +294,34 @@ function drawPlayer(){
   }
 }
 
+function drawFishingEffects(){
+  if(typeof isFishingActive!=='function'||!isFishingActive()||!fishingState.spot) return;
+  const spotX=(fishingState.spot.x+.5)*TILE-camX;
+  const spotY=(fishingState.spot.y+.5)*TILE-camY;
+  const playerX=player.px-camX, playerY=player.py-camY-24;
+  if(spotX<-30||spotY<-30||spotX>VIEW_W+30||spotY>VIEW_H+30) return;
+
+  ctx.save();
+  ctx.strokeStyle='rgba(35,39,50,.55)';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(playerX,playerY);ctx.quadraticCurveTo((playerX+spotX)/2,playerY-8,spotX,spotY);ctx.stroke();
+
+  const bite=fishingState.phase==='bite';
+  const bob=Math.sin(tNow/180)*2+(bite?Math.sin(tNow/55)*3:0);
+  ctx.globalAlpha=.25;
+  ctx.strokeStyle='#d7f7ff';ctx.lineWidth=2;
+  ctx.beginPath();ctx.ellipse(spotX,spotY+7,10+(bite?4:0),3,0,0,Math.PI*2);ctx.stroke();
+  ctx.globalAlpha=1;
+  ctx.fillStyle=bite?'#ff695f':'#f8f7e9';
+  ctx.beginPath();ctx.arc(spotX,spotY+bob,6,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle=bite?'#fff':'#ec5c62';
+  ctx.beginPath();ctx.arc(spotX,spotY+bob-3,4,Math.PI,Math.PI*2);ctx.fill();
+  if(bite){
+    ctx.font='900 18px system-ui';ctx.textAlign='center';ctx.fillStyle='#fff3a7';
+    ctx.fillText('!',spotX,spotY-18+Math.sin(tNow/90)*2);
+  }
+  ctx.restore();
+}
+
 
 function drawDecor(img, tileX, tileY, baseW, baseH, scale=1, flip=false, yNudge=0){
   const w=baseW*scale, h=baseH*scale;
@@ -445,6 +473,8 @@ function drawWorld(){
   npcs.forEach(n=>renderables.push({y:n.y*TILE+TILE,draw:()=>drawNPC(n)}));
   renderables.push({y:player.py+20,draw:drawPlayer});
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());
+
+  drawFishingEffects();
 
   drawWorldTimeEffects();
   drawWeatherEffects();

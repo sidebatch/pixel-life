@@ -40,7 +40,7 @@ const TILE=WORLD_DEFINITION.tileSize;
 const MAP_W=WORLD_DEFINITION.width, MAP_H=WORLD_DEFINITION.height;
 const WORLD_W=MAP_W*TILE, WORLD_H=MAP_H*TILE;
 const MOVEMENT_CONFIG=Object.freeze({
-  playerStepDuration:165,
+  playerStepDuration:185,
   npcStepDuration:260
 });
 const VIEW_W=canvas.width, VIEW_H=canvas.height;

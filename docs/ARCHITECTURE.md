@@ -39,7 +39,7 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 플레이어 이동, NPC 로밍, 충돌, 카메라 보간을 담당한다. Activity Module이 이 파일을 직접 크게 수정하지 않도록 한다.
 
-이동 템포는 `src/config.js`의 `MOVEMENT_CONFIG`에서 조절한다. 현재 플레이어 한 타일 이동 시간은 165ms, NPC는 260ms다.
+이동 템포는 `src/config.js`의 `MOVEMENT_CONFIG`에서 조절한다. 현재 플레이어 한 타일 이동 시간은 185ms, NPC는 260ms다.
 
 ### `src/rendering.js`
 

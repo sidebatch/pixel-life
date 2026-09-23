@@ -4,6 +4,7 @@
 
 - 공개 게임: https://sidebatch.github.io/pixel-life/
 - 다음 세션 인수인계: [`docs/HANDOFF.md`](docs/HANDOFF.md)
+- 확정 생활 스킬 성장 설계: [`docs/LIFE_SKILL_PROGRESSION.md`](docs/LIFE_SKILL_PROGRESSION.md)
 - 배포 방법: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 - 최신 종합 QA: [`QA_REPORT.md`](QA_REPORT.md)
 

@@ -27,9 +27,10 @@ const FISH_DESCRIPTIONS=Object.freeze({
   'fish.coelacanth':'폭풍우 치는 밤에만 전설처럼 나타나는 태고의 물고기.'
 });
 
-const fishDexState={open:false,filter:'all',selectedFishId:null};
+const fishDexState={open:false,detailOpen:false,filter:'all',selectedFishId:null};
 
 function isFishDexOpen(){ return fishDexState.open; }
+function isFishDexDetailOpen(){ return fishDexState.detailOpen; }
 
 function getFishDexRecord(fishId){
   return GAME_STATE.collections.fish[fishId]||null;
@@ -102,9 +103,6 @@ function renderFishDexDetail(fish){
 
 function renderFishDex(){
   const list=fishDexList();
-  if(!list.some(fish=>fish.id===fishDexState.selectedFishId)){
-    fishDexState.selectedFishId=(list.find(fish=>getFishDexRecord(fish.id))||list[0])?.id||null;
-  }
   const discovered=FISH_DATA.filter(fish=>getFishDexRecord(fish.id)).length;
   document.getElementById('fishDexProgress').textContent=`${discovered} / ${FISH_DATA.length}`;
   renderFishDexReward(discovered);
@@ -116,8 +114,7 @@ function renderFishDex(){
   const grid=document.getElementById('fishDexGrid');
   grid.innerHTML=list.map(fish=>{
     const found=!!getFishDexRecord(fish.id);
-    const selected=fish.id===fishDexState.selectedFishId;
-    return `<button type="button" class="fishDexCard ${found?'discovered':'undiscovered'} rarity-${fish.rarity}${selected?' selected':''}" data-fish-id="${fish.id}" aria-label="${found?fish.name:'미발견 물고기'}" aria-pressed="${selected}">
+    return `<button type="button" class="fishDexCard ${found?'discovered':'undiscovered'} rarity-${fish.rarity}" data-fish-id="${fish.id}" aria-label="${found?fish.name:'미발견 물고기'}" aria-haspopup="dialog">
       <span class="fishDexCardIcon">${found?`<img src="${getFishImageUrl(fish)}" alt="">`:'?'}</span>
       <b>${found?fish.name:'???'}</b>
       <small>${found?FISH_RARITY_LABELS[fish.rarity]:'미발견'}</small>
@@ -125,15 +122,38 @@ function renderFishDex(){
   }).join('');
   grid.querySelectorAll('[data-fish-id]').forEach(button=>{
     button.addEventListener('click',()=>{
-      fishDexState.selectedFishId=button.dataset.fishId;
-      renderFishDex();
+      openFishDexDetail(button.dataset.fishId);
     });
   });
-  const selected=FISH_DATA.find(fish=>fish.id===fishDexState.selectedFishId);
-  if(selected) renderFishDexDetail(selected);
 }
 
-function openFishDex(){
+function openFishDexDetail(fishId,options={}){
+  const fish=FISH_DATA.find(item=>item.id===fishId);
+  if(!fish||!fishDexState.open) return;
+  fishDexState.selectedFishId=fishId;
+  fishDexState.detailOpen=true;
+  renderFishDexDetail(fish);
+  const modal=document.getElementById('fishDexModal');
+  modal.classList.add('show');
+  modal.setAttribute('aria-hidden','false');
+  document.getElementById('fishDexModalClose').focus();
+  if(!options.fromHistory) pushGameOverlayHistory('fish-detail',fishId);
+}
+
+function closeFishDexDetail(options={}){
+  if(!fishDexState.detailOpen) return;
+  fishDexState.detailOpen=false;
+  const modal=document.getElementById('fishDexModal');
+  modal.classList.remove('show');
+  modal.setAttribute('aria-hidden','true');
+  const card=Array.from(document.querySelectorAll('#fishDexGrid [data-fish-id]')).find(
+    button=>button.dataset.fishId===fishDexState.selectedFishId
+  );
+  card?.focus({preventScroll:true});
+  if(!options.fromHistory) leaveGameOverlayHistory('fish-detail');
+}
+
+function openFishDex(options={}){
   if(typeof isFishingActive==='function'&&isFishingActive()) return;
   toggleMenu(false);
   const rewards=applyFishCollectionRewards();
@@ -145,18 +165,22 @@ function openFishDex(){
   const panel=document.getElementById('fishDexPanel');
   panel.classList.add('show');
   panel.setAttribute('aria-hidden','false');
+  if(!options.fromHistory) pushGameOverlayHistory('fish-dex');
 }
 
-function closeFishDex(){
+function closeFishDex(options={}){
+  if(fishDexState.detailOpen) closeFishDexDetail({fromHistory:true});
   fishDexState.open=false;
   menuOpen=false;
   const panel=document.getElementById('fishDexPanel');
   panel.classList.remove('show');
   panel.setAttribute('aria-hidden','true');
+  if(!options.fromHistory) leaveGameOverlayHistory('fish-dex');
 }
 
 document.getElementById('openFishDexBtn').addEventListener('click',openFishDex);
 document.getElementById('fishDexClose').addEventListener('click',closeFishDex);
+document.getElementById('fishDexModalClose').addEventListener('click',closeFishDexDetail);
 document.querySelectorAll('[data-fish-filter]').forEach(button=>{
   button.addEventListener('click',()=>{
     fishDexState.filter=button.dataset.fishFilter;

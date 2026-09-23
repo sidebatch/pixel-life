@@ -8,9 +8,11 @@ const scriptFiles = [
   'src/data/world-map.js',
   'src/data/fish-data.js',
   'src/data/fishing-gear-data.js',
+  'src/data/life-skill-data.js',
   'src/world-time.js',
   'src/weather.js',
   'src/config.js',
+  'src/life-skills.js',
   'src/save.js',
   'src/world.js',
   'src/world-validation.js',
@@ -20,6 +22,7 @@ const scriptFiles = [
   'src/interactions.js',
   'src/fishing-effects.js',
   'src/fishing.js',
+  'src/skill-ui.js',
   'src/fish-dex.js',
   'src/fishing-gear.js',
   'src/main.js'
@@ -107,7 +110,7 @@ assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/fishing.js')}\n`+
+vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
   `globalThis.__forcedFish=getFishingDebugFish()?.id;`,fishingDebugContext);
 assert(fishingDebugContext.__forcedFish==='fish.coelacanth','Debug fish override failed');
 
@@ -178,7 +181,7 @@ const fishingLogicContext={
   getWeatherKind:()=> 'clear'
 };
 vm.createContext(fishingLogicContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/fishing.js')}\n`+
+vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
   `const pool=getEligibleFishPool();`+
   `const repeatStreak={fishId:'fish.crucian_carp',count:3};`+
   `globalThis.__weightedBounds=[chooseWeightedFish(pool,0).id,chooseWeightedFish(pool,1).id];`+
@@ -237,8 +240,22 @@ assert(fishingLogicContext.__expertRod.id==='rod.expert'&&fishingLogicContext.__
   'Expert fishing rod effects failed');
 assert(fishingLogicContext.__masterRod.id==='rod.master_angler'&&fishingLogicContext.__masterRod.wait===.75&&
   fishingLogicContext.__masterRod.sizeFloor===.15,'Master fishing rod effects failed');
-assert(fishingLogicContext.__maxProgress.level===20&&fishingLogicContext.__maxProgress.xp===0&&
-  fishingLogicContext.__maxProgress.nextLevelXp===null,'Fishing max-level cap failed');
+assert(fishingLogicContext.__maxProgress.level===100&&fishingLogicContext.__maxProgress.nextLevelXp===null&&
+  fishingLogicContext.__maxProgress.mastery>0&&fishingLogicContext.__maxProgress.totalXp>999999,
+  'Fishing level 100 and mastery progression failed');
+vm.runInContext(
+  `globalThis.__level20Edge=lifeSkillProgressFromTotal('fishing',lifeSkillTotalXpForLevel('fishing',21)-1);`+
+  `globalThis.__level21Edge=lifeSkillProgressFromTotal('fishing',lifeSkillTotalXpForLevel('fishing',21));`+
+  `globalThis.__level100Edge=lifeSkillProgressFromTotal('fishing',lifeSkillTotalXpForLevel('fishing',100));`+
+  `globalThis.__masteryEdge=lifeSkillProgressFromTotal('fishing',lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17);`,
+  fishingLogicContext
+);
+assert(fishingLogicContext.__level20Edge.level===20&&fishingLogicContext.__level20Edge.xp===299&&
+  fishingLogicContext.__level21Edge.level===21&&fishingLogicContext.__level21Edge.xp===0,
+  'Level 20 to 21 threshold failed');
+assert(fishingLogicContext.__level100Edge.level===100&&fishingLogicContext.__level100Edge.mastery===0&&
+  fishingLogicContext.__masteryEdge.level===100&&fishingLogicContext.__masteryEdge.mastery===1&&
+  fishingLogicContext.__masteryEdge.masteryXp===17,'Level 100 mastery boundary failed');
 
 const saveStorage=new Map();
 const saveContext={
@@ -255,7 +272,7 @@ const saveContext={
   }
 };
 vm.createContext(saveContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/save.js')}\n`+
+vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/save.js')}\n`+
   `GAME_STATE.inventory.push({type:'fish',id:'fish.crucian_carp',name:'붕어',rarity:'common',sizeCm:22.5,price:26,quantity:1});`+
   `GAME_STATE.collections.fish['fish.crucian_carp']={fishId:'fish.crucian_carp',name:'붕어',rarity:'common',count:2,minSizeCm:20,maxSizeCm:25,totalSizeCm:45,averageSizeCm:22.5};`+
   `GAME_STATE.inventory.push({type:'equipment',id:'rod.master_angler',name:'강태공의 낚싯대',quantity:1});`+
@@ -263,7 +280,9 @@ vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear
   `saveGame();`+
   `GAME_STATE.inventory=[];GAME_STATE.collections.fish={};GAME_STATE.progression.coins=0;GAME_STATE.progression.flags={};GAME_STATE.progression.fishing={level:1,xp:0,totalXp:0};`+
   `globalThis.__loaded=loadGame();globalThis.__restored=JSON.parse(JSON.stringify(GAME_STATE));`+
-  `globalThis.__lockedRod=normalizeSavedFishingProgress({level:2,xp:0,totalXp:0,equippedRodId:'rod.expert'},{},[]);`,saveContext);
+  `globalThis.__lockedRod=normalizeSavedFishingProgress({level:2,xp:0,totalXp:0,equippedRodId:'rod.expert'},{},[]);`+
+  `globalThis.__oldCap=normalizeSavedFishingProgress({level:20,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',20)+900,equippedRodId:'rod.expert'},{},[]);`+
+  `globalThis.__savedMastery=normalizeSavedFishingProgress({level:100,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17,equippedRodId:'rod.expert'},{},[]);`,saveContext);
 assert(saveContext.__loaded,'Versioned save did not load');
 assert(saveContext.__restored.inventory.length===2&&saveContext.__restored.inventory[0].id==='fish.crucian_carp'&&
   saveContext.__restored.inventory[1].id==='rod.master_angler',
@@ -278,6 +297,11 @@ assert(saveContext.__restored.progression.flags.fishCollectionRewards[20]&&
   saveContext.__restored.progression.flags.masterAnglerTitle&&saveContext.__restored.progression.flags.masterRod,
   'Saved fish collection rewards did not restore');
 assert(saveContext.__lockedRod.equippedRodId==='rod.basic','Locked saved fishing rod must fall back to basic');
+assert(saveContext.__oldCap.level>20&&saveContext.__oldCap.totalXp===4320,
+  'Saved fishing XP beyond the old level 20 cap must be restored');
+assert(saveContext.__savedMastery.level===100&&saveContext.__savedMastery.mastery===1&&
+  saveContext.__savedMastery.masteryXp===17&&saveContext.__savedMastery.equippedRodId==='rod.expert',
+  'Level 100 mastery save restoration failed');
 saveStorage.set('pixel-life.save','{not-json');
 vm.runInContext('globalThis.__invalidJsonSave=loadGame();',saveContext);
 assert(saveContext.__invalidJsonSave===false,'Malformed save JSON must fail safely');

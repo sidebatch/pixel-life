@@ -78,19 +78,21 @@ function normalizeSavedFishCollections(rawCollections){
 
 function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
   const source=rawProgress&&typeof rawProgress==='object'?rawProgress:{};
-  const level=saveClamp(Math.floor(saveFiniteNumber(source.level,1)),1,20);
-  const nextLevelXp=level<20?60+level*12:null;
-  const xp=nextLevelXp===null?0:saveClamp(Math.floor(saveFiniteNumber(source.xp,0)),0,nextLevelXp-1);
-  const totalXp=Math.max(xp,Math.floor(saveFiniteNumber(source.totalXp,xp)));
+  const savedLevel=saveClamp(Math.floor(saveFiniteNumber(source.level,1)),1,LIFE_SKILL_MAX_LEVEL);
+  const savedXp=Math.max(0,Math.floor(saveFiniteNumber(source.xp,0)));
+  // Old Lv.20 saves kept earning totalXp even though the visible XP was reset.
+  const minimumTotal=lifeSkillTotalXpForLevel('fishing',savedLevel)+savedXp;
+  const totalXp=Math.max(minimumTotal,Math.floor(saveFiniteNumber(source.totalXp,minimumTotal)));
+  const progress=lifeSkillProgressFromTotal('fishing',totalXp);
   const requestedRod=FISHING_ROD_BY_ID.get(source.equippedRodId);
   const masterUnlocked=flags.masterRod===true||inventory.some(item=>
     item.type==='equipment'&&item.id==='rod.master_angler'
   );
   const rodUnlocked=requestedRod&&(
-    requestedRod.requiresMasterReward?masterUnlocked:level>=(requestedRod.unlockLevel||1)
+    requestedRod.requiresMasterReward?masterUnlocked:progress.level>=(requestedRod.unlockLevel||1)
   );
   const equippedRodId=rodUnlocked?requestedRod.id:DEFAULT_FISHING_ROD_ID;
-  return {level,xp,totalXp,equippedRodId};
+  return {...progress,equippedRodId};
 }
 
 function normalizeSavedProgressionFlags(rawFlags){

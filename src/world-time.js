@@ -121,8 +121,10 @@ function updateWorldClockUI(){
   updateWeatherDebugUI();
   const clock=document.getElementById('worldClock');
   if(!clock) return;
-  const mapLabel=`WORLD ${WORLD_DEFINITION.width}×${WORLD_DEFINITION.height}`;
-  clock.textContent=`${getWeatherIcon()} ${formatWorldTime()} · ${mapLabel}`;
+  const location=document.getElementById('locationName');
+  if(location) location.textContent=WORLD_REGIONS[GAME_STATE.regionId]?.name||'Pixel Life';
+  const weatherLabel={clear:'맑음',rain:'비',storm:'폭풍'}[getWeatherKind()]||'맑음';
+  clock.textContent=`${getWeatherIcon()} ${weatherLabel} · ${formatWorldTime()}`;
   const debugValue=document.getElementById('timeDebugValue');
   if(debugValue) debugValue.textContent=formatWorldTime();
 }

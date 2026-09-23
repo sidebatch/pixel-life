@@ -16,16 +16,15 @@
     <div class="hud">
       <div class="topbar">
         <div class="locationPill glass">
-          <div class="pin">●</div>
+          <div class="pin" aria-hidden="true">🌸</div>
           <div class="locText">
-            <div class="locName">라일락 연못 마을</div>
-            <div class="locMeta" id="worldClock">☀ 10:24 · WORLD 64×48</div>
+            <div class="locName" id="locationName">라일락 연못 마을</div>
+            <div class="locMeta" id="worldClock">☀ 맑음 · 10:24</div>
           </div>
         </div>
         <div class="topRight">
-          <div class="coinPill glass"><span class="coinDot">●</span><span id="coinCount">0</span><button class="plus" aria-label="코인">+</button></div>
-          <button class="iconBtn glass" id="topBagBtn" aria-label="가방">🎒<span class="notice"></span></button>
-          <button class="iconBtn glass" id="settingsBtn" aria-label="설정">⚙</button>
+          <div class="coinPill glass"><span class="coinDot">●</span><span id="coinCount">0</span></div>
+          <button class="iconBtn glass" id="settingsBtn" aria-label="메뉴">☰</button>
         </div>
       </div>
       <div id="timeDebugPanel" class="timeDebugPanel" aria-label="시간 디버그 패널">
@@ -50,6 +49,8 @@
           <button id="weatherAuto" type="button">자동</button>
         </div>
       </div>
+      <div id="skillXPToast" class="skillXPToast" aria-live="polite"></div>
+      <div id="skillLevelUpOverlay" class="skillLevelUpOverlay" aria-live="polite"></div>
       <div class="controls">
         <div class="joystick" id="joystick" aria-label="이동 조이스틱">
           <div class="joyMarks"><span class="jm up">▲</span><span class="jm down">▼</span><span class="jm left">◀</span><span class="jm right">▶</span></div>
@@ -57,8 +58,7 @@
         </div>
         <div class="actionCluster" id="actionCluster">
           <div class="miniRow">
-            <button class="roundMini" id="bagBtn" aria-label="가방">🎒</button>
-            <button class="roundMini" id="menuBtn" aria-label="메뉴">⚙</button>
+            <button class="roundMini" id="menuBtn" aria-label="메뉴">☰</button>
           </div>
           <div class="contextChip" id="contextChip">조사</div>
           <button class="fishingCancelBtn" id="fishingCancelBtn" aria-label="낚시 취소" hidden>× 낚시 취소</button>
@@ -67,7 +67,7 @@
       </div>
       <div id="dialog">
         <div class="dialogTop"><div id="speaker">SYSTEM</div><button class="dialogClose" id="dialogClose">×</button></div>
-        <div id="dialogText"></div><div id="dialogNext">탭하여 닫기</div>
+        <div id="dialogText"></div><button type="button" id="dialogNext">확인</button>
       </div>
       <div id="menuPanel">
         <h2>Pixel Life · World Menu</h2>
@@ -95,7 +95,13 @@
         <div class="fishDexReward" id="fishDexReward" aria-live="polite"></div>
         <div class="fishDexScroll" id="fishDexScroll" role="tabpanel">
           <div class="fishDexGrid" id="fishDexGrid"></div>
-          <section class="fishDexDetail" id="fishDexDetail" aria-live="polite"></section>
+        </div>
+      </div>
+      <div id="fishDexModal" class="fishDexModal" role="dialog" aria-modal="true" aria-label="물고기 정보" aria-hidden="true">
+        <div class="fishDexModalBackdrop"></div>
+        <div class="fishDexModalSheet">
+          <button type="button" id="fishDexModalClose" aria-label="물고기 정보 닫기">×</button>
+          <section class="fishDexDetail" id="fishDexDetail"></section>
         </div>
       </div>
       <div id="fishingGearPanel" class="fishingGearPanel" aria-label="낚시 장비" aria-hidden="true">
@@ -116,9 +122,11 @@
   <script src="src/data/world-map.js"></script>
   <script src="src/data/fish-data.js"></script>
   <script src="src/data/fishing-gear-data.js"></script>
+  <script src="src/data/life-skill-data.js"></script>
   <script src="src/world-time.js"></script>
   <script src="src/weather.js"></script>
   <script src="src/config.js"></script>
+  <script src="src/life-skills.js"></script>
   <script src="src/save.js"></script>
   <script src="src/world.js"></script>
   <script src="src/world-validation.js"></script>
@@ -128,6 +136,7 @@
   <script src="src/interactions.js"></script>
   <script src="src/fishing-effects.js"></script>
   <script src="src/fishing.js"></script>
+  <script src="src/skill-ui.js"></script>
   <script src="src/fish-dex.js"></script>
   <script src="src/fishing-gear.js"></script>
   <script src="src/main.js"></script>

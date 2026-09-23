@@ -31,11 +31,42 @@ function interact(){
 }
 function pressB(){
   if(dialogOpen) closeDialog();
+  else if(typeof isFishDexDetailOpen==='function'&&isFishDexDetailOpen()) closeFishDexDetail();
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
   else if(typeof isFishingGearOpen==='function'&&isFishingGearOpen()) closeFishingGear();
   else if(menuOpen) toggleMenu(false);
   else if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 }
+
+function pushGameOverlayHistory(kind,fishId=null){
+  try{window.history.pushState({...window.history.state,pixelLifeOverlay:kind,fishId},'');}
+  catch(_){}
+}
+
+function leaveGameOverlayHistory(kind){
+  if(window.history.state?.pixelLifeOverlay===kind) window.history.back();
+}
+
+window.addEventListener('popstate',()=>{
+  const layer=window.history.state?.pixelLifeOverlay;
+  if(layer==='fish-detail'){
+    if(!isFishDexOpen()) openFishDex({fromHistory:true});
+    if(!isFishDexDetailOpen()) openFishDexDetail(window.history.state.fishId,{fromHistory:true});
+    return;
+  }
+  if(isFishDexDetailOpen()) closeFishDexDetail({fromHistory:true});
+  if(layer==='fish-dex'){
+    if(!isFishDexOpen()) openFishDex({fromHistory:true});
+    return;
+  }
+  if(isFishDexOpen()) closeFishDex({fromHistory:true});
+  if(layer==='fishing-gear'){
+    if(!isFishingGearOpen()) openFishingGear({fromHistory:true});
+    return;
+  }
+  if(isFishingGearOpen()) closeFishingGear({fromHistory:true});
+  if(menuOpen) toggleMenu(false);
+});
 
 function toggleMenu(force){
   menuOpen = force===undefined ? !menuOpen : force;
@@ -116,9 +147,10 @@ fishingCancelButton?.addEventListener('click',e=>{
   if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 });
 document.getElementById('dialogClose').addEventListener('click',closeDialog);
-document.getElementById('dialog').addEventListener('pointerdown',e=>{if(e.target.id!=='dialogClose'&&dialogOpen) closeDialog();});
-document.getElementById('bagBtn').addEventListener('click',()=>toggleMenu());
-document.getElementById('topBagBtn').addEventListener('click',()=>toggleMenu());
+document.getElementById('dialogNext').addEventListener('click',closeDialog);
+document.getElementById('dialog').addEventListener('pointerdown',e=>{
+  if(e.target.id!=='dialogClose'&&!e.target.closest('#dialogNext')&&dialogOpen&&!e.currentTarget.classList.contains('fishingResult')) closeDialog();
+});
 document.getElementById('menuBtn').addEventListener('click',()=>toggleMenu());
 document.getElementById('settingsBtn').addEventListener('click',()=>toggleMenu());
 document.getElementById('closeMenu').addEventListener('click',()=>toggleMenu(false));
@@ -142,7 +174,7 @@ function refreshContext(){
   const canCancel=fishingActive&&
     !(typeof isFishingResult==='function'&&isFishingResult());
   document.getElementById('actionCluster')?.classList.toggle('fishing',fishingActive);
-  for(const id of ['topBagBtn','settingsBtn','bagBtn','menuBtn']){
+  for(const id of ['settingsBtn','menuBtn']){
     const button=document.getElementById(id);
     if(!button) continue;
     button.disabled=fishingActive;

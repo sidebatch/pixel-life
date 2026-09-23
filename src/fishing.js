@@ -1,8 +1,7 @@
 const FISHING_CONFIG = Object.freeze({
   castMs: 320,
   minWaitMs: 1000,
-  maxWaitMs: 3000,
-  maxLevel: 20
+  maxWaitMs: 3000
 });
 
 const FISHING_HABITAT_BY_REGION=Object.freeze({
@@ -108,31 +107,11 @@ function recordFishingSelection(fishId){
 }
 
 function fishingXpForNextLevel(level){
-  if(level>=FISHING_CONFIG.maxLevel) return null;
-  return 60+level*12;
+  return lifeSkillXpForNextLevel('fishing',level);
 }
 
 function addFishingXp(amount){
-  const gained=Math.max(0,Math.floor(Number(amount)||0));
-  const progress=GAME_STATE.progression.fishing;
-  const previousLevel=progress.level;
-  progress.totalXp+=gained;
-  progress.xp+=gained;
-  while(progress.level<FISHING_CONFIG.maxLevel){
-    const required=fishingXpForNextLevel(progress.level);
-    if(progress.xp<required) break;
-    progress.xp-=required;
-    progress.level+=1;
-  }
-  if(progress.level>=FISHING_CONFIG.maxLevel) progress.xp=0;
-  return {
-    gained,
-    level:progress.level,
-    xp:progress.xp,
-    totalXp:progress.totalXp,
-    nextLevelXp:fishingXpForNextLevel(progress.level),
-    leveledUp:progress.level>previousLevel
-  };
+  return grantLifeSkillXp('fishing',amount);
 }
 
 function recordFishDiscovery(fish,sizeCm){
@@ -164,16 +143,16 @@ function getDiscoveredFishCount(){
   return FISH_DATA.reduce((count,fish)=>count+(GAME_STATE.collections.fish[fish.id]?1:0),0);
 }
 
-function fishingProgressSnapshot(gained=0,previousLevel=GAME_STATE.progression.fishing.level){
-  const progress=GAME_STATE.progression.fishing;
-  return {
-    gained,
-    level:progress.level,
-    xp:progress.xp,
-    totalXp:progress.totalXp,
-    nextLevelXp:fishingXpForNextLevel(progress.level),
-    leveledUp:progress.level>previousLevel
-  };
+function fishingNextGoalText(level=GAME_STATE.progression.fishing.level){
+  const nextRod=FISHING_RODS.find(rod=>!rod.requiresMasterReward&&rod.unlockLevel>level);
+  if(nextRod) return `Lv.${nextRod.unlockLevel} · ${nextRod.name} 사용 가능`;
+  if(getDiscoveredFishCount()<FISH_DATA.length) return '도감 20종 · 강태공의 낚싯대';
+  return level<100?'Lv.100 · 숙련도 시작':'숙련도 올리기';
+}
+
+function fishingNewRodText(previousLevel,currentLevel){
+  const rods=FISHING_RODS.filter(rod=>!rod.requiresMasterReward&&rod.unlockLevel>previousLevel&&rod.unlockLevel<=currentLevel);
+  return rods.length?`${rods.map(rod=>rod.name).join('·')} 사용 가능!`:'';
 }
 
 function ensureMasterAnglerRod(){
@@ -199,18 +178,18 @@ function applyFishCollectionRewards(){
     }else if(reward.kind==='fishingXp'){
       addFishingXp(reward.amount);
       xpGained+=reward.amount;
-      messages.push(`${reward.count}종 보상 · +${reward.amount} Fishing XP`);
+      messages.push(`${reward.count}종 보상 · 낚시 경험치 +${reward.amount} XP`);
     }else if(reward.kind==='rareHints'){
       flags.rareFishHints=true;
-      messages.push(`${reward.count}종 보상 · 희귀어 상세 힌트 해금`);
+      messages.push(`${reward.count}종 보상 · 희귀어 정보가 자세히 보여요`);
     }else if(reward.kind==='finalClue'){
       flags.finalFishClue=true;
-      messages.push(`${reward.count}종 보상 · 마지막 물고기 단서 해금`);
+      messages.push(`${reward.count}종 보상 · 마지막 물고기 단서를 볼 수 있어요`);
     }else if(reward.kind==='masterReward'){
       flags.masterAnglerTitle=true;
       flags.masterRod=true;
       ensureMasterAnglerRod();
-      messages.push(`${reward.count}종 보상 · 강태공 칭호와 특별 낚싯대`);
+      messages.push(`${reward.count}종 보상 · 강태공 칭호와 특별 낚싯대를 받았어요`);
     }
   }
   if(claimed[15]) flags.rareFishHints=true;
@@ -282,10 +261,13 @@ function createFishingCatch(){
     type:'fish',id:fish.id,name:fish.name,rarity:fish.rarity,sizeCm,price,quantity:1
   });
   const discovery=recordFishDiscovery(fish,sizeCm);
-  const previousLevel=GAME_STATE.progression.fishing.level;
+  const progressBefore=lifeSkillProgressSnapshot('fishing');
   addFishingXp(fish.xp);
   const rewards=applyFishCollectionRewards();
-  const progression=fishingProgressSnapshot(fish.xp+rewards.xpGained,previousLevel);
+  const progressAfter=lifeSkillProgressSnapshot('fishing');
+  const progression={...progressAfter,before:progressBefore,after:progressAfter,
+    gained:fish.xp+rewards.xpGained,leveledUp:progressAfter.level>progressBefore.level,
+    masteryGained:progressAfter.mastery-progressBefore.mastery};
   saveGame();
   return {
     fishId:fish.id,
@@ -310,10 +292,8 @@ function showFishingResult(){
   const r=fishingState.result;
   const fish=FISH_DATA.find(item=>item.id===r.fishId);
   const discoveryText=r.firstDiscovery?'\n✨ 첫 발견! 도감 기록 완료':'';
-  const levelText=r.progression.leveledUp?`\n🎣 Fishing Lv.${r.progression.level} 달성!`:'';
   const rewardText=r.rewards.messages.length?`\n🎁 ${r.rewards.messages.join('\n🎁 ')}`:'';
-  const levelProgress=r.progression.nextLevelXp===null?'MAX':`${r.progression.xp}/${r.progression.nextLevelXp} XP`;
-  const resultCopy=`${r.name} · ${r.sizeCm.toFixed(1)}cm\n${FISH_RARITY_LABELS[r.rarity]} · 판매가 ${r.price}G\n+${r.xp} Fishing XP · Lv.${r.progression.level} ${levelProgress}\n🎣 ${r.rodName}${discoveryText}${rewardText}${levelText}`;
+  const resultCopy=`${r.name} · ${r.sizeCm.toFixed(1)}cm\n${FISH_RARITY_LABELS[r.rarity]} · 판매가 ${r.price}G\n🎣 ${r.rodName}${discoveryText}${rewardText}`;
   showDialog(`낚시 결과 · ${FISH_RARITY_LABELS[r.rarity]}`,resultCopy);
   const layout=document.createElement('div');
   layout.className='fishingResultLayout';
@@ -325,12 +305,17 @@ function showFishingResult(){
   copy.className='fishingResultCopy';
   copy.textContent=resultCopy;
   layout.append(image,copy);
-  document.getElementById('dialogText').replaceChildren(layout);
+  const skillCard=document.createElement('div');
+  skillCard.className='fishingResultSkill';
+  skillCard.innerHTML=skillCardMarkup('fishing',r.progression.before,fishingNextGoalText(r.progression.level));
+  document.getElementById('dialogText').replaceChildren(layout,skillCard);
   const dialog=document.getElementById('dialog');
   dialog.classList.add('fishingResult');
   dialog.classList.toggle('firstDiscovery',r.firstDiscovery);
   dialog.dataset.rarity=r.rarity;
   showFishingRarityEffect(dialog,r.rarity);
+  showSkillXpFeedback('fishing',r.progression.before,r.progression.after,r.progression.gained,
+    fishingNewRodText(r.progression.before.level,r.progression.level),fishingNextGoalText(r.progression.level));
 }
 
 function updateFishing(dt){

@@ -73,7 +73,7 @@
         <h2>Pixel Life · World Menu</h2>
         <div class="menuGrid">
           <div class="menuCard"><b>🗺️ 월드</b><span>지역과 발견 장소</span></div>
-          <div class="menuCard"><b>🎒 가방</b><span>공용 인벤토리</span></div>
+          <button class="menuCard" id="openInventoryBtn" type="button"><b>🎒 가방</b><span>물고기와 장비</span></button>
           <button class="menuCard" id="openFishingGearBtn" type="button"><b>🎣 낚시 장비</b><span id="fishingGearMenuStatus">기본 낚싯대 · Lv.1</span></button>
           <button class="menuCard" id="openFishDexBtn" type="button"><b>📖 도감</b><span>발견·수집 기록</span></button>
           <div class="menuCard"><b>🛡️ 디펜스</b><span>지역 이벤트</span></div>
@@ -113,6 +113,18 @@
         <div class="fishingGearList" id="fishingGearList"></div>
         <section class="fishingGearDetail" id="fishingGearDetail" aria-live="polite"></section>
       </div>
+      <div id="inventoryPanel" class="inventoryPanel" role="dialog" aria-modal="true" aria-label="가방" aria-hidden="true">
+        <div class="inventoryHeader">
+          <div><span>BACKPACK</span><h2>가방</h2></div>
+          <button id="inventoryClose" type="button" aria-label="가방 닫기">×</button>
+        </div>
+        <div class="inventoryTabs" role="tablist" aria-label="가방 분류">
+          <button type="button" role="tab" aria-selected="true" aria-controls="inventoryScroll" data-inventory-tab="fish" class="active">🐟 물고기</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="equipment">🎣 장비</button>
+        </div>
+        <div class="inventorySummary" id="inventorySummary"></div>
+        <div class="inventoryScroll" id="inventoryScroll" role="tabpanel" aria-label="가방 내용"></div>
+      </div>
     </div>
     <div class="landscapeHint"><div><div class="phone">↻</div><b>세로 화면으로 돌려주세요</b><p>이번 버전부터 세로형 UI를 기준으로 개발합니다.</p></div></div>
   </div>
@@ -139,6 +151,7 @@
   <script src="src/skill-ui.js"></script>
   <script src="src/fish-dex.js"></script>
   <script src="src/fishing-gear.js"></script>
+  <script src="src/inventory.js"></script>
   <script src="src/main.js"></script>
   <!-- /build:scripts -->
 </body>

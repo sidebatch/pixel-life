@@ -25,6 +25,7 @@ const scriptFiles = [
   'src/skill-ui.js',
   'src/fish-dex.js',
   'src/fishing-gear.js',
+  'src/inventory.js',
   'src/main.js'
 ];
 
@@ -42,8 +43,9 @@ const htmlIds = new Set(htmlIdList);
 assert(htmlIds.size === htmlIdList.length, 'HTML ids must be unique');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 4, 'Fish dex filters must expose four accessible tabs');
+assert((html.match(/role="tab"/g) || []).length === 6, 'Fish dex and inventory tabs must be accessible');
 assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
+assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab panel semantics are missing');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
 assert(assetPaths.length === 54, `Expected 54 runtime asset references, found ${assetPaths.length}`);
@@ -358,6 +360,25 @@ assert(saveContext.__invalidJsonSave===false,'Malformed save JSON must fail safe
 saveStorage.set('pixel-life.save',JSON.stringify({version:999,state:{}}));
 vm.runInContext('globalThis.__futureVersionSave=loadGame();',saveContext);
 assert(saveContext.__futureVersionSave===false,'Unknown save version must not be applied');
+
+const inventoryContext={
+  FISH_DATA:[{id:'fish.crucian_carp',name:'붕어'},{id:'fish.goldfish',name:'금붕어'}],
+  GAME_STATE:{inventory:[]}
+};
+vm.createContext(inventoryContext);
+vm.runInContext(`${read('src/inventory.js')}\n`+
+  `globalThis.__grouped=groupInventoryFish([`+
+  `{type:'fish',id:'fish.crucian_carp',sizeCm:22.5,price:26,quantity:1},`+
+  `{type:'fish',id:'fish.goldfish',sizeCm:11.2,price:80,quantity:1},`+
+  `{type:'fish',id:'fish.crucian_carp',sizeCm:28.1,price:39,quantity:1},`+
+  `{type:'equipment',id:'rod.basic',quantity:1}`+
+  `]);`,inventoryContext);
+assert(inventoryContext.__grouped.length===2&&inventoryContext.__grouped[0].fish.id==='fish.crucian_carp'&&
+  inventoryContext.__grouped[0].count===2&&inventoryContext.__grouped[0].entries[0].sizeCm===28.1&&
+  inventoryContext.__grouped[0].entries[0].price===39&&
+  inventoryContext.__grouped[0].entries[1].sizeCm===22.5&&
+  inventoryContext.__grouped[0].entries[1].price===26,
+  'Inventory must group by species without losing each catch size and price');
 
 const validationScripts = [
   'src/assets.js',

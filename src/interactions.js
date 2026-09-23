@@ -36,6 +36,7 @@ function pressB(){
   else if(typeof isFishDexDetailOpen==='function'&&isFishDexDetailOpen()) closeFishDexDetail();
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
   else if(typeof isFishingGearOpen==='function'&&isFishingGearOpen()) closeFishingGear();
+  else if(typeof isInventoryOpen==='function'&&isInventoryOpen()) closeInventory();
   else if(menuOpen) toggleMenu(false);
   else if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 }
@@ -69,6 +70,11 @@ window.addEventListener('popstate',()=>{
     return;
   }
   if(isFishingGearOpen()) closeFishingGear({fromHistory:true});
+  if(layer==='inventory'){
+    if(!isInventoryOpen()) openInventory({fromHistory:true});
+    return;
+  }
+  if(isInventoryOpen()) closeInventory({fromHistory:true});
   if(menuOpen) toggleMenu(false);
 });
 

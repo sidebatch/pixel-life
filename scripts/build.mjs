@@ -24,6 +24,7 @@ const scriptFiles = [
   'src/skill-ui.js',
   'src/fish-dex.js',
   'src/fishing-gear.js',
+  'src/inventory.js',
   'src/main.js'
 ];
 

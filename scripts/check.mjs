@@ -17,6 +17,7 @@ const scriptFiles = [
   'src/debug.js',
   'src/rendering.js',
   'src/interactions.js',
+  'src/fishing-effects.js',
   'src/fishing.js',
   'src/fish-dex.js',
   'src/main.js'
@@ -60,6 +61,40 @@ assert(fishData.length===20,`Expected 20 fish records, found ${fishData.length}`
 assert(new Set(fishData.map(fish=>fish.id)).size===fishData.length,'Fish ids must be unique');
 assert(new Set(fishData.map(fish=>fish.asset)).size===fishData.length,'Fish asset keys must be unique');
 assert(fishRewards.map(reward=>reward.count).join(',')==='5,10,15,19,20','Unexpected fish collection reward thresholds');
+
+const audioProbe={oscillators:0,starts:0,stops:0};
+class FakeAudioParam{
+  setValueAtTime(){}
+  exponentialRampToValueAtTime(){}
+}
+class FakeAudioContext{
+  constructor(){this.currentTime=0;this.state='running';this.destination={};}
+  createOscillator(){
+    audioProbe.oscillators+=1;
+    return {type:'sine',frequency:new FakeAudioParam(),connect(){},start(){audioProbe.starts+=1;},stop(){audioProbe.stops+=1;}};
+  }
+  createGain(){return {gain:new FakeAudioParam(),connect(){}};}
+}
+const fishingEffectsContext={window:{AudioContext:FakeAudioContext}};
+vm.createContext(fishingEffectsContext);
+vm.runInContext(`${read('src/fishing-effects.js')}\nglobalThis.__rarityEffects=FISHING_RARITY_EFFECTS;`+
+  `globalThis.__legendarySound=playFishingRaritySound('legendary');`,fishingEffectsContext);
+const rarityEffects=fishingEffectsContext.__rarityEffects;
+assert(Object.keys(rarityEffects).join(',')==='rare,heroic,legendary','Unexpected fishing rarity effect tiers');
+assert(rarityEffects.rare.particles<rarityEffects.heroic.particles&&
+  rarityEffects.heroic.particles<rarityEffects.legendary.particles,
+  'Fishing rarity particle intensity must increase by tier');
+assert(Object.values(rarityEffects).every(effect=>effect.tones.length>=3),
+  'Every fishing rarity effect needs a multi-note sound');
+assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
+  audioProbe.starts===11&&audioProbe.stops===11,
+  'Legendary fishing sound scheduling failed');
+
+const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
+vm.createContext(fishingDebugContext);
+vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/fishing.js')}\n`+
+  `globalThis.__forcedFish=getFishingDebugFish()?.id;`,fishingDebugContext);
+assert(fishingDebugContext.__forcedFish==='fish.coelacanth','Debug fish override failed');
 
 const fishAssetContext={};
 vm.createContext(fishAssetContext);

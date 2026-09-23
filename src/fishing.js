@@ -22,6 +22,8 @@ const fishingState = {
 };
 
 const fishingCatchStreak={fishId:null,count:0};
+const fishingDebugParams=typeof window!=='undefined'?new URLSearchParams(window.location.search):null;
+const fishingDebugFishId=fishingDebugParams?.has('debug')?fishingDebugParams.get('fish'):null;
 
 function isFishingActive(){ return fishingState.phase !== 'idle'; }
 function isFishingResult(){ return fishingState.phase === 'result'; }
@@ -52,6 +54,11 @@ function fishMatchesContext(fish,context){
 
 function getEligibleFishPool(context=getFishingContext()){
   return FISH_DATA.filter(fish=>fishMatchesContext(fish,context));
+}
+
+function getFishingDebugFish(){
+  if(!fishingDebugFishId) return null;
+  return FISH_DATA.find(fish=>fish.id===fishingDebugFishId)||null;
 }
 
 function getEffectiveFishWeight(fish,streak=fishingCatchStreak){
@@ -201,7 +208,7 @@ function applyFishCollectionRewards(){
 
 function startFishing(){
   if(menuOpen || isFishingActive() || !fishingWaterInFront()) return false;
-  fishingState.phase='casting';
+  fishingState.phase=fishingDebugFishId?'bite':'casting';
   fishingState.timer=0;
   fishingState.biteDelay=FISHING_CONFIG.minWaitMs+
     Math.random()*(FISHING_CONFIG.maxWaitMs-FISHING_CONFIG.minWaitMs);
@@ -236,7 +243,8 @@ function calculateFishPrice(fish,sizeCm){
 
 function createFishingCatch(){
   const pool=getEligibleFishPool(fishingState.context||getFishingContext());
-  const fish=chooseWeightedFish(pool);
+  const forcedFish=getFishingDebugFish();
+  const fish=forcedFish||chooseWeightedFish(pool);
   if(!fish) throw new Error('No eligible fish for the current fishing context');
   recordFishingSelection(fish.id);
   const sizeCm=fish.minSizeCm+Math.random()*(fish.maxSizeCm-fish.minSizeCm);
@@ -291,6 +299,7 @@ function showFishingResult(){
   dialog.classList.add('fishingResult');
   dialog.classList.toggle('firstDiscovery',r.firstDiscovery);
   dialog.dataset.rarity=r.rarity;
+  showFishingRarityEffect(dialog,r.rarity);
 }
 
 function updateFishing(dt){

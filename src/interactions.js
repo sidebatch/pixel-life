@@ -9,6 +9,7 @@ function showDialog(speaker,text){
 }
 function closeDialog(){
   const wasFishingResult=typeof isFishingResult==='function'&&isFishingResult();
+  if(typeof clearFishingRarityEffect==='function') clearFishingRarityEffect();
   dialogOpen=false;
   const dialog=document.getElementById('dialog');
   dialog.classList.remove('show','fishingResult','firstDiscovery');

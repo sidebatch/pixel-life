@@ -16,6 +16,7 @@ const scriptFiles = [
   'src/debug.js',
   'src/rendering.js',
   'src/interactions.js',
+  'src/fishing-effects.js',
   'src/fishing.js',
   'src/fish-dex.js',
   'src/main.js'

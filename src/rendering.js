@@ -316,8 +316,10 @@ function drawFishingEffects(){
   ctx.fillStyle=bite?'#fff':'#ec5c62';
   ctx.beginPath();ctx.arc(spotX,spotY+bob-3,4,Math.PI,Math.PI*2);ctx.fill();
   if(bite){
-    ctx.font='900 18px system-ui';ctx.textAlign='center';ctx.fillStyle='#fff3a7';
-    ctx.fillText('!',spotX,spotY-18+Math.sin(tNow/90)*2);
+    const markX=spotX+15,markY=spotY-12+Math.sin(tNow/90)*2;
+    ctx.font='900 24px system-ui';ctx.textAlign='center';
+    ctx.strokeStyle='rgba(23,42,47,.9)';ctx.lineWidth=4;ctx.strokeText('!',markX,markY);
+    ctx.fillStyle='#fff3a7';ctx.fillText('!',markX,markY);
   }
   ctx.restore();
 }

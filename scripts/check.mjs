@@ -254,6 +254,10 @@ vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear
   `GAME_STATE.progression.fishing.equippedRodId='rod.master_angler';const masterRod=getEquippedFishingRod();`+
   `globalThis.__masterRod={id:masterRod.id,wait:getFishingRodWaitMultiplier(masterRod),sizeFloor:applyFishingRodSizeBonus(0,masterRod)};`+
   `globalThis.__maxProgress=addFishingXp(999999);`,fishingLogicContext);
+const fishingContextLabels=vm.runInContext(
+  `['casting','waiting','bite','result'].map(phase=>{fishingState.phase=phase;return getFishingContextText();}).join('|')`,
+  fishingLogicContext);
+assert(fishingContextLabels==='|||🎣 낚시 결과','Fishing should use sound and the bobber marker instead of phase text');
 assert(fishingLogicContext.__weightedBounds[0]==='fish.crucian_carp','Weighted selection lower bound failed');
 assert(fishingLogicContext.__weightedBounds[1]==='fish.largemouth_bass','Weighted selection upper bound failed');
 assert(fishingLogicContext.__repeatPenalty[0]===17.5,'Three-catch repeat weight was not halved');

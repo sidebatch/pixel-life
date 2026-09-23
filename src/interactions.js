@@ -161,8 +161,8 @@ document.getElementById('closeMenu').addEventListener('click',()=>toggleMenu(fal
 document.getElementById('coinCount').textContent=Number(GAME_STATE.progression.coins||0).toLocaleString();
 
 function contextInfo(){
-  const fishingText=typeof getFishingContextText==='function'?getFishingContextText():'';
-  if(fishingText) return fishingText;
+  if(typeof isFishingActive==='function'&&isFishingActive())
+    return typeof getFishingContextText==='function'?getFishingContextText():'';
   const t=facingTile(),k=key(t.x,t.y);
   if(npcs.some(n=>n.x===t.x&&n.y===t.y)) return '대화';
   if(t.x===sign.x&&t.y===sign.y) return '표지판';
@@ -172,7 +172,7 @@ function contextInfo(){
 }
 function refreshContext(){
   const chip=document.getElementById('contextChip');
-  const text=contextInfo();chip.textContent=text||'조사';chip.classList.toggle('show',!!text);
+  const text=contextInfo();chip.textContent=text;chip.classList.toggle('show',!!text);
   const cancel=document.getElementById('fishingCancelBtn');
   const fishingActive=typeof isFishingActive==='function'&&isFishingActive();
   const canCancel=fishingActive&&

@@ -341,9 +341,6 @@ function handleFishingAction(){
 }
 
 function getFishingContextText(){
-  if(fishingState.phase==='casting') return '🎣 찌를 던지는 중';
-  if(fishingState.phase==='waiting') return '🎣 입질을 기다리는 중';
-  if(fishingState.phase==='bite') return '❗ 입질! 버튼을 눌러주세요';
   if(fishingState.phase==='result') return '🎣 낚시 결과';
   return '';
 }

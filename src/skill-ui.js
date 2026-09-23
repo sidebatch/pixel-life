@@ -76,26 +76,6 @@ function showSkillLevelUp(skillId,level,mastery,currentReward){
   playSkillLevelUpSound();
 }
 
-let skillLevelAudioContext=null;
-function playSkillLevelUpSound(){
-  const AudioContextClass=window.AudioContext||window.webkitAudioContext;
-  if(!AudioContextClass) return;
-  try{
-    skillLevelAudioContext ||= new AudioContextClass();
-    const now=skillLevelAudioContext.currentTime;
-    [523.25,659.25,783.99].forEach((frequency,index)=>{
-      const oscillator=skillLevelAudioContext.createOscillator();
-      const gain=skillLevelAudioContext.createGain();
-      oscillator.type='sine';oscillator.frequency.value=frequency;
-      gain.gain.setValueAtTime(.0001,now+index*.11);
-      gain.gain.exponentialRampToValueAtTime(.025,now+index*.11+.025);
-      gain.gain.exponentialRampToValueAtTime(.0001,now+index*.11+.27);
-      oscillator.connect(gain);gain.connect(skillLevelAudioContext.destination);
-      oscillator.start(now+index*.11);oscillator.stop(now+index*.11+.3);
-    });
-  }catch(_){}
-}
-
 function skillFeedbackPause(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 
 async function showSkillXpFeedback(skillId,before,after,gained,currentReward=''){

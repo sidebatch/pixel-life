@@ -58,7 +58,10 @@ for (const npc of ['mina', 'thomas', 'elli', 'noah', 'hana', 'jun']) {
 assert(!read('src/assets.js').includes('base64,'), 'Development asset map must not contain embedded images');
 const fishingAudioPaths=[...read('src/fishing-effects.js').matchAll(/['"](assets\/fishing\/audio\/[a-z]+\.mp3)['"]/g)].map(match=>match[1]);
 assert(fishingAudioPaths.length===3&&new Set(fishingAudioPaths).size===3,'Expected three distinct fishing audio clips');
-for(const assetPath of fishingAudioPaths){
+const levelUpAudioPath='assets/audio/level-up.mp3';
+assert(read('src/fishing-effects.js').includes(`'${levelUpAudioPath}'`),'Missing level-up audio mapping');
+const gameAudioPaths=[...fishingAudioPaths,levelUpAudioPath];
+for(const assetPath of gameAudioPaths){
   const bytes=fs.readFileSync(path.join(root,assetPath));
   assert(bytes.length>1000&&bytes[0]===0xff&&(bytes[1]&0xe0)===0xe0,`Invalid MP3 asset: ${assetPath}`);
 }
@@ -108,7 +111,7 @@ class FakeAudio{
 const fishingEffectsContext={window:{AudioContext:FakeAudioContext},Audio:FakeAudio};
 vm.createContext(fishingEffectsContext);
 vm.runInContext(`${read('src/fishing-effects.js')}\nglobalThis.__rarityEffects=FISHING_RARITY_EFFECTS;`+
-  `globalThis.__soundUrls=FISHING_SOUND_URLS;globalThis.__legendarySound=playFishingRaritySound('legendary');`,fishingEffectsContext);
+  `globalThis.__soundUrls=GAME_SOUND_URLS;globalThis.__legendarySound=playFishingRaritySound('legendary');`,fishingEffectsContext);
 const rarityEffects=fishingEffectsContext.__rarityEffects;
 assert(Object.keys(rarityEffects).join(',')==='rare,heroic,legendary','Unexpected fishing rarity effect tiers');
 assert(rarityEffects.rare.particles<rarityEffects.heroic.particles&&
@@ -119,11 +122,11 @@ assert(Object.values(rarityEffects).every(effect=>effect.tones.length>=3),
 assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
   audioProbe.starts===11&&audioProbe.stops===11,
   'Legendary fishing sound scheduling failed');
-vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__biteSound=playFishingBiteSound();globalThis.__catchSound=playFishingCatchSound();`,fishingEffectsContext);
-assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fishingEffectsContext.__catchSound&&
-  audioProbe.players.length===3&&audioProbe.players.every(player=>player.loaded&&player.plays===1&&player.currentTime===0)&&
-  audioProbe.players.map(player=>player.src).join(',')===fishingAudioPaths.join(','),
-  'Cast, bite and catch MP3 fallback mapping failed');
+vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__biteSound=playFishingBiteSound();globalThis.__catchSound=playFishingCatchSound();globalThis.__levelUpSound=playSkillLevelUpSound();`,fishingEffectsContext);
+assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fishingEffectsContext.__catchSound&&fishingEffectsContext.__levelUpSound&&
+  audioProbe.players.length===4&&audioProbe.players.every(player=>player.loaded&&player.plays===1&&player.currentTime===0)&&
+  audioProbe.players.map(player=>player.src).join(',')===gameAudioPaths.join(','),
+  'Cast, bite, catch and level-up MP3 fallback mapping failed');
 
 const bufferedProbe={loaded:[],started:[],stopped:0,resumed:0};
 class FakeBufferedAudioContext extends FakeAudioContext{
@@ -142,12 +145,14 @@ const bufferedContext={window:{AudioContext:FakeBufferedAudioContext},Audio:Fake
   }};
 vm.createContext(bufferedContext);
 vm.runInContext(read('src/fishing-effects.js'),bufferedContext);
-await vm.runInContext('fishingSoundLoadPromise',bufferedContext);
-vm.runInContext('playFishingCastSound();playFishingBiteSound();playFishingCatchSound();stopFishingSound("catch");',bufferedContext);
-assert(bufferedProbe.loaded.join(',')===fishingAudioPaths.join(',')&&bufferedProbe.started.length===3&&
-  bufferedProbe.started.every(buffer=>buffer.byteLength===3)&&bufferedProbe.stopped===3&&
-  bufferedProbe.resumed===1&&audioProbe.players.slice(3).every(player=>player.plays===0),
-  'Predecoded fishing sound playback and interruption failed');
+await vm.runInContext('gameSoundLoadPromise',bufferedContext);
+vm.runInContext('playFishingCastSound();playFishingBiteSound();playFishingCatchSound();playSkillLevelUpSound();',bufferedContext);
+assert(bufferedProbe.stopped===2,'Level-up sound must not interrupt the catch sound');
+vm.runInContext('stopFishingSound("catch");stopGameSound("levelUp");',bufferedContext);
+assert(bufferedProbe.loaded.join(',')===gameAudioPaths.join(',')&&bufferedProbe.started.length===4&&
+  bufferedProbe.started.every(buffer=>buffer.byteLength===3)&&bufferedProbe.stopped===4&&
+  bufferedProbe.resumed===1&&audioProbe.players.slice(4).every(player=>player.plays===0),
+  'Predecoded game sound playback and interruption failed');
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);

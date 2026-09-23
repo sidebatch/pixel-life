@@ -52,8 +52,8 @@ html = html.replace(
 if (html.includes('<script src=') || html.includes('<link rel="stylesheet"') || /['"]assets\//.test(html)) {
   throw new Error('Standalone build still contains external runtime dependencies');
 }
-if((html.match(/data:audio\/mpeg;base64,/g)||[]).length!==3){
-  throw new Error('Standalone build must inline all three fishing sounds');
+if((html.match(/data:audio\/mpeg;base64,/g)||[]).length!==4){
+  throw new Error('Standalone build must inline all four game sounds');
 }
 
 const outputDirectory = path.join(root, 'dist');

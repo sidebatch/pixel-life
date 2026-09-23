@@ -4,97 +4,98 @@ const FISHING_RARITY_EFFECTS=Object.freeze({
   legendary:Object.freeze({label:'LEGENDARY CATCH',particles:30,distance:154,tones:[392,523.25,659.25,783.99,1046.5]})
 });
 
-let fishingAudioContext=null;
+let gameAudioContext=null;
 let fishingRarityEffectTimer=null;
-const FISHING_SOUND_URLS=Object.freeze({
+const GAME_SOUND_URLS=Object.freeze({
   cast:'assets/fishing/audio/cast.mp3',
   bite:'assets/fishing/audio/bite.mp3',
-  catch:'assets/fishing/audio/catch.mp3'
+  catch:'assets/fishing/audio/catch.mp3',
+  levelUp:'assets/audio/level-up.mp3'
 });
-const fishingSoundPlayers=new Map();
-const fishingSoundBuffers=new Map();
-const fishingSoundSources=new Map();
+const gameSoundPlayers=new Map();
+const gameSoundBuffers=new Map();
+const gameSoundSources=new Map();
 
-function getFishingAudioContext(){
+function getGameAudioContext(){
   const AudioContextClass=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
   if(!AudioContextClass) return null;
   try{
-    fishingAudioContext ||= new AudioContextClass({latencyHint:'interactive'});
-    return fishingAudioContext;
+    gameAudioContext ||= new AudioContextClass({latencyHint:'interactive'});
+    return gameAudioContext;
   }catch(_){return null;}
 }
 
-async function preloadFishingSound(kind,context){
+async function preloadGameSound(kind,context){
   try{
-    const response=await fetch(FISHING_SOUND_URLS[kind]);
+    const response=await fetch(GAME_SOUND_URLS[kind]);
     if(!response.ok) return;
-    fishingSoundBuffers.set(kind,await context.decodeAudioData(await response.arrayBuffer()));
+    gameSoundBuffers.set(kind,await context.decodeAudioData(await response.arrayBuffer()));
   }catch(_){/* The HTMLAudioElement fallback remains available. */}
 }
 
-const fishingSoundContext=getFishingAudioContext();
-const fishingSoundLoadPromise=fishingSoundContext&&typeof fetch==='function'
-  ?Promise.all(Object.keys(FISHING_SOUND_URLS).map(kind=>preloadFishingSound(kind,fishingSoundContext)))
+const gameSoundContext=getGameAudioContext();
+const gameSoundLoadPromise=gameSoundContext&&typeof fetch==='function'
+  ?Promise.all(Object.keys(GAME_SOUND_URLS).map(kind=>preloadGameSound(kind,gameSoundContext)))
   :Promise.resolve();
 
-function resumeFishingAudio(){
-  const context=getFishingAudioContext();
+function resumeGameAudio(){
+  const context=getGameAudioContext();
   if(context?.state==='suspended') context.resume().catch(()=>{});
 }
 
 if(typeof document!=='undefined'){
-  document.addEventListener('pointerdown',resumeFishingAudio,{once:true});
-  document.addEventListener('keydown',resumeFishingAudio,{once:true});
+  document.addEventListener('pointerdown',resumeGameAudio,{once:true});
+  document.addEventListener('keydown',resumeGameAudio,{once:true});
 }
 
-function getFishingSoundPlayer(kind){
-  if(!FISHING_SOUND_URLS[kind]||typeof Audio==='undefined') return null;
-  if(!fishingSoundPlayers.has(kind)){
+function getGameSoundPlayer(kind){
+  if(!GAME_SOUND_URLS[kind]||typeof Audio==='undefined') return null;
+  if(!gameSoundPlayers.has(kind)){
     try{
-      const player=new Audio(FISHING_SOUND_URLS[kind]);
+      const player=new Audio(GAME_SOUND_URLS[kind]);
       player.preload='auto';
       player.load();
-      fishingSoundPlayers.set(kind,player);
+      gameSoundPlayers.set(kind,player);
     }catch(_){return null;}
   }
-  return fishingSoundPlayers.get(kind);
+  return gameSoundPlayers.get(kind);
 }
 
-function stopFishingSound(kind){
-  const source=fishingSoundSources.get(kind);
+function stopGameSound(kind){
+  const source=gameSoundSources.get(kind);
   if(source){
     try{source.stop();}catch(_){}
-    fishingSoundSources.delete(kind);
+    gameSoundSources.delete(kind);
   }
-  fishingSoundPlayers.get(kind)?.pause();
+  gameSoundPlayers.get(kind)?.pause();
 }
 
-function playFishingSample(kind){
+function playGameSample(kind){
   try{
     if(kind==='cast'){
-      stopFishingSound('bite');
-      stopFishingSound('catch');
-    }else if(kind==='bite') stopFishingSound('cast');
+      stopGameSound('bite');
+      stopGameSound('catch');
+    }else if(kind==='bite') stopGameSound('cast');
     else if(kind==='catch'){
-      stopFishingSound('cast');
-      stopFishingSound('bite');
+      stopGameSound('cast');
+      stopGameSound('bite');
     }
-    stopFishingSound(kind);
-    const context=getFishingAudioContext();
-    const buffer=fishingSoundBuffers.get(kind);
+    stopGameSound(kind);
+    const context=getGameAudioContext();
+    const buffer=gameSoundBuffers.get(kind);
     if(context&&buffer){
       const source=context.createBufferSource();
       source.buffer=buffer;
       source.connect(context.destination);
       source.onended=()=>{
-        if(fishingSoundSources.get(kind)===source) fishingSoundSources.delete(kind);
+        if(gameSoundSources.get(kind)===source) gameSoundSources.delete(kind);
       };
-      fishingSoundSources.set(kind,source);
+      gameSoundSources.set(kind,source);
       source.start();
-      resumeFishingAudio();
+      resumeGameAudio();
       return true;
     }
-    const player=getFishingSoundPlayer(kind);
+    const player=getGameSoundPlayer(kind);
     if(!player) return false;
     player.pause();
     player.currentTime=0;
@@ -105,11 +106,13 @@ function playFishingSample(kind){
   }
 }
 
-function playFishingCastSound(){return playFishingSample('cast');}
-function playFishingBiteSound(){return playFishingSample('bite');}
-function playFishingCatchSound(){return playFishingSample('catch');}
+function stopFishingSound(kind){stopGameSound(kind);}
+function playFishingCastSound(){return playGameSample('cast');}
+function playFishingBiteSound(){return playGameSample('bite');}
+function playFishingCatchSound(){return playGameSample('catch');}
+function playSkillLevelUpSound(){return playGameSample('levelUp');}
 
-for(const kind of Object.keys(FISHING_SOUND_URLS)) getFishingSoundPlayer(kind);
+for(const kind of Object.keys(GAME_SOUND_URLS)) getGameSoundPlayer(kind);
 
 function clearFishingRarityEffect(dialog=document.getElementById('dialog')){
   if(fishingRarityEffectTimer!==null){
@@ -166,7 +169,7 @@ function scheduleFishingTone(context,frequency,start,duration,type,volume){
 
 function playFishingAudio(play){
   try{
-    const context=getFishingAudioContext();
+    const context=getGameAudioContext();
     if(!context) return false;
     if(context.state==='suspended') context.resume().then(()=>play(context)).catch(()=>{});
     else play(context);

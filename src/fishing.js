@@ -287,7 +287,7 @@ function showFishingResult(){
   const discoveryText=r.firstDiscovery?'\n✨ 첫 발견! 도감 기록 완료':'';
   const rewardText=r.rewards.messages.length?`\n🎁 ${r.rewards.messages.join('\n🎁 ')}`:'';
   const resultCopy=`${r.sizeCm.toFixed(1)}cm · 판매가 ${r.price}G${discoveryText}${rewardText}`;
-  showDialog(`${r.name} (${FISH_RARITY_LABELS[r.rarity]})`,resultCopy);
+  showDialog(r.name,resultCopy);
   const layout=document.createElement('div');
   layout.className='fishingResultLayout';
   const image=document.createElement('img');

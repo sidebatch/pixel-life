@@ -80,7 +80,7 @@ assert(fishingRods.every((rod,index)=>index===0||rod.waitReduction>=fishingRods[
 assert(fishingRods.at(-1).requiresMasterReward&&fishingRods.at(-1).rareWeightBonus===.35,
   'Master angler rod configuration failed');
 
-const audioProbe={oscillators:0,starts:0,stops:0,splashes:0};
+const audioProbe={oscillators:0,starts:0,stops:0,noises:0,filters:[]};
 class FakeAudioParam{
   setValueAtTime(){}
   exponentialRampToValueAtTime(){}
@@ -93,8 +93,8 @@ class FakeAudioContext{
   }
   createGain(){return {gain:new FakeAudioParam(),connect(){}};}
   createBuffer(_channels,length){return {getChannelData(){return new Float32Array(length);}};}
-  createBufferSource(){return {connect(){},start(){audioProbe.splashes+=1;},stop(){}};}
-  createBiquadFilter(){return {type:'lowpass',frequency:new FakeAudioParam(),connect(){}};}
+  createBufferSource(){return {connect(){},start(){audioProbe.noises+=1;},stop(){}};}
+  createBiquadFilter(){const filter={type:'lowpass',frequency:new FakeAudioParam(),connect(){}};audioProbe.filters.push(filter);return filter;}
 }
 const fishingEffectsContext={window:{AudioContext:FakeAudioContext}};
 vm.createContext(fishingEffectsContext);
@@ -110,10 +110,13 @@ assert(Object.values(rarityEffects).every(effect=>effect.tones.length>=3),
 assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
   audioProbe.starts===11&&audioProbe.stops===11,
   'Legendary fishing sound scheduling failed');
-vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__catchSound=playFishingCatchSound();`,fishingEffectsContext);
-assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__catchSound&&
-  audioProbe.splashes===2&&audioProbe.oscillators===15&&audioProbe.starts===15&&audioProbe.stops===15,
-  'Cast splash and catch sound scheduling failed');
+vm.runInContext(`globalThis.__castSound=playFishingCastSound();`,fishingEffectsContext);
+assert(fishingEffectsContext.__castSound&&audioProbe.noises===3&&audioProbe.oscillators===13&&
+  audioProbe.filters[0].type==='highpass','Cast line swish and splash scheduling failed');
+vm.runInContext(`globalThis.__catchSound=playFishingCatchSound();`,fishingEffectsContext);
+assert(fishingEffectsContext.__catchSound&&audioProbe.noises===6&&audioProbe.oscillators===16&&
+  audioProbe.starts===16&&audioProbe.stops===16&&audioProbe.filters[3].type==='bandpass',
+  'Catch reel pull and water slap scheduling failed');
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);

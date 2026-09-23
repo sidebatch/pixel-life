@@ -60,10 +60,10 @@ function scheduleFishingTone(context,frequency,start,duration,type,volume){
   oscillator.start(start);oscillator.stop(start+duration+.03);
 }
 
-function scheduleFishingSweep(context,from,to,start,duration,volume){
+function scheduleFishingSweep(context,from,to,start,duration,volume,type='sine'){
   const oscillator=context.createOscillator();
   const gain=context.createGain();
-  oscillator.type='sine';
+  oscillator.type=type;
   oscillator.frequency.setValueAtTime(from,start);
   oscillator.frequency.exponentialRampToValueAtTime(to,start+duration);
   gain.gain.setValueAtTime(.0001,start);
@@ -73,11 +73,11 @@ function scheduleFishingSweep(context,from,to,start,duration,volume){
   oscillator.start(start);oscillator.stop(start+duration+.02);
 }
 
-function scheduleFishingSplash(context,start,duration,volume){
+function scheduleFishingNoise(context,start,duration,volume,fromFrequency,toFrequency,filterType='lowpass'){
   const sampleCount=Math.ceil(context.sampleRate*duration);
   const buffer=context.createBuffer(1,sampleCount,context.sampleRate);
   const samples=buffer.getChannelData(0);
-  let seed=17391;
+  let seed=(Math.floor(start*1000000)+17391)>>>0;
   for(let index=0;index<sampleCount;index++){
     seed=(seed*1664525+1013904223)>>>0;
     samples[index]=(seed/2147483648-1);
@@ -86,9 +86,11 @@ function scheduleFishingSplash(context,start,duration,volume){
   const filter=context.createBiquadFilter();
   const gain=context.createGain();
   source.buffer=buffer;
-  filter.type='lowpass';filter.frequency.setValueAtTime(1800,start);
+  filter.type=filterType;
+  filter.frequency.setValueAtTime(fromFrequency,start);
+  filter.frequency.exponentialRampToValueAtTime(toFrequency,start+duration);
   gain.gain.setValueAtTime(.0001,start);
-  gain.gain.exponentialRampToValueAtTime(volume,start+.018);
+  gain.gain.exponentialRampToValueAtTime(volume,start+.012);
   gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
   source.connect(filter);filter.connect(gain);gain.connect(context.destination);
   source.start(start);source.stop(start+duration+.02);
@@ -110,18 +112,25 @@ function playFishingAudio(play){
 function playFishingCastSound(){
   return playFishingAudio(context=>{
     const now=context.currentTime+.015;
-    scheduleFishingSplash(context,now,.34,.085);
-    scheduleFishingSweep(context,410,195,now+.035,.21,.036);
-    scheduleFishingSweep(context,520,270,now+.15,.16,.02);
+    // Line swish, water impact, then low bubbling tail.
+    scheduleFishingNoise(context,now,.18,.026,4200,1700,'highpass');
+    scheduleFishingNoise(context,now+.29,.22,.16,4800,800);
+    scheduleFishingNoise(context,now+.35,.36,.082,1700,320);
+    scheduleFishingSweep(context,360,135,now+.38,.23,.042);
+    scheduleFishingSweep(context,250,98,now+.55,.18,.024);
   });
 }
 
 function playFishingCatchSound(){
   return playFishingAudio(context=>{
     const now=context.currentTime+.015;
-    scheduleFishingSplash(context,now,.13,.036);
-    scheduleFishingSweep(context,360,530,now+.035,.15,.027);
-    scheduleFishingSweep(context,520,735,now+.13,.18,.023);
+    // Short reel pull, fish breaking the surface, and a wet tail slap.
+    scheduleFishingSweep(context,170,315,now,.19,.028,'triangle');
+    scheduleFishingNoise(context,now+.07,.16,.042,2600,850,'bandpass');
+    scheduleFishingNoise(context,now+.17,.25,.13,4200,550);
+    scheduleFishingNoise(context,now+.39,.11,.068,2200,430);
+    scheduleFishingSweep(context,300,115,now+.21,.24,.047);
+    scheduleFishingSweep(context,410,170,now+.39,.16,.029,'triangle');
   });
 }
 
@@ -129,7 +138,7 @@ function playFishingRaritySound(rarity){
   const effect=FISHING_RARITY_EFFECTS[rarity];
   if(!effect) return false;
   return playFishingAudio(context=>{
-    const now=context.currentTime+.19;
+    const now=context.currentTime+.54;
     effect.tones.forEach((frequency,index)=>{
       const start=now+index*(rarity==='legendary'?.105:.085);
       const duration=rarity==='legendary'?.64:rarity==='heroic'?.5:.38;

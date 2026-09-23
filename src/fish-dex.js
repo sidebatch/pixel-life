@@ -114,10 +114,10 @@ function renderFishDex(){
   const grid=document.getElementById('fishDexGrid');
   grid.innerHTML=list.map(fish=>{
     const found=!!getFishDexRecord(fish.id);
-    return `<button type="button" class="fishDexCard ${found?'discovered':'undiscovered'} rarity-${fish.rarity}" data-fish-id="${fish.id}" aria-label="${found?fish.name:'미발견 물고기'}" aria-haspopup="dialog">
+    return `<button type="button" class="fishDexCard ${found?'discovered':'undiscovered'} rarity-${fish.rarity}" data-fish-id="${fish.id}" aria-label="${found?`${fish.name} · ${FISH_RARITY_LABELS[fish.rarity]}`:'미발견 물고기'}" aria-haspopup="dialog">
       <span class="fishDexCardIcon">${found?`<img src="${getFishImageUrl(fish)}" alt="">`:'?'}</span>
       <b>${found?fish.name:'???'}</b>
-      <small>${found?FISH_RARITY_LABELS[fish.rarity]:'미발견'}</small>
+      ${found?'':'<small>미발견</small>'}
     </button>`;
   }).join('');
   grid.querySelectorAll('[data-fish-id]').forEach(button=>{

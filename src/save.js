@@ -4,9 +4,9 @@ const SAVE_CONFIG=Object.freeze({
 });
 
 const SAVE_FISH_BY_ID=new Map(FISH_DATA.map(fish=>[fish.id,fish]));
-const SAVE_EQUIPMENT=Object.freeze({
-  'rod.master_angler':Object.freeze({name:'강태공의 낚싯대'})
-});
+const SAVE_EQUIPMENT=Object.freeze(Object.fromEntries(
+  FISHING_RODS.filter(rod=>rod.requiresMasterReward).map(rod=>[rod.id,Object.freeze({name:rod.name})])
+));
 
 function saveFiniteNumber(value,fallback=0){
   const number=Number(value);
@@ -76,13 +76,21 @@ function normalizeSavedFishCollections(rawCollections){
   return collections;
 }
 
-function normalizeSavedFishingProgress(rawProgress){
+function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
   const source=rawProgress&&typeof rawProgress==='object'?rawProgress:{};
   const level=saveClamp(Math.floor(saveFiniteNumber(source.level,1)),1,20);
   const nextLevelXp=level<20?60+level*12:null;
   const xp=nextLevelXp===null?0:saveClamp(Math.floor(saveFiniteNumber(source.xp,0)),0,nextLevelXp-1);
   const totalXp=Math.max(xp,Math.floor(saveFiniteNumber(source.totalXp,xp)));
-  return {level,xp,totalXp};
+  const requestedRod=FISHING_ROD_BY_ID.get(source.equippedRodId);
+  const masterUnlocked=flags.masterRod===true||inventory.some(item=>
+    item.type==='equipment'&&item.id==='rod.master_angler'
+  );
+  const rodUnlocked=requestedRod&&(
+    requestedRod.requiresMasterReward?masterUnlocked:level>=(requestedRod.unlockLevel||1)
+  );
+  const equippedRodId=rodUnlocked?requestedRod.id:DEFAULT_FISHING_ROD_ID;
+  return {level,xp,totalXp,equippedRodId};
 }
 
 function normalizeSavedProgressionFlags(rawFlags){
@@ -125,7 +133,11 @@ function applySaveData(saveData){
   GAME_STATE.collections.fish=normalizeSavedFishCollections(savedState.collections?.fish);
   GAME_STATE.progression.coins=Math.max(0,Math.floor(saveFiniteNumber(savedState.progression?.coins,GAME_STATE.progression.coins)));
   GAME_STATE.progression.flags=normalizeSavedProgressionFlags(savedState.progression?.flags);
-  GAME_STATE.progression.fishing=normalizeSavedFishingProgress(savedState.progression?.fishing);
+  GAME_STATE.progression.fishing=normalizeSavedFishingProgress(
+    savedState.progression?.fishing,
+    GAME_STATE.progression.flags,
+    GAME_STATE.inventory
+  );
   return true;
 }
 

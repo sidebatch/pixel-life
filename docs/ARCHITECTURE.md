@@ -51,7 +51,7 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 ### `src/fishing.js`
 
-낚시의 `idle → casting → waiting → bite → result` 상태 흐름과 지역·시간·날씨 필터, 상대 Weight 선택, 같은 어종 3연속 보정 및 XP·발견 통계 갱신을 담당한다. 발견 수가 5/10/15/19/20에 도달하면 데이터에 선언된 보상을 한 번만 자동 지급한다. `?debug&fish=<fish.id>`는 실제 저장·결과 UI를 거치면서 지정 어종의 입질을 즉시 발생시키는 QA 전용 경로다. 어종과 보상 원본은 `src/data/fish-data.js`에 두며, 이 파일은 선택 규칙과 상태 전이에 집중한다.
+낚시의 `idle → casting → waiting → bite → result` 상태 흐름과 지역·시간·날씨 필터, 상대 Weight 선택, 같은 어종 3연속 보정 및 XP·발견 통계 갱신을 담당한다. 장착한 낚싯대의 입질 대기 감소, 희귀 이상 Weight 증가와 큰 개체 보정도 최종 선택 단계에서 적용한다. 발견 수가 5/10/15/19/20에 도달하면 데이터에 선언된 보상을 한 번만 자동 지급한다. `?debug&fish=<fish.id>`는 실제 저장·결과 UI를 거치면서 지정 어종의 입질을 즉시 발생시키는 QA 전용 경로다. 어종과 보상 원본은 `src/data/fish-data.js`, 낚싯대 원본은 `src/data/fishing-gear-data.js`에 두며, 이 파일은 선택 규칙과 상태 전이에 집중한다.
 
 ### `src/fishing-effects.js`
 
@@ -61,13 +61,17 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 저장된 `GAME_STATE.collections.fish`를 읽어 전체·연못·강·바다 필터, 발견 진행도, 다음 단계 보상, 발견 어종 통계와 미발견 출현 힌트를 렌더링한다. 15종 희귀어 힌트와 19종 마지막 단서 플래그에 따라 미발견 조건 공개 범위를 바꾼다. 발견한 어종은 `FISH_URLS`의 전용 픽셀 아트를 사용한다. 도감 열기·닫기 동안 공용 `menuOpen` 이동 잠금을 사용하며 발견 기록 자체는 변경하지 않는다.
 
+### `src/data/fishing-gear-data.js` / `src/fishing-gear.js`
+
+낚싯대 5종의 해금 조건과 입질·희귀도·크기 보너스를 데이터로 선언하고, 월드 메뉴의 전체 화면 장비 선택 UI를 렌더링한다. 잠긴 장비는 선택할 수 없으며 장착 시 즉시 저장한다. 장비 창도 도감과 같은 `menuOpen` 이동 잠금을 사용한다.
+
 ### `scripts/process-fish-assets.py`
 
 `assets/fishing/source/`의 생성 원본에서 투명 영역을 자르고 알파 가장자리를 정리한 뒤, 최근접 보간으로 96×96 게임용 PNG와 검토용 contact sheet를 만든다. 런타임과 단일 HTML 빌드는 정규화된 20개 파일만 참조한다.
 
 ### `src/save.js`
 
-저장 버전 v1과 `localStorage` 입출력을 담당한다. 인벤토리, 코인, Fishing XP·레벨, 어종별 발견 통계, 단계 보상 플래그와 강태공의 낚싯대를 형식 검증 후 복원하며, 런타임 Activity 상태는 저장하지 않는다.
+저장 버전 v1과 `localStorage` 입출력을 담당한다. 인벤토리, 코인, Fishing XP·레벨, 장착 낚싯대 ID, 어종별 발견 통계, 단계 보상 플래그와 강태공의 낚싯대를 형식 검증 후 복원한다. 저장 당시 장비가 현재 레벨·보상 기준으로 잠겨 있거나 ID가 유효하지 않으면 기본 낚싯대로 안전하게 되돌리며, 런타임 Activity 상태는 저장하지 않는다.
 
 ### `src/main.js`
 

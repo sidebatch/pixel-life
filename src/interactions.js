@@ -32,6 +32,7 @@ function interact(){
 function pressB(){
   if(dialogOpen) closeDialog();
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
+  else if(typeof isFishingGearOpen==='function'&&isFishingGearOpen()) closeFishingGear();
   else if(menuOpen) toggleMenu(false);
   else if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 }

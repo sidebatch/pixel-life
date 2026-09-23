@@ -61,9 +61,30 @@ function getFishingDebugFish(){
   return FISH_DATA.find(fish=>fish.id===fishingDebugFishId)||null;
 }
 
-function getEffectiveFishWeight(fish,streak=fishingCatchStreak){
+function isFishingRodUnlocked(rod,state=GAME_STATE){
+  if(!rod) return false;
+  if(rod.requiresMasterReward){
+    return state.progression?.flags?.masterRod===true||
+      state.inventory?.some(item=>item.type==='equipment'&&item.id===rod.id)===true;
+  }
+  return (state.progression?.fishing?.level||1)>=(rod.unlockLevel||1);
+}
+
+function getEquippedFishingRod(){
+  const equippedId=GAME_STATE.progression.fishing.equippedRodId||DEFAULT_FISHING_ROD_ID;
+  const equipped=FISHING_ROD_BY_ID.get(equippedId);
+  if(equipped&&isFishingRodUnlocked(equipped)) return equipped;
+  return FISHING_ROD_BY_ID.get(DEFAULT_FISHING_ROD_ID);
+}
+
+function getFishingRodWaitMultiplier(rod=getEquippedFishingRod()){
+  return 1-Math.max(0,Math.min(.75,rod?.waitReduction||0));
+}
+
+function getEffectiveFishWeight(fish,streak=fishingCatchStreak,rod=getEquippedFishingRod()){
   const repeatPenalty=streak.fishId===fish.id&&streak.count>=3 ? .5 : 1;
-  return fish.weight*repeatPenalty;
+  const rareBonus=['rare','heroic','legendary'].includes(fish.rarity)?1+(rod?.rareWeightBonus||0):1;
+  return fish.weight*repeatPenalty*rareBonus;
 }
 
 function chooseWeightedFish(pool,randomValue=Math.random(),streak=fishingCatchStreak){
@@ -210,8 +231,8 @@ function startFishing(){
   if(menuOpen || isFishingActive() || !fishingWaterInFront()) return false;
   fishingState.phase=fishingDebugFishId?'bite':'casting';
   fishingState.timer=0;
-  fishingState.biteDelay=FISHING_CONFIG.minWaitMs+
-    Math.random()*(FISHING_CONFIG.maxWaitMs-FISHING_CONFIG.minWaitMs);
+  const baseWait=FISHING_CONFIG.minWaitMs+Math.random()*(FISHING_CONFIG.maxWaitMs-FISHING_CONFIG.minWaitMs);
+  fishingState.biteDelay=baseWait*getFishingRodWaitMultiplier();
   fishingState.result=null;
   const target=facingTile();
   fishingState.spot={x:target.x,y:target.y};
@@ -241,13 +262,21 @@ function calculateFishPrice(fish,sizeCm){
   return Math.round(fish.basePrice*sizeMultiplier);
 }
 
+function applyFishingRodSizeBonus(randomValue,rod=getEquippedFishingRod()){
+  const roll=Math.max(0,Math.min(1,Number(randomValue)||0));
+  const bonus=Math.max(0,Math.min(.5,rod?.sizeBonus||0));
+  return roll+(1-roll)*bonus;
+}
+
 function createFishingCatch(){
   const pool=getEligibleFishPool(fishingState.context||getFishingContext());
   const forcedFish=getFishingDebugFish();
   const fish=forcedFish||chooseWeightedFish(pool);
   if(!fish) throw new Error('No eligible fish for the current fishing context');
   recordFishingSelection(fish.id);
-  const sizeCm=fish.minSizeCm+Math.random()*(fish.maxSizeCm-fish.minSizeCm);
+  const rod=getEquippedFishingRod();
+  const sizeRoll=applyFishingRodSizeBonus(Math.random(),rod);
+  const sizeCm=fish.minSizeCm+sizeRoll*(fish.maxSizeCm-fish.minSizeCm);
   const price=calculateFishPrice(fish,sizeCm);
   GAME_STATE.inventory.push({
     type:'fish',id:fish.id,name:fish.name,rarity:fish.rarity,sizeCm,price,quantity:1
@@ -269,7 +298,9 @@ function createFishingCatch(){
     firstDiscovery:discovery.isFirst,
     collection:discovery.record,
     progression,
-    rewards
+    rewards,
+    rodId:rod.id,
+    rodName:rod.name
   };
 }
 
@@ -282,7 +313,7 @@ function showFishingResult(){
   const levelText=r.progression.leveledUp?`\n🎣 Fishing Lv.${r.progression.level} 달성!`:'';
   const rewardText=r.rewards.messages.length?`\n🎁 ${r.rewards.messages.join('\n🎁 ')}`:'';
   const levelProgress=r.progression.nextLevelXp===null?'MAX':`${r.progression.xp}/${r.progression.nextLevelXp} XP`;
-  const resultCopy=`${r.name} · ${r.sizeCm.toFixed(1)}cm\n${FISH_RARITY_LABELS[r.rarity]} · 판매가 ${r.price}G\n+${r.xp} Fishing XP · Lv.${r.progression.level} ${levelProgress}${discoveryText}${rewardText}${levelText}`;
+  const resultCopy=`${r.name} · ${r.sizeCm.toFixed(1)}cm\n${FISH_RARITY_LABELS[r.rarity]} · 판매가 ${r.price}G\n+${r.xp} Fishing XP · Lv.${r.progression.level} ${levelProgress}\n🎣 ${r.rodName}${discoveryText}${rewardText}${levelText}`;
   showDialog(`낚시 결과 · ${FISH_RARITY_LABELS[r.rarity]}`,resultCopy);
   const layout=document.createElement('div');
   layout.className='fishingResultLayout';

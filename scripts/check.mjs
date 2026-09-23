@@ -7,6 +7,7 @@ const scriptFiles = [
   'src/assets.js',
   'src/data/world-map.js',
   'src/data/fish-data.js',
+  'src/data/fishing-gear-data.js',
   'src/world-time.js',
   'src/weather.js',
   'src/config.js',
@@ -20,6 +21,7 @@ const scriptFiles = [
   'src/fishing-effects.js',
   'src/fishing.js',
   'src/fish-dex.js',
+  'src/fishing-gear.js',
   'src/main.js'
 ];
 
@@ -62,6 +64,19 @@ assert(new Set(fishData.map(fish=>fish.id)).size===fishData.length,'Fish ids mus
 assert(new Set(fishData.map(fish=>fish.asset)).size===fishData.length,'Fish asset keys must be unique');
 assert(fishRewards.map(reward=>reward.count).join(',')==='5,10,15,19,20','Unexpected fish collection reward thresholds');
 
+const fishingGearContext={};
+vm.createContext(fishingGearContext);
+vm.runInContext(`${read('src/data/fishing-gear-data.js')}\n`+
+  `globalThis.__rods=FISHING_RODS;globalThis.__defaultRod=DEFAULT_FISHING_ROD_ID;`,fishingGearContext);
+const fishingRods=fishingGearContext.__rods;
+assert(fishingRods.map(rod=>rod.id).join(',')===
+  'rod.basic,rod.sturdy,rod.steel,rod.expert,rod.master_angler','Unexpected fishing rod progression');
+assert(fishingGearContext.__defaultRod==='rod.basic','Unexpected default fishing rod');
+assert(fishingRods.every((rod,index)=>index===0||rod.waitReduction>=fishingRods[index-1].waitReduction),
+  'Fishing rod wait bonuses must not decrease');
+assert(fishingRods.at(-1).requiresMasterReward&&fishingRods.at(-1).rareWeightBonus===.35,
+  'Master angler rod configuration failed');
+
 const audioProbe={oscillators:0,starts:0,stops:0};
 class FakeAudioParam{
   setValueAtTime(){}
@@ -92,7 +107,7 @@ assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/fishing.js')}\n`+
+vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/fishing.js')}\n`+
   `globalThis.__forcedFish=getFishingDebugFish()?.id;`,fishingDebugContext);
 assert(fishingDebugContext.__forcedFish==='fish.coelacanth','Debug fish override failed');
 
@@ -156,14 +171,14 @@ const fishingLogicContext={
     regionId:'lilacVillage',
     inventory:[],
     collections:{fish:{}},
-    progression:{coins:0,flags:{},fishing:{level:1,xp:0,totalXp:0}},
+    progression:{coins:0,flags:{},fishing:{level:1,xp:0,totalXp:0,equippedRodId:'rod.basic'}},
     activity:{active:null}
   },
   getWorldTimePeriod:()=> 'DAY',
   getWeatherKind:()=> 'clear'
 };
 vm.createContext(fishingLogicContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/fishing.js')}\n`+
+vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/fishing.js')}\n`+
   `const pool=getEligibleFishPool();`+
   `const repeatStreak={fishId:'fish.crucian_carp',count:3};`+
   `globalThis.__weightedBounds=[chooseWeightedFish(pool,0).id,chooseWeightedFish(pool,1).id];`+
@@ -184,6 +199,11 @@ vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/fishing.js')}\n`+
   `for(const fish of FISH_DATA.slice(10))recordFishDiscovery(fish,fish.minSizeCm);`+
   `globalThis.__rewardTail=applyFishCollectionRewards();`+
   `globalThis.__rewardState=JSON.parse(JSON.stringify(GAME_STATE));`+
+  `GAME_STATE.progression.fishing.level=15;GAME_STATE.progression.fishing.equippedRodId='rod.expert';`+
+  `const expertRod=getEquippedFishingRod();const catfish=FISH_DATA.find(fish=>fish.id==='fish.catfish');`+
+  `globalThis.__expertRod={id:expertRod.id,wait:getFishingRodWaitMultiplier(expertRod),rareWeight:getEffectiveFishWeight(catfish,{fishId:null,count:0},expertRod),commonWeight:getEffectiveFishWeight(crucian,{fishId:null,count:0},expertRod),sizeFloor:applyFishingRodSizeBonus(0,expertRod)};`+
+  `GAME_STATE.progression.fishing.equippedRodId='rod.master_angler';const masterRod=getEquippedFishingRod();`+
+  `globalThis.__masterRod={id:masterRod.id,wait:getFishingRodWaitMultiplier(masterRod),sizeFloor:applyFishingRodSizeBonus(0,masterRod)};`+
   `globalThis.__maxProgress=addFishingXp(999999);`,fishingLogicContext);
 assert(fishingLogicContext.__weightedBounds[0]==='fish.crucian_carp','Weighted selection lower bound failed');
 assert(fishingLogicContext.__weightedBounds[1]==='fish.largemouth_bass','Weighted selection upper bound failed');
@@ -211,6 +231,12 @@ assert(fishingLogicContext.__rewardState.progression.flags.rareFishHints&&
   'Fish collection unlock flags failed');
 assert(fishingLogicContext.__rewardState.inventory.some(item=>item.id==='rod.master_angler'),
   'Master angler rod reward failed');
+assert(fishingLogicContext.__expertRod.id==='rod.expert'&&fishingLogicContext.__expertRod.wait===.85&&
+  Math.abs(fishingLogicContext.__expertRod.rareWeight-8.4)<1e-9&&
+  fishingLogicContext.__expertRod.commonWeight===35&&fishingLogicContext.__expertRod.sizeFloor===.08,
+  'Expert fishing rod effects failed');
+assert(fishingLogicContext.__masterRod.id==='rod.master_angler'&&fishingLogicContext.__masterRod.wait===.75&&
+  fishingLogicContext.__masterRod.sizeFloor===.15,'Master fishing rod effects failed');
 assert(fishingLogicContext.__maxProgress.level===20&&fishingLogicContext.__maxProgress.xp===0&&
   fishingLogicContext.__maxProgress.nextLevelXp===null,'Fishing max-level cap failed');
 
@@ -229,14 +255,15 @@ const saveContext={
   }
 };
 vm.createContext(saveContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/save.js')}\n`+
+vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/save.js')}\n`+
   `GAME_STATE.inventory.push({type:'fish',id:'fish.crucian_carp',name:'붕어',rarity:'common',sizeCm:22.5,price:26,quantity:1});`+
   `GAME_STATE.collections.fish['fish.crucian_carp']={fishId:'fish.crucian_carp',name:'붕어',rarity:'common',count:2,minSizeCm:20,maxSizeCm:25,totalSizeCm:45,averageSizeCm:22.5};`+
   `GAME_STATE.inventory.push({type:'equipment',id:'rod.master_angler',name:'강태공의 낚싯대',quantity:1});`+
-  `GAME_STATE.progression.coins=1400;GAME_STATE.progression.flags={fishCollectionRewards:{5:true,10:true,15:true,19:true,20:true},rareFishHints:true,finalFishClue:true,masterAnglerTitle:true,masterRod:true};GAME_STATE.progression.fishing={level:2,xp:8,totalXp:80};`+
+  `GAME_STATE.progression.coins=1400;GAME_STATE.progression.flags={fishCollectionRewards:{5:true,10:true,15:true,19:true,20:true},rareFishHints:true,finalFishClue:true,masterAnglerTitle:true,masterRod:true};GAME_STATE.progression.fishing={level:2,xp:8,totalXp:80,equippedRodId:'rod.master_angler'};`+
   `saveGame();`+
   `GAME_STATE.inventory=[];GAME_STATE.collections.fish={};GAME_STATE.progression.coins=0;GAME_STATE.progression.flags={};GAME_STATE.progression.fishing={level:1,xp:0,totalXp:0};`+
-  `globalThis.__loaded=loadGame();globalThis.__restored=JSON.parse(JSON.stringify(GAME_STATE));`,saveContext);
+  `globalThis.__loaded=loadGame();globalThis.__restored=JSON.parse(JSON.stringify(GAME_STATE));`+
+  `globalThis.__lockedRod=normalizeSavedFishingProgress({level:2,xp:0,totalXp:0,equippedRodId:'rod.expert'},{},[]);`,saveContext);
 assert(saveContext.__loaded,'Versioned save did not load');
 assert(saveContext.__restored.inventory.length===2&&saveContext.__restored.inventory[0].id==='fish.crucian_carp'&&
   saveContext.__restored.inventory[1].id==='rod.master_angler',
@@ -244,11 +271,13 @@ assert(saveContext.__restored.inventory.length===2&&saveContext.__restored.inven
 assert(saveContext.__restored.collections.fish['fish.crucian_carp'].averageSizeCm===22.5,
   'Saved fish collection did not restore');
 assert(saveContext.__restored.progression.coins===1400&&saveContext.__restored.progression.fishing.level===2&&
-  saveContext.__restored.progression.fishing.xp===8&&saveContext.__restored.progression.fishing.totalXp===80,
+  saveContext.__restored.progression.fishing.xp===8&&saveContext.__restored.progression.fishing.totalXp===80&&
+  saveContext.__restored.progression.fishing.equippedRodId==='rod.master_angler',
   'Saved fishing progression did not restore');
 assert(saveContext.__restored.progression.flags.fishCollectionRewards[20]&&
   saveContext.__restored.progression.flags.masterAnglerTitle&&saveContext.__restored.progression.flags.masterRod,
   'Saved fish collection rewards did not restore');
+assert(saveContext.__lockedRod.equippedRodId==='rod.basic','Locked saved fishing rod must fall back to basic');
 saveStorage.set('pixel-life.save','{not-json');
 vm.runInContext('globalThis.__invalidJsonSave=loadGame();',saveContext);
 assert(saveContext.__invalidJsonSave===false,'Malformed save JSON must fail safely');
@@ -259,6 +288,7 @@ assert(saveContext.__futureVersionSave===false,'Unknown save version must not be
 const validationScripts = [
   'src/assets.js',
   'src/data/world-map.js',
+  'src/data/fishing-gear-data.js',
   'src/config.js',
   'src/world.js',
   'src/world-validation.js'

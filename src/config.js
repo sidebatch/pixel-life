@@ -38,7 +38,7 @@ const GAME_STATE = {
   progression:{
     coins:1230,
     flags:{},
-    fishing:{level:1,xp:0,totalXp:0}
+    fishing:{level:1,xp:0,totalXp:0,equippedRodId:DEFAULT_FISHING_ROD_ID}
   },
   activity:{active:null}
 };

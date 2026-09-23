@@ -6,6 +6,7 @@ const scriptFiles = [
   'src/assets.js',
   'src/data/world-map.js',
   'src/data/fish-data.js',
+  'src/data/fishing-gear-data.js',
   'src/world-time.js',
   'src/weather.js',
   'src/config.js',
@@ -19,6 +20,7 @@ const scriptFiles = [
   'src/fishing-effects.js',
   'src/fishing.js',
   'src/fish-dex.js',
+  'src/fishing-gear.js',
   'src/main.js'
 ];
 

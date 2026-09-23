@@ -74,7 +74,7 @@
         <div class="menuGrid">
           <div class="menuCard"><b>🗺️ 월드</b><span>지역과 발견 장소</span></div>
           <div class="menuCard"><b>🎒 가방</b><span>공용 인벤토리</span></div>
-          <div class="menuCard"><b>🎣 낚시</b><span>첫 Activity Module</span></div>
+          <button class="menuCard" id="openFishingGearBtn" type="button"><b>🎣 낚시 장비</b><span id="fishingGearMenuStatus">기본 낚싯대 · Lv.1</span></button>
           <button class="menuCard" id="openFishDexBtn" type="button"><b>📖 도감</b><span>발견·수집 기록</span></button>
           <div class="menuCard"><b>🛡️ 디펜스</b><span>지역 이벤트</span></div>
           <div class="menuCard"><b>🍳 생활</b><span>채집·요리·제작</span></div>
@@ -98,6 +98,15 @@
           <section class="fishDexDetail" id="fishDexDetail" aria-live="polite"></section>
         </div>
       </div>
+      <div id="fishingGearPanel" class="fishingGearPanel" aria-label="낚시 장비" aria-hidden="true">
+        <div class="fishingGearHeader">
+          <div><span>FISHING GEAR</span><h2>낚싯대 장비</h2></div>
+          <button id="fishingGearClose" type="button" aria-label="낚시 장비 닫기">×</button>
+        </div>
+        <div class="fishingGearSummary" id="fishingGearSummary"></div>
+        <div class="fishingGearList" id="fishingGearList"></div>
+        <section class="fishingGearDetail" id="fishingGearDetail" aria-live="polite"></section>
+      </div>
     </div>
     <div class="landscapeHint"><div><div class="phone">↻</div><b>세로 화면으로 돌려주세요</b><p>이번 버전부터 세로형 UI를 기준으로 개발합니다.</p></div></div>
   </div>
@@ -106,6 +115,7 @@
   <script src="src/assets.js"></script>
   <script src="src/data/world-map.js"></script>
   <script src="src/data/fish-data.js"></script>
+  <script src="src/data/fishing-gear-data.js"></script>
   <script src="src/world-time.js"></script>
   <script src="src/weather.js"></script>
   <script src="src/config.js"></script>
@@ -119,6 +129,7 @@
   <script src="src/fishing-effects.js"></script>
   <script src="src/fishing.js"></script>
   <script src="src/fish-dex.js"></script>
+  <script src="src/fishing-gear.js"></script>
   <script src="src/main.js"></script>
   <!-- /build:scripts -->
 </body>

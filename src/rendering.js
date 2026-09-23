@@ -212,6 +212,32 @@ function roundedRectPath(ctx,x,y,w,h,r){
   ctx.lineTo(x,y+rr);ctx.quadraticCurveTo(x,y,x+rr,y);ctx.closePath();
 }
 
+function drawMarketStall(){
+  const x=Math.round(marketStall.x*TILE-camX-7);
+  const groundY=Math.round((marketStall.y+marketStall.h)*TILE-camY);
+  ctx.save();
+  ctx.fillStyle='rgba(24,43,29,.28)';
+  ctx.beginPath();ctx.ellipse(x+55,groundY-3,54,12,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#674732';ctx.fillRect(x+9,groundY-68,8,57);ctx.fillRect(x+93,groundY-68,8,57);
+  ctx.fillStyle='#a97644';ctx.fillRect(x+10,groundY-67,4,52);ctx.fillRect(x+94,groundY-67,4,52);
+  ctx.fillStyle='#543a2b';ctx.fillRect(x+6,groundY-36,99,27);
+  ctx.fillStyle='#ad7144';ctx.fillRect(x+9,groundY-33,93,19);
+  ctx.fillStyle='#d99759';ctx.fillRect(x+8,groundY-38,95,8);
+  ctx.fillStyle='#e8bd76';ctx.fillRect(x+12,groundY-37,87,3);
+  ctx.fillStyle='#315951';ctx.fillRect(x+18,groundY-56,27,16);ctx.fillRect(x+58,groundY-56,27,16);
+  ctx.fillStyle='#74b4ac';ctx.fillRect(x+21,groundY-52,21,7);ctx.fillRect(x+61,groundY-52,21,7);
+  ctx.fillStyle='#70482f';ctx.fillRect(x,groundY-87,110,13);
+  for(let stripe=0;stripe<10;stripe++){
+    ctx.fillStyle=stripe%2?'#f5d798':'#8d4750';
+    ctx.fillRect(x+stripe*11,groundY-74,11,18);
+  }
+  ctx.fillStyle='#75482b';ctx.fillRect(x+31,groundY-105,48,20);
+  ctx.fillStyle='#f8dfaa';ctx.fillRect(x+34,groundY-102,42,14);
+  ctx.fillStyle='#553525';ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillText('상점',x+55,groundY-95);
+  ctx.restore();
+}
+
 function npcFacing(npc){
   const dx=player.x-npc.x, dy=player.y-npc.y;
   if(Math.abs(dx)+Math.abs(dy)>2) return npc.face||'down';
@@ -509,6 +535,7 @@ function drawWorld(){
   });
   trees.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.treeStage24||imgs.treeClean||imgs.tree,o.x*TILE-camX-22,o.y*TILE-camY-64,92,116)}));
   rocks.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.rock,o.x*TILE-camX-6,o.y*TILE-camY-10,60,58)}));
+  renderables.push({y:(marketStall.y+marketStall.h)*TILE,draw:drawMarketStall});
   renderables.push({y:sign.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.sign,sign.x*TILE-camX-8,sign.y*TILE-camY-20,64,68)});
   renderables.push({y:bench.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.bench,bench.x*TILE-camX-26,bench.y*TILE-camY-8,100,56)});
   renderables.push({y:lamp.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.lamp,lamp.x*TILE-camX+5,lamp.y*TILE-camY-38,38,86)});

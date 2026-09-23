@@ -26,6 +26,7 @@ const scriptFiles = [
   'src/fish-dex.js',
   'src/fishing-gear.js',
   'src/inventory.js',
+  'src/market.js',
   'src/main.js'
 ];
 
@@ -400,6 +401,49 @@ assert(inventorySummaryNode.textContent==='보유 물고기 2마리'&&
   inventoryContext.GAME_STATE.inventory[1].sizeCm===28.1,
   'Inventory grid must badge counts and preserve individual catch data');
 
+const marketContext={
+  FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],
+  GAME_STATE:{inventory:[
+    {type:'fish',id:'fish.crucian_carp',sizeCm:22.5,price:26,quantity:1},
+    {type:'fish',id:'fish.goldfish',sizeCm:11.2,price:80,quantity:1},
+    {type:'fish',id:'fish.crucian_carp',sizeCm:28.1,price:39,quantity:2},
+    {type:'equipment',id:'rod.master_angler',quantity:1}
+  ],progression:{coins:100}}
+};
+vm.createContext(marketContext);
+vm.runInContext(`${read('src/market.js')}\n`+
+  `globalThis.__sale=planFishSale(new Map([['fish.crucian_carp',2]]));`+
+  `globalThis.__multiSale=planFishSale(new Map([['fish.crucian_carp',1],['fish.goldfish',1]]));`+
+  `globalThis.__overSale=planFishSale(new Map([['fish.crucian_carp',4]]));`+
+  `globalThis.__zeroSale=planFishSale(new Map());`,marketContext);
+assert(marketContext.__sale.count===2&&marketContext.__sale.total===65&&
+  marketContext.__sale.inventory.length===3&&
+  marketContext.__sale.inventory[0].id==='fish.goldfish'&&
+  marketContext.__sale.inventory[1].id==='fish.crucian_carp'&&
+  marketContext.__sale.inventory[1].quantity===1&&
+  marketContext.__sale.inventory[2].type==='equipment'&&
+  marketContext.GAME_STATE.inventory.length===4,
+  'Market sale must use oldest fish prices, preserve remaining fish and equipment, and avoid mutating source');
+assert(marketContext.__overSale===null&&marketContext.__zeroSale.count===0&&marketContext.__zeroSale.total===0,
+  'Market must reject overselling and treat empty selection as no sale');
+assert(marketContext.__multiSale.count===2&&marketContext.__multiSale.total===106&&
+  marketContext.__multiSale.inventory.length===2&&
+  marketContext.__multiSale.inventory[0].quantity===2&&
+  marketContext.__multiSale.inventory[1].type==='equipment',
+  'Market must combine selected species and preserve unsold inventory');
+const marketCoinNode={textContent:''};
+marketContext.document={getElementById(){return marketCoinNode;}};
+marketContext.saveGame=()=>true;
+vm.runInContext(`renderMarket=()=>{};marketState.selection.set('fish.crucian_carp',2);globalThis.__sold=sellSelectedFish();`,marketContext);
+assert(marketContext.__sold===true&&marketContext.GAME_STATE.progression.coins===165&&
+  marketContext.GAME_STATE.inventory.length===3&&marketCoinNode.textContent==='165',
+  'Confirmed sale must remove only selected fish and immediately increase coins');
+marketContext.saveGame=()=>false;
+vm.runInContext(`marketState.selection.set('fish.goldfish',1);globalThis.__failedSale=sellSelectedFish();`,marketContext);
+assert(marketContext.__failedSale===false&&marketContext.GAME_STATE.progression.coins===165&&
+  marketContext.GAME_STATE.inventory.length===3,
+  'Failed save must roll back fish and coins');
+
 const validationScripts = [
   'src/assets.js',
   'src/data/world-map.js',
@@ -420,9 +464,12 @@ const validationContext = {
   }
 };
 vm.createContext(validationContext);
-vm.runInContext(`${validationScripts}\nglobalThis.__worldReport=WORLD_VALIDATION_REPORT;`,validationContext);
+vm.runInContext(`${validationScripts}\nglobalThis.__worldReport=WORLD_VALIDATION_REPORT;globalThis.__marketStall=marketStall;globalThis.__merchant=npcs.find(n=>n.id==='elli');globalThis.__blocked=blocked;`,validationContext);
 const worldReport=validationContext.__worldReport;
 assert(worldReport.map==='64x48',`Expected expanded 64x48 world, found ${worldReport.map}`);
 assert(worldReport.errors.length===0,`World validation has ${worldReport.errors.length} errors`);
+assert(validationContext.__blocked.has(`${validationContext.__marketStall.x},${validationContext.__marketStall.y}`)&&
+  validationContext.__merchant.roam===0&&validationContext.__merchant.y===validationContext.__marketStall.y+1,
+  'Open-air stall and fixed merchant position are invalid');
 
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}`);

@@ -23,6 +23,7 @@ function interact(){
   if(typeof isFishingActive==='function'&&isFishingActive()) return handleFishingAction();
   const t=facingTile(), k=key(t.x,t.y);
   const targetNpc=npcs.find(n=>n.x===t.x&&n.y===t.y);
+  if(targetNpc?.id==='elli') return openMarket();
   if(targetNpc) return showDialog(targetNpc.name,targetNpc.dialog);
   if(t.x===sign.x&&t.y===sign.y) return showDialog('표지판','→ 연못   ← 마을 광장   ↑ 오래된 숲');
   if(waterSet.has(k)) return startFishing();
@@ -37,6 +38,7 @@ function pressB(){
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
   else if(typeof isFishingGearOpen==='function'&&isFishingGearOpen()) closeFishingGear();
   else if(typeof isInventoryOpen==='function'&&isInventoryOpen()) closeInventory();
+  else if(typeof isMarketOpen==='function'&&isMarketOpen()) closeMarket();
   else if(menuOpen) toggleMenu(false);
   else if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 }
@@ -48,6 +50,15 @@ function pushGameOverlayHistory(kind,fishId=null){
 
 function leaveGameOverlayHistory(kind){
   if(window.history.state?.pixelLifeOverlay===kind) window.history.back();
+}
+
+// A reload starts with every overlay closed. Drop a stale entry so closing a
+// newly opened panel cannot resurrect the overlay that existed before reload.
+if(window.history.state?.pixelLifeOverlay){
+  try{
+    const {pixelLifeOverlay,fishId,...rest}=window.history.state;
+    window.history.replaceState(rest,'');
+  }catch(_){}
 }
 
 window.addEventListener('popstate',()=>{
@@ -75,6 +86,11 @@ window.addEventListener('popstate',()=>{
     return;
   }
   if(isInventoryOpen()) closeInventory({fromHistory:true});
+  if(layer==='market'){
+    if(!isMarketOpen()) openMarket({fromHistory:true});
+    return;
+  }
+  if(isMarketOpen()) closeMarket({fromHistory:true});
   if(menuOpen) toggleMenu(false);
 });
 
@@ -170,7 +186,9 @@ function contextInfo(){
   if(typeof isFishingActive==='function'&&isFishingActive())
     return typeof getFishingContextText==='function'?getFishingContextText():'';
   const t=facingTile(),k=key(t.x,t.y);
-  if(npcs.some(n=>n.x===t.x&&n.y===t.y)) return '대화';
+  const targetNpc=npcs.find(n=>n.x===t.x&&n.y===t.y);
+  if(targetNpc?.id==='elli') return '판매';
+  if(targetNpc) return '대화';
   if(t.x===sign.x&&t.y===sign.y) return '표지판';
   if(waterSet.has(k)) return '낚시';
   if(buildingForPlayerInteraction()) return '들어가기';

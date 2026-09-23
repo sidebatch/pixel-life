@@ -60,6 +60,9 @@ function validateWorldDefinition(){
   occupy('sign',sign.x,sign.y);
   occupy('bench',bench.x,bench.y);
   occupy('lamp',lamp.x,lamp.y);
+  for(let x=marketStall.x;x<marketStall.x+marketStall.w;x++){
+    for(let y=marketStall.y;y<marketStall.y+marketStall.h;y++) occupy('market stall',x,y);
+  }
   rocks.forEach((rock,index)=>occupy(`rock[${index}]`,rock.x,rock.y));
 
   const approachTiles=new Set(buildings.map(building=>key(building.entrance.approach.x,building.entrance.approach.y)));
@@ -78,6 +81,10 @@ function validateWorldDefinition(){
     if(approachTiles.has(tile)) fail(`NPC '${npc.id}' starts on a building approach tile ${tile}`);
     if(npcTiles.has(tile)) fail(`Multiple NPCs start at ${tile}`);
     npcTiles.add(tile);
+  }
+  const merchant=npcs.find(npc=>npc.id==='elli');
+  if(!merchant||merchant.roam!==0||merchant.x!==marketStall.x||merchant.y!==marketStall.y+marketStall.h){
+    fail('Merchant must stand at the front of the open-air market stall');
   }
 
   coordinate('player spawn',WORLD_DEFINITION.playerSpawn);

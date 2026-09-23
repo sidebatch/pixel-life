@@ -44,6 +44,7 @@ npcs.forEach((n,i)=>{
 const sign={...WORLD_DEFINITION.fixedObjects.sign};
 const bench={...WORLD_DEFINITION.fixedObjects.bench};
 const lamp={...WORLD_DEFINITION.fixedObjects.lamp};
+const marketStall={...WORLD_DEFINITION.fixedObjects.marketStall};
 const rocks=WORLD_DEFINITION.fixedObjects.rocks.map(o=>({...o}));
 const bushes=WORLD_DEFINITION.decorations.bushes.map(o=>({...o}));
 const flowers=WORLD_DEFINITION.decorations.flowers.map(o=>({...o}));
@@ -77,6 +78,9 @@ blocked.add(key(sign.x,sign.y));
 rocks.forEach(object=>blocked.add(key(object.x,object.y)));
 blocked.add(key(bench.x,bench.y));
 blocked.add(key(lamp.x,lamp.y));
+for(let x=marketStall.x;x<marketStall.x+marketStall.w;x++){
+  for(let y=marketStall.y;y<marketStall.y+marketStall.h;y++) blocked.add(key(x,y));
+}
 
 const trees=[];
 const treeSet=new Set();

@@ -28,7 +28,7 @@ const ACTIVITY_MODULES = Object.freeze({
   cooking:{id:'cooking',label:'요리',status:'planned',entry:'kitchen'},
   defense:{id:'defense',label:'디펜스',status:'planned',entry:'world-event'},
   quests:{id:'quests',label:'퀘스트',status:'planned',entry:'npc'},
-  shops:{id:'shops',label:'상점',status:'planned',entry:'building'}
+  shops:{id:'shops',label:'상점',status:'prototype',entry:'merchant-npc'}
 });
 
 const GAME_STATE = {

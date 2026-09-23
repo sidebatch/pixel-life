@@ -218,6 +218,10 @@ function startFishing(){
 }
 
 function finishFishing(){
+  if(fishingState.phase!=='result'){
+    stopFishingSound('cast');
+    stopFishingSound('bite');
+  }
   fishingState.phase='idle';
   fishingState.timer=0;
   fishingState.biteDelay=0;
@@ -327,6 +331,7 @@ function updateFishing(dt){
     if(fishingState.timer>=fishingState.biteDelay){
       fishingState.phase='bite';
       fishingState.timer=0;
+      playFishingBiteSound();
     }
   }
 }

@@ -28,13 +28,14 @@ const scriptFiles = [
 ];
 
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
-const imagePattern = /(['"])(assets\/[A-Za-z0-9_./-]+\.png)\1/g;
+const assetPattern = /(['"])(assets\/[A-Za-z0-9_./-]+\.(?:png|mp3))\1/g;
 
 let scripts = scriptFiles.map(read).join('\n');
 new Function(scripts);
-scripts = scripts.replace(imagePattern, (_match, quote, relativePath) => {
+scripts = scripts.replace(assetPattern, (_match, quote, relativePath) => {
   const bytes = fs.readFileSync(path.join(root, relativePath));
-  return `${quote}data:image/png;base64,${bytes.toString('base64')}${quote}`;
+  const mimeType=relativePath.endsWith('.mp3')?'audio/mpeg':'image/png';
+  return `${quote}data:${mimeType};base64,${bytes.toString('base64')}${quote}`;
 });
 
 let html = read('index.html');
@@ -50,6 +51,9 @@ html = html.replace(
 
 if (html.includes('<script src=') || html.includes('<link rel="stylesheet"') || /['"]assets\//.test(html)) {
   throw new Error('Standalone build still contains external runtime dependencies');
+}
+if((html.match(/data:audio\/mpeg;base64,/g)||[]).length!==3){
+  throw new Error('Standalone build must inline all three fishing sounds');
 }
 
 const outputDirectory = path.join(root, 'dist');

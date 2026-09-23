@@ -6,6 +6,56 @@ const FISHING_RARITY_EFFECTS=Object.freeze({
 
 let fishingAudioContext=null;
 let fishingRarityEffectTimer=null;
+const FISHING_SOUND_URLS=Object.freeze({
+  cast:'assets/fishing/audio/cast.mp3',
+  bite:'assets/fishing/audio/bite.mp3',
+  catch:'assets/fishing/audio/catch.mp3'
+});
+const fishingSoundPlayers=new Map();
+
+function getFishingSoundPlayer(kind){
+  if(!FISHING_SOUND_URLS[kind]||typeof Audio==='undefined') return null;
+  if(!fishingSoundPlayers.has(kind)){
+    try{
+      const player=new Audio(FISHING_SOUND_URLS[kind]);
+      player.preload='auto';
+      player.load();
+      fishingSoundPlayers.set(kind,player);
+    }catch(_){return null;}
+  }
+  return fishingSoundPlayers.get(kind);
+}
+
+function stopFishingSound(kind){
+  fishingSoundPlayers.get(kind)?.pause();
+}
+
+function playFishingSample(kind){
+  try{
+    const player=getFishingSoundPlayer(kind);
+    if(!player) return false;
+    if(kind==='cast'){
+      stopFishingSound('bite');
+      stopFishingSound('catch');
+    }else if(kind==='bite') stopFishingSound('cast');
+    else if(kind==='catch'){
+      stopFishingSound('cast');
+      stopFishingSound('bite');
+    }
+    player.pause();
+    player.currentTime=0;
+    player.play()?.catch(()=>{});
+    return true;
+  }catch(_){
+    return false;
+  }
+}
+
+function playFishingCastSound(){return playFishingSample('cast');}
+function playFishingBiteSound(){return playFishingSample('bite');}
+function playFishingCatchSound(){return playFishingSample('catch');}
+
+for(const kind of Object.keys(FISHING_SOUND_URLS)) getFishingSoundPlayer(kind);
 
 function clearFishingRarityEffect(dialog=document.getElementById('dialog')){
   if(fishingRarityEffectTimer!==null){
@@ -60,42 +110,6 @@ function scheduleFishingTone(context,frequency,start,duration,type,volume){
   oscillator.start(start);oscillator.stop(start+duration+.03);
 }
 
-function scheduleFishingSweep(context,from,to,start,duration,volume,type='sine'){
-  const oscillator=context.createOscillator();
-  const gain=context.createGain();
-  oscillator.type=type;
-  oscillator.frequency.setValueAtTime(from,start);
-  oscillator.frequency.exponentialRampToValueAtTime(to,start+duration);
-  gain.gain.setValueAtTime(.0001,start);
-  gain.gain.exponentialRampToValueAtTime(volume,start+.018);
-  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
-  oscillator.connect(gain);gain.connect(context.destination);
-  oscillator.start(start);oscillator.stop(start+duration+.02);
-}
-
-function scheduleFishingNoise(context,start,duration,volume,fromFrequency,toFrequency,filterType='lowpass'){
-  const sampleCount=Math.ceil(context.sampleRate*duration);
-  const buffer=context.createBuffer(1,sampleCount,context.sampleRate);
-  const samples=buffer.getChannelData(0);
-  let seed=(Math.floor(start*1000000)+17391)>>>0;
-  for(let index=0;index<sampleCount;index++){
-    seed=(seed*1664525+1013904223)>>>0;
-    samples[index]=(seed/2147483648-1);
-  }
-  const source=context.createBufferSource();
-  const filter=context.createBiquadFilter();
-  const gain=context.createGain();
-  source.buffer=buffer;
-  filter.type=filterType;
-  filter.frequency.setValueAtTime(fromFrequency,start);
-  filter.frequency.exponentialRampToValueAtTime(toFrequency,start+duration);
-  gain.gain.setValueAtTime(.0001,start);
-  gain.gain.exponentialRampToValueAtTime(volume,start+.012);
-  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
-  source.connect(filter);filter.connect(gain);gain.connect(context.destination);
-  source.start(start);source.stop(start+duration+.02);
-}
-
 function playFishingAudio(play){
   const AudioContextClass=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
   if(!AudioContextClass) return false;
@@ -107,31 +121,6 @@ function playFishingAudio(play){
   }catch(_){
     return false;
   }
-}
-
-function playFishingCastSound(){
-  return playFishingAudio(context=>{
-    const now=context.currentTime+.015;
-    // Line swish, water impact, then low bubbling tail.
-    scheduleFishingNoise(context,now,.18,.026,4200,1700,'highpass');
-    scheduleFishingNoise(context,now+.29,.22,.16,4800,800);
-    scheduleFishingNoise(context,now+.35,.36,.082,1700,320);
-    scheduleFishingSweep(context,360,135,now+.38,.23,.042);
-    scheduleFishingSweep(context,250,98,now+.55,.18,.024);
-  });
-}
-
-function playFishingCatchSound(){
-  return playFishingAudio(context=>{
-    const now=context.currentTime+.015;
-    // Short reel pull, fish breaking the surface, and a wet tail slap.
-    scheduleFishingSweep(context,170,315,now,.19,.028,'triangle');
-    scheduleFishingNoise(context,now+.07,.16,.042,2600,850,'bandpass');
-    scheduleFishingNoise(context,now+.17,.25,.13,4200,550);
-    scheduleFishingNoise(context,now+.39,.11,.068,2200,430);
-    scheduleFishingSweep(context,300,115,now+.21,.24,.047);
-    scheduleFishingSweep(context,410,170,now+.39,.16,.029,'triangle');
-  });
 }
 
 function playFishingRaritySound(rarity){

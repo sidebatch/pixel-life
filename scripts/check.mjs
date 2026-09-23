@@ -56,6 +56,12 @@ for (const npc of ['mina', 'thomas', 'elli', 'noah', 'hana', 'jun']) {
 }
 
 assert(!read('src/assets.js').includes('base64,'), 'Development asset map must not contain embedded images');
+const fishingAudioPaths=[...read('src/fishing-effects.js').matchAll(/['"](assets\/fishing\/audio\/[a-z]+\.mp3)['"]/g)].map(match=>match[1]);
+assert(fishingAudioPaths.length===3&&new Set(fishingAudioPaths).size===3,'Expected three distinct fishing audio clips');
+for(const assetPath of fishingAudioPaths){
+  const bytes=fs.readFileSync(path.join(root,assetPath));
+  assert(bytes.length>1000&&bytes[0]===0xff&&(bytes[1]&0xe0)===0xe0,`Invalid MP3 asset: ${assetPath}`);
+}
 
 const fishContext={};
 vm.createContext(fishContext);
@@ -80,7 +86,7 @@ assert(fishingRods.every((rod,index)=>index===0||rod.waitReduction>=fishingRods[
 assert(fishingRods.at(-1).requiresMasterReward&&fishingRods.at(-1).rareWeightBonus===.35,
   'Master angler rod configuration failed');
 
-const audioProbe={oscillators:0,starts:0,stops:0,noises:0,filters:[]};
+const audioProbe={oscillators:0,starts:0,stops:0,players:[]};
 class FakeAudioParam{
   setValueAtTime(){}
   exponentialRampToValueAtTime(){}
@@ -92,14 +98,17 @@ class FakeAudioContext{
     return {type:'sine',frequency:new FakeAudioParam(),connect(){},start(){audioProbe.starts+=1;},stop(){audioProbe.stops+=1;}};
   }
   createGain(){return {gain:new FakeAudioParam(),connect(){}};}
-  createBuffer(_channels,length){return {getChannelData(){return new Float32Array(length);}};}
-  createBufferSource(){return {connect(){},start(){audioProbe.noises+=1;},stop(){}};}
-  createBiquadFilter(){const filter={type:'lowpass',frequency:new FakeAudioParam(),connect(){}};audioProbe.filters.push(filter);return filter;}
 }
-const fishingEffectsContext={window:{AudioContext:FakeAudioContext}};
+class FakeAudio{
+  constructor(src){this.src=src;this.currentTime=3;this.plays=0;this.pauses=0;audioProbe.players.push(this);}
+  load(){this.loaded=true;}
+  pause(){this.pauses+=1;}
+  play(){this.plays+=1;return Promise.resolve();}
+}
+const fishingEffectsContext={window:{AudioContext:FakeAudioContext},Audio:FakeAudio};
 vm.createContext(fishingEffectsContext);
 vm.runInContext(`${read('src/fishing-effects.js')}\nglobalThis.__rarityEffects=FISHING_RARITY_EFFECTS;`+
-  `globalThis.__legendarySound=playFishingRaritySound('legendary');`,fishingEffectsContext);
+  `globalThis.__soundUrls=FISHING_SOUND_URLS;globalThis.__legendarySound=playFishingRaritySound('legendary');`,fishingEffectsContext);
 const rarityEffects=fishingEffectsContext.__rarityEffects;
 assert(Object.keys(rarityEffects).join(',')==='rare,heroic,legendary','Unexpected fishing rarity effect tiers');
 assert(rarityEffects.rare.particles<rarityEffects.heroic.particles&&
@@ -110,13 +119,11 @@ assert(Object.values(rarityEffects).every(effect=>effect.tones.length>=3),
 assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
   audioProbe.starts===11&&audioProbe.stops===11,
   'Legendary fishing sound scheduling failed');
-vm.runInContext(`globalThis.__castSound=playFishingCastSound();`,fishingEffectsContext);
-assert(fishingEffectsContext.__castSound&&audioProbe.noises===3&&audioProbe.oscillators===13&&
-  audioProbe.filters[0].type==='highpass','Cast line swish and splash scheduling failed');
-vm.runInContext(`globalThis.__catchSound=playFishingCatchSound();`,fishingEffectsContext);
-assert(fishingEffectsContext.__catchSound&&audioProbe.noises===6&&audioProbe.oscillators===16&&
-  audioProbe.starts===16&&audioProbe.stops===16&&audioProbe.filters[3].type==='bandpass',
-  'Catch reel pull and water slap scheduling failed');
+vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__biteSound=playFishingBiteSound();globalThis.__catchSound=playFishingCatchSound();`,fishingEffectsContext);
+assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fishingEffectsContext.__catchSound&&
+  audioProbe.players.length===3&&audioProbe.players.every(player=>player.loaded&&player.plays===1&&player.currentTime===0)&&
+  audioProbe.players.map(player=>player.src).join(',')===fishingAudioPaths.join(','),
+  'Cast, bite and catch MP3 playback mapping failed');
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);

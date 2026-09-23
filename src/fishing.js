@@ -1,7 +1,9 @@
 const FISHING_CONFIG = Object.freeze({
   castMs: 320,
   minWaitMs: 1000,
-  maxWaitMs: 3000
+  maxWaitMs: 3000,
+  // Remove this bridge when the river and coast fishing regions are playable.
+  temporaryAllFishAtVillagePond: true
 });
 
 const FISHING_HABITAT_BY_REGION=Object.freeze({
@@ -38,6 +40,7 @@ function getFishingHabitat(regionId=GAME_STATE.regionId){
 
 function getFishingContext(){
   return {
+    regionId:GAME_STATE.regionId,
     habitat:getFishingHabitat(),
     period:getWorldTimePeriod(),
     weather:getWeatherKind()
@@ -45,7 +48,9 @@ function getFishingContext(){
 }
 
 function fishMatchesContext(fish,context){
-  if(fish.habitat!==context.habitat) return false;
+  const villagePreview=FISHING_CONFIG.temporaryAllFishAtVillagePond&&
+    context.regionId==='lilacVillage'&&context.habitat===FISH_HABITATS.POND;
+  if(!villagePreview&&fish.habitat!==context.habitat) return false;
   if(fish.periods&&!fish.periods.includes(context.period)) return false;
   if(fish.weather&&!fish.weather.includes(context.weather)) return false;
   return true;

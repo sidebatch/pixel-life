@@ -232,9 +232,13 @@ const fishingLogicContext={
 vm.createContext(fishingLogicContext);
 vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
   `const pool=getEligibleFishPool();`+
+  `globalThis.__villagePool=pool.map(fish=>fish.id);`+
+  `globalThis.__villageReachable=[...new Set(['DAWN','DAY','DUSK','NIGHT'].flatMap(period=>['clear','rain','storm'].flatMap(weather=>getEligibleFishPool({regionId:'lilacVillage',habitat:'pond',period,weather}).map(fish=>fish.id))))];`+
+  `globalThis.__futureRiverPool=getEligibleFishPool({regionId:'oldForest',habitat:'river',period:'DAY',weather:'clear'}).map(fish=>fish.id);`+
+  `globalThis.__futureCoastPool=getEligibleFishPool({regionId:'coast',habitat:'coast',period:'DAY',weather:'clear'}).map(fish=>fish.id);`+
   `const repeatStreak={fishId:'fish.crucian_carp',count:3};`+
   `globalThis.__weightedBounds=[chooseWeightedFish(pool,0).id,chooseWeightedFish(pool,1).id];`+
-  `globalThis.__repeatPenalty=[getEffectiveFishWeight(pool[0],repeatStreak),chooseWeightedFish(pool,.21,repeatStreak).id];`+
+  `globalThis.__repeatPenalty=[getEffectiveFishWeight(pool[0],repeatStreak),chooseWeightedFish(pool,.1,repeatStreak).id];`+
   `recordFishingSelection('fish.koi');recordFishingSelection('fish.koi');recordFishingSelection('fish.koi');`+
   `recordFishingSelection('fish.goldfish');`+
   `globalThis.__resetStreak={...fishingCatchStreak};`+
@@ -261,8 +265,18 @@ const fishingContextLabels=vm.runInContext(
   `['casting','waiting','bite','result'].map(phase=>{fishingState.phase=phase;return getFishingContextText();}).join('|')`,
   fishingLogicContext);
 assert(fishingContextLabels==='|||🎣 낚시 결과','Fishing should use sound and the bobber marker instead of phase text');
+assert(fishingLogicContext.__villageReachable.length===fishData.length&&
+  fishingLogicContext.__villageReachable.every(id=>fishData.some(fish=>fish.id===id)),
+  'Every fish must be reachable at the village pond across time and weather conditions');
+assert(fishingLogicContext.__villagePool.includes('fish.flounder')&&
+  fishingLogicContext.__villagePool.includes('fish.minnow')&&
+  !fishingLogicContext.__villagePool.includes('fish.coelacanth')&&
+  fishingLogicContext.__futureRiverPool.length>0&&fishingLogicContext.__futureCoastPool.length>0&&
+  fishingLogicContext.__futureRiverPool.every(id=>fishData.find(fish=>fish.id===id).habitat==='river')&&
+  fishingLogicContext.__futureCoastPool.every(id=>fishData.find(fish=>fish.id===id).habitat==='coast'),
+  'Temporary village preview must keep weather and future region-specific pools');
 assert(fishingLogicContext.__weightedBounds[0]==='fish.crucian_carp','Weighted selection lower bound failed');
-assert(fishingLogicContext.__weightedBounds[1]==='fish.largemouth_bass','Weighted selection upper bound failed');
+assert(fishingLogicContext.__weightedBounds[1]==='fish.flounder','Weighted selection upper bound failed');
 assert(fishingLogicContext.__repeatPenalty[0]===17.5,'Three-catch repeat weight was not halved');
 assert(fishingLogicContext.__repeatPenalty[1]==='fish.koi','Repeat penalty did not affect weighted selection');
 assert(fishingLogicContext.__resetStreak.fishId==='fish.goldfish'&&fishingLogicContext.__resetStreak.count===1,

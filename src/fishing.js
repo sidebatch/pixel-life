@@ -143,13 +143,6 @@ function getDiscoveredFishCount(){
   return FISH_DATA.reduce((count,fish)=>count+(GAME_STATE.collections.fish[fish.id]?1:0),0);
 }
 
-function fishingNextGoalText(level=GAME_STATE.progression.fishing.level){
-  const nextRod=FISHING_RODS.find(rod=>!rod.requiresMasterReward&&rod.unlockLevel>level);
-  if(nextRod) return `Lv.${nextRod.unlockLevel} · ${nextRod.name} 사용 가능`;
-  if(getDiscoveredFishCount()<FISH_DATA.length) return '도감 20종 · 강태공의 낚싯대';
-  return level<100?'Lv.100 · 숙련도 시작':'숙련도 올리기';
-}
-
 function fishingNewRodText(previousLevel,currentLevel){
   const rods=FISHING_RODS.filter(rod=>!rod.requiresMasterReward&&rod.unlockLevel>previousLevel&&rod.unlockLevel<=currentLevel);
   return rods.length?`${rods.map(rod=>rod.name).join('·')} 사용 가능!`:'';
@@ -220,6 +213,7 @@ function startFishing(){
   inputs.up=inputs.down=inputs.left=inputs.right=false;
   activeDir=null;
   clearPlayerInputBuffer?.();
+  playFishingCastSound();
   return true;
 }
 
@@ -281,8 +275,7 @@ function createFishingCatch(){
     collection:discovery.record,
     progression,
     rewards,
-    rodId:rod.id,
-    rodName:rod.name
+    rodId:rod.id
   };
 }
 
@@ -293,8 +286,8 @@ function showFishingResult(){
   const fish=FISH_DATA.find(item=>item.id===r.fishId);
   const discoveryText=r.firstDiscovery?'\n✨ 첫 발견! 도감 기록 완료':'';
   const rewardText=r.rewards.messages.length?`\n🎁 ${r.rewards.messages.join('\n🎁 ')}`:'';
-  const resultCopy=`${r.name} · ${r.sizeCm.toFixed(1)}cm\n${FISH_RARITY_LABELS[r.rarity]} · 판매가 ${r.price}G\n🎣 ${r.rodName}${discoveryText}${rewardText}`;
-  showDialog(`낚시 결과 · ${FISH_RARITY_LABELS[r.rarity]}`,resultCopy);
+  const resultCopy=`${r.sizeCm.toFixed(1)}cm · 판매가 ${r.price}G${discoveryText}${rewardText}`;
+  showDialog(`${r.name} (${FISH_RARITY_LABELS[r.rarity]})`,resultCopy);
   const layout=document.createElement('div');
   layout.className='fishingResultLayout';
   const image=document.createElement('img');
@@ -307,15 +300,16 @@ function showFishingResult(){
   layout.append(image,copy);
   const skillCard=document.createElement('div');
   skillCard.className='fishingResultSkill';
-  skillCard.innerHTML=skillCardMarkup('fishing',r.progression.before,fishingNextGoalText(r.progression.level));
+  skillCard.innerHTML=skillCardMarkup('fishing',r.progression.before);
   document.getElementById('dialogText').replaceChildren(layout,skillCard);
   const dialog=document.getElementById('dialog');
   dialog.classList.add('fishingResult');
   dialog.classList.toggle('firstDiscovery',r.firstDiscovery);
   dialog.dataset.rarity=r.rarity;
+  playFishingCatchSound();
   showFishingRarityEffect(dialog,r.rarity);
   showSkillXpFeedback('fishing',r.progression.before,r.progression.after,r.progression.gained,
-    fishingNewRodText(r.progression.before.level,r.progression.level),fishingNextGoalText(r.progression.level));
+    fishingNewRodText(r.progression.before.level,r.progression.level));
 }
 
 function updateFishing(dt){

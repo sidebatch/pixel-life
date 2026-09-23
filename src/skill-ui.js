@@ -1,6 +1,6 @@
 const skillFeedbackState={token:0,hideTimer:null,overlayTimer:null};
 
-function skillCardMarkup(skillId,snapshot=lifeSkillProgressSnapshot(skillId),nextGoal=''){
+function skillCardMarkup(skillId,snapshot=lifeSkillProgressSnapshot(skillId)){
   const skill=LIFE_SKILLS[skillId];
   const isMastery=snapshot.level>=LIFE_SKILL_MAX_LEVEL;
   const title=isMastery?`Lv.100 · 숙련도 ${snapshot.mastery}`:`Lv.${snapshot.level}`;
@@ -11,7 +11,6 @@ function skillCardMarkup(skillId,snapshot=lifeSkillProgressSnapshot(skillId),nex
     <div class="skillCardTop"><span class="skillCardIcon">${skill.icon}</span><b>${skill.name}</b><strong class="skillCardLevel">${title}</strong></div>
     <div class="skillCardBar${percent>=98?' veryNear':percent>=90?' near':''}" role="progressbar" aria-label="${skill.name} 경험치" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"><span style="width:${percent}%"></span></div>
     <div class="skillCardFoot"><span class="skillCardXp">${value.toLocaleString()} / ${required.toLocaleString()} XP</span><b class="skillCardPercent">${percent}%</b></div>
-    ${nextGoal?`<small class="skillCardGoal">다음 목표 · ${nextGoal}</small>`:''}
   </div>`;
 }
 
@@ -34,19 +33,46 @@ function setSkillCardProgress(skillId,snapshot,instant=false){
   });
 }
 
-function showSkillLevelUp(skillId,level,mastery,currentReward,nextGoal){
+function isSkillLevelUpVisible(){
+  return document.getElementById('skillLevelUpOverlay')?.classList.contains('show')||false;
+}
+
+function dismissSkillLevelUp(options={}){
+  const overlay=document.getElementById('skillLevelUpOverlay');
+  if(!overlay?.classList.contains('show')) return;
+  clearTimeout(skillFeedbackState.overlayTimer);
+  overlay.classList.remove('show');
+  overlay.setAttribute('aria-hidden','true');
+  overlay.setAttribute('inert','');
+  if(!options.fromHistory) leaveGameOverlayHistory('skill-level-up');
+}
+
+function cancelSkillXpFeedback(){
+  skillFeedbackState.token++;
+  clearTimeout(skillFeedbackState.hideTimer);
+  document.getElementById('skillXPToast')?.classList.remove('show');
+  dismissSkillLevelUp();
+}
+
+function showSkillLevelUp(skillId,level,mastery,currentReward){
   const overlay=document.getElementById('skillLevelUpOverlay');
   if(!overlay) return;
   const skill=LIFE_SKILLS[skillId];
+  const alreadyVisible=isSkillLevelUpVisible();
   overlay.replaceChildren();
+  const close=document.createElement('button');
+  close.type='button';close.className='skillLevelUpClose';close.setAttribute('aria-label','레벨업 알림 닫기');close.textContent='×';
+  close.addEventListener('click',()=>dismissSkillLevelUp());
   const icon=document.createElement('span');icon.textContent=skill.icon;
   const title=document.createElement('b');title.textContent=mastery===null?`${skill.name} Lv.${level}!`:`${skill.name} 숙련도 ${mastery}!`;
   const reward=document.createElement('p');reward.textContent=currentReward||'실력이 늘었어요!';
-  overlay.append(icon,title,reward);
-  if(nextGoal){const next=document.createElement('small');next.textContent=`다음 목표 · ${nextGoal}`;overlay.append(next);}
+  overlay.append(close,icon,title,reward);
   overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+  overlay.removeAttribute('inert');
+  if(!alreadyVisible) pushGameOverlayHistory('skill-level-up');
   clearTimeout(skillFeedbackState.overlayTimer);
-  skillFeedbackState.overlayTimer=setTimeout(()=>overlay.classList.remove('show'),1550);
+  skillFeedbackState.overlayTimer=setTimeout(()=>dismissSkillLevelUp(),5000);
   playSkillLevelUpSound();
 }
 
@@ -72,7 +98,7 @@ function playSkillLevelUpSound(){
 
 function skillFeedbackPause(ms){return new Promise(resolve=>setTimeout(resolve,ms));}
 
-async function showSkillXpFeedback(skillId,before,after,gained,currentReward='',nextGoal=''){
+async function showSkillXpFeedback(skillId,before,after,gained,currentReward=''){
   const toast=document.getElementById('skillXPToast');
   if(!toast||!gained) return;
   const token=++skillFeedbackState.token;
@@ -83,7 +109,7 @@ async function showSkillXpFeedback(skillId,before,after,gained,currentReward='',
   if(reduced){
     setSkillCardProgress(skillId,after,true);
     if(after.level>before.level||after.mastery>before.mastery){
-      showSkillLevelUp(skillId,after.level,after.mastery>before.mastery?after.mastery:null,currentReward,nextGoal);
+      showSkillLevelUp(skillId,after.level,after.mastery>before.mastery?after.mastery:null,currentReward);
     }
   }else{
     await skillFeedbackPause(40);
@@ -96,7 +122,7 @@ async function showSkillXpFeedback(skillId,before,after,gained,currentReward='',
       await skillFeedbackPause(420);
       if(token!==skillFeedbackState.token) return;
       const nextLevel=level+1;
-      showSkillLevelUp(skillId,nextLevel,null,step===animatedLevels-1?currentReward:'',nextGoal);
+      showSkillLevelUp(skillId,nextLevel,null,step===animatedLevels-1?currentReward:'');
       setSkillCardProgress(skillId,{level:nextLevel,xp:0,mastery:0,masteryXp:0},true);
       await skillFeedbackPause(180);
       if(token!==skillFeedbackState.token) return;
@@ -105,7 +131,7 @@ async function showSkillXpFeedback(skillId,before,after,gained,currentReward='',
       setSkillCardProgress(skillId,{level:100,xp:0,mastery:before.mastery,masteryXp:lifeSkillMasteryXpRequired(before.mastery)});
       await skillFeedbackPause(420);
       if(token!==skillFeedbackState.token) return;
-      showSkillLevelUp(skillId,100,after.mastery,currentReward,nextGoal);
+      showSkillLevelUp(skillId,100,after.mastery,currentReward);
       setSkillCardProgress(skillId,{level:100,xp:0,mastery:after.mastery,masteryXp:0},true);
     }
     setSkillCardProgress(skillId,after);

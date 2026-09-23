@@ -80,18 +80,21 @@ assert(fishingRods.every((rod,index)=>index===0||rod.waitReduction>=fishingRods[
 assert(fishingRods.at(-1).requiresMasterReward&&fishingRods.at(-1).rareWeightBonus===.35,
   'Master angler rod configuration failed');
 
-const audioProbe={oscillators:0,starts:0,stops:0};
+const audioProbe={oscillators:0,starts:0,stops:0,splashes:0};
 class FakeAudioParam{
   setValueAtTime(){}
   exponentialRampToValueAtTime(){}
 }
 class FakeAudioContext{
-  constructor(){this.currentTime=0;this.state='running';this.destination={};}
+  constructor(){this.currentTime=0;this.state='running';this.destination={};this.sampleRate=48000;}
   createOscillator(){
     audioProbe.oscillators+=1;
     return {type:'sine',frequency:new FakeAudioParam(),connect(){},start(){audioProbe.starts+=1;},stop(){audioProbe.stops+=1;}};
   }
   createGain(){return {gain:new FakeAudioParam(),connect(){}};}
+  createBuffer(_channels,length){return {getChannelData(){return new Float32Array(length);}};}
+  createBufferSource(){return {connect(){},start(){audioProbe.splashes+=1;},stop(){}};}
+  createBiquadFilter(){return {type:'lowpass',frequency:new FakeAudioParam(),connect(){}};}
 }
 const fishingEffectsContext={window:{AudioContext:FakeAudioContext}};
 vm.createContext(fishingEffectsContext);
@@ -107,6 +110,10 @@ assert(Object.values(rarityEffects).every(effect=>effect.tones.length>=3),
 assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
   audioProbe.starts===11&&audioProbe.stops===11,
   'Legendary fishing sound scheduling failed');
+vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__catchSound=playFishingCatchSound();`,fishingEffectsContext);
+assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__catchSound&&
+  audioProbe.splashes===2&&audioProbe.oscillators===15&&audioProbe.starts===15&&audioProbe.stops===15,
+  'Cast splash and catch sound scheduling failed');
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);

@@ -60,29 +60,85 @@ function scheduleFishingTone(context,frequency,start,duration,type,volume){
   oscillator.start(start);oscillator.stop(start+duration+.03);
 }
 
-function playFishingRaritySound(rarity){
-  const effect=FISHING_RARITY_EFFECTS[rarity];
+function scheduleFishingSweep(context,from,to,start,duration,volume){
+  const oscillator=context.createOscillator();
+  const gain=context.createGain();
+  oscillator.type='sine';
+  oscillator.frequency.setValueAtTime(from,start);
+  oscillator.frequency.exponentialRampToValueAtTime(to,start+duration);
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.exponentialRampToValueAtTime(volume,start+.018);
+  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+  oscillator.connect(gain);gain.connect(context.destination);
+  oscillator.start(start);oscillator.stop(start+duration+.02);
+}
+
+function scheduleFishingSplash(context,start,duration,volume){
+  const sampleCount=Math.ceil(context.sampleRate*duration);
+  const buffer=context.createBuffer(1,sampleCount,context.sampleRate);
+  const samples=buffer.getChannelData(0);
+  let seed=17391;
+  for(let index=0;index<sampleCount;index++){
+    seed=(seed*1664525+1013904223)>>>0;
+    samples[index]=(seed/2147483648-1);
+  }
+  const source=context.createBufferSource();
+  const filter=context.createBiquadFilter();
+  const gain=context.createGain();
+  source.buffer=buffer;
+  filter.type='lowpass';filter.frequency.setValueAtTime(1800,start);
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.exponentialRampToValueAtTime(volume,start+.018);
+  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+  source.connect(filter);filter.connect(gain);gain.connect(context.destination);
+  source.start(start);source.stop(start+duration+.02);
+}
+
+function playFishingAudio(play){
   const AudioContextClass=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
-  if(!effect||!AudioContextClass) return false;
+  if(!AudioContextClass) return false;
   try{
     fishingAudioContext ||= new AudioContextClass();
-    const play=()=>{
-      const now=fishingAudioContext.currentTime+.015;
-      effect.tones.forEach((frequency,index)=>{
-        const start=now+index*(rarity==='legendary'?.105:.085);
-        const duration=rarity==='legendary'?.64:rarity==='heroic'?.5:.38;
-        const type=rarity==='rare'?'sine':index%2?'sine':'triangle';
-        scheduleFishingTone(fishingAudioContext,frequency,start,duration,type,.035);
-        if(rarity==='legendary') scheduleFishingTone(fishingAudioContext,frequency*2,start+.04,.42,'sine',.012);
-      });
-      if(rarity==='legendary') scheduleFishingTone(fishingAudioContext,98,now,.95,'sine',.026);
-    };
-    if(fishingAudioContext.state==='suspended') fishingAudioContext.resume().then(play).catch(()=>{});
-    else play();
+    if(fishingAudioContext.state==='suspended') fishingAudioContext.resume().then(()=>play(fishingAudioContext)).catch(()=>{});
+    else play(fishingAudioContext);
     return true;
   }catch(_){
     return false;
   }
+}
+
+function playFishingCastSound(){
+  return playFishingAudio(context=>{
+    const now=context.currentTime+.015;
+    scheduleFishingSplash(context,now,.34,.085);
+    scheduleFishingSweep(context,410,195,now+.035,.21,.036);
+    scheduleFishingSweep(context,520,270,now+.15,.16,.02);
+  });
+}
+
+function playFishingCatchSound(){
+  return playFishingAudio(context=>{
+    const now=context.currentTime+.015;
+    scheduleFishingSplash(context,now,.13,.036);
+    scheduleFishingSweep(context,360,530,now+.035,.15,.027);
+    scheduleFishingSweep(context,520,735,now+.13,.18,.023);
+  });
+}
+
+function playFishingRaritySound(rarity){
+  const effect=FISHING_RARITY_EFFECTS[rarity];
+  if(!effect) return false;
+  return playFishingAudio(context=>{
+    const now=context.currentTime+.19;
+    effect.tones.forEach((frequency,index)=>{
+      const start=now+index*(rarity==='legendary'?.105:.085);
+      const duration=rarity==='legendary'?.64:rarity==='heroic'?.5:.38;
+      const type=rarity==='rare'?'sine':index%2?'sine':'triangle';
+      scheduleFishingTone(context,frequency,start,duration,type,.035);
+      if(rarity==='legendary') scheduleFishingTone(context,frequency*2,start+.04,.42,'sine',.012);
+    });
+    if(rarity==='legendary') scheduleFishingTone(context,98,now,.95,'sine',.026);
+  });
 }
 
 function showFishingRarityEffect(dialog,rarity){

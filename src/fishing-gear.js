@@ -39,7 +39,7 @@ function renderFishingGear(){
   const equipped=getEquippedFishingRod();
   const selected=FISHING_ROD_BY_ID.get(fishingGearState.selectedRodId)||equipped;
   const summary=document.getElementById('fishingGearSummary');
-  summary.innerHTML=skillCardMarkup('fishing',lifeSkillProgressSnapshot('fishing',progress),fishingNextGoalText(progress.level));
+  summary.innerHTML=skillCardMarkup('fishing',lifeSkillProgressSnapshot('fishing',progress));
 
   const list=document.getElementById('fishingGearList');
   list.innerHTML=FISHING_RODS.map(rod=>{

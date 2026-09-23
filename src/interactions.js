@@ -10,6 +10,7 @@ function showDialog(speaker,text){
 function closeDialog(){
   const wasFishingResult=typeof isFishingResult==='function'&&isFishingResult();
   if(typeof clearFishingRarityEffect==='function') clearFishingRarityEffect();
+  if(wasFishingResult&&typeof cancelSkillXpFeedback==='function') cancelSkillXpFeedback();
   dialogOpen=false;
   const dialog=document.getElementById('dialog');
   dialog.classList.remove('show','fishingResult','firstDiscovery');
@@ -30,7 +31,8 @@ function interact(){
   showDialog('SYSTEM','조사할 것이 없다.');
 }
 function pressB(){
-  if(dialogOpen) closeDialog();
+  if(typeof isSkillLevelUpVisible==='function'&&isSkillLevelUpVisible()) dismissSkillLevelUp();
+  else if(dialogOpen) closeDialog();
   else if(typeof isFishDexDetailOpen==='function'&&isFishDexDetailOpen()) closeFishDexDetail();
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
   else if(typeof isFishingGearOpen==='function'&&isFishingGearOpen()) closeFishingGear();
@@ -49,6 +51,8 @@ function leaveGameOverlayHistory(kind){
 
 window.addEventListener('popstate',()=>{
   const layer=window.history.state?.pixelLifeOverlay;
+  if(isSkillLevelUpVisible()) dismissSkillLevelUp({fromHistory:true});
+  if(layer==='skill-level-up') return;
   if(layer==='fish-detail'){
     if(!isFishDexOpen()) openFishDex({fromHistory:true});
     if(!isFishDexDetailOpen()) openFishDexDetail(window.history.state.fishId,{fromHistory:true});

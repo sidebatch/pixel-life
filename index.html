@@ -87,13 +87,13 @@
           <div class="fishDexHeaderRight"><b id="fishDexProgress">0 / 20</b><button id="fishDexClose" type="button" aria-label="도감 닫기">×</button></div>
         </div>
         <div class="fishDexTabs" role="tablist" aria-label="도감 지역 필터">
-          <button type="button" data-fish-filter="all" class="active">전체</button>
-          <button type="button" data-fish-filter="pond">연못</button>
-          <button type="button" data-fish-filter="river">강</button>
-          <button type="button" data-fish-filter="coast">바다</button>
+          <button type="button" role="tab" aria-selected="true" aria-controls="fishDexScroll" data-fish-filter="all" class="active">전체</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="fishDexScroll" data-fish-filter="pond">연못</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="fishDexScroll" data-fish-filter="river">강</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="fishDexScroll" data-fish-filter="coast">바다</button>
         </div>
         <div class="fishDexReward" id="fishDexReward" aria-live="polite"></div>
-        <div class="fishDexScroll">
+        <div class="fishDexScroll" id="fishDexScroll" role="tabpanel">
           <div class="fishDexGrid" id="fishDexGrid"></div>
           <section class="fishDexDetail" id="fishDexDetail" aria-live="polite"></section>
         </div>

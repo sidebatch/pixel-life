@@ -31,9 +31,13 @@ const html = read('index.html');
 const scripts = scriptFiles.map(read).join('\n');
 new Function(scripts);
 
-const htmlIds = new Set([...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]));
+const htmlIdList = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
+const htmlIds = new Set(htmlIdList);
+assert(htmlIds.size === htmlIdList.length, 'HTML ids must be unique');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
+assert((html.match(/role="tab"/g) || []).length === 4, 'Fish dex filters must expose four accessible tabs');
+assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
 assert(assetPaths.length === 54, `Expected 54 runtime asset references, found ${assetPaths.length}`);
@@ -49,11 +53,13 @@ assert(!read('src/assets.js').includes('base64,'), 'Development asset map must n
 
 const fishContext={};
 vm.createContext(fishContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\nglobalThis.__fishData=FISH_DATA;`,fishContext);
+vm.runInContext(`${read('src/data/fish-data.js')}\nglobalThis.__fishData=FISH_DATA;globalThis.__fishRewards=FISH_COLLECTION_REWARDS;`,fishContext);
 const fishData=fishContext.__fishData;
+const fishRewards=fishContext.__fishRewards;
 assert(fishData.length===20,`Expected 20 fish records, found ${fishData.length}`);
 assert(new Set(fishData.map(fish=>fish.id)).size===fishData.length,'Fish ids must be unique');
 assert(new Set(fishData.map(fish=>fish.asset)).size===fishData.length,'Fish asset keys must be unique');
+assert(fishRewards.map(reward=>reward.count).join(',')==='5,10,15,19,20','Unexpected fish collection reward thresholds');
 
 const fishAssetContext={};
 vm.createContext(fishAssetContext);
@@ -65,6 +71,7 @@ for(const fish of fishData){
   const assetPath=fishUrls[fish.asset];
   assert(assetPath,`Missing fish image mapping: ${fish.id}`);
   const bytes=fs.readFileSync(path.join(root,assetPath));
+  assert(bytes.length>=24&&bytes.subarray(1,4).toString()==='PNG',`Fish image is not a valid PNG: ${assetPath}`);
   assert(bytes.readUInt32BE(16)===96&&bytes.readUInt32BE(20)===96,
     `Fish image must be 96x96: ${assetPath}`);
 }
@@ -77,7 +84,20 @@ for(const fish of fishData){
   assert(fish.id.startsWith('fish.'),`Invalid fish id: ${fish.id}`);
   assert(fish.minSizeCm>0&&fish.maxSizeCm>fish.minSizeCm,`Invalid size range: ${fish.id}`);
   assert(fish.basePrice>0&&fish.xp>0&&fish.weight>0,`Invalid reward or weight: ${fish.id}`);
+  assert(!fish.periods||fish.periods.every(period=>['DAWN','DAY','DUSK','NIGHT'].includes(period)),
+    `Invalid fishing period: ${fish.id}`);
+  assert(!fish.weather||fish.weather.every(weather=>['clear','rain','storm'].includes(weather)),
+    `Invalid fishing weather: ${fish.id}`);
 }
+
+const timeContext={};
+vm.createContext(timeContext);
+vm.runInContext(`${read('src/world-time.js')}\n`+
+  `globalThis.__parsedTimes=[parseWorldTime('00:00'),parseWorldTime('23:59'),parseWorldTime('24:00'),parseWorldTime('9:7')];`+
+  `globalThis.__periodBounds=[getWorldTimePeriod(299),getWorldTimePeriod(300),getWorldTimePeriod(479),getWorldTimePeriod(480),getWorldTimePeriod(1019),getWorldTimePeriod(1020),getWorldTimePeriod(1199),getWorldTimePeriod(1200)];`,timeContext);
+assert(timeContext.__parsedTimes.join(',')==='0,1439,,','World-time parser boundary check failed');
+assert(timeContext.__periodBounds.join(',')==='NIGHT,DAWN,DAWN,DAY,DAY,DUSK,DUSK,NIGHT',
+  'World-time period boundary check failed');
 
 const eligibleFish=(habitat,period,weather)=>fishData.filter(fish=>
   fish.habitat===habitat&&
@@ -194,6 +214,12 @@ assert(saveContext.__restored.progression.coins===1400&&saveContext.__restored.p
 assert(saveContext.__restored.progression.flags.fishCollectionRewards[20]&&
   saveContext.__restored.progression.flags.masterAnglerTitle&&saveContext.__restored.progression.flags.masterRod,
   'Saved fish collection rewards did not restore');
+saveStorage.set('pixel-life.save','{not-json');
+vm.runInContext('globalThis.__invalidJsonSave=loadGame();',saveContext);
+assert(saveContext.__invalidJsonSave===false,'Malformed save JSON must fail safely');
+saveStorage.set('pixel-life.save',JSON.stringify({version:999,state:{}}));
+vm.runInContext('globalThis.__futureVersionSave=loadGame();',saveContext);
+assert(saveContext.__futureVersionSave===false,'Unknown save version must not be applied');
 
 const validationScripts = [
   'src/assets.js',

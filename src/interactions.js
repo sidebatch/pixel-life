@@ -136,11 +136,16 @@ function refreshContext(){
   const chip=document.getElementById('contextChip');
   const text=contextInfo();chip.textContent=text||'조사';chip.classList.toggle('show',!!text);
   const cancel=document.getElementById('fishingCancelBtn');
-  const canCancel=typeof isFishingActive==='function'&&isFishingActive()&&
+  const fishingActive=typeof isFishingActive==='function'&&isFishingActive();
+  const canCancel=fishingActive&&
     !(typeof isFishingResult==='function'&&isFishingResult());
-  document.getElementById('actionCluster')?.classList.toggle('fishing',canCancel);
-  document.getElementById('topBagBtn')?.classList.toggle('fishingDisabled',canCancel);
-  document.getElementById('settingsBtn')?.classList.toggle('fishingDisabled',canCancel);
+  document.getElementById('actionCluster')?.classList.toggle('fishing',fishingActive);
+  for(const id of ['topBagBtn','settingsBtn','bagBtn','menuBtn']){
+    const button=document.getElementById(id);
+    if(!button) continue;
+    button.disabled=fishingActive;
+    button.classList.toggle('fishingDisabled',fishingActive);
+  }
   if(cancel) cancel.hidden=!canCancel;
   cancel?.classList.toggle('show',canCancel);
 }

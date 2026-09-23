@@ -1,37 +1,91 @@
-# Pixel Life — Deep QA Report (QA Fix 2)
+# Pixel Life 종합 QA 보고서
 
-## Reported defect
-Player could not move after the NPC redesign/update.
+검증일: 2026-09-23
 
-## Confirmed root cause
-`drawNPC()` called `roundRect(...)`, but `roundRect` was never defined. The first animation frame threw a `ReferenceError`, stopping the shared `requestAnimationFrame` loop. Because movement, camera, NPC updates, and rendering all share that loop, the player appeared completely frozen even when input state changed.
+대상: `main`의 낚시·도감·시간·날씨 통합 빌드
 
-## Secondary issues found
-1. The portrait build still had a landscape orientation overlay capable of covering the entire control layer and intercepting input in some viewers.
-2. NPC roaming allowed an NPC to step immediately next to the player and potentially block a preferred direction.
-3. Joystick reset did not handle every pointer-capture/page lifecycle case.
+지원 기준: Android 세로 화면, 키보드 보조 입력, GitHub Pages
 
-## Fixes applied
-- Replaced the missing `roundRect` call with a defined, cross-browser `roundedRectPath()` helper.
-- Disabled the hard-blocking landscape overlay.
-- Kept Pointer Events as the primary joystick input path and added a Touch Events fallback for environments without Pointer Events.
-- Added reset handling for `lostpointercapture`, `blur`, and `pagehide`.
-- NPC roaming now avoids both the player's tile and immediately adjacent tiles.
-- Added runtime error/unhandled-promise logging.
+## 결론
 
-## Automated browser QA
-Tested in headless Chromium with a mobile portrait viewport (390 × 844) and touch emulation.
+현재 공개 빌드의 월드 이동, 시간·날씨 미리보기, 낚시 시작·취소·획득, 물고기 도감, 로컬 저장·복원과 Pages 배포를 다시 검증했다. 치명적 오류나 콘솔 오류는 발견되지 않았다.
 
-### Verified
-- JavaScript syntax: PASS
-- First-frame runtime exceptions: PASS (0 exceptions)
-- Joystick hit target: PASS
-- Sustained touch joystick input: PASS
-- Player movement: PASS — simulated upward touch moved the player from grid Y=16 to Y=12
-- Movement input reset after touch release: PASS
-- Initial movement collision sanity: PASS — up/down/left/right all available at spawn after anti-crowding adjustment
-- NPC roaming: PASS — multiple NPC positions changed during a 3.2-second runtime test
-- Runtime exceptions during movement/roaming: PASS (0 exceptions)
+QA 중 낚시 결과창이 열린 순간 메뉴 버튼이 다시 활성화될 수 있는 상호작용 문제를 발견했다. 캐스팅부터 결과창을 닫을 때까지 가방·메뉴·설정 버튼을 실제 `disabled` 상태로 유지하도록 수정했다. CSS 포인터 차단뿐 아니라 키보드와 접근성 입력도 함께 차단한다.
 
-## Current scope note
-This build is portrait-first. Landscape is no longer hard-blocked, but the control layout is not yet optimized for landscape and may overlap. Portrait remains the supported target for this phase.
+## 자동 검사
+
+`node scripts/check.mjs`가 다음 항목을 검사한다.
+
+- 16개 런타임 스크립트의 통합 구문
+- JavaScript가 참조하는 HTML ID의 존재 여부와 ID 중복
+- 도감 필터 4개의 탭·탭패널 접근성 구조
+- 런타임 이미지 54개의 존재 여부
+- 물고기 20종 ID·에셋 키 중복, 크기·가격·XP·Weight 유효성
+- 물고기 PNG 서명과 96×96 크기
+- 연못·강·바다의 모든 시간대·날씨 조합에 최소 한 종 이상 존재
+- 시간 파서와 `DAWN / DAY / DUSK / NIGHT` 경계값
+- 가중치 추첨의 양 끝값과 3회 연속 등장 페널티·해제
+- Fishing XP 레벨업과 최대 레벨 20
+- 발견 수, 최소·최대·평균 크기 누적
+- 5·10·15·19·20종 도감 보상과 중복 지급 방지
+- 버전형 저장·복원, 특별 낚싯대 복원
+- 손상된 JSON 저장과 알 수 없는 저장 버전의 안전한 거부
+- 64×48 월드 좌표·충돌·건물·NPC 배치 오류
+
+`node scripts/build.mjs`는 CSS·JavaScript·이미지를 `dist/index.html` 하나로 합치고 외부 런타임 의존성이 남지 않았는지 검사한다.
+
+## 실제 모바일 배포본 QA
+
+GitHub Pages 배포본을 412×915 Android 세로 뷰포트에서 직접 조작했다.
+
+| 영역 | 검증 내용 | 결과 |
+|---|---|---|
+| 공개 진입 | 일반 링크에서 디버그 패널이 숨겨짐 | 통과 |
+| 시간 | 새벽 06:30, 낮 12:00, 저녁 18:30, 밤 22:00, ±30분 | 통과 |
+| 날씨 | 맑음·비·폭풍 버튼, HUD 아이콘, 화면 전체 강수 | 통과 |
+| 이동 | 모바일 조이스틱 이동, 물가 충돌, 방향 전환 | 통과 |
+| 낚시 시작 | 물을 바라볼 때 `낚시`, 캐스팅·대기·입질 전환 | 통과 |
+| 낚시 취소 | 취소 후 메뉴가 열리지 않고 버튼 상태가 복원됨 | 통과 |
+| 낚시 결과 | 전용 이미지, 등급, 크기, 가격, XP, `NEW` 표시 | 통과 |
+| 도감 | 20종 표시와 전체 20·연못 6·강 7·바다 7 필터 | 통과 |
+| 도감 힌트 | 15종 전 희귀어의 정확한 조건이 숨겨짐 | 통과 |
+| 도감 보상 | 다음 보상, 발견 수, 진행 막대 표시 | 통과 |
+| 저장 | 획득 후 새로고침해 발견 수·크기 통계가 복원됨 | 통과 |
+| 런타임 | 브라우저 오류·경고 로그 | 0건 |
+
+## 에셋 QA
+
+- 물고기 20종이 데이터의 에셋 키와 일대일로 연결된다.
+- 게임용 이미지는 모두 96×96 투명 PNG다.
+- 도감 카드·상세 화면·낚시 결과가 동일한 어종 이미지를 사용한다.
+- 전체 접촉 시트에서 잘림, 불투명 사각 배경, 어종 중복을 확인하지 못했다.
+- 광어는 실제 넙치류처럼 양쪽 눈이 몸의 한쪽 면에 모인 형태이며, 현재 이미지도 그 특징을 따른다.
+
+## 저장과 호환성
+
+- 저장 키: `pixel-life.save`
+- 저장 버전: `1`
+- 저장 대상: 물고기 인벤토리, 발견·크기 통계, 코인, Fishing XP·레벨, 도감 보상 플래그, 특별 낚싯대
+- 현재 브라우저의 로컬 저장만 사용하며 기기·브라우저 간 동기화는 지원하지 않는다.
+- 손상되거나 지원하지 않는 버전의 저장은 적용하지 않고 기본 상태로 계속 실행한다.
+
+## 현재 남은 범위
+
+다음 항목은 결함이 아니라 아직 구현되지 않은 기능이다.
+
+- 강·바다 실제 월드와 낚시터
+- 희귀·영웅·전설 결과 사운드·파티클
+- 낚싯대 장비 효과와 장비 선택 화면
+- 인벤토리 실제 아이템 UI, 판매와 요리
+- 날씨 전환 페이드와 환경음
+- 세로 9:16보다 긴 화면의 상·하단 여백 최적화
+
+## 배포 전 필수 명령
+
+```bash
+node scripts/check.mjs
+node scripts/build.mjs
+git diff --check
+```
+
+`main` 푸시 후 GitHub Actions의 `Deploy GitHub Pages` 성공과 공개 URL의 최신 빌드 응답까지 확인한다.

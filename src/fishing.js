@@ -1,7 +1,7 @@
 const FISHING_CONFIG = Object.freeze({
   castMs: 320,
-  minWaitMs: 1000,
-  maxWaitMs: 3000,
+  minWaitMs: 3000,
+  maxWaitMs: 6000,
   // Remove this bridge when the river and coast fishing regions are playable.
   temporaryAllFishAtVillagePond: true
 });
@@ -83,6 +83,12 @@ function getEquippedFishingRod(){
 
 function getFishingRodWaitMultiplier(rod=getEquippedFishingRod()){
   return 1-Math.max(0,Math.min(.75,rod?.waitReduction||0));
+}
+
+function getFishingBiteDelay(randomValue=Math.random(),rod=getEquippedFishingRod()){
+  const roll=Math.max(0,Math.min(1,Number(randomValue)||0));
+  const baseWait=FISHING_CONFIG.minWaitMs+roll*(FISHING_CONFIG.maxWaitMs-FISHING_CONFIG.minWaitMs);
+  return baseWait*getFishingRodWaitMultiplier(rod);
 }
 
 function getEffectiveFishWeight(fish,streak=fishingCatchStreak,rod=getEquippedFishingRod()){
@@ -208,8 +214,7 @@ function startFishing(){
   if(menuOpen || isFishingActive() || !fishingWaterInFront()) return false;
   fishingState.phase=fishingDebugFishId?'bite':'casting';
   fishingState.timer=0;
-  const baseWait=FISHING_CONFIG.minWaitMs+Math.random()*(FISHING_CONFIG.maxWaitMs-FISHING_CONFIG.minWaitMs);
-  fishingState.biteDelay=baseWait*getFishingRodWaitMultiplier();
+  fishingState.biteDelay=getFishingBiteDelay();
   fishingState.result=null;
   const target=facingTile();
   fishingState.spot={x:target.x,y:target.y};

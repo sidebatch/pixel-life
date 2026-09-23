@@ -265,6 +265,11 @@ const fishingContextLabels=vm.runInContext(
   `['casting','waiting','bite','result'].map(phase=>{fishingState.phase=phase;return getFishingContextText();}).join('|')`,
   fishingLogicContext);
 assert(fishingContextLabels==='|||🎣 낚시 결과','Fishing should use sound and the bobber marker instead of phase text');
+const biteDelays=vm.runInContext(
+  `[getFishingBiteDelay(0,FISHING_RODS[0]),getFishingBiteDelay(.5,FISHING_RODS[0]),getFishingBiteDelay(1,FISHING_RODS[0]),getFishingBiteDelay(.5,FISHING_RODS[3])]`,
+  fishingLogicContext);
+assert(biteDelays.join(',')==='3000,4500,6000,3825',
+  'Bite delay must be random within 3–6 seconds before the equipped rod reduction');
 assert(fishingLogicContext.__villageReachable.length===fishData.length&&
   fishingLogicContext.__villageReachable.every(id=>fishData.some(fish=>fish.id===id)),
   'Every fish must be reachable at the village pond across time and weather conditions');

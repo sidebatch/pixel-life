@@ -23,21 +23,17 @@ function groupInventoryFish(items=GAME_STATE.inventory){
 function renderInventoryFish(){
   const groups=groupInventoryFish();
   const count=groups.reduce((total,group)=>total+group.count,0);
-  document.getElementById('inventorySummary').textContent=`물고기 ${count.toLocaleString()}마리 · ${groups.length}종`;
+  document.getElementById('inventorySummary').textContent=`보유 물고기 ${count.toLocaleString()}마리`;
   const scroll=document.getElementById('inventoryScroll');
   if(!groups.length){
     scroll.innerHTML='<div class="inventoryEmpty"><span>🐟</span><b>아직 낚은 물고기가 없어요</b><p>연못에서 낚으면 이곳에서 확인할 수 있어요.</p></div>';
     return;
   }
-  scroll.innerHTML=groups.map((group,index)=>`<details class="inventorySpecies rarity-${group.fish.rarity}" ${index===0?'open':''}>
-    <summary><span class="inventoryFishIcon"><img src="${getFishImageUrl(group.fish)}" alt=""></span>
-      <span class="inventoryFishTitle"><b>${group.fish.name}</b><small>${group.count.toLocaleString()}마리 · 개별 크기와 가격 보기</small></span>
-      <span class="inventoryChevron" aria-hidden="true">⌄</span></summary>
-    <div class="inventoryCatchList">${group.entries.map(entry=>`<div class="inventoryCatchRow">
-      <span>크기 <b>${entry.sizeCm.toFixed(1)}cm</b>${entry.quantity>1?` <small>×${entry.quantity}</small>`:''}</span>
-      <span>판매가 <b>${entry.price.toLocaleString()}G</b></span>
-    </div>`).join('')}</div>
-  </details>`).join('');
+  scroll.innerHTML=groups.map(group=>`<div class="inventorySpecies rarity-${group.fish.rarity}">
+    <span class="inventoryFishIcon"><img src="${getFishImageUrl(group.fish)}" alt=""></span>
+    <span class="inventoryFishTitle"><b>${group.fish.name}</b></span>
+    <strong class="inventoryFishCount">${group.count.toLocaleString()}마리</strong>
+  </div>`).join('');
 }
 
 function renderInventoryEquipment(){

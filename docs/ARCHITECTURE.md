@@ -55,6 +55,8 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 낚시의 `idle → casting → waiting → bite → result` 상태 흐름과 지역·시간·날씨 필터, 상대 Weight 선택, 같은 어종 3연속 보정 및 XP·발견 통계 갱신을 담당한다. 장착한 낚싯대의 입질 대기 감소, 희귀 이상 Weight 증가와 큰 개체 보정도 최종 선택 단계에서 적용한다. 발견 수가 5/10/15/19/20에 도달하면 데이터에 선언된 보상을 한 번만 자동 지급한다. `?debug&fish=<fish.id>`는 실제 저장·결과 UI를 거치면서 지정 어종의 입질을 즉시 발생시키는 QA 전용 경로다. 어종과 보상 원본은 `src/data/fish-data.js`, 낚싯대 원본은 `src/data/fishing-gear-data.js`에 두며, 이 파일은 선택 규칙과 상태 전이에 집중한다.
 
+낚시 결과창의 위치·스크롤·확인 버튼 배치는 `styles/game.css`의 `#dialog.fishingResult` 전용 규칙에서 관리한다. 일반 대화창의 하단 배치는 변경하지 않는다.
+
 ### `src/data/life-skill-data.js` / `src/life-skills.js` / `src/skill-ui.js`
 
 생활 스킬 6종의 공통 메타데이터와 요구 XP, Lv.100 이후 숙련도 계산, 진행도 카드·+XP·레벨업 UI를 담당한다. 레벨업 알림이 뜰 때 공용 음향 재생 함수를 호출한다. 현재 실제 획득과 저장까지 연결된 스킬은 낚시뿐이다. 기존 Lv.1–20 요구량은 유지하고 그 이후 요구량은 플레이 테스트 후 조정한다.

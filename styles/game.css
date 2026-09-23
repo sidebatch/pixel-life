@@ -55,7 +55,11 @@
   #dialog.show{display:block}.dialogTop{display:flex;justify-content:space-between;gap:8px;align-items:center;margin-bottom:7px}
   #speaker{font-size:12px;font-weight:950;color:#19708b;letter-spacing:.03em}#dialog.fishingResult #speaker{font-size:19px;font-weight:950;letter-spacing:0;color:#202d31}#dialog.fishingResult[data-rarity="uncommon"] #speaker{color:#096b62}#dialog.fishingResult[data-rarity="rare"] #speaker{color:#195db2}#dialog.fishingResult[data-rarity="heroic"] #speaker{color:#8540aa}#dialog.fishingResult[data-rarity="legendary"] #speaker{color:#a45a00}.dialogClose{border:0;background:#e8ece8;color:#314349;border-radius:50%;width:28px;height:28px;font-weight:900}
   #dialogText{font-size:15px;font-weight:720;line-height:1.48;padding-right:6px;white-space:pre-line}#dialogNext{position:absolute;right:15px;bottom:8px;padding:4px 10px;border:0;border-radius:9px;background:rgba(29,99,88,.13);color:#2c6256;font:800 12px system-ui}
-  #dialog.fishingResult{border-width:2px;border-color:#b9d4dd;box-shadow:0 14px 40px rgba(0,0,0,.4),0 0 25px rgba(111,197,224,.28);padding-bottom:38px}
+  #dialog.fishingResult{top:56%;bottom:auto;transform:translate(-50%,-50%);max-height:calc(100% - 28px);border-width:2px;border-color:#b9d4dd;box-shadow:0 14px 40px rgba(0,0,0,.4),0 0 25px rgba(111,197,224,.28);padding-bottom:56px}
+  #dialog.fishingResult.show{display:flex;flex-direction:column}
+  #dialog.fishingResult #dialogText{min-height:0;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y}
+  #dialog.fishingResult #dialogNext{position:absolute;z-index:3;right:15px;bottom:10px;min-width:72px;min-height:40px;background:#dcece6;color:#1c5449}
+  #gameShell:has(#dialog.fishingResult.show) .skillLevelUpOverlay{top:28%}
   #dialog.fishingResult[data-rarity="uncommon"]{border-color:#7ddd9b;box-shadow:0 14px 40px rgba(0,0,0,.4),0 0 25px rgba(77,218,119,.35)}
   #dialog.fishingResult[data-rarity="rare"]{border-color:#70b7ff;box-shadow:0 14px 40px rgba(0,0,0,.4),0 0 28px rgba(50,139,255,.42)}
   #dialog.fishingResult[data-rarity="heroic"]{border-color:#c394ff;box-shadow:0 14px 40px rgba(0,0,0,.4),0 0 30px rgba(151,87,255,.48)}
@@ -66,7 +70,7 @@
   #dialog.rarityCelebration{--fx:#70b7ff;--fx-soft:#d9f0ff;--fx-bg:#2878b8;--fx-border:#c7e9ff;--fx-shadow:rgba(61,157,255,.52);isolation:isolate;animation:rarityCardPulse .72s cubic-bezier(.2,.8,.2,1)}
   #dialog.rarityCelebration[data-rarity="heroic"]{--fx:#b66cff;--fx-soft:#f0d7ff;--fx-bg:#7943b5;--fx-border:#ead1ff;--fx-shadow:rgba(169,79,255,.56)}
   #dialog.rarityCelebration[data-rarity="legendary"]{--fx:#ffc842;--fx-soft:#fff2a8;--fx-bg:#b66d0d;--fx-border:#fff0a3;--fx-shadow:rgba(255,190,45,.64)}
-  #dialog.rarityCelebration>:not(.fishingRarityFx){position:relative;z-index:2}
+  #dialog.rarityCelebration .dialogTop,#dialog.rarityCelebration #dialogText{position:relative;z-index:2}
   #dialog.rarityCelebration .fishingResultFish{animation:rarityFishPop .78s cubic-bezier(.16,1.25,.3,1)}
   .fishingRarityFx{position:absolute;z-index:1;inset:-52px;overflow:visible;pointer-events:none}
   .fishingRarityRays{position:absolute;left:50%;top:50%;width:270px;height:270px;transform:translate(-50%,-50%) scale(.35);border-radius:50%;opacity:0;background:repeating-conic-gradient(from 8deg,var(--fx) 0 3deg,transparent 3deg 18deg);mix-blend-mode:screen;animation:rarityRays 1.1s ease-out both}
@@ -76,7 +80,7 @@
   .fishingRarityParticle.shape-1{width:4px;height:12px;border-radius:4px}.fishingRarityParticle.shape-2{width:9px;height:3px;border-radius:4px}
   .fishingRarityFx.rarity-heroic .fishingRarityParticle{box-shadow:0 0 10px 3px var(--fx)}
   .fishingRarityFx.rarity-legendary .fishingRarityParticle{background:#fff8c9;box-shadow:0 0 12px 4px var(--fx)}
-  @keyframes rarityCardPulse{0%{transform:translateX(-50%) scale(.94)}45%{transform:translateX(-50%) scale(1.025)}100%{transform:translateX(-50%) scale(1)}}
+  @keyframes rarityCardPulse{0%{transform:translate(-50%,-50%) scale(.94)}45%{transform:translate(-50%,-50%) scale(1.025)}100%{transform:translate(-50%,-50%) scale(1)}}
   @keyframes rarityFishPop{0%{transform:scale(.45) rotate(-8deg);filter:brightness(2) drop-shadow(0 0 18px var(--fx))}55%{transform:scale(1.16) rotate(3deg)}100%{transform:scale(1) rotate(0)}}
   @keyframes rarityRays{0%{opacity:0;transform:translate(-50%,-50%) scale(.25) rotate(-16deg)}24%{opacity:.34}100%{opacity:0;transform:translate(-50%,-50%) scale(1.2) rotate(24deg)}}
   @keyframes rarityBanner{0%{opacity:0;transform:translate(-50%,10px) scale(.72)}16%,66%{opacity:1;transform:translate(-50%,0) scale(1)}100%{opacity:0;transform:translate(-50%,-8px) scale(.96)}}

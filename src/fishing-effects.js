@@ -12,6 +12,40 @@ const FISHING_SOUND_URLS=Object.freeze({
   catch:'assets/fishing/audio/catch.mp3'
 });
 const fishingSoundPlayers=new Map();
+const fishingSoundBuffers=new Map();
+const fishingSoundSources=new Map();
+
+function getFishingAudioContext(){
+  const AudioContextClass=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
+  if(!AudioContextClass) return null;
+  try{
+    fishingAudioContext ||= new AudioContextClass({latencyHint:'interactive'});
+    return fishingAudioContext;
+  }catch(_){return null;}
+}
+
+async function preloadFishingSound(kind,context){
+  try{
+    const response=await fetch(FISHING_SOUND_URLS[kind]);
+    if(!response.ok) return;
+    fishingSoundBuffers.set(kind,await context.decodeAudioData(await response.arrayBuffer()));
+  }catch(_){/* The HTMLAudioElement fallback remains available. */}
+}
+
+const fishingSoundContext=getFishingAudioContext();
+const fishingSoundLoadPromise=fishingSoundContext&&typeof fetch==='function'
+  ?Promise.all(Object.keys(FISHING_SOUND_URLS).map(kind=>preloadFishingSound(kind,fishingSoundContext)))
+  :Promise.resolve();
+
+function resumeFishingAudio(){
+  const context=getFishingAudioContext();
+  if(context?.state==='suspended') context.resume().catch(()=>{});
+}
+
+if(typeof document!=='undefined'){
+  document.addEventListener('pointerdown',resumeFishingAudio,{once:true});
+  document.addEventListener('keydown',resumeFishingAudio,{once:true});
+}
 
 function getFishingSoundPlayer(kind){
   if(!FISHING_SOUND_URLS[kind]||typeof Audio==='undefined') return null;
@@ -27,13 +61,16 @@ function getFishingSoundPlayer(kind){
 }
 
 function stopFishingSound(kind){
+  const source=fishingSoundSources.get(kind);
+  if(source){
+    try{source.stop();}catch(_){}
+    fishingSoundSources.delete(kind);
+  }
   fishingSoundPlayers.get(kind)?.pause();
 }
 
 function playFishingSample(kind){
   try{
-    const player=getFishingSoundPlayer(kind);
-    if(!player) return false;
     if(kind==='cast'){
       stopFishingSound('bite');
       stopFishingSound('catch');
@@ -42,6 +79,23 @@ function playFishingSample(kind){
       stopFishingSound('cast');
       stopFishingSound('bite');
     }
+    stopFishingSound(kind);
+    const context=getFishingAudioContext();
+    const buffer=fishingSoundBuffers.get(kind);
+    if(context&&buffer){
+      const source=context.createBufferSource();
+      source.buffer=buffer;
+      source.connect(context.destination);
+      source.onended=()=>{
+        if(fishingSoundSources.get(kind)===source) fishingSoundSources.delete(kind);
+      };
+      fishingSoundSources.set(kind,source);
+      source.start();
+      resumeFishingAudio();
+      return true;
+    }
+    const player=getFishingSoundPlayer(kind);
+    if(!player) return false;
     player.pause();
     player.currentTime=0;
     player.play()?.catch(()=>{});
@@ -111,12 +165,11 @@ function scheduleFishingTone(context,frequency,start,duration,type,volume){
 }
 
 function playFishingAudio(play){
-  const AudioContextClass=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
-  if(!AudioContextClass) return false;
   try{
-    fishingAudioContext ||= new AudioContextClass();
-    if(fishingAudioContext.state==='suspended') fishingAudioContext.resume().then(()=>play(fishingAudioContext)).catch(()=>{});
-    else play(fishingAudioContext);
+    const context=getFishingAudioContext();
+    if(!context) return false;
+    if(context.state==='suspended') context.resume().then(()=>play(context)).catch(()=>{});
+    else play(context);
     return true;
   }catch(_){
     return false;

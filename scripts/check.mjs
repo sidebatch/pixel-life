@@ -123,7 +123,31 @@ vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__bite
 assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fishingEffectsContext.__catchSound&&
   audioProbe.players.length===3&&audioProbe.players.every(player=>player.loaded&&player.plays===1&&player.currentTime===0)&&
   audioProbe.players.map(player=>player.src).join(',')===fishingAudioPaths.join(','),
-  'Cast, bite and catch MP3 playback mapping failed');
+  'Cast, bite and catch MP3 fallback mapping failed');
+
+const bufferedProbe={loaded:[],started:[],stopped:0,resumed:0};
+class FakeBufferedAudioContext extends FakeAudioContext{
+  constructor(){super();this.state='suspended';}
+  decodeAudioData(bytes){return Promise.resolve({byteLength:bytes.byteLength});}
+  createBufferSource(){
+    return {buffer:null,connect(){},start(){bufferedProbe.started.push(this.buffer);},
+      stop(){bufferedProbe.stopped+=1;}};
+  }
+  resume(){this.state='running';bufferedProbe.resumed+=1;return Promise.resolve();}
+}
+const bufferedContext={window:{AudioContext:FakeBufferedAudioContext},Audio:FakeAudio,
+  fetch:async url=>{
+    bufferedProbe.loaded.push(url);
+    return {ok:true,arrayBuffer:async()=>new Uint8Array([1,2,3]).buffer};
+  }};
+vm.createContext(bufferedContext);
+vm.runInContext(read('src/fishing-effects.js'),bufferedContext);
+await vm.runInContext('fishingSoundLoadPromise',bufferedContext);
+vm.runInContext('playFishingCastSound();playFishingBiteSound();playFishingCatchSound();stopFishingSound("catch");',bufferedContext);
+assert(bufferedProbe.loaded.join(',')===fishingAudioPaths.join(',')&&bufferedProbe.started.length===3&&
+  bufferedProbe.started.every(buffer=>buffer.byteLength===3)&&bufferedProbe.stopped===3&&
+  bufferedProbe.resumed===1&&audioProbe.players.slice(3).every(player=>player.plays===0),
+  'Predecoded fishing sound playback and interruption failed');
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);

@@ -389,13 +389,16 @@ inventoryContext.GAME_STATE.inventory=[
 ];
 vm.runInContext('renderInventoryFish();',inventoryContext);
 assert(inventorySummaryNode.textContent==='보유 물고기 2마리'&&
-  inventoryScrollNode.innerHTML.includes('붕어')&&inventoryScrollNode.innerHTML.includes('2마리')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryFishGrid"')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryFishCard rarity-')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="붕어, 2마리"')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryFishCount" aria-hidden="true">2</strong>')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryFishName" aria-hidden="true">붕어</span>')&&
   !inventoryScrollNode.innerHTML.includes('22.5cm')&&
   !inventoryScrollNode.innerHTML.includes('판매가')&&
-  !inventoryScrollNode.innerHTML.includes('<details')&&
   inventoryContext.GAME_STATE.inventory[0].price===26&&
   inventoryContext.GAME_STATE.inventory[1].sizeCm===28.1,
-  'Inventory screen must show counts only while preserving individual catch data');
+  'Inventory grid must badge counts and preserve individual catch data');
 
 const validationScripts = [
   'src/assets.js',

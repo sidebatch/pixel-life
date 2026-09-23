@@ -29,11 +29,10 @@ function renderInventoryFish(){
     scroll.innerHTML='<div class="inventoryEmpty"><span>🐟</span><b>아직 낚은 물고기가 없어요</b><p>연못에서 낚으면 이곳에서 확인할 수 있어요.</p></div>';
     return;
   }
-  scroll.innerHTML=groups.map(group=>`<div class="inventorySpecies rarity-${group.fish.rarity}">
-    <span class="inventoryFishIcon"><img src="${getFishImageUrl(group.fish)}" alt=""></span>
-    <span class="inventoryFishTitle"><b>${group.fish.name}</b></span>
-    <strong class="inventoryFishCount">${group.count.toLocaleString()}마리</strong>
-  </div>`).join('');
+  scroll.innerHTML=`<div class="inventoryFishGrid">${groups.map(group=>`<button type="button" class="inventoryFishCard rarity-${group.fish.rarity}" aria-label="${group.fish.name}, ${group.count.toLocaleString()}마리">
+    <span class="inventoryFishArt"><img src="${getFishImageUrl(group.fish)}" alt=""><strong class="inventoryFishCount" aria-hidden="true">${group.count.toLocaleString()}</strong></span>
+    <span class="inventoryFishName" aria-hidden="true">${group.fish.name}</span>
+  </button>`).join('')}</div>`;
 }
 
 function renderInventoryEquipment(){
@@ -87,6 +86,13 @@ function closeInventory(options={}){
 if(typeof document!=='undefined'){
   document.getElementById('openInventoryBtn').addEventListener('click',openInventory);
   document.getElementById('inventoryClose').addEventListener('click',closeInventory);
+  document.getElementById('inventoryScroll').addEventListener('click',event=>{
+    const card=event.target.closest('.inventoryFishCard');
+    if(!card) return;
+    const show=!card.classList.contains('showName');
+    document.querySelectorAll('.inventoryFishCard.showName').forEach(other=>other.classList.remove('showName'));
+    card.classList.toggle('showName',show);
+  });
   document.querySelectorAll('[data-inventory-tab]').forEach(button=>{
     button.addEventListener('click',()=>{
       inventoryState.tab=button.dataset.inventoryTab;

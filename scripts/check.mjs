@@ -63,7 +63,9 @@ const fishingAudioPaths=[...read('src/fishing-effects.js').matchAll(/['"](assets
 assert(fishingAudioPaths.length===3&&new Set(fishingAudioPaths).size===3,'Expected three distinct fishing audio clips');
 const levelUpAudioPath='assets/audio/level-up.mp3';
 assert(read('src/fishing-effects.js').includes(`'${levelUpAudioPath}'`),'Missing level-up audio mapping');
-const gameAudioPaths=[...fishingAudioPaths,levelUpAudioPath];
+const marketSaleAudioPath='assets/audio/market-sale.mp3';
+assert(read('src/fishing-effects.js').includes(`'${marketSaleAudioPath}'`),'Missing market sale audio mapping');
+const gameAudioPaths=[...fishingAudioPaths,levelUpAudioPath,marketSaleAudioPath];
 for(const assetPath of gameAudioPaths){
   const bytes=fs.readFileSync(path.join(root,assetPath));
   assert(bytes.length>1000&&bytes[0]===0xff&&(bytes[1]&0xe0)===0xe0,`Invalid MP3 asset: ${assetPath}`);
@@ -125,11 +127,11 @@ assert(Object.values(rarityEffects).every(effect=>effect.tones.length>=3),
 assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
   audioProbe.starts===11&&audioProbe.stops===11,
   'Legendary fishing sound scheduling failed');
-vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__biteSound=playFishingBiteSound();globalThis.__catchSound=playFishingCatchSound();globalThis.__levelUpSound=playSkillLevelUpSound();`,fishingEffectsContext);
-assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fishingEffectsContext.__catchSound&&fishingEffectsContext.__levelUpSound&&
-  audioProbe.players.length===4&&audioProbe.players.every(player=>player.loaded&&player.plays===1&&player.currentTime===0)&&
+vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__biteSound=playFishingBiteSound();globalThis.__catchSound=playFishingCatchSound();globalThis.__levelUpSound=playSkillLevelUpSound();globalThis.__marketSaleSound=playMarketSaleSound();`,fishingEffectsContext);
+assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fishingEffectsContext.__catchSound&&fishingEffectsContext.__levelUpSound&&fishingEffectsContext.__marketSaleSound&&
+  audioProbe.players.length===5&&audioProbe.players.every(player=>player.loaded&&player.plays===1&&player.currentTime===0)&&
   audioProbe.players.map(player=>player.src).join(',')===gameAudioPaths.join(','),
-  'Cast, bite, catch and level-up MP3 fallback mapping failed');
+  'Cast, bite, catch, level-up and market-sale MP3 fallback mapping failed');
 
 const bufferedProbe={loaded:[],started:[],stopped:0,resumed:0};
 class FakeBufferedAudioContext extends FakeAudioContext{
@@ -149,12 +151,12 @@ const bufferedContext={window:{AudioContext:FakeBufferedAudioContext},Audio:Fake
 vm.createContext(bufferedContext);
 vm.runInContext(read('src/fishing-effects.js'),bufferedContext);
 await vm.runInContext('gameSoundLoadPromise',bufferedContext);
-vm.runInContext('playFishingCastSound();playFishingBiteSound();playFishingCatchSound();playSkillLevelUpSound();',bufferedContext);
-assert(bufferedProbe.stopped===2,'Level-up sound must not interrupt the catch sound');
-vm.runInContext('stopFishingSound("catch");stopGameSound("levelUp");',bufferedContext);
-assert(bufferedProbe.loaded.join(',')===gameAudioPaths.join(',')&&bufferedProbe.started.length===4&&
-  bufferedProbe.started.every(buffer=>buffer.byteLength===3)&&bufferedProbe.stopped===4&&
-  bufferedProbe.resumed===1&&audioProbe.players.slice(4).every(player=>player.plays===0),
+vm.runInContext('playFishingCastSound();playFishingBiteSound();playFishingCatchSound();playSkillLevelUpSound();playMarketSaleSound();',bufferedContext);
+assert(bufferedProbe.stopped===2,'Level-up and sale sounds must not interrupt the catch sound');
+vm.runInContext('stopFishingSound("catch");stopGameSound("levelUp");stopGameSound("marketSale");',bufferedContext);
+assert(bufferedProbe.loaded.join(',')===gameAudioPaths.join(',')&&bufferedProbe.started.length===5&&
+  bufferedProbe.started.every(buffer=>buffer.byteLength===3)&&bufferedProbe.stopped===5&&
+  bufferedProbe.resumed===1&&audioProbe.players.slice(5).every(player=>player.plays===0),
   'Predecoded game sound playback and interruption failed');
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
@@ -450,18 +452,46 @@ assert(marketContext.__multiSale.count===2&&marketContext.__multiSale.total===10
   marketContext.__multiSale.inventory[0].quantity===2&&
   marketContext.__multiSale.inventory[1].type==='equipment',
   'Market must combine selected species and preserve unsold inventory');
-const marketCoinNode={textContent:''};
-marketContext.document={getElementById(){return marketCoinNode;}};
+const marketNodes=new Map(['coinCount','marketCoinCount','marketCoinGain'].map(id=>[id,{
+  textContent:'',offsetWidth:100,classList:{add(){},remove(){}}
+}]));
+const marketWalletNode={offsetWidth:100,classList:{add(){},remove(){}}};
+const marketPillNode={classList:{add(){},remove(){}}};
+marketContext.document={
+  getElementById(id){return marketNodes.get(id);},
+  querySelector(selector){return selector==='.marketWallet'?marketWalletNode:marketPillNode;}
+};
+marketContext.window={matchMedia:()=>({matches:true})};
+let saleSoundCount=0;
+marketContext.playMarketSaleSound=()=>{saleSoundCount+=1;return true;};
 marketContext.saveGame=()=>true;
 vm.runInContext(`renderMarket=()=>{};marketState.selection.set('fish.crucian_carp',2);globalThis.__sold=sellSelectedFish();`,marketContext);
 assert(marketContext.__sold===true&&marketContext.GAME_STATE.progression.coins===165&&
-  marketContext.GAME_STATE.inventory.length===3&&marketCoinNode.textContent==='165',
-  'Confirmed sale must remove only selected fish and immediately increase coins');
+  marketContext.GAME_STATE.inventory.length===3&&marketNodes.get('coinCount').textContent==='165'&&
+  marketNodes.get('marketCoinCount').textContent==='165'&&saleSoundCount===1,
+  'Confirmed sale must remove only selected fish, increase coins and play the supplied sound');
 marketContext.saveGame=()=>false;
 vm.runInContext(`marketState.selection.set('fish.goldfish',1);globalThis.__failedSale=sellSelectedFish();`,marketContext);
 assert(marketContext.__failedSale===false&&marketContext.GAME_STATE.progression.coins===165&&
-  marketContext.GAME_STATE.inventory.length===3,
-  'Failed save must roll back fish and coins');
+  marketContext.GAME_STATE.inventory.length===3&&saleSoundCount===1&&
+  marketNodes.get('marketCoinCount').textContent==='165',
+  'Failed save must roll back fish and coins without playing sale feedback');
+const marketFrames=[];
+marketContext.window.matchMedia=()=>({matches:false});
+marketContext.requestAnimationFrame=callback=>{marketFrames.push(callback);return marketFrames.length;};
+marketContext.cancelAnimationFrame=()=>{};
+marketContext.GAME_STATE.progression.coins=265;
+vm.runInContext('animateMarketCoins(165,265);',marketContext);
+marketFrames.shift()(0);
+const firstCoinFrame=marketNodes.get('marketCoinCount').textContent;
+marketFrames.shift()(450);
+const middleCoinFrame=marketNodes.get('marketCoinCount').textContent;
+marketFrames.shift()(900);
+assert(firstCoinFrame==='165'&&Number(middleCoinFrame)>165&&Number(middleCoinFrame)<265&&
+  marketNodes.get('marketCoinCount').textContent==='265'&&
+  marketNodes.get('coinCount').textContent==='265'&&
+  marketNodes.get('marketCoinGain').textContent==='+100G',
+  'Sale animation must count upward and show the gained amount');
 
 const validationScripts = [
   'src/assets.js',

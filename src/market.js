@@ -1,7 +1,57 @@
 const MARKET_FISH_BY_ID=new Map(FISH_DATA.map(fish=>[fish.id,fish]));
 const marketState={open:false,selection:new Map(),message:''};
+const marketCoinAnimation={frame:null,displayed:null};
 
 function isMarketOpen(){return marketState.open;}
+
+function setMarketCoinDisplay(amount){
+  marketCoinAnimation.displayed=Math.round(amount);
+  const text=marketCoinAnimation.displayed.toLocaleString();
+  document.getElementById('coinCount').textContent=text;
+  document.getElementById('marketCoinCount').textContent=text;
+}
+
+function finishMarketCoinAnimation(){
+  if(marketCoinAnimation.frame!==null&&typeof cancelAnimationFrame==='function'){
+    cancelAnimationFrame(marketCoinAnimation.frame);
+  }
+  marketCoinAnimation.frame=null;
+  setMarketCoinDisplay(GAME_STATE.progression.coins);
+}
+
+function animateMarketCoins(beforeCoins,afterCoins){
+  if(marketCoinAnimation.frame!==null&&typeof cancelAnimationFrame==='function'){
+    cancelAnimationFrame(marketCoinAnimation.frame);
+  }
+  marketCoinAnimation.frame=null;
+  const from=marketCoinAnimation.displayed??beforeCoins;
+  const reduced=typeof window!=='undefined'&&window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+  if(reduced||typeof requestAnimationFrame!=='function'||from===afterCoins){
+    setMarketCoinDisplay(afterCoins);
+    return;
+  }
+  const wallet=document.querySelector('.marketWallet');
+  const pill=document.querySelector('.coinPill');
+  const gain=document.getElementById('marketCoinGain');
+  gain.textContent=`+${(afterCoins-beforeCoins).toLocaleString()}G`;
+  wallet.classList.remove('coinBump');
+  pill.classList.remove('coinBump');
+  gain.classList.remove('show');
+  void wallet.offsetWidth;
+  wallet.classList.add('coinBump');
+  pill.classList.add('coinBump');
+  gain.classList.add('show');
+  let startedAt=null;
+  const step=now=>{
+    if(startedAt===null) startedAt=now;
+    const progress=Math.max(0,Math.min(1,(now-startedAt)/900));
+    const eased=1-Math.pow(1-progress,3);
+    setMarketCoinDisplay(from+(afterCoins-from)*eased);
+    if(progress<1) marketCoinAnimation.frame=requestAnimationFrame(step);
+    else marketCoinAnimation.frame=null;
+  };
+  marketCoinAnimation.frame=requestAnimationFrame(step);
+}
 
 // Inventory order is catch order. Selling from the front makes variable-size
 // prices deterministic while the player chooses only species and quantity.
@@ -92,7 +142,8 @@ function sellSelectedFish(){
   }
   marketState.selection.clear();
   marketState.message=`판매 완료! +${plan.total.toLocaleString()}G`;
-  document.getElementById('coinCount').textContent=GAME_STATE.progression.coins.toLocaleString();
+  playMarketSaleSound();
+  animateMarketCoins(beforeCoins,GAME_STATE.progression.coins);
   renderMarket();
   return true;
 }
@@ -105,6 +156,7 @@ function openMarket(options={}){
   marketState.message='';
   menuOpen=true;
   clearMovement();
+  finishMarketCoinAnimation();
   renderMarket();
   const panel=document.getElementById('marketPanel');
   panel.classList.add('show');
@@ -119,6 +171,7 @@ function closeMarket(options={}){
   marketState.open=false;
   marketState.selection.clear();
   menuOpen=false;
+  finishMarketCoinAnimation();
   const panel=document.getElementById('marketPanel');
   panel.classList.remove('show');
   panel.setAttribute('aria-hidden','true');

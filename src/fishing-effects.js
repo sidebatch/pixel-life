@@ -10,7 +10,8 @@ const GAME_SOUND_URLS=Object.freeze({
   cast:'assets/fishing/audio/cast.mp3',
   bite:'assets/fishing/audio/bite.mp3',
   catch:'assets/fishing/audio/catch.mp3',
-  levelUp:'assets/audio/level-up.mp3'
+  levelUp:'assets/audio/level-up.mp3',
+  marketSale:'assets/audio/market-sale.mp3'
 });
 const gameSoundPlayers=new Map();
 const gameSoundBuffers=new Map();
@@ -111,6 +112,7 @@ function playFishingCastSound(){return playGameSample('cast');}
 function playFishingBiteSound(){return playGameSample('bite');}
 function playFishingCatchSound(){return playGameSample('catch');}
 function playSkillLevelUpSound(){return playGameSample('levelUp');}
+function playMarketSaleSound(){return playGameSample('marketSale');}
 
 for(const kind of Object.keys(GAME_SOUND_URLS)) getGameSoundPlayer(kind);
 

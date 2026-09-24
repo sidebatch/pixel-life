@@ -180,31 +180,32 @@ function drawFarmGround(){
     const x=Math.round(plot.x*TILE-camX),y=Math.round(plot.y*TILE-camY);
     const phase=getFarmPlotPhase(plot),state=getFarmPlotState(plot);
     ctx.save();
-    ctx.fillStyle=phase==='LOCKED'?'#586253':'#7b4f34';
-    ctx.fillRect(x+2,y+2,TILE-4,TILE-4);
-    ctx.strokeStyle=phase==='LOCKED'?'#9ba48a':'#a9764b';ctx.lineWidth=2;
-    ctx.strokeRect(x+3,y+3,TILE-6,TILE-6);
+    const locked=phase==='LOCKED';
+    // Keep unavailable plots in the same soil family as growing plots; only
+    // desaturate them and add a small lock instead of a separate grey tile.
+    ctx.fillStyle=locked?'#4a6047':'#50382b';ctx.fillRect(x+7,y+5,34,38);ctx.fillRect(x+4,y+9,40,30);
+    ctx.fillStyle=locked?'#637554':'#755037';ctx.fillRect(x+7,y+9,34,30);
+    ctx.fillStyle=locked?'#7b8962':'#94643e';
+    for(let line=0;line<3;line++) ctx.fillRect(x+10,y+13+line*10,28,3);
     if(phase==='LOCKED'){
-      ctx.fillStyle='#d9dcc3';ctx.fillRect(x+18,y+23,13,12);
-      ctx.strokeStyle='#d9dcc3';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+24.5,y+22,5,Math.PI,0);ctx.stroke();
+      ctx.fillStyle='#d9dcc3';ctx.fillRect(x+20,y+23,9,8);
+      ctx.strokeStyle='#d9dcc3';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+24.5,y+22,4,Math.PI,0);ctx.stroke();
     }else{
-      ctx.fillStyle='#a36e46';
-      for(let line=0;line<3;line++) ctx.fillRect(x+7,y+12+line*11,34,3);
+      ctx.fillStyle='#ad7849';ctx.fillRect(x+13,y+10,8,2);ctx.fillRect(x+29,y+37,7,2);
       if(phase!=='EMPTY'){
         const crop=LIFE_CROP_BY_ID.get(state.cropId);
         const progress=Math.min(1,(Date.now()-state.plantedAt)/crop.growMs);
-        const mature=phase==='READY'&&matureCropImgs[crop.id];
-        if(mature){
-          ctx.drawImage(mature,x+2,y-1,44,44);
+        const sprite=matureCropImgs[crop.id];
+        if(sprite){
+          const size=phase==='READY'?58:progress<.25?34:progress<.65?45:53;
+          const bottomRatio=crop.id==='corn'?.96:crop.id==='potato'?.9:.84;
+          const drawX=Math.round(x+(TILE-size)/2),drawY=Math.round(y+43-size*bottomRatio);
+          if(phase==='GROWING') ctx.globalAlpha=progress<.25?.78:.9;
+          ctx.drawImage(sprite,drawX,drawY,size,size);
+          ctx.globalAlpha=1;
+        }
+        if(phase==='READY'){
           ctx.fillStyle='#fff2b1';ctx.fillRect(x+37,y+8,4,4);
-        }else{
-          const height=progress<.33?8:progress<.7?16:22;
-          ctx.strokeStyle='#285e30';ctx.lineWidth=4;ctx.beginPath();
-          ctx.moveTo(x+24,y+39);ctx.lineTo(x+24,y+39-height);ctx.stroke();
-          ctx.fillStyle='#61bc55';
-          for(const side of [-1,1]){
-            ctx.beginPath();ctx.ellipse(x+24+side*7,y+33-height/2,8,4,side*.5,0,Math.PI*2);ctx.fill();
-          }
         }
       }
     }

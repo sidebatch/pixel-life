@@ -511,6 +511,29 @@ assert(lifeContext.__woodBefore===9&&lifeContext.__woodSpent&&lifeContext.__wood
   lifeContext.__cropIcon.includes('farming/harvest/carrot.png')&&lifeContext.__woodIcon.includes('forestry/items/oak.png'),
   'Mixed legacy/species logs must fund expansion and item icons must use matching harvest/wood art');
 
+const farmDrawCalls=[];
+const farmIds=['carrot','potato','corn','strawberry'];
+const farmNow=Date.now();
+const farmDrawContext={
+  GAME_STATE:{regionId:'sunnyFields'},TILE:48,camX:0,camY:0,
+  WORLD_DEFINITION:{farmPlots:farmIds.flatMap((crop,index)=>[
+    {x:index,y:0,crop,phase:'GROWING',elapsed:1000},
+    {x:index,y:1,crop,phase:'READY',elapsed:11000}
+  ])},
+  LIFE_CROP_BY_ID:new Map(farmIds.map(id=>[id,{id,growMs:10000}])),
+  matureCropImgs:Object.fromEntries(farmIds.map(id=>[id,{id}])),
+  getFarmPlotPhase:plot=>plot.phase,
+  getFarmPlotState:plot=>({cropId:plot.crop,plantedAt:farmNow-plot.elapsed}),
+  ctx:{save(){},restore(){},fillRect(){},strokeRect(){},beginPath(){},arc(){},stroke(){},
+    drawImage(sprite,_x,_y,width,height){farmDrawCalls.push({id:sprite.id,width,height});}}
+};
+vm.createContext(farmDrawContext);
+vm.runInContext(`${read('src/rendering.js')}\ndrawFarmGround();`,farmDrawContext);
+assert(farmDrawCalls.length===8&&farmIds.every((id,index)=>
+  farmDrawCalls[index*2].id===id&&farmDrawCalls[index*2].width===34&&
+  farmDrawCalls[index*2+1].id===id&&farmDrawCalls[index*2+1].width===58),
+  'Planted and mature plots must render the same crop-specific art at growing sizes');
+
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],
   lifeItemCount:(type,id,inventory)=>inventory.reduce((sum,item)=>sum+(item.type===type&&item.id===id?item.quantity:0),0),

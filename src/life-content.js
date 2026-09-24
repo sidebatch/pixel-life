@@ -193,10 +193,10 @@ function renderLifePanel(){
     actions.innerHTML=LIFE_CONTENT.crops.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}" ${lifeItemCount('seed',item.id)?'':'disabled'}>${lifeItemIconMarkup('seed',item.id,item.icon)} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');
   }else if(phase==='GROWING'){
     const remaining=Math.max(0,crop.growMs-(Date.now()-state.plantedAt));
-    info.textContent=`${crop.icon} ${crop.name}이 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요. 게임을 꺼도 자라요.`;
+    info.textContent=`${crop.name}이 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요. 게임을 꺼도 자라요.`;
     actions.innerHTML='';
   }else{
-    info.textContent=`${crop.icon} ${crop.name}을 수확할 수 있어요!`;
+    info.textContent=`${crop.name}을 수확할 수 있어요!`;
     actions.innerHTML=`<button type="button" data-life-action="harvest">${crop.name} 수확하기</button>`;
   }
 }

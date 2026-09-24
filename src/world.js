@@ -27,7 +27,7 @@ function addAreaToSet(area,target){
 function addTree(x,y,options={}){
   const tile=key(x,y);
   if(!inside(x,y)||treeSet.has(tile)||blocked.has(tile)) return;
-  trees.push({x,y,id:options.id||null,interactable:options.interactable===true});
+  trees.push({x,y,id:options.id||null,species:options.species||null,interactable:options.interactable===true});
   treeSet.add(tile);blocked.add(tile);
 }
 

@@ -214,18 +214,23 @@ function drawFarmGround(){
 function drawResourceTree(tree){
   const state=getTreeState(tree),x=Math.round(tree.x*TILE-camX),y=Math.round(tree.y*TILE-camY);
   if(state.hp===0){
-    ctx.save();ctx.fillStyle='#705139';ctx.fillRect(x+8,y+22,32,18);
-    ctx.fillStyle='#ad8458';ctx.beginPath();ctx.ellipse(x+24,y+22,17,7,0,0,Math.PI*2);ctx.fill();
-    ctx.strokeStyle='#5c392a';ctx.beginPath();ctx.ellipse(x+24,y+22,9,4,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+    const stump=forestStumpImgs[tree.species];
+    if(stump) ctx.drawImage(stump,x-8,y-12,64,64);
     return;
   }
   const hit=lifeUi.hit&&lifeUi.hit.x===tree.x&&lifeUi.hit.y===tree.y&&tNow<lifeUi.hit.until;
   const sway=hit?Math.round(Math.sin(tNow/28)*4):0;
-  ctx.drawImage(imgs.treeStage24||imgs.treeClean||imgs.tree,x-22+sway,y-64,92,116);
-  ctx.fillStyle='#f4d179';ctx.fillRect(x+35,y+29,6,8);
+  drawWorldTree(tree,sway);
+  ctx.fillStyle='#f4d179';ctx.fillRect(x+30,y+29,6,8);
   if(state.hp<LIFE_CONTENT.treeHp){
-    ctx.fillStyle='#452d25';ctx.fillRect(x+36,y+29,7,5);
+    ctx.fillStyle='#452d25';ctx.fillRect(x+31,y+29,7,5);
   }
+}
+function drawWorldTree(tree,sway=0){
+  const x=Math.round(tree.x*TILE-camX),y=Math.round(tree.y*TILE-camY);
+  const forestImage=GAME_STATE.regionId==='oldForest'&&forestTreeImgs[tree.species];
+  if(forestImage) ctx.drawImage(forestImage,x-24+sway,y-64,96,115);
+  else ctx.drawImage(imgs.treeStage24||imgs.treeClean||imgs.tree,x-22+sway,y-64,92,116);
 }
 const DEBUG_BUILDING_ANCHORS=false;
 function drawBuilding(b){
@@ -601,7 +606,7 @@ function drawWorld(){
     const localDepth=(b.depthLine ?? b.h);
     renderables.push({y:(b.y+localDepth)*TILE,draw:()=>drawBuilding(b)});
   });
-  trees.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>o.interactable?drawResourceTree(o):ctx.drawImage(imgs.treeStage24||imgs.treeClean||imgs.tree,o.x*TILE-camX-22,o.y*TILE-camY-64,92,116)}));
+  trees.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>o.interactable?drawResourceTree(o):drawWorldTree(o)}));
   rocks.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.rock,o.x*TILE-camX-6,o.y*TILE-camY-10,60,58)}));
   if(GAME_STATE.regionId==='lilacVillage'){
     renderables.push({y:(marketStall.y+marketStall.h)*TILE,draw:drawMarketStall});

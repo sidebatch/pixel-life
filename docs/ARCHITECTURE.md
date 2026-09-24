@@ -15,7 +15,7 @@
 
 ### `src/assets.js`
 
-개발용 이미지 경로만 관리한다. 월드·캐릭터·건물과 `FISH_URLS`의 20종 물고기 경로를 한곳에서 선언한다. base64 데이터는 소스에 직접 넣지 않으며 `npm run build` 단계에서만 단일 HTML에 포함한다.
+개발용 이미지 경로만 관리한다. 월드·캐릭터·건물과 `FISH_URLS`의 20종 물고기, `FOREST_TREE_URLS`·`FOREST_STUMP_URLS`의 숲 나무/그루터기, `LIFE_ITEM_URLS`의 통나무/씨앗 경로를 한곳에서 선언한다. base64 데이터는 소스에 직접 넣지 않으며 빌드 단계에서만 단일 HTML에 포함한다. 생활 콘텐츠 이미지 규격은 `LIFE_ASSET_STANDARD.md`를 따른다.
 
 ### `src/config.js`
 

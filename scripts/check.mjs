@@ -55,9 +55,20 @@ assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   'Market exit button must use the existing close behavior');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 54, `Expected 54 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 75, `Expected 75 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
+}
+for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/forestry/')||asset.startsWith('assets/farming/'))){
+  const bytes=fs.readFileSync(path.join(root,assetPath));
+  assert(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),`Invalid PNG asset: ${assetPath}`);
+  const actual=`${bytes.readUInt32BE(16)}x${bytes.readUInt32BE(20)}`;
+  const expected=assetPath.includes('/trees/')?'120x144':'96x96';
+  assert(actual===expected,`Wrong life asset size: ${assetPath} (${actual}, expected ${expected})`);
+  assert([4,6].includes(bytes[25]),`Life asset must have an alpha channel: ${assetPath}`);
+}
+for(const species of ['oak','pine','birch','maple','spruce','willow','cypress','broadleaf']){
+  assert(read('src/data/region-maps.js').includes(`species:'${species}'`),`Forest tree species missing: ${species}`);
 }
 
 for (const npc of ['mina', 'thomas', 'elli', 'noah', 'hana', 'jun']) {

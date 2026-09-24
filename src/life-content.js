@@ -1,5 +1,11 @@
 const lifeUi={plotId:null,open:false,phase:null,toastTimer:null,hit:null,lastRefresh:0};
 
+function lifeItemIconMarkup(type,id,fallback=''){
+  const asset=type==='material'&&id==='log'?LIFE_ITEM_URLS.log:
+    type==='seed'?LIFE_ITEM_URLS[`${id}Seed`]:null;
+  return asset?`<img class="lifeItemIcon" src="${asset}" alt="">`:`<span aria-hidden="true">${fallback}</span>`;
+}
+
 function lifeItemName(type,id){
   if(type==='material'&&id==='log') return '통나무';
   const crop=LIFE_CROP_BY_ID.get(id);
@@ -171,7 +177,7 @@ function renderLifePanel(){
     actions.innerHTML=`<button type="button" data-life-action="unlock" ${affordable?'':'disabled'}>밭 확장 · ${cost?.coins.toLocaleString()||0}코인${cost?.logs?` + 통나무 ${cost.logs}개`:''}</button>`;
   }else if(phase==='EMPTY'){
     info.textContent='씨앗을 고르면 시간이 지나 자동으로 자라요.';
-    actions.innerHTML=LIFE_CONTENT.crops.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}" ${lifeItemCount('seed',item.id)?'':'disabled'}>${item.icon} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');
+    actions.innerHTML=LIFE_CONTENT.crops.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}" ${lifeItemCount('seed',item.id)?'':'disabled'}>${lifeItemIconMarkup('seed',item.id,item.icon)} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');
   }else if(phase==='GROWING'){
     const remaining=Math.max(0,crop.growMs-(Date.now()-state.plantedAt));
     info.textContent=`${crop.icon} ${crop.name}이 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요. 게임을 꺼도 자라요.`;

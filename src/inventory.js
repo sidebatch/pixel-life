@@ -57,7 +57,7 @@ function renderInventorySupplies(){
   ].map(item=>({...item,count:lifeItemCount(item.type,item.id)})).filter(item=>item.count>0);
   document.getElementById('inventorySummary').textContent=`보유 재료 ${entries.reduce((sum,item)=>sum+item.count,0)}개`;
   document.getElementById('inventoryScroll').innerHTML=entries.length?
-    `<div class="inventorySupplies">${entries.map(item=>`<div class="inventorySupply"><span>${item.icon}</span><b>${item.name}</b><strong>${item.count.toLocaleString()}개</strong></div>`).join('')}</div>`:
+    `<div class="inventorySupplies">${entries.map(item=>`<div class="inventorySupply"><span class="inventorySupplyIcon">${lifeItemIconMarkup(item.type,item.id,item.icon)}</span><b>${item.name}</b><strong>${item.count.toLocaleString()}개</strong></div>`).join('')}</div>`:
     '<div class="inventoryEmpty"><span>🪵</span><b>아직 재료가 없어요</b><p>숲에서 벌목하거나 농장에서 씨앗을 심어 보세요.</p></div>';
 }
 

@@ -134,7 +134,7 @@ function renderGoodsMarket(){
   list.innerHTML=goods.length?goods.map(item=>{
     const itemKey=`${item.type}:${item.id}`,selected=marketState.goodsSelection.get(itemKey)||0;
     return `<div class="marketFishRow" data-good-key="${itemKey}">
-      <span class="marketGoodsIcon" aria-hidden="true">${item.definition.icon}</span>
+      <span class="marketGoodsIcon" aria-hidden="true">${lifeItemIconMarkup(item.type,item.id,item.definition.icon)}</span>
       <div class="marketFishBody"><div class="marketFishTop"><b>${item.definition.name}</b><span>보유 ${item.count}개</span></div>
       <small>한 개 ${item.definition.price.toLocaleString()}</small>
       <div class="marketFishBottom"><div class="marketQty">
@@ -152,7 +152,7 @@ function renderSeedMarket(){
   document.getElementById('marketStock').textContent='씨앗은 한 번에 1개씩 살 수 있어요';
   const list=document.getElementById('marketList'),scrollTop=list.scrollTop;
   list.innerHTML=LIFE_CONTENT.crops.map(crop=>`<div class="marketFishRow">
-    <span class="marketGoodsIcon" aria-hidden="true">${crop.icon}</span>
+    <span class="marketGoodsIcon" aria-hidden="true">${lifeItemIconMarkup('seed',crop.id,crop.icon)}</span>
     <div class="marketFishBody"><div class="marketFishTop"><b>${crop.name} 씨앗</b><span>보유 ${lifeItemCount('seed',crop.id)}개</span></div>
       <small>${Math.round(crop.growMs/60000)}분 성장 · ${crop.seedPrice.toLocaleString()}코인</small>
       <div class="marketFishBottom"><span>수확 ${crop.harvestMin}~${crop.harvestMax}개</span>

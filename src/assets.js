@@ -14,6 +14,34 @@ const ASSET_URLS = Object.freeze({
   reeds: 'assets/world/reeds.png'
 });
 
+const FOREST_TREE_URLS = Object.freeze({
+  oak:'assets/forestry/trees/oak.png',
+  pine:'assets/forestry/trees/pine.png',
+  birch:'assets/forestry/trees/birch.png',
+  maple:'assets/forestry/trees/maple.png',
+  spruce:'assets/forestry/trees/spruce.png',
+  willow:'assets/forestry/trees/willow.png',
+  cypress:'assets/forestry/trees/cypress.png',
+  broadleaf:'assets/forestry/trees/broadleaf.png'
+});
+const FOREST_STUMP_URLS = Object.freeze({
+  oak:'assets/forestry/stumps/oak.png',
+  pine:'assets/forestry/stumps/pine.png',
+  birch:'assets/forestry/stumps/birch.png',
+  maple:'assets/forestry/stumps/maple.png',
+  spruce:'assets/forestry/stumps/spruce.png',
+  willow:'assets/forestry/stumps/willow.png',
+  cypress:'assets/forestry/stumps/cypress.png',
+  broadleaf:'assets/forestry/stumps/broadleaf.png'
+});
+const LIFE_ITEM_URLS = Object.freeze({
+  log:'assets/forestry/items/log.png',
+  carrotSeed:'assets/farming/seeds/carrot.png',
+  potatoSeed:'assets/farming/seeds/potato.png',
+  cornSeed:'assets/farming/seeds/corn.png',
+  strawberrySeed:'assets/farming/seeds/strawberry.png'
+});
+
 const PLAYER_URLS = Object.freeze({
   down_0: 'assets/player/legacy/down_0.png',
   down_1: 'assets/player/legacy/down_1.png',

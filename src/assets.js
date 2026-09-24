@@ -118,7 +118,8 @@ const PLAYER_SHEET_URL = 'assets/player/player.png';
 
 const BUILDING_URLS = Object.freeze({
   buildingHome: 'assets/buildings/home_cottage.png',
-  buildingWorkshop: 'assets/buildings/carpenter_workshop.png'
+  buildingWorkshop: 'assets/buildings/carpenter_workshop.png',
+  buildingMarket: 'assets/buildings/elli_market.png'
 });
 
 const FISH_URLS = Object.freeze({

@@ -21,7 +21,7 @@ function resolveWorldInteraction(tile=facingTile()){
   const exit=regionExitAt(tile.x,tile.y);
   if(exit) return {kind:'exit',label:exit.label,target:exit};
   const npc=npcs.find(n=>n.x===tile.x&&n.y===tile.y);
-  if(npc) return {kind:npc.id==='elli'?'market':'npc',label:npc.id==='elli'?'판매':'대화',target:npc};
+  if(npc) return {kind:npc.id==='elli'?'market':'npc',label:npc.id==='elli'?'상점':'대화',target:npc};
   if(tile.x===sign.x&&tile.y===sign.y) return {kind:'sign',label:'표지판'};
   const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
   if(tree) return {kind:'tree',label:getTreeState(tree).hp?'벌목':'재생 중',target:tree};

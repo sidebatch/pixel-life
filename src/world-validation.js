@@ -61,7 +61,7 @@ function validateWorldDefinition(){
   occupy('bench',bench.x,bench.y);
   occupy('lamp',lamp.x,lamp.y);
   for(let x=marketStall.x;x<marketStall.x+marketStall.w;x++){
-    for(let y=marketStall.y;y<marketStall.y+marketStall.h;y++) occupy('market stall',x,y);
+    for(let y=marketStall.y;y<marketStall.y+marketStall.h;y++) occupy('market shop',x,y);
   }
   rocks.forEach((rock,index)=>occupy(`rock[${index}]`,rock.x,rock.y));
 
@@ -84,7 +84,7 @@ function validateWorldDefinition(){
   }
   const merchant=npcs.find(npc=>npc.id==='elli');
   if(!merchant||merchant.roam!==0||merchant.x!==marketStall.x||merchant.y!==marketStall.y+marketStall.h){
-    fail('Merchant must stand at the front of the open-air market stall');
+    fail('Merchant must stand at the front of the village shop');
   }
 
   coordinate('player spawn',WORLD_DEFINITION.playerSpawn);

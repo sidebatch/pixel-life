@@ -55,10 +55,16 @@ assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   'Market exit button must use the existing close behavior');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 119, `Expected 119 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 120, `Expected 120 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
+assert(assetPaths.includes('assets/buildings/elli_market.png')&&
+  read('src/interactions.js').includes("label:npc.id==='elli'?'상점':'대화'"),
+  'Ellie must use the new shop sprite and a buying-and-selling interaction label');
+const marketSprite=fs.readFileSync(path.join(root,'assets/buildings/elli_market.png'));
+assert(marketSprite.readUInt32BE(16)===288&&marketSprite.readUInt32BE(20)===262&&marketSprite[25]===6,
+  'Shop sprite must be a 288x262 transparent PNG');
 for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/forestry/')||asset.startsWith('assets/farming/'))){
   const bytes=fs.readFileSync(path.join(root,assetPath));
   assert(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),`Invalid PNG asset: ${assetPath}`);
@@ -690,7 +696,7 @@ assert(worldReport.map==='64x48',`Expected expanded 64x48 world, found ${worldRe
 assert(worldReport.errors.length===0,`World validation has ${worldReport.errors.length} errors`);
 assert(validationContext.__blocked.has(`${validationContext.__marketStall.x},${validationContext.__marketStall.y}`)&&
   validationContext.__merchant.roam===0&&validationContext.__merchant.y===validationContext.__marketStall.y+1,
-  'Open-air stall and fixed merchant position are invalid');
+  'Village shop and fixed merchant position are invalid');
 vm.runInContext(`GAME_STATE.regionId='oldForest';buildWorldRegion(REGION_WORLDS.oldForest);globalThis.__forestReport=validatePlayableRegion();globalThis.__resourceTrees=trees.filter(tree=>tree.interactable).length;`+
   `globalThis.__allForestChoppable=trees.every(tree=>tree.interactable&&!!tree.id&&!!FOREST_WOOD[tree.species]);`+
   `globalThis.__forestBoundaryBlocked=[...Array(MAP_W).keys()].every(x=>blocked.has(key(x,0))&&blocked.has(key(x,MAP_H-1)));`+

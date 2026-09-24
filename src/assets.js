@@ -45,25 +45,49 @@ const LIFE_ITEM_URLS = Object.freeze({
   cypressLog:'assets/forestry/items/cypress.png',
   broadleafLog:'assets/forestry/items/broadleaf.png',
   carrotSeed:'assets/farming/seeds/carrot.png',
+  turnipSeed:'assets/farming/seeds/turnip.png',
   potatoSeed:'assets/farming/seeds/potato.png',
+  onionSeed:'assets/farming/seeds/onion.png',
+  cabbageSeed:'assets/farming/seeds/cabbage.png',
+  wheatSeed:'assets/farming/seeds/wheat.png',
   cornSeed:'assets/farming/seeds/corn.png',
+  tomatoSeed:'assets/farming/seeds/tomato.png',
   strawberrySeed:'assets/farming/seeds/strawberry.png',
+  pumpkinSeed:'assets/farming/seeds/pumpkin.png',
   carrotCrop:'assets/farming/harvest/carrot.png',
+  turnipCrop:'assets/farming/harvest/turnip.png',
   potatoCrop:'assets/farming/harvest/potato.png',
+  onionCrop:'assets/farming/harvest/onion.png',
+  cabbageCrop:'assets/farming/harvest/cabbage.png',
+  wheatCrop:'assets/farming/harvest/wheat.png',
   cornCrop:'assets/farming/harvest/corn.png',
-  strawberryCrop:'assets/farming/harvest/strawberry.png'
+  tomatoCrop:'assets/farming/harvest/tomato.png',
+  strawberryCrop:'assets/farming/harvest/strawberry.png',
+  pumpkinCrop:'assets/farming/harvest/pumpkin.png'
 });
 const MATURE_CROP_URLS = Object.freeze({
   carrot:'assets/farming/mature/carrot.png',
+  turnip:'assets/farming/mature/turnip.png',
   potato:'assets/farming/mature/potato.png',
+  onion:'assets/farming/mature/onion.png',
+  cabbage:'assets/farming/mature/cabbage.png',
+  wheat:'assets/farming/mature/wheat.png',
   corn:'assets/farming/mature/corn.png',
-  strawberry:'assets/farming/mature/strawberry.png'
+  tomato:'assets/farming/mature/tomato.png',
+  strawberry:'assets/farming/mature/strawberry.png',
+  pumpkin:'assets/farming/mature/pumpkin.png'
 });
 const YOUNG_CROP_URLS = Object.freeze({
   carrot:'assets/farming/young/carrot.png',
+  turnip:'assets/farming/young/turnip.png',
   potato:'assets/farming/young/potato.png',
+  onion:'assets/farming/young/onion.png',
+  cabbage:'assets/farming/young/cabbage.png',
+  wheat:'assets/farming/young/wheat.png',
   corn:'assets/farming/young/corn.png',
-  strawberry:'assets/farming/young/strawberry.png'
+  tomato:'assets/farming/young/tomato.png',
+  strawberry:'assets/farming/young/strawberry.png',
+  pumpkin:'assets/farming/young/pumpkin.png'
 });
 
 const PLAYER_URLS = Object.freeze({

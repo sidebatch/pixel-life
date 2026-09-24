@@ -55,7 +55,7 @@ assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   'Market exit button must use the existing close behavior');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 95, `Expected 95 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 119, `Expected 119 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -67,6 +67,12 @@ for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/forestr
   assert(actual===expected,`Wrong life asset size: ${assetPath} (${actual}, expected ${expected})`);
   assert([4,6].includes(bytes[25]),`Life asset must have an alpha channel: ${assetPath}`);
 }
+const cropCatalog=new Function(`${read('src/assets.js')}\n${read('src/data/life-content-data.js')}\nreturn {crops:LIFE_CONTENT.crops,items:LIFE_ITEM_URLS,young:YOUNG_CROP_URLS,mature:MATURE_CROP_URLS};`)();
+assert(cropCatalog.crops.length===10&&new Set(cropCatalog.crops.map(crop=>crop.id)).size===10&&
+  cropCatalog.crops.every(crop=>cropCatalog.items[`${crop.id}Seed`]&&cropCatalog.items[`${crop.id}Crop`]&&
+    cropCatalog.young[crop.id]&&cropCatalog.mature[crop.id]&&crop.seedPrice>0&&crop.sellPrice>0&&
+    crop.harvestMin>=1&&crop.harvestMax>=crop.harvestMin),
+  'Every playable crop must have unique data and four matching sprite types');
 for(const species of ['oak','pine','birch','maple','spruce','willow','cypress','broadleaf']){
   assert(read('src/data/region-maps.js').includes(`species:'${species}'`),`Forest tree species missing: ${species}`);
 }
@@ -400,8 +406,8 @@ assert(saveContext.__savedMastery.level===100&&saveContext.__savedMastery.master
   saveContext.__savedMastery.masteryXp===17&&saveContext.__savedMastery.equippedRodId==='rod.expert',
   'Level 100 mastery save restoration failed');
 vm.runInContext(`GAME_STATE.regionId='sunnyFields';GAME_STATE.playerLocation={x:14,y:24,face:'right'};`+
-  `GAME_STATE.inventory.push({type:'material',id:'log',name:'통나무',quantity:5},{type:'material',id:'oak_log',name:'참나무 통나무',quantity:3},{type:'seed',id:'carrot',name:'당근 씨앗',quantity:2});`+
-  `GAME_STATE.world={trees:{forest_tree_01:{hp:0,choppedAt:Date.now()},forest_tree_15_16:{hp:2,choppedAt:null},forest_tree_1_1:{hp:0,choppedAt:Date.now()}},plots:{farm_09:{unlocked:true,cropId:'carrot',plantedAt:Date.now()-30000}}};`+
+  `GAME_STATE.inventory.push({type:'material',id:'log',name:'통나무',quantity:5},{type:'material',id:'oak_log',name:'참나무 통나무',quantity:3},{type:'seed',id:'carrot',name:'당근 씨앗',quantity:2},{type:'seed',id:'pumpkin',name:'호박 씨앗',quantity:1},{type:'crop',id:'wheat',name:'밀',quantity:4});`+
+  `GAME_STATE.world={trees:{forest_tree_01:{hp:0,choppedAt:Date.now()},forest_tree_15_16:{hp:2,choppedAt:null},forest_tree_1_1:{hp:0,choppedAt:Date.now()}},plots:{farm_09:{unlocked:true,cropId:'carrot',plantedAt:Date.now()-30000},farm_10:{unlocked:true,cropId:'pumpkin',plantedAt:Date.now()-30000}}};`+
   `saveGame();GAME_STATE.inventory=[];GAME_STATE.world={trees:{},plots:{}};GAME_STATE.regionId='lilacVillage';`+
   `globalThis.__lifeLoaded=loadGame();globalThis.__lifeRestored=JSON.parse(JSON.stringify(GAME_STATE));`,saveContext);
 assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFields'&&
@@ -409,10 +415,13 @@ assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFie
   saveContext.__lifeRestored.inventory.some(item=>item.type==='material'&&item.quantity===5)&&
   saveContext.__lifeRestored.inventory.some(item=>item.id==='oak_log'&&item.quantity===3)&&
   saveContext.__lifeRestored.inventory.some(item=>item.type==='seed'&&item.id==='carrot'&&item.quantity===2)&&
+  saveContext.__lifeRestored.inventory.some(item=>item.type==='seed'&&item.id==='pumpkin'&&item.quantity===1)&&
+  saveContext.__lifeRestored.inventory.some(item=>item.type==='crop'&&item.id==='wheat'&&item.quantity===4)&&
   saveContext.__lifeRestored.world.trees.forest_tree_01.hp===0&&
   saveContext.__lifeRestored.world.trees.forest_tree_15_16.hp===2&&
   saveContext.__lifeRestored.world.trees.forest_tree_1_1.hp===0&&
   saveContext.__lifeRestored.world.plots.farm_09.cropId==='carrot'&&
+  saveContext.__lifeRestored.world.plots.farm_10.cropId==='pumpkin'&&
   saveContext.__lifeRestored.world.plots.farm_01.unlocked&&
   saveContext.__lifeRestored.world.plots.farm_05.unlocked&&
   !saveContext.__lifeRestored.world.plots.farm_03.unlocked,
@@ -510,9 +519,17 @@ assert(lifeContext.__woodBefore===9&&lifeContext.__woodSpent&&lifeContext.__wood
   lifeContext.__legacyLeft===0&&lifeContext.__pineLeft===3&&
   lifeContext.__cropIcon.includes('farming/harvest/carrot.png')&&lifeContext.__woodIcon.includes('forestry/items/oak.png'),
   'Mixed legacy/species logs must fund expansion and item icons must use matching harvest/wood art');
+vm.runInContext(`GAME_STATE.regionId='sunnyFields';const extraPlot=REGION_WORLDS.sunnyFields.farmPlots[0];`+
+  `globalThis.__extraCropResults=['turnip','onion','cabbage','wheat','tomato','pumpkin'].map(id=>{`+
+  `addLifeItem('seed',id,1);const planted=plantFarmCrop(extraPlot,id);`+
+  `GAME_STATE.world.plots[extraPlot.id].plantedAt=Date.now()-LIFE_CROP_BY_ID.get(id).growMs-1;`+
+  `const ready=getFarmPlotPhase(extraPlot)==='READY';const harvested=harvestFarmCrop(extraPlot);`+
+  `return planted&&ready&&harvested&&lifeItemCount('crop',id)>0&&lifeItemIconMarkup('crop',id).includes('farming/harvest/'+id+'.png');});`,lifeContext);
+assert(lifeContext.__extraCropResults.length===6&&lifeContext.__extraCropResults.every(Boolean),
+  'All six added crops must plant, mature offline, harvest, and show their own inventory icon');
 
 const farmDrawCalls=[];
-const farmIds=['carrot','potato','corn','strawberry'];
+const farmIds=['carrot','turnip','potato','onion','cabbage','wheat','corn','tomato','strawberry','pumpkin'];
 const farmNow=Date.now();
 const farmDrawContext={
   GAME_STATE:{regionId:'sunnyFields'},TILE:48,camX:0,camY:0,
@@ -532,14 +549,14 @@ const farmDrawContext={
 };
 vm.createContext(farmDrawContext);
 vm.runInContext(`${read('src/rendering.js')}\ndrawFarmGround();`,farmDrawContext);
-assert(farmDrawCalls.length===8&&farmIds.every((id,index)=>
+assert(farmDrawCalls.length===farmIds.length*2&&farmIds.every((id,index)=>
   farmDrawCalls[index*2].id===id&&farmDrawCalls[index*2].stage==='young'&&farmDrawCalls[index*2].width===48&&
   farmDrawCalls[index*2+1].id===id&&farmDrawCalls[index*2+1].stage==='mature'&&farmDrawCalls[index*2+1].width===58),
   'Covered seeds and shared sprouts must not show mature art; only later stages use distinct crop-specific sprites');
 
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],
-  lifeItemCount:(type,id,inventory)=>inventory.reduce((sum,item)=>sum+(item.type===type&&item.id===id?item.quantity:0),0),
+  lifeItemCount:(type,id,inventory=marketContext.GAME_STATE.inventory)=>inventory.reduce((sum,item)=>sum+(item.type===type&&item.id===id?item.quantity:0),0),
   GAME_STATE:{inventory:[
     {type:'fish',id:'fish.crucian_carp',sizeCm:22.5,price:26,quantity:1},
     {type:'fish',id:'fish.goldfish',sizeCm:11.2,price:80,quantity:1},
@@ -559,6 +576,18 @@ vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.
 assert(vm.runInContext(`marketGoodDefinition('material','birch_log').name==='자작나무 통나무'&&
   planGoodsSale(new Map([['material:birch_log',2]]),[{type:'material',id:'birch_log',quantity:3}]).total===24`,marketContext),
   'Species logs must be sellable without changing the existing log price');
+assert(vm.runInContext(`['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>{
+  const crop=LIFE_CROP_BY_ID.get(id);
+  return marketGoodDefinition('crop',id).price===crop.sellPrice&&
+    planGoodsSale(new Map([['crop:'+id,1]]),[{type:'crop',id,quantity:2}]).total===crop.sellPrice;
+})`,marketContext),'All added crops must sell individually at their configured prices');
+const seedMarketNodes={marketStock:{textContent:''},marketList:{scrollTop:0,innerHTML:''}};
+marketContext.document={getElementById:id=>seedMarketNodes[id]};
+marketContext.lifeItemIconMarkup=()=>'<span></span>';
+vm.runInContext('renderSeedMarket();',marketContext);
+assert((seedMarketNodes.marketList.innerHTML.match(/data-seed-id=/g)||[]).length===10&&
+  ['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>seedMarketNodes.marketList.innerHTML.includes(`data-seed-id="${id}"`)),
+  'Seed shop must list all ten crops, including the six new seeds');
 assert(marketContext.__sale.count===2&&marketContext.__sale.total===65&&
   marketContext.__sale.inventory.length===3&&
   marketContext.__sale.inventory[0].id==='fish.goldfish'&&

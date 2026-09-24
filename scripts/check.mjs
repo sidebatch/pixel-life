@@ -55,7 +55,7 @@ assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   'Market exit button must use the existing close behavior');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 91, `Expected 91 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 95, `Expected 95 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -517,22 +517,25 @@ const farmNow=Date.now();
 const farmDrawContext={
   GAME_STATE:{regionId:'sunnyFields'},TILE:48,camX:0,camY:0,
   WORLD_DEFINITION:{farmPlots:farmIds.flatMap((crop,index)=>[
-    {x:index,y:0,crop,phase:'GROWING',elapsed:1000},
-    {x:index,y:1,crop,phase:'READY',elapsed:11000}
+    {x:index,y:0,crop,phase:'GROWING',elapsed:100},
+    {x:index,y:1,crop,phase:'GROWING',elapsed:3000},
+    {x:index,y:2,crop,phase:'GROWING',elapsed:6500},
+    {x:index,y:3,crop,phase:'READY',elapsed:11000}
   ])},
   LIFE_CROP_BY_ID:new Map(farmIds.map(id=>[id,{id,growMs:10000}])),
-  matureCropImgs:Object.fromEntries(farmIds.map(id=>[id,{id}])),
+  youngCropImgs:Object.fromEntries(farmIds.map(id=>[id,{id,stage:'young'}])),
+  matureCropImgs:Object.fromEntries(farmIds.map(id=>[id,{id,stage:'mature'}])),
   getFarmPlotPhase:plot=>plot.phase,
   getFarmPlotState:plot=>({cropId:plot.crop,plantedAt:farmNow-plot.elapsed}),
   ctx:{save(){},restore(){},fillRect(){},strokeRect(){},beginPath(){},arc(){},stroke(){},
-    drawImage(sprite,_x,_y,width,height){farmDrawCalls.push({id:sprite.id,width,height});}}
+    drawImage(sprite,_x,_y,width,height){farmDrawCalls.push({id:sprite.id,stage:sprite.stage,width,height});}}
 };
 vm.createContext(farmDrawContext);
 vm.runInContext(`${read('src/rendering.js')}\ndrawFarmGround();`,farmDrawContext);
 assert(farmDrawCalls.length===8&&farmIds.every((id,index)=>
-  farmDrawCalls[index*2].id===id&&farmDrawCalls[index*2].width===34&&
-  farmDrawCalls[index*2+1].id===id&&farmDrawCalls[index*2+1].width===58),
-  'Planted and mature plots must render the same crop-specific art at growing sizes');
+  farmDrawCalls[index*2].id===id&&farmDrawCalls[index*2].stage==='young'&&farmDrawCalls[index*2].width===48&&
+  farmDrawCalls[index*2+1].id===id&&farmDrawCalls[index*2+1].stage==='mature'&&farmDrawCalls[index*2+1].width===58),
+  'Covered seeds and shared sprouts must not show mature art; only later stages use distinct crop-specific sprites');
 
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],

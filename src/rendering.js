@@ -194,15 +194,23 @@ function drawFarmGround(){
       ctx.fillStyle='#ad7849';ctx.fillRect(x+13,y+10,8,2);ctx.fillRect(x+29,y+37,7,2);
       if(phase!=='EMPTY'){
         const crop=LIFE_CROP_BY_ID.get(state.cropId);
-        const progress=Math.min(1,(Date.now()-state.plantedAt)/crop.growMs);
-        const sprite=matureCropImgs[crop.id];
-        if(sprite){
-          const size=phase==='READY'?58:progress<.25?34:progress<.65?45:53;
-          const bottomRatio=crop.id==='corn'?.96:crop.id==='potato'?.9:.84;
+        const progress=Math.max(0,Math.min(1,(Date.now()-state.plantedAt)/crop.growMs));
+        if(phase==='GROWING'&&progress<.15){
+          // A covered seed: the crop itself must not be visible yet.
+          ctx.fillStyle='#553722';ctx.fillRect(x+17,y+25,15,5);ctx.fillRect(x+20,y+22,9,3);
+          ctx.fillStyle='#ab7749';ctx.fillRect(x+22,y+22,5,2);
+        }else if(phase==='GROWING'&&progress<.45){
+          // The first two leaves are shared by all four crops.
+          ctx.fillStyle='#3e6934';ctx.fillRect(x+23,y+22,3,15);
+          ctx.fillStyle='#72b84c';ctx.fillRect(x+16,y+22,8,4);ctx.fillRect(x+25,y+19,8,4);
+          ctx.fillStyle='#96d268';ctx.fillRect(x+18,y+21,5,2);ctx.fillRect(x+27,y+18,5,2);
+        }else{
+          const ready=phase==='READY';
+          const sprite=ready?matureCropImgs[crop.id]:youngCropImgs[crop.id];
+          const size=ready?58:48;
+          const bottomRatio=ready&&crop.id==='corn'?.96:ready&&crop.id==='potato'?.9:.84;
           const drawX=Math.round(x+(TILE-size)/2),drawY=Math.round(y+43-size*bottomRatio);
-          if(phase==='GROWING') ctx.globalAlpha=progress<.25?.78:.9;
           ctx.drawImage(sprite,drawX,drawY,size,size);
-          ctx.globalAlpha=1;
         }
         if(phase==='READY'){
           ctx.fillStyle='#fff2b1';ctx.fillRect(x+37,y+8,4,4);

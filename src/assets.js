@@ -59,6 +59,12 @@ const MATURE_CROP_URLS = Object.freeze({
   corn:'assets/farming/mature/corn.png',
   strawberry:'assets/farming/mature/strawberry.png'
 });
+const YOUNG_CROP_URLS = Object.freeze({
+  carrot:'assets/farming/young/carrot.png',
+  potato:'assets/farming/young/potato.png',
+  corn:'assets/farming/young/corn.png',
+  strawberry:'assets/farming/young/strawberry.png'
+});
 
 const PLAYER_URLS = Object.freeze({
   down_0: 'assets/player/legacy/down_0.png',

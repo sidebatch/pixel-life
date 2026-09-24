@@ -89,7 +89,10 @@ function planFishSale(selection,inventory=GAME_STATE.inventory){
 }
 
 function marketGoodDefinition(type,id){
-  if(type==='material'&&id==='log') return {name:'통나무',icon:'🪵',price:LIFE_CONTENT.logSellPrice};
+  if(type==='material'){
+    const wood=id.endsWith('_log')&&FOREST_WOOD[id.slice(0,-4)];
+    if(id==='log'||wood) return {name:wood?`${wood} 통나무`:'통나무',icon:'🪵',price:LIFE_CONTENT.logSellPrice};
+  }
   if(type==='crop'&&LIFE_CROP_BY_ID.has(id)){
     const crop=LIFE_CROP_BY_ID.get(id);
     return {name:crop.name,icon:crop.icon,price:crop.sellPrice};
@@ -119,7 +122,8 @@ function planGoodsSale(selection,inventory=GAME_STATE.inventory){
 }
 
 function renderGoodsMarket(){
-  const goods=[{type:'material',id:'log'},...LIFE_CONTENT.crops.map(crop=>({type:'crop',id:crop.id}))]
+  const goods=[{type:'material',id:'log'},...FOREST_SPECIES.map(species=>({type:'material',id:`${species}_log`})),
+    ...LIFE_CONTENT.crops.map(crop=>({type:'crop',id:crop.id}))]
     .map(item=>({...item,definition:marketGoodDefinition(item.type,item.id),count:lifeItemCount(item.type,item.id)}))
     .filter(item=>item.count>0);
   const available=new Map(goods.map(item=>[`${item.type}:${item.id}`,item.count]));

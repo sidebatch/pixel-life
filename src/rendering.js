@@ -193,17 +193,18 @@ function drawFarmGround(){
       if(phase!=='EMPTY'){
         const crop=LIFE_CROP_BY_ID.get(state.cropId);
         const progress=Math.min(1,(Date.now()-state.plantedAt)/crop.growMs);
-        const height=phase==='READY'?25:progress<.33?8:progress<.7?16:22;
-        ctx.strokeStyle='#285e30';ctx.lineWidth=4;ctx.beginPath();
-        ctx.moveTo(x+24,y+39);ctx.lineTo(x+24,y+39-height);ctx.stroke();
-        ctx.fillStyle=phase==='READY'?'#d9a93c':'#61bc55';
-        for(const side of [-1,1]){
-          ctx.beginPath();ctx.ellipse(x+24+side*7,y+33-height/2,8,4,side*.5,0,Math.PI*2);ctx.fill();
-        }
-        if(phase==='READY'){
-          ctx.fillStyle=crop.id==='strawberry'?'#e64e5a':crop.id==='carrot'?'#ef9a35':crop.id==='corn'?'#f7d75c':'#c6a475';
-          ctx.beginPath();ctx.arc(x+24,y+35-height,7,0,Math.PI*2);ctx.fill();
+        const mature=phase==='READY'&&matureCropImgs[crop.id];
+        if(mature){
+          ctx.drawImage(mature,x+2,y-1,44,44);
           ctx.fillStyle='#fff2b1';ctx.fillRect(x+37,y+8,4,4);
+        }else{
+          const height=progress<.33?8:progress<.7?16:22;
+          ctx.strokeStyle='#285e30';ctx.lineWidth=4;ctx.beginPath();
+          ctx.moveTo(x+24,y+39);ctx.lineTo(x+24,y+39-height);ctx.stroke();
+          ctx.fillStyle='#61bc55';
+          for(const side of [-1,1]){
+            ctx.beginPath();ctx.ellipse(x+24+side*7,y+33-height/2,8,4,side*.5,0,Math.PI*2);ctx.fill();
+          }
         }
       }
     }
@@ -221,7 +222,9 @@ function drawResourceTree(tree){
   const hit=lifeUi.hit&&lifeUi.hit.x===tree.x&&lifeUi.hit.y===tree.y&&tNow<lifeUi.hit.until;
   const sway=hit?Math.round(Math.sin(tNow/28)*4):0;
   drawWorldTree(tree,sway);
-  ctx.fillStyle='#f4d179';ctx.fillRect(x+30,y+29,6,8);
+  if(Math.abs(player.x-tree.x)+Math.abs(player.y-tree.y)<=1){
+    ctx.fillStyle='#f4d179';ctx.fillRect(x+30,y+29,6,8);
+  }
   if(state.hp<LIFE_CONTENT.treeHp){
     ctx.fillStyle='#452d25';ctx.fillRect(x+31,y+29,7,5);
   }

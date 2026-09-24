@@ -55,7 +55,7 @@ const MOVEMENT_CONFIG=Object.freeze({
 });
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
-const imgs={}, playerImgs={}, npcImgs={}, fishImgs={}, forestTreeImgs={}, forestStumpImgs={}, lifeItemImgs={};
+const imgs={}, playerImgs={}, npcImgs={}, fishImgs={}, forestTreeImgs={}, forestStumpImgs={}, lifeItemImgs={}, matureCropImgs={};
 let playerSheet=null;
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
 async function loadImageMap(target, urls, optional=false){
@@ -75,6 +75,7 @@ async function loadAll(){
     loadImageMap(forestTreeImgs,FOREST_TREE_URLS),
     loadImageMap(forestStumpImgs,FOREST_STUMP_URLS),
     loadImageMap(lifeItemImgs,LIFE_ITEM_URLS),
+    loadImageMap(matureCropImgs,MATURE_CROP_URLS),
     loadImageMap(npcImgs,NPC_SHEET_URLS,true)
   ]);
 

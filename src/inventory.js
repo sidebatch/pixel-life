@@ -50,6 +50,7 @@ function renderInventoryEquipment(){
 function renderInventorySupplies(){
   const entries=[
     {type:'material',id:'log',icon:'🪵',name:'통나무'},
+    ...FOREST_SPECIES.map(species=>({type:'material',id:`${species}_log`,icon:'🪵',name:`${FOREST_WOOD[species]} 통나무`})),
     ...LIFE_CONTENT.crops.flatMap(crop=>[
       {type:'seed',id:crop.id,icon:crop.icon,name:`${crop.name} 씨앗`},
       {type:'crop',id:crop.id,icon:crop.icon,name:crop.name}

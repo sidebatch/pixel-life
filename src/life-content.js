@@ -1,19 +1,32 @@
 const lifeUi={plotId:null,open:false,phase:null,toastTimer:null,hit:null,lastRefresh:0};
 
 function lifeItemIconMarkup(type,id,fallback=''){
-  const asset=type==='material'&&id==='log'?LIFE_ITEM_URLS.log:
-    type==='seed'?LIFE_ITEM_URLS[`${id}Seed`]:null;
+  const asset=type==='material'?(id==='log'?LIFE_ITEM_URLS.log:LIFE_ITEM_URLS[`${id.slice(0,-4)}Log`]):
+    type==='seed'?LIFE_ITEM_URLS[`${id}Seed`]:type==='crop'?LIFE_ITEM_URLS[`${id}Crop`]:null;
   return asset?`<img class="lifeItemIcon" src="${asset}" alt="">`:`<span aria-hidden="true">${fallback}</span>`;
 }
 
 function lifeItemName(type,id){
-  if(type==='material'&&id==='log') return '통나무';
+  if(type==='material') return id==='log'?'통나무':FOREST_WOOD[id.slice(0,-4)]&&id.endsWith('_log')?`${FOREST_WOOD[id.slice(0,-4)]} 통나무`:'';
   const crop=LIFE_CROP_BY_ID.get(id);
-  return crop?(type==='seed'?`${crop.name} 씨앗`:crop.name):'';
+  return crop?(type==='seed'?`${crop.name} 씨앗`:type==='crop'?crop.name:''):'';
 }
 
 function lifeItemCount(type,id,inventory=GAME_STATE.inventory){
   return inventory.reduce((total,item)=>total+(item.type===type&&item.id===id?item.quantity||0:0),0);
+}
+function totalLogCount(inventory=GAME_STATE.inventory){
+  return lifeItemCount('material','log',inventory)+FOREST_SPECIES.reduce((total,species)=>total+lifeItemCount('material',`${species}_log`,inventory),0);
+}
+function spendLogs(quantity){
+  let remaining=quantity;
+  for(const id of ['log',...FOREST_SPECIES.map(species=>`${species}_log`)]){
+    const used=Math.min(remaining,lifeItemCount('material',id));
+    if(used) removeLifeItem('material',id,used);
+    remaining-=used;
+    if(!remaining) break;
+  }
+  return remaining===0;
 }
 
 function addLifeItem(type,id,quantity){
@@ -76,12 +89,12 @@ function hitResourceTree(tree){
   const logs=nextHp===0?2+Math.floor(Math.random()*3):0;
   const success=commitLifeChange(()=>{
     GAME_STATE.world.trees[tree.id]=nextHp===0?{hp:0,choppedAt:now}:{hp:nextHp,choppedAt:null};
-    if(logs) addLifeItem('material','log',logs);
+    if(logs) addLifeItem('material',`${tree.species}_log`,logs);
     return true;
   });
   if(!success){showLifeToast('저장하지 못했어요. 다시 시도해 주세요');return false;}
   lifeUi.hit={x:tree.x,y:tree.y,until:performance.now()+350};
-  showLifeToast(logs?`+${logs} 통나무`:`도끼질 · ${nextHp}번 더`);
+  showLifeToast(logs?`+${logs} ${FOREST_WOOD[tree.species]} 통나무`:`도끼질 · ${nextHp}번 더`);
   return true;
 }
 
@@ -108,12 +121,12 @@ function buyFarmPlot(plot){
   if(getFarmPlotPhase(plot)!=='LOCKED') return false;
   const cost=farmExpansionCost();
   if(!cost) return false;
-  if(GAME_STATE.progression.coins<cost.coins||lifeItemCount('material','log')<cost.logs){
+  if(GAME_STATE.progression.coins<cost.coins||totalLogCount()<cost.logs){
     showLifeToast('코인이나 통나무가 부족해요');return false;
   }
   const success=commitLifeChange(()=>{
     GAME_STATE.progression.coins-=cost.coins;
-    if(cost.logs) removeLifeItem('material','log',cost.logs);
+    if(cost.logs) spendLogs(cost.logs);
     GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:null,plantedAt:null};
     return true;
   });
@@ -172,8 +185,8 @@ function renderLifePanel(){
   const info=document.getElementById('lifeInfo'),actions=document.getElementById('lifeActions');
   if(phase==='LOCKED'){
     const cost=farmExpansionCost();
-    const affordable=cost&&GAME_STATE.progression.coins>=cost.coins&&lifeItemCount('material','log')>=cost.logs;
-    info.textContent=`이 밭을 확장하면 앞으로 계속 사용할 수 있어요. 보유 ${GAME_STATE.progression.coins.toLocaleString()}코인 · 통나무 ${lifeItemCount('material','log')}개`;
+    const affordable=cost&&GAME_STATE.progression.coins>=cost.coins&&totalLogCount()>=cost.logs;
+    info.textContent=`이 밭을 확장하면 앞으로 계속 사용할 수 있어요. 보유 ${GAME_STATE.progression.coins.toLocaleString()}코인 · 통나무 ${totalLogCount()}개`;
     actions.innerHTML=`<button type="button" data-life-action="unlock" ${affordable?'':'disabled'}>밭 확장 · ${cost?.coins.toLocaleString()||0}코인${cost?.logs?` + 통나무 ${cost.logs}개`:''}</button>`;
   }else if(phase==='EMPTY'){
     info.textContent='씨앗을 고르면 시간이 지나 자동으로 자라요.';

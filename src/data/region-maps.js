@@ -1,4 +1,8 @@
 const VILLAGE_WORLD_DEFINITION=WORLD_DEFINITION;
+const FOREST_WOOD=Object.freeze({oak:'참나무',pine:'소나무',birch:'자작나무',maple:'단풍나무',spruce:'가문비나무',willow:'버드나무',cypress:'삼나무',broadleaf:'활엽수'});
+const FOREST_SPECIES=Object.freeze(Object.keys(FOREST_WOOD));
+const forestTreeId=(x,y)=>`forest_tree_${x}_${y}`;
+const forestTreeSpecies=(x,y)=>FOREST_SPECIES[Math.abs(x*17+y*31)%FOREST_SPECIES.length];
 const REGION_WORLDS=Object.freeze({
   lilacVillage:VILLAGE_WORLD_DEFINITION,
   oldForest:Object.freeze({

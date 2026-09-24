@@ -130,6 +130,8 @@ function validatePlayableRegion(){
       throw new Error(`Region ${definition.id} has an invalid exit`);
   }
   const ids=new Set();
+  if(definition.id==='oldForest'&&trees.some(tree=>!tree.interactable||!FOREST_WOOD[tree.species]))
+    throw new Error('Every forest tree must be choppable and have a matching wood species');
   for(const tree of trees.filter(tree=>tree.interactable)){
     if(!tree.id||ids.has(tree.id)) throw new Error(`Region ${definition.id} has duplicate tree ids`);
     ids.add(tree.id);

@@ -28,9 +28,10 @@ function normalizeSavedInventory(rawInventory){
       inventory.push({type:'equipment',id:item.id,name:equipment.name,quantity:1});
       continue;
     }
-    if(item.type==='material'&&item.id==='log'){
+    const wood=item.type==='material'&&typeof item.id==='string'&&item.id.endsWith('_log')?FOREST_WOOD[item.id.slice(0,-4)]:null;
+    if(item.type==='material'&&(item.id==='log'||wood)){
       const quantity=saveClamp(Math.floor(saveFiniteNumber(item.quantity,0)),0,99999);
-      if(quantity) inventory.push({type:'material',id:'log',name:'통나무',quantity});
+      if(quantity) inventory.push({type:'material',id:item.id,name:wood?`${wood} 통나무`:'통나무',quantity});
       continue;
     }
     if((item.type==='seed'||item.type==='crop')&&LIFE_CROP_BY_ID.has(item.id)){
@@ -58,7 +59,14 @@ function normalizeSavedInventory(rawInventory){
 function normalizeSavedLifeWorld(rawWorld){
   const source=rawWorld&&typeof rawWorld==='object'?rawWorld:{};
   const now=Date.now();
-  const knownTrees=new Set(REGION_WORLDS.oldForest.trees.filter(tree=>tree.interactable).map(tree=>tree.id));
+  const forest=REGION_WORLDS.oldForest;
+  const knownTrees=new Set(forest.trees.map(tree=>tree.id||forestTreeId(tree.x,tree.y)));
+  for(const line of forest.treeLines){
+    for(let value=line.from;value<=line.to;value+=line.step){
+      if(line.gaps?.some(([start,end])=>value>=start&&value<=end)) continue;
+      knownTrees.add(line.axis==='x'?forestTreeId(value,line.fixed):forestTreeId(line.fixed,value));
+    }
+  }
   const trees={};
   for(const [id,value] of Object.entries(source.trees||{})){
     if(!knownTrees.has(id)||!value||typeof value!=='object') continue;

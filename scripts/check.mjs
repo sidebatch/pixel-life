@@ -55,7 +55,7 @@ assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   'Market exit button must use the existing close behavior');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 75, `Expected 75 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 91, `Expected 91 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -400,15 +400,18 @@ assert(saveContext.__savedMastery.level===100&&saveContext.__savedMastery.master
   saveContext.__savedMastery.masteryXp===17&&saveContext.__savedMastery.equippedRodId==='rod.expert',
   'Level 100 mastery save restoration failed');
 vm.runInContext(`GAME_STATE.regionId='sunnyFields';GAME_STATE.playerLocation={x:14,y:24,face:'right'};`+
-  `GAME_STATE.inventory.push({type:'material',id:'log',name:'통나무',quantity:5},{type:'seed',id:'carrot',name:'당근 씨앗',quantity:2});`+
-  `GAME_STATE.world={trees:{forest_tree_01:{hp:0,choppedAt:Date.now()}},plots:{farm_09:{unlocked:true,cropId:'carrot',plantedAt:Date.now()-30000}}};`+
+  `GAME_STATE.inventory.push({type:'material',id:'log',name:'통나무',quantity:5},{type:'material',id:'oak_log',name:'참나무 통나무',quantity:3},{type:'seed',id:'carrot',name:'당근 씨앗',quantity:2});`+
+  `GAME_STATE.world={trees:{forest_tree_01:{hp:0,choppedAt:Date.now()},forest_tree_15_16:{hp:2,choppedAt:null},forest_tree_1_1:{hp:0,choppedAt:Date.now()}},plots:{farm_09:{unlocked:true,cropId:'carrot',plantedAt:Date.now()-30000}}};`+
   `saveGame();GAME_STATE.inventory=[];GAME_STATE.world={trees:{},plots:{}};GAME_STATE.regionId='lilacVillage';`+
   `globalThis.__lifeLoaded=loadGame();globalThis.__lifeRestored=JSON.parse(JSON.stringify(GAME_STATE));`,saveContext);
 assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFields'&&
   saveContext.__lifeRestored.playerLocation.x===14&&
   saveContext.__lifeRestored.inventory.some(item=>item.type==='material'&&item.quantity===5)&&
+  saveContext.__lifeRestored.inventory.some(item=>item.id==='oak_log'&&item.quantity===3)&&
   saveContext.__lifeRestored.inventory.some(item=>item.type==='seed'&&item.id==='carrot'&&item.quantity===2)&&
   saveContext.__lifeRestored.world.trees.forest_tree_01.hp===0&&
+  saveContext.__lifeRestored.world.trees.forest_tree_15_16.hp===2&&
+  saveContext.__lifeRestored.world.trees.forest_tree_1_1.hp===0&&
   saveContext.__lifeRestored.world.plots.farm_09.cropId==='carrot'&&
   saveContext.__lifeRestored.world.plots.farm_01.unlocked&&
   saveContext.__lifeRestored.world.plots.farm_05.unlocked&&
@@ -467,13 +470,13 @@ const lifeContext={
   setTimeout:()=>1,clearTimeout:()=>{}
 };
 vm.createContext(lifeContext);
-vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-content.js')}\n`,lifeContext);
+vm.runInContext(`${read('src/assets.js')}\n${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-content.js')}\n`,lifeContext);
 const toastNode={textContent:'',classList:{add(){},remove(){}}};
 const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
 vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_01');`+
   `globalThis.__hits=[hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree)];`+
-  `globalThis.__logs=lifeItemCount('material','log');`+
+  `globalThis.__logs=lifeItemCount('material','oak_log');`+
   `globalThis.__regrown=getTreeState(testTree,Date.now()+LIFE_CONTENT.treeRespawnMs+1);`+
   `const lockedPlot=REGION_WORLDS.sunnyFields.farmPlots[2];GAME_STATE.regionId='sunnyFields';`+
   `GAME_STATE.progression.coins=50;globalThis.__poorBuy=buyFarmPlot(lockedPlot);`+
@@ -493,11 +496,20 @@ assert(lifeContext.__poorBuy===false&&lifeContext.__plotBought===true&&lifeConte
   lifeContext.__cropCount>=2&&lifeContext.__cropCount<=3,
   'Farm must reject unaffordable/duplicate actions and allow offline growth and one harvest');
 lifeContext.saveGame=()=>false;
-vm.runInContext(`GAME_STATE.regionId='oldForest';const before=lifeItemCount('material','log');`+
+vm.runInContext(`GAME_STATE.regionId='oldForest';const before=totalLogCount();`+
   `globalThis.__failedHit=hitResourceTree(REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_02'));`+
-  `globalThis.__rollbackOk=lifeItemCount('material','log')===before&&!GAME_STATE.world.trees.forest_tree_02;`,lifeContext);
+  `globalThis.__rollbackOk=totalLogCount()===before&&!GAME_STATE.world.trees.forest_tree_02;`,lifeContext);
 assert(lifeContext.__failedHit===false&&lifeContext.__rollbackOk,
   'Failed life-content save must roll back tree damage and rewards');
+lifeContext.saveGame=()=>true;
+vm.runInContext(`GAME_STATE.inventory=[{type:'material',id:'log',quantity:2},{type:'material',id:'oak_log',quantity:3},{type:'material',id:'pine_log',quantity:4}];`+
+  `globalThis.__woodBefore=totalLogCount();globalThis.__woodSpent=spendLogs(6);globalThis.__woodAfter=totalLogCount();`+
+  `globalThis.__legacyLeft=lifeItemCount('material','log');globalThis.__pineLeft=lifeItemCount('material','pine_log');`+
+  `globalThis.__cropIcon=lifeItemIconMarkup('crop','carrot');globalThis.__woodIcon=lifeItemIconMarkup('material','oak_log');`,lifeContext);
+assert(lifeContext.__woodBefore===9&&lifeContext.__woodSpent&&lifeContext.__woodAfter===3&&
+  lifeContext.__legacyLeft===0&&lifeContext.__pineLeft===3&&
+  lifeContext.__cropIcon.includes('farming/harvest/carrot.png')&&lifeContext.__woodIcon.includes('forestry/items/oak.png'),
+  'Mixed legacy/species logs must fund expansion and item icons must use matching harvest/wood art');
 
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],
@@ -510,7 +522,7 @@ const marketContext={
   ],progression:{coins:100}}
 };
 vm.createContext(marketContext);
-vm.runInContext(`${read('src/data/life-content-data.js')}\n${read('src/market.js')}\n`+
+vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\n${read('src/market.js')}\n`+
   `globalThis.__sale=planFishSale(new Map([['fish.crucian_carp',2]]));`+
   `globalThis.__multiSale=planFishSale(new Map([['fish.crucian_carp',1],['fish.goldfish',1]]));`+
   `globalThis.__overSale=planFishSale(new Map([['fish.crucian_carp',4]]));`+
@@ -518,6 +530,9 @@ vm.runInContext(`${read('src/data/life-content-data.js')}\n${read('src/market.js
   `const goods=[{type:'material',id:'log',quantity:4},{type:'crop',id:'carrot',quantity:3},{type:'equipment',id:'rod.master_angler',quantity:1}];`+
   `globalThis.__goodsSale=planGoodsSale(new Map([['material:log',2],['crop:carrot',1]]),goods);`+
   `globalThis.__goodsOversale=planGoodsSale(new Map([['material:log',5]]),goods);`,marketContext);
+assert(vm.runInContext(`marketGoodDefinition('material','birch_log').name==='자작나무 통나무'&&
+  planGoodsSale(new Map([['material:birch_log',2]]),[{type:'material',id:'birch_log',quantity:3}]).total===24`,marketContext),
+  'Species logs must be sellable without changing the existing log price');
 assert(marketContext.__sale.count===2&&marketContext.__sale.total===65&&
   marketContext.__sale.inventory.length===3&&
   marketContext.__sale.inventory[0].id==='fish.goldfish'&&
@@ -622,8 +637,11 @@ assert(validationContext.__blocked.has(`${validationContext.__marketStall.x},${v
   validationContext.__merchant.roam===0&&validationContext.__merchant.y===validationContext.__marketStall.y+1,
   'Open-air stall and fixed merchant position are invalid');
 vm.runInContext(`GAME_STATE.regionId='oldForest';buildWorldRegion(REGION_WORLDS.oldForest);globalThis.__forestReport=validatePlayableRegion();globalThis.__resourceTrees=trees.filter(tree=>tree.interactable).length;`+
+  `globalThis.__allForestChoppable=trees.every(tree=>tree.interactable&&!!tree.id&&!!FOREST_WOOD[tree.species]);`+
+  `globalThis.__forestBoundaryBlocked=[...Array(MAP_W).keys()].every(x=>blocked.has(key(x,0))&&blocked.has(key(x,MAP_H-1)));`+
   `GAME_STATE.regionId='sunnyFields';buildWorldRegion(REGION_WORLDS.sunnyFields);globalThis.__farmReport=validatePlayableRegion();globalThis.__plots=WORLD_DEFINITION.farmPlots.length;`,validationContext);
-assert(validationContext.__forestReport.region==='oldForest'&&validationContext.__resourceTrees===8&&
+assert(validationContext.__forestReport.region==='oldForest'&&validationContext.__resourceTrees>8&&
+  validationContext.__allForestChoppable&&validationContext.__forestBoundaryBlocked&&
   validationContext.__farmReport.region==='sunnyFields'&&validationContext.__plots===16,
   'Forest and farm maps must have exits, fishing water, resource trees, and farm plots');
 const accessibility=vm.runInContext(`Object.values(REGION_WORLDS).map(def=>{

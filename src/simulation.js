@@ -1,4 +1,8 @@
-const playerSpawn=WORLD_DEFINITION.playerSpawn;
+const savedPlayerLocation=GAME_STATE.playerLocation;
+const playerSpawn=savedPlayerLocation&&inside(savedPlayerLocation.x,savedPlayerLocation.y)&&
+  !blocked.has(key(savedPlayerLocation.x,savedPlayerLocation.y))&&
+  !npcs.some(n=>n.x===savedPlayerLocation.x&&n.y===savedPlayerLocation.y)?
+  savedPlayerLocation:WORLD_DEFINITION.playerSpawn;
 const player={
   x:playerSpawn.x,y:playerSpawn.y,
   px:playerSpawn.x*TILE+TILE/2,py:playerSpawn.y*TILE+TILE/2,
@@ -109,6 +113,8 @@ function update(dt){
     player.py=player.fromY+(player.toY-player.fromY)*e;
     if(p>=1){
       player.px=player.toX;player.py=player.toY;player.moving=false;
+      const exit=regionExitAt(player.x,player.y);
+      if(exit){enterWorldRegion(exit);return;}
       const d=preferredDir()||bufferedDir; bufferedDir=null; if(d) tryMove(d);
     }
   }else if(!fishingLocked){

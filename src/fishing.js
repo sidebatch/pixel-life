@@ -2,13 +2,14 @@ const FISHING_CONFIG = Object.freeze({
   castMs: 320,
   minWaitMs: 3000,
   maxWaitMs: 6000,
-  // Remove this bridge when the river and coast fishing regions are playable.
+  // Keep the temporary village preview until region-exclusive fish balancing is updated.
   temporaryAllFishAtVillagePond: true
 });
 
 const FISHING_HABITAT_BY_REGION=Object.freeze({
   lilacVillage:FISH_HABITATS.POND,
   oldForest:FISH_HABITATS.RIVER,
+  sunnyFields:FISH_HABITATS.POND,
   riverValley:FISH_HABITATS.RIVER,
   coast:FISH_HABITATS.COAST
 });

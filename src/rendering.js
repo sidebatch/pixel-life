@@ -79,7 +79,7 @@ function drawPathTile(x,y){
 }
 function drawTerrain(){
   // Movement/collision is still tile based, but the terrain is painted as connected surfaces.
-  ctx.fillStyle='#78b85b';
+  ctx.fillStyle=GAME_STATE.regionId==='oldForest'?'#538a53':GAME_STATE.regionId==='sunnyFields'?'#91c66a':'#78b85b';
   ctx.fillRect(0,0,VIEW_W,VIEW_H);
 
   const x0=Math.max(0,Math.floor(camX/TILE)-2), y0=Math.max(0,Math.floor(camY/TILE)-2);
@@ -160,6 +160,72 @@ function drawTerrain(){
 }
 function onScreen(wx,wy,w=100,h=120){
   return wx+w>-40+camX&&wy+h>-40+camY&&wx-w<VIEW_W+camX&&wy-h<VIEW_H+camY;
+}
+function drawRegionExits(){
+  for(const exit of REGION_EXITS[GAME_STATE.regionId]||[]){
+    const x=Math.round(exit.x*TILE-camX),y=Math.round(exit.y*TILE-camY);
+    ctx.save();
+    ctx.fillStyle='rgba(251,226,143,.28)';ctx.fillRect(x+3,y+3,TILE-6,TILE-6);
+    ctx.strokeStyle='#ffe5a0';ctx.lineWidth=3;ctx.strokeRect(x+5,y+5,TILE-10,TILE-10);
+    ctx.fillStyle='#fff3cf';ctx.font='900 17px system-ui';ctx.textAlign='center';
+    ctx.fillText(exit.to==='oldForest'?'↑':exit.to==='sunnyFields'?'→':GAME_STATE.regionId==='oldForest'?'↓':'←',x+TILE/2,y+31);
+    ctx.font='900 9px system-ui';ctx.fillText(exit.label,x+TILE/2,y+44);
+    ctx.restore();
+  }
+}
+
+function drawFarmGround(){
+  if(GAME_STATE.regionId!=='sunnyFields') return;
+  for(const plot of WORLD_DEFINITION.farmPlots){
+    const x=Math.round(plot.x*TILE-camX),y=Math.round(plot.y*TILE-camY);
+    const phase=getFarmPlotPhase(plot),state=getFarmPlotState(plot);
+    ctx.save();
+    ctx.fillStyle=phase==='LOCKED'?'#586253':'#7b4f34';
+    ctx.fillRect(x+2,y+2,TILE-4,TILE-4);
+    ctx.strokeStyle=phase==='LOCKED'?'#9ba48a':'#a9764b';ctx.lineWidth=2;
+    ctx.strokeRect(x+3,y+3,TILE-6,TILE-6);
+    if(phase==='LOCKED'){
+      ctx.fillStyle='#d9dcc3';ctx.fillRect(x+18,y+23,13,12);
+      ctx.strokeStyle='#d9dcc3';ctx.lineWidth=3;ctx.beginPath();ctx.arc(x+24.5,y+22,5,Math.PI,0);ctx.stroke();
+    }else{
+      ctx.fillStyle='#a36e46';
+      for(let line=0;line<3;line++) ctx.fillRect(x+7,y+12+line*11,34,3);
+      if(phase!=='EMPTY'){
+        const crop=LIFE_CROP_BY_ID.get(state.cropId);
+        const progress=Math.min(1,(Date.now()-state.plantedAt)/crop.growMs);
+        const height=phase==='READY'?25:progress<.33?8:progress<.7?16:22;
+        ctx.strokeStyle='#285e30';ctx.lineWidth=4;ctx.beginPath();
+        ctx.moveTo(x+24,y+39);ctx.lineTo(x+24,y+39-height);ctx.stroke();
+        ctx.fillStyle=phase==='READY'?'#d9a93c':'#61bc55';
+        for(const side of [-1,1]){
+          ctx.beginPath();ctx.ellipse(x+24+side*7,y+33-height/2,8,4,side*.5,0,Math.PI*2);ctx.fill();
+        }
+        if(phase==='READY'){
+          ctx.fillStyle=crop.id==='strawberry'?'#e64e5a':crop.id==='carrot'?'#ef9a35':crop.id==='corn'?'#f7d75c':'#c6a475';
+          ctx.beginPath();ctx.arc(x+24,y+35-height,7,0,Math.PI*2);ctx.fill();
+          ctx.fillStyle='#fff2b1';ctx.fillRect(x+37,y+8,4,4);
+        }
+      }
+    }
+    ctx.restore();
+  }
+}
+
+function drawResourceTree(tree){
+  const state=getTreeState(tree),x=Math.round(tree.x*TILE-camX),y=Math.round(tree.y*TILE-camY);
+  if(state.hp===0){
+    ctx.save();ctx.fillStyle='#705139';ctx.fillRect(x+8,y+22,32,18);
+    ctx.fillStyle='#ad8458';ctx.beginPath();ctx.ellipse(x+24,y+22,17,7,0,0,Math.PI*2);ctx.fill();
+    ctx.strokeStyle='#5c392a';ctx.beginPath();ctx.ellipse(x+24,y+22,9,4,0,0,Math.PI*2);ctx.stroke();ctx.restore();
+    return;
+  }
+  const hit=lifeUi.hit&&lifeUi.hit.x===tree.x&&lifeUi.hit.y===tree.y&&tNow<lifeUi.hit.until;
+  const sway=hit?Math.round(Math.sin(tNow/28)*4):0;
+  ctx.drawImage(imgs.treeStage24||imgs.treeClean||imgs.tree,x-22+sway,y-64,92,116);
+  ctx.fillStyle='#f4d179';ctx.fillRect(x+35,y+29,6,8);
+  if(state.hp<LIFE_CONTENT.treeHp){
+    ctx.fillStyle='#452d25';ctx.fillRect(x+36,y+29,7,5);
+  }
 }
 const DEBUG_BUILDING_ANCHORS=false;
 function drawBuilding(b){
@@ -496,6 +562,8 @@ function drawWorld(){
   ctx.clearRect(0,0,VIEW_W,VIEW_H);
   // Visual terrain is blended independently from the reliable tile movement/collision logic.
   drawTerrain();
+  drawFarmGround();
+  drawRegionExits();
 
   // Water shimmer travels across the whole pond instead of restarting in every cell.
   ctx.globalAlpha=.18+.06*Math.sin(tNow/430);
@@ -533,12 +601,14 @@ function drawWorld(){
     const localDepth=(b.depthLine ?? b.h);
     renderables.push({y:(b.y+localDepth)*TILE,draw:()=>drawBuilding(b)});
   });
-  trees.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.treeStage24||imgs.treeClean||imgs.tree,o.x*TILE-camX-22,o.y*TILE-camY-64,92,116)}));
+  trees.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>o.interactable?drawResourceTree(o):ctx.drawImage(imgs.treeStage24||imgs.treeClean||imgs.tree,o.x*TILE-camX-22,o.y*TILE-camY-64,92,116)}));
   rocks.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.rock,o.x*TILE-camX-6,o.y*TILE-camY-10,60,58)}));
-  renderables.push({y:(marketStall.y+marketStall.h)*TILE,draw:drawMarketStall});
-  renderables.push({y:sign.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.sign,sign.x*TILE-camX-8,sign.y*TILE-camY-20,64,68)});
-  renderables.push({y:bench.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.bench,bench.x*TILE-camX-26,bench.y*TILE-camY-8,100,56)});
-  renderables.push({y:lamp.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.lamp,lamp.x*TILE-camX+5,lamp.y*TILE-camY-38,38,86)});
+  if(GAME_STATE.regionId==='lilacVillage'){
+    renderables.push({y:(marketStall.y+marketStall.h)*TILE,draw:drawMarketStall});
+    renderables.push({y:sign.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.sign,sign.x*TILE-camX-8,sign.y*TILE-camY-20,64,68)});
+    renderables.push({y:bench.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.bench,bench.x*TILE-camX-26,bench.y*TILE-camY-8,100,56)});
+    renderables.push({y:lamp.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.lamp,lamp.x*TILE-camX+5,lamp.y*TILE-camY-38,38,86)});
+  }
   npcs.forEach(n=>renderables.push({y:n.y*TILE+TILE,draw:()=>drawNPC(n)}));
   renderables.push({y:player.py+20,draw:drawPlayer});
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());

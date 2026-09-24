@@ -28,6 +28,17 @@ function normalizeSavedInventory(rawInventory){
       inventory.push({type:'equipment',id:item.id,name:equipment.name,quantity:1});
       continue;
     }
+    if(item.type==='material'&&item.id==='log'){
+      const quantity=saveClamp(Math.floor(saveFiniteNumber(item.quantity,0)),0,99999);
+      if(quantity) inventory.push({type:'material',id:'log',name:'통나무',quantity});
+      continue;
+    }
+    if((item.type==='seed'||item.type==='crop')&&LIFE_CROP_BY_ID.has(item.id)){
+      const crop=LIFE_CROP_BY_ID.get(item.id);
+      const quantity=saveClamp(Math.floor(saveFiniteNumber(item.quantity,0)),0,99999);
+      if(quantity) inventory.push({type:item.type,id:crop.id,name:item.type==='seed'?`${crop.name} 씨앗`:crop.name,quantity});
+      continue;
+    }
     if(item.type!=='fish') continue;
     const fish=SAVE_FISH_BY_ID.get(item.id);
     if(!fish) continue;
@@ -42,6 +53,33 @@ function normalizeSavedInventory(rawInventory){
     });
   }
   return inventory;
+}
+
+function normalizeSavedLifeWorld(rawWorld){
+  const source=rawWorld&&typeof rawWorld==='object'?rawWorld:{};
+  const now=Date.now();
+  const knownTrees=new Set(REGION_WORLDS.oldForest.trees.filter(tree=>tree.interactable).map(tree=>tree.id));
+  const trees={};
+  for(const [id,value] of Object.entries(source.trees||{})){
+    if(!knownTrees.has(id)||!value||typeof value!=='object') continue;
+    const choppedAt=Math.floor(saveFiniteNumber(value.choppedAt,0));
+    if(choppedAt>0&&choppedAt<=now&&now-choppedAt<LIFE_CONTENT.treeRespawnMs){
+      trees[id]={hp:0,choppedAt};
+    }else if(!choppedAt){
+      const hp=saveClamp(Math.floor(saveFiniteNumber(value.hp,LIFE_CONTENT.treeHp)),1,LIFE_CONTENT.treeHp);
+      if(hp<LIFE_CONTENT.treeHp) trees[id]={hp,choppedAt:null};
+    }
+  }
+  const plots={};
+  REGION_WORLDS.sunnyFields.farmPlots.forEach((plot,index)=>{
+    const saved=source.plots?.[plot.id];
+    const unlocked=isInitialFarmPlot(index)||saved?.unlocked===true;
+    const cropId=unlocked&&LIFE_CROP_BY_ID.has(saved?.cropId)?saved.cropId:null;
+    const plantedAt=cropId?Math.floor(saveFiniteNumber(saved.plantedAt,0)):0;
+    plots[plot.id]={unlocked,cropId:plantedAt>0&&plantedAt<=now?cropId:null,
+      plantedAt:plantedAt>0&&plantedAt<=now?plantedAt:null};
+  });
+  return {trees,plots};
 }
 
 function normalizeSavedFishCollections(rawCollections){
@@ -117,7 +155,12 @@ function createSaveData(){
     version:SAVE_CONFIG.version,
     savedAt:new Date().toISOString(),
     state:{
+      location:{regionId:GAME_STATE.regionId,
+        x:typeof player!=='undefined'?player.x:GAME_STATE.playerLocation?.x,
+        y:typeof player!=='undefined'?player.y:GAME_STATE.playerLocation?.y,
+        face:typeof player!=='undefined'?player.face:GAME_STATE.playerLocation?.face},
       inventory:GAME_STATE.inventory,
+      world:GAME_STATE.world,
       collections:{fish:GAME_STATE.collections.fish},
       progression:{
         coins:GAME_STATE.progression.coins,
@@ -131,7 +174,13 @@ function createSaveData(){
 function applySaveData(saveData){
   if(!saveData||saveData.version!==SAVE_CONFIG.version||!saveData.state) return false;
   const savedState=saveData.state;
+  const savedLocation=savedState.location;
+  GAME_STATE.regionId=REGION_WORLDS[savedLocation?.regionId]?savedLocation.regionId:'lilacVillage';
+  GAME_STATE.playerLocation=Number.isInteger(savedLocation?.x)&&Number.isInteger(savedLocation?.y)&&
+    savedLocation.x>=1&&savedLocation.x<63&&savedLocation.y>=1&&savedLocation.y<47?
+    {x:savedLocation.x,y:savedLocation.y,face:['up','down','left','right'].includes(savedLocation.face)?savedLocation.face:'down'}:null;
   GAME_STATE.inventory=normalizeSavedInventory(savedState.inventory);
+  GAME_STATE.world=normalizeSavedLifeWorld(savedState.world);
   GAME_STATE.collections.fish=normalizeSavedFishCollections(savedState.collections?.fish);
   GAME_STATE.progression.coins=Math.max(0,Math.floor(saveFiniteNumber(savedState.progression?.coins,GAME_STATE.progression.coins)));
   GAME_STATE.progression.flags=normalizeSavedProgressionFlags(savedState.progression?.flags);

@@ -6,9 +6,11 @@ const root = process.cwd();
 const scriptFiles = [
   'src/assets.js',
   'src/data/world-map.js',
+  'src/data/region-maps.js',
   'src/data/fish-data.js',
   'src/data/fishing-gear-data.js',
   'src/data/life-skill-data.js',
+  'src/data/life-content-data.js',
   'src/world-time.js',
   'src/weather.js',
   'src/config.js',
@@ -17,6 +19,7 @@ const scriptFiles = [
   'src/world.js',
   'src/world-validation.js',
   'src/simulation.js',
+  'src/life-content.js',
   'src/debug.js',
   'src/rendering.js',
   'src/interactions.js',
@@ -44,7 +47,7 @@ const htmlIds = new Set(htmlIdList);
 assert(htmlIds.size === htmlIdList.length, 'HTML ids must be unique');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 6, 'Fish dex and inventory tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 10, 'Fish dex, inventory, and market tabs must be accessible');
 assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
 assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab panel semantics are missing');
 assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
@@ -241,6 +244,7 @@ vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear
   `globalThis.__villagePool=pool.map(fish=>fish.id);`+
   `globalThis.__villageReachable=[...new Set(['DAWN','DAY','DUSK','NIGHT'].flatMap(period=>['clear','rain','storm'].flatMap(weather=>getEligibleFishPool({regionId:'lilacVillage',habitat:'pond',period,weather}).map(fish=>fish.id))))];`+
   `globalThis.__futureRiverPool=getEligibleFishPool({regionId:'oldForest',habitat:'river',period:'DAY',weather:'clear'}).map(fish=>fish.id);`+
+  `globalThis.__farmPool=getEligibleFishPool({regionId:'sunnyFields',habitat:'pond',period:'DAY',weather:'clear'}).map(fish=>fish.id);`+
   `globalThis.__futureCoastPool=getEligibleFishPool({regionId:'coast',habitat:'coast',period:'DAY',weather:'clear'}).map(fish=>fish.id);`+
   `const repeatStreak={fishId:'fish.crucian_carp',count:3};`+
   `globalThis.__weightedBounds=[chooseWeightedFish(pool,0).id,chooseWeightedFish(pool,1).id];`+
@@ -283,6 +287,8 @@ assert(fishingLogicContext.__villagePool.includes('fish.flounder')&&
   fishingLogicContext.__villagePool.includes('fish.minnow')&&
   !fishingLogicContext.__villagePool.includes('fish.coelacanth')&&
   fishingLogicContext.__futureRiverPool.length>0&&fishingLogicContext.__futureCoastPool.length>0&&
+  fishingLogicContext.__farmPool.length>0&&
+  fishingLogicContext.__farmPool.every(id=>fishData.find(fish=>fish.id===id).habitat==='pond')&&
   fishingLogicContext.__futureRiverPool.every(id=>fishData.find(fish=>fish.id===id).habitat==='river')&&
   fishingLogicContext.__futureCoastPool.every(id=>fishData.find(fish=>fish.id===id).habitat==='coast'),
   'Temporary village preview must keep weather and future region-specific pools');
@@ -345,13 +351,14 @@ const saveContext={
     setItem(key,value){saveStorage.set(key,String(value));}
   },
   GAME_STATE:{
+    regionId:'lilacVillage',playerLocation:null,world:{trees:{},plots:{}},
     inventory:[],
     collections:{fish:{}},
     progression:{coins:1230,flags:{},fishing:{level:1,xp:0,totalXp:0}}
   }
 };
 vm.createContext(saveContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/save.js')}\n`+
+vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n${read('src/save.js')}\n`+
   `GAME_STATE.inventory.push({type:'fish',id:'fish.crucian_carp',name:'붕어',rarity:'common',sizeCm:22.5,price:26,quantity:1});`+
   `GAME_STATE.collections.fish['fish.crucian_carp']={fishId:'fish.crucian_carp',name:'붕어',rarity:'common',count:2,minSizeCm:20,maxSizeCm:25,totalSizeCm:45,averageSizeCm:22.5};`+
   `GAME_STATE.inventory.push({type:'equipment',id:'rod.master_angler',name:'강태공의 낚싯대',quantity:1});`+
@@ -381,6 +388,21 @@ assert(saveContext.__oldCap.level>20&&saveContext.__oldCap.totalXp===4320,
 assert(saveContext.__savedMastery.level===100&&saveContext.__savedMastery.mastery===1&&
   saveContext.__savedMastery.masteryXp===17&&saveContext.__savedMastery.equippedRodId==='rod.expert',
   'Level 100 mastery save restoration failed');
+vm.runInContext(`GAME_STATE.regionId='sunnyFields';GAME_STATE.playerLocation={x:14,y:24,face:'right'};`+
+  `GAME_STATE.inventory.push({type:'material',id:'log',name:'통나무',quantity:5},{type:'seed',id:'carrot',name:'당근 씨앗',quantity:2});`+
+  `GAME_STATE.world={trees:{forest_tree_01:{hp:0,choppedAt:Date.now()}},plots:{farm_09:{unlocked:true,cropId:'carrot',plantedAt:Date.now()-30000}}};`+
+  `saveGame();GAME_STATE.inventory=[];GAME_STATE.world={trees:{},plots:{}};GAME_STATE.regionId='lilacVillage';`+
+  `globalThis.__lifeLoaded=loadGame();globalThis.__lifeRestored=JSON.parse(JSON.stringify(GAME_STATE));`,saveContext);
+assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFields'&&
+  saveContext.__lifeRestored.playerLocation.x===14&&
+  saveContext.__lifeRestored.inventory.some(item=>item.type==='material'&&item.quantity===5)&&
+  saveContext.__lifeRestored.inventory.some(item=>item.type==='seed'&&item.id==='carrot'&&item.quantity===2)&&
+  saveContext.__lifeRestored.world.trees.forest_tree_01.hp===0&&
+  saveContext.__lifeRestored.world.plots.farm_09.cropId==='carrot'&&
+  saveContext.__lifeRestored.world.plots.farm_01.unlocked&&
+  saveContext.__lifeRestored.world.plots.farm_05.unlocked&&
+  !saveContext.__lifeRestored.world.plots.farm_03.unlocked,
+  'Region, life inventory, tree respawn, and initial farm plot state must survive reload');
 saveStorage.set('pixel-life.save','{not-json');
 vm.runInContext('globalThis.__invalidJsonSave=loadGame();',saveContext);
 assert(saveContext.__invalidJsonSave===false,'Malformed save JSON must fail safely');
@@ -427,8 +449,48 @@ assert(inventorySummaryNode.textContent==='보유 물고기 2마리'&&
   inventoryContext.GAME_STATE.inventory[1].sizeCm===28.1,
   'Inventory grid must badge counts and preserve individual catch data');
 
+const lifeContext={
+  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500}},
+  saveGame:()=>true,
+  performance:{now:()=>100},
+  setTimeout:()=>1,clearTimeout:()=>{}
+};
+vm.createContext(lifeContext);
+vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-content.js')}\n`,lifeContext);
+const toastNode={textContent:'',classList:{add(){},remove(){}}};
+const coinNode={textContent:''};
+lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
+vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_01');`+
+  `globalThis.__hits=[hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree)];`+
+  `globalThis.__logs=lifeItemCount('material','log');`+
+  `globalThis.__regrown=getTreeState(testTree,Date.now()+LIFE_CONTENT.treeRespawnMs+1);`+
+  `const lockedPlot=REGION_WORLDS.sunnyFields.farmPlots[2];GAME_STATE.regionId='sunnyFields';`+
+  `GAME_STATE.progression.coins=50;globalThis.__poorBuy=buyFarmPlot(lockedPlot);`+
+  `GAME_STATE.progression.coins=500;globalThis.__plotBought=buyFarmPlot(lockedPlot);`+
+  `globalThis.__doubleBuy=buyFarmPlot(lockedPlot);`+
+  `addLifeItem('seed','carrot',1);globalThis.__planted=plantFarmCrop(lockedPlot,'carrot');`+
+  `globalThis.__doublePlant=plantFarmCrop(lockedPlot,'carrot');`+
+  `GAME_STATE.world.plots[lockedPlot.id].plantedAt=Date.now()-LIFE_CROP_BY_ID.get('carrot').growMs-1;`+
+  `globalThis.__offlinePhase=getFarmPlotPhase(lockedPlot);`+
+  `globalThis.__harvested=harvestFarmCrop(lockedPlot);globalThis.__doubleHarvest=harvestFarmCrop(lockedPlot);`+
+  `globalThis.__cropCount=lifeItemCount('crop','carrot');`,lifeContext);
+assert(lifeContext.__hits.join(',')==='true,true,true,false'&&lifeContext.__logs>=2&&lifeContext.__logs<=4&&
+  lifeContext.__regrown.hp===3,'Trees must take three hits, grant one drop, and regrow from wall-clock time');
+assert(lifeContext.__poorBuy===false&&lifeContext.__plotBought===true&&lifeContext.__doubleBuy===false&&
+  lifeContext.GAME_STATE.progression.coins===400&&lifeContext.__planted===true&&lifeContext.__doublePlant===false&&
+  lifeContext.__offlinePhase==='READY'&&lifeContext.__harvested===true&&lifeContext.__doubleHarvest===false&&
+  lifeContext.__cropCount>=2&&lifeContext.__cropCount<=3,
+  'Farm must reject unaffordable/duplicate actions and allow offline growth and one harvest');
+lifeContext.saveGame=()=>false;
+vm.runInContext(`GAME_STATE.regionId='oldForest';const before=lifeItemCount('material','log');`+
+  `globalThis.__failedHit=hitResourceTree(REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_02'));`+
+  `globalThis.__rollbackOk=lifeItemCount('material','log')===before&&!GAME_STATE.world.trees.forest_tree_02;`,lifeContext);
+assert(lifeContext.__failedHit===false&&lifeContext.__rollbackOk,
+  'Failed life-content save must roll back tree damage and rewards');
+
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],
+  lifeItemCount:(type,id,inventory)=>inventory.reduce((sum,item)=>sum+(item.type===type&&item.id===id?item.quantity:0),0),
   GAME_STATE:{inventory:[
     {type:'fish',id:'fish.crucian_carp',sizeCm:22.5,price:26,quantity:1},
     {type:'fish',id:'fish.goldfish',sizeCm:11.2,price:80,quantity:1},
@@ -437,11 +499,14 @@ const marketContext={
   ],progression:{coins:100}}
 };
 vm.createContext(marketContext);
-vm.runInContext(`${read('src/market.js')}\n`+
+vm.runInContext(`${read('src/data/life-content-data.js')}\n${read('src/market.js')}\n`+
   `globalThis.__sale=planFishSale(new Map([['fish.crucian_carp',2]]));`+
   `globalThis.__multiSale=planFishSale(new Map([['fish.crucian_carp',1],['fish.goldfish',1]]));`+
   `globalThis.__overSale=planFishSale(new Map([['fish.crucian_carp',4]]));`+
-  `globalThis.__zeroSale=planFishSale(new Map());`,marketContext);
+  `globalThis.__zeroSale=planFishSale(new Map());`+
+  `const goods=[{type:'material',id:'log',quantity:4},{type:'crop',id:'carrot',quantity:3},{type:'equipment',id:'rod.master_angler',quantity:1}];`+
+  `globalThis.__goodsSale=planGoodsSale(new Map([['material:log',2],['crop:carrot',1]]),goods);`+
+  `globalThis.__goodsOversale=planGoodsSale(new Map([['material:log',5]]),goods);`,marketContext);
 assert(marketContext.__sale.count===2&&marketContext.__sale.total===65&&
   marketContext.__sale.inventory.length===3&&
   marketContext.__sale.inventory[0].id==='fish.goldfish'&&
@@ -457,6 +522,11 @@ assert(marketContext.__multiSale.count===2&&marketContext.__multiSale.total===10
   marketContext.__multiSale.inventory[0].quantity===2&&
   marketContext.__multiSale.inventory[1].type==='equipment',
   'Market must combine selected species and preserve unsold inventory');
+assert(marketContext.__goodsSale.count===3&&marketContext.__goodsSale.total===32&&
+  marketContext.__goodsSale.inventory[0].quantity===2&&
+  marketContext.__goodsSale.inventory[1].quantity===2&&
+  marketContext.__goodsSale.inventory[2].type==='equipment'&&marketContext.__goodsOversale===null,
+  'Material sale must use selected quantities, preserve equipment, and reject overselling');
 const testClassList=()=>{
   const names=new Set();
   return {add(name){names.add(name);},remove(name){names.delete(name);},contains(name){return names.has(name);}};
@@ -515,6 +585,7 @@ assert(marketNodes.get('marketCoinGain').textContent===''&&
 const validationScripts = [
   'src/assets.js',
   'src/data/world-map.js',
+  'src/data/region-maps.js',
   'src/data/fishing-gear-data.js',
   'src/config.js',
   'src/world.js',
@@ -539,5 +610,28 @@ assert(worldReport.errors.length===0,`World validation has ${worldReport.errors.
 assert(validationContext.__blocked.has(`${validationContext.__marketStall.x},${validationContext.__marketStall.y}`)&&
   validationContext.__merchant.roam===0&&validationContext.__merchant.y===validationContext.__marketStall.y+1,
   'Open-air stall and fixed merchant position are invalid');
+vm.runInContext(`GAME_STATE.regionId='oldForest';buildWorldRegion(REGION_WORLDS.oldForest);globalThis.__forestReport=validatePlayableRegion();globalThis.__resourceTrees=trees.filter(tree=>tree.interactable).length;`+
+  `GAME_STATE.regionId='sunnyFields';buildWorldRegion(REGION_WORLDS.sunnyFields);globalThis.__farmReport=validatePlayableRegion();globalThis.__plots=WORLD_DEFINITION.farmPlots.length;`,validationContext);
+assert(validationContext.__forestReport.region==='oldForest'&&validationContext.__resourceTrees===8&&
+  validationContext.__farmReport.region==='sunnyFields'&&validationContext.__plots===16,
+  'Forest and farm maps must have exits, fishing water, resource trees, and farm plots');
+const accessibility=vm.runInContext(`Object.values(REGION_WORLDS).map(def=>{
+  GAME_STATE.regionId=def.id;buildWorldRegion(def);
+  const open=[def.playerSpawn],seen=new Set([key(def.playerSpawn.x,def.playerSpawn.y)]);
+  for(let i=0;i<open.length;i++){
+    const point=open[i];
+    for(const [dx,dy] of [[0,1],[0,-1],[1,0],[-1,0]]){
+      const x=point.x+dx,y=point.y+dy,k=key(x,y);
+      if(!inside(x,y)||blocked.has(k)||seen.has(k)) continue;
+      seen.add(k);open.push({x,y});
+    }
+  }
+  const near=point=>[[0,1],[0,-1],[1,0],[-1,0]].some(([dx,dy])=>seen.has(key(point.x+dx,point.y+dy)));
+  return {id:def.id,exits:(REGION_EXITS[def.id]||[]).every(exit=>seen.has(key(exit.x,exit.y))),
+    fishing:near(def.fishingSpot),trees:trees.filter(tree=>tree.interactable).every(near),
+    plots:(def.farmPlots||[]).every(plot=>seen.has(key(plot.x,plot.y)))};
+})`,validationContext);
+assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&region.plots),
+  `Each region must have reachable exits, fishing shore, resource trees, and plots: ${JSON.stringify(accessibility)}`);
 
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}`);

@@ -1,6 +1,17 @@
 const worldDebugParams=new URLSearchParams(window.location.search);
 let worldDebugEnabled=worldDebugParams.has('debug');
 
+if(worldDebugEnabled&&REGION_WORLDS[worldDebugParams.get('region')]){
+  const definition=REGION_WORLDS[worldDebugParams.get('region')];
+  GAME_STATE.regionId=definition.id;
+  buildWorldRegion(definition);
+  player.x=definition.playerSpawn.x;player.y=definition.playerSpawn.y;
+  player.face=definition.playerSpawn.face;
+  player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
+  camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));
+  camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));
+}
+
 if(worldDebugEnabled&&worldDebugParams.has('x')&&worldDebugParams.has('y')){
   const debugX=Number(worldDebugParams.get('x'));
   const debugY=Number(worldDebugParams.get('y'));
@@ -10,6 +21,9 @@ if(worldDebugEnabled&&worldDebugParams.has('x')&&worldDebugParams.has('y')){
     camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));
     camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));
   }
+}
+if(worldDebugEnabled&&['up','down','left','right'].includes(worldDebugParams.get('face'))){
+  player.face=worldDebugParams.get('face');
 }
 
 function toggleWorldDebug(force){

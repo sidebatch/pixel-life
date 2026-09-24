@@ -47,6 +47,20 @@ function renderInventoryEquipment(){
     </div>`).join('')}`;
 }
 
+function renderInventorySupplies(){
+  const entries=[
+    {type:'material',id:'log',icon:'🪵',name:'통나무'},
+    ...LIFE_CONTENT.crops.flatMap(crop=>[
+      {type:'seed',id:crop.id,icon:crop.icon,name:`${crop.name} 씨앗`},
+      {type:'crop',id:crop.id,icon:crop.icon,name:crop.name}
+    ])
+  ].map(item=>({...item,count:lifeItemCount(item.type,item.id)})).filter(item=>item.count>0);
+  document.getElementById('inventorySummary').textContent=`보유 재료 ${entries.reduce((sum,item)=>sum+item.count,0)}개`;
+  document.getElementById('inventoryScroll').innerHTML=entries.length?
+    `<div class="inventorySupplies">${entries.map(item=>`<div class="inventorySupply"><span>${item.icon}</span><b>${item.name}</b><strong>${item.count.toLocaleString()}개</strong></div>`).join('')}</div>`:
+    '<div class="inventoryEmpty"><span>🪵</span><b>아직 재료가 없어요</b><p>숲에서 벌목하거나 농장에서 씨앗을 심어 보세요.</p></div>';
+}
+
 function renderInventory(){
   document.querySelectorAll('[data-inventory-tab]').forEach(button=>{
     const active=button.dataset.inventoryTab===inventoryState.tab;
@@ -54,7 +68,8 @@ function renderInventory(){
     button.setAttribute('aria-selected',String(active));
   });
   if(inventoryState.tab==='fish') renderInventoryFish();
-  else renderInventoryEquipment();
+  else if(inventoryState.tab==='equipment') renderInventoryEquipment();
+  else renderInventorySupplies();
 }
 
 function openInventory(options={}){

@@ -50,6 +50,7 @@
         </div>
       </div>
       <div id="skillXPToast" class="skillXPToast" aria-live="polite"></div>
+      <div id="lifeToast" class="lifeToast" aria-live="polite"></div>
       <div id="skillLevelUpOverlay" class="skillLevelUpOverlay" aria-live="polite" aria-hidden="true" inert></div>
       <div class="controls">
         <div class="joystick" id="joystick" aria-label="이동 조이스틱">
@@ -72,12 +73,12 @@
       <div id="menuPanel">
         <h2>Pixel Life · World Menu</h2>
         <div class="menuGrid">
-          <div class="menuCard"><b>🗺️ 월드</b><span>지역과 발견 장소</span></div>
-          <button class="menuCard" id="openInventoryBtn" type="button"><b>🎒 가방</b><span>물고기와 장비</span></button>
+          <div class="menuCard"><b>🗺️ 월드</b><span>마을 북쪽 숲 · 동쪽 농장</span></div>
+          <button class="menuCard" id="openInventoryBtn" type="button"><b>🎒 가방</b><span>물고기·장비·재료</span></button>
           <button class="menuCard" id="openFishingGearBtn" type="button"><b>🎣 낚시 장비</b><span id="fishingGearMenuStatus">기본 낚싯대 · Lv.1</span></button>
           <button class="menuCard" id="openFishDexBtn" type="button"><b>📖 도감</b><span>발견·수집 기록</span></button>
           <div class="menuCard"><b>🛡️ 디펜스</b><span>지역 이벤트</span></div>
-          <div class="menuCard"><b>🍳 생활</b><span>채집·요리·제작</span></div>
+          <div class="menuCard"><b>🌱 생활</b><span>숲 벌목·농장 재배</span></div>
         </div>
         <button class="closeMenu" id="closeMenu">게임으로 돌아가기</button>
       </div>
@@ -93,7 +94,7 @@
           <button type="button" role="tab" aria-selected="false" aria-controls="fishDexScroll" data-fish-filter="coast">바다</button>
         </div>
         <div class="fishDexReward" id="fishDexReward" aria-live="polite"></div>
-        <p class="fishDexTemporaryNotice">새 지역이 열리기 전까지 강·바다 물고기도 마을 연못에서 잡을 수 있어요. 시간·날씨 조건은 그대로예요.</p>
+        <p class="fishDexTemporaryNotice">임시로 강·바다 물고기도 마을 연못에서 잡을 수 있어요. 숲에서는 강 물고기, 농장에서는 연못 물고기를 낚을 수 있어요.</p>
         <div class="fishDexScroll" id="fishDexScroll" role="tabpanel">
           <div class="fishDexGrid" id="fishDexGrid"></div>
         </div>
@@ -122,24 +123,32 @@
         <div class="inventoryTabs" role="tablist" aria-label="가방 분류">
           <button type="button" role="tab" aria-selected="true" aria-controls="inventoryScroll" data-inventory-tab="fish" class="active">🐟 물고기</button>
           <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="equipment">🎣 장비</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="supplies">🪵 재료</button>
         </div>
         <div class="inventorySummary" id="inventorySummary"></div>
         <div class="inventoryScroll" id="inventoryScroll" role="tabpanel" aria-label="가방 내용"></div>
       </div>
       <div id="marketPanel" class="marketPanel" role="dialog" aria-modal="true" aria-label="엘리의 노점" aria-hidden="true">
-        <div class="marketHeader"><div><span>엘리의 노점</span><h2>물고기 판매</h2></div><div class="marketHeaderRight"><div class="marketWallet" aria-label="보유 코인"><span class="marketWalletCoin" aria-hidden="true">●</span><strong id="marketCoinCount">0</strong><span id="marketCoinGain" class="marketCoinGain" aria-hidden="true"></span></div><button id="marketClose" type="button" aria-label="상점 닫기">×</button></div></div>
+        <div class="marketHeader"><div><span>엘리의 노점</span><h2 id="marketTitle">물고기 판매</h2></div><div class="marketHeaderRight"><div class="marketWallet" aria-label="보유 코인"><span class="marketWalletCoin" aria-hidden="true">●</span><strong id="marketCoinCount">0</strong><span id="marketCoinGain" class="marketCoinGain" aria-hidden="true"></span></div><button id="marketClose" type="button" aria-label="상점 닫기">×</button></div></div>
         <p class="marketGreeting">엘리: 어떤 물고기를 팔고 싶어?</p>
         <p class="marketRule">같은 어종은 먼저 낚은 물고기부터 판매돼요.</p>
+        <div class="marketTabs" role="tablist" aria-label="상점 분류"><button type="button" data-market-view="fish" class="active" role="tab" aria-selected="true">물고기 판매</button><button type="button" data-market-view="goods" role="tab" aria-selected="false">재료 판매</button><button type="button" data-market-view="seeds" role="tab" aria-selected="false">씨앗 구매</button></div>
         <div class="marketStock" id="marketStock"></div>
         <div class="marketList" id="marketList"></div>
         <div class="marketFooter">
           <div class="marketMessage" id="marketMessage" aria-live="polite"></div>
-          <div class="marketTotalLine"><span>선택한 물고기</span><strong id="marketTotal">0마리 · 0</strong></div>
+          <div class="marketTotalLine"><span id="marketTotalLabel">선택한 물고기</span><strong id="marketTotal">0마리 · 0</strong></div>
           <div class="marketActions">
             <button id="marketExitBtn" type="button">나가기</button>
             <button id="marketSellBtn" type="button" disabled>선택한 물고기 판매</button>
           </div>
         </div>
+      </div>
+      <div id="lifePanel" class="lifePanel" role="dialog" aria-modal="true" aria-label="밭 관리" aria-hidden="true">
+        <div class="lifePanelHeader"><div><span>햇살 농장</span><h2 id="lifeTitle">밭 관리</h2></div><button id="lifeClose" type="button" aria-label="밭 관리 닫기">×</button></div>
+        <p id="lifeInfo" class="lifeInfo"></p>
+        <div id="lifeActions" class="lifeActions"></div>
+        <button id="lifeExit" class="lifeExit" type="button">나가기</button>
       </div>
     </div>
     <div class="landscapeHint"><div><div class="phone">↻</div><b>세로 화면으로 돌려주세요</b><p>이번 버전부터 세로형 UI를 기준으로 개발합니다.</p></div></div>
@@ -148,9 +157,11 @@
   <!-- build:scripts -->
   <script src="src/assets.js"></script>
   <script src="src/data/world-map.js"></script>
+  <script src="src/data/region-maps.js"></script>
   <script src="src/data/fish-data.js"></script>
   <script src="src/data/fishing-gear-data.js"></script>
   <script src="src/data/life-skill-data.js"></script>
+  <script src="src/data/life-content-data.js"></script>
   <script src="src/world-time.js"></script>
   <script src="src/weather.js"></script>
   <script src="src/config.js"></script>
@@ -159,6 +170,7 @@
   <script src="src/world.js"></script>
   <script src="src/world-validation.js"></script>
   <script src="src/simulation.js"></script>
+  <script src="src/life-content.js"></script>
   <script src="src/debug.js"></script>
   <script src="src/rendering.js"></script>
   <script src="src/interactions.js"></script>

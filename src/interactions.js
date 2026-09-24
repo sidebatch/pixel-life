@@ -17,18 +17,40 @@ function closeDialog(){
   delete dialog.dataset.rarity;
   if(wasFishingResult) finishFishingResult();
 }
+function resolveWorldInteraction(tile=facingTile()){
+  const exit=regionExitAt(tile.x,tile.y);
+  if(exit) return {kind:'exit',label:exit.label,target:exit};
+  const npc=npcs.find(n=>n.x===tile.x&&n.y===tile.y);
+  if(npc) return {kind:npc.id==='elli'?'market':'npc',label:npc.id==='elli'?'판매':'대화',target:npc};
+  if(tile.x===sign.x&&tile.y===sign.y) return {kind:'sign',label:'표지판'};
+  const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
+  if(tree) return {kind:'tree',label:getTreeState(tree).hp?'벌목':'재생 중',target:tree};
+  const plot=farmPlotAt(tile.x,tile.y);
+  if(plot) return {kind:'farm',label:farmPlotActionLabel(plot),target:plot};
+  if(waterSet.has(key(tile.x,tile.y))) return {kind:'fishing',label:'낚시'};
+  const building=buildingForPlayerInteraction();
+  if(building) return {kind:'building',label:'들어가기',target:building};
+  return null;
+}
+
+function activateWorldInteraction(interaction){
+  switch(interaction.kind){
+    case 'exit':return enterWorldRegion(interaction.target);
+    case 'market':return openMarket();
+    case 'npc':return showDialog(interaction.target.name,interaction.target.dialog);
+    case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · 물가에서는 낚시할 수 있어요.');
+    case 'tree':return hitResourceTree(interaction.target);
+    case 'farm':return openFarmPlot(interaction.target);
+    case 'fishing':return startFishing();
+    case 'building':return showDialog(interaction.target.name,interaction.target.dialog);
+  }
+}
 function interact(){
   if(menuOpen) return;
   if(dialogOpen){ closeDialog(); return; }
   if(typeof isFishingActive==='function'&&isFishingActive()) return handleFishingAction();
-  const t=facingTile(), k=key(t.x,t.y);
-  const targetNpc=npcs.find(n=>n.x===t.x&&n.y===t.y);
-  if(targetNpc?.id==='elli') return openMarket();
-  if(targetNpc) return showDialog(targetNpc.name,targetNpc.dialog);
-  if(t.x===sign.x&&t.y===sign.y) return showDialog('표지판','→ 연못   ← 마을 광장   ↑ 오래된 숲');
-  if(waterSet.has(k)) return startFishing();
-  const targetBuilding=buildingForPlayerInteraction();
-  if(targetBuilding) return showDialog(targetBuilding.name,targetBuilding.dialog);
+  const interaction=resolveWorldInteraction();
+  if(interaction) return activateWorldInteraction(interaction);
   showDialog('SYSTEM','조사할 것이 없다.');
 }
 function pressB(){
@@ -39,6 +61,7 @@ function pressB(){
   else if(typeof isFishingGearOpen==='function'&&isFishingGearOpen()) closeFishingGear();
   else if(typeof isInventoryOpen==='function'&&isInventoryOpen()) closeInventory();
   else if(typeof isMarketOpen==='function'&&isMarketOpen()) closeMarket();
+  else if(typeof isFarmPlotOpen==='function'&&isFarmPlotOpen()) closeFarmPlot();
   else if(menuOpen) toggleMenu(false);
   else if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 }
@@ -91,6 +114,14 @@ window.addEventListener('popstate',()=>{
     return;
   }
   if(isMarketOpen()) closeMarket({fromHistory:true});
+  if(layer==='farm-plot'){
+    if(!isFarmPlotOpen()){
+      const plot=WORLD_DEFINITION.farmPlots?.find(item=>item.id===window.history.state?.fishId);
+      if(plot) openFarmPlot(plot,{fromHistory:true});
+    }
+    return;
+  }
+  if(isFarmPlotOpen()) closeFarmPlot({fromHistory:true});
   if(menuOpen) toggleMenu(false);
 });
 
@@ -185,14 +216,7 @@ document.getElementById('coinCount').textContent=Number(GAME_STATE.progression.c
 function contextInfo(){
   if(typeof isFishingActive==='function'&&isFishingActive())
     return typeof getFishingContextText==='function'?getFishingContextText():'';
-  const t=facingTile(),k=key(t.x,t.y);
-  const targetNpc=npcs.find(n=>n.x===t.x&&n.y===t.y);
-  if(targetNpc?.id==='elli') return '판매';
-  if(targetNpc) return '대화';
-  if(t.x===sign.x&&t.y===sign.y) return '표지판';
-  if(waterSet.has(k)) return '낚시';
-  if(buildingForPlayerInteraction()) return '들어가기';
-  return '';
+  return resolveWorldInteraction()?.label||'';
 }
 function refreshContext(){
   const chip=document.getElementById('contextChip');

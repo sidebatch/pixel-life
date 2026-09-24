@@ -118,4 +118,23 @@ function validateWorldDefinition(){
   return report;
 }
 
-const WORLD_VALIDATION_REPORT=validateWorldDefinition();
+function validatePlayableRegion(){
+  const definition=WORLD_DEFINITION;
+  const spawn=definition.playerSpawn;
+  if(!inside(spawn.x,spawn.y)||blocked.has(key(spawn.x,spawn.y)))
+    throw new Error(`Region ${definition.id} has a blocked spawn`);
+  if(!waterSet.has(key(definition.fishingSpot.x,definition.fishingSpot.y)))
+    throw new Error(`Region ${definition.id} has no usable fishing spot`);
+  for(const exit of REGION_EXITS[definition.id]||[]){
+    if(!inside(exit.x,exit.y)||blocked.has(key(exit.x,exit.y))||!REGION_WORLDS[exit.to])
+      throw new Error(`Region ${definition.id} has an invalid exit`);
+  }
+  const ids=new Set();
+  for(const tree of trees.filter(tree=>tree.interactable)){
+    if(!tree.id||ids.has(tree.id)) throw new Error(`Region ${definition.id} has duplicate tree ids`);
+    ids.add(tree.id);
+  }
+  return {map:`${MAP_W}x${MAP_H}`,region:definition.id,waterTiles:waterSet.size,exits:REGION_EXITS[definition.id]?.length||0};
+}
+const WORLD_VALIDATION_REPORT=GAME_STATE.regionId==='lilacVillage'?
+  validateWorldDefinition():validatePlayableRegion();

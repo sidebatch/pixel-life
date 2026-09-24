@@ -33,7 +33,7 @@ function animateMarketCoins(beforeCoins,afterCoins){
   const wallet=document.querySelector('.marketWallet');
   const pill=document.querySelector('.coinPill');
   const gain=document.getElementById('marketCoinGain');
-  gain.textContent=`+${(afterCoins-beforeCoins).toLocaleString()}G`;
+  gain.textContent=`+${(afterCoins-beforeCoins).toLocaleString()}`;
   wallet.classList.remove('coinBump');
   pill.classList.remove('coinBump');
   gain.classList.remove('show');
@@ -110,18 +110,18 @@ function renderMarket(){
         <img src="${getFishImageUrl(group.fish)}" alt="">
         <div class="marketFishBody">
           <div class="marketFishTop"><b>${group.fish.name}</b><span>보유 ${group.count.toLocaleString()}마리</span></div>
-          <small>한 마리 ${minPrice===maxPrice?`${minPrice.toLocaleString()}G`:`${minPrice.toLocaleString()}~${maxPrice.toLocaleString()}G`}</small>
+          <small>한 마리 ${minPrice===maxPrice?minPrice.toLocaleString():`${minPrice.toLocaleString()}~${maxPrice.toLocaleString()}`}</small>
           <div class="marketFishBottom">
             <div class="marketQty"><button type="button" data-market-action="minus" aria-label="${group.fish.name} 판매 수량 줄이기" ${selected===0?'disabled':''}>−</button><strong>${selected}</strong><button type="button" data-market-action="plus" aria-label="${group.fish.name} 판매 수량 늘리기" ${selected>=group.count?'disabled':''}>+</button></div>
             <button type="button" class="marketAll" data-market-action="all" aria-label="${group.fish.name} 전부 선택" ${selected>=group.count?'disabled':''}>전부</button>
-            <span class="marketRowTotal">${selected?`${lineTotal.toLocaleString()}G`:'0G'}</span>
+            <span class="marketRowTotal">${selected?lineTotal.toLocaleString():'0'}</span>
           </div>
         </div>
       </div>`;
     }).join('');
   }
   list.scrollTop=scrollTop;
-  document.getElementById('marketTotal').textContent=`${plan?.count||0}마리 · ${Number(plan?.total||0).toLocaleString()}G`;
+  document.getElementById('marketTotal').textContent=`${plan?.count||0}마리 · ${Number(plan?.total||0).toLocaleString()}`;
   document.getElementById('marketSellBtn').disabled=!plan||plan.count===0;
 }
 
@@ -141,7 +141,7 @@ function sellSelectedFish(){
     return false;
   }
   marketState.selection.clear();
-  marketState.message=`판매 완료! +${plan.total.toLocaleString()}G`;
+  marketState.message=`판매 완료! +${plan.total.toLocaleString()}`;
   playMarketSaleSound();
   animateMarketCoins(beforeCoins,GAME_STATE.progression.coins);
   renderMarket();

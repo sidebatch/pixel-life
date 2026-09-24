@@ -21,7 +21,7 @@ const FISH_RARITY_LABELS=Object.freeze({
 });
 
 const FISH_COLLECTION_REWARDS=Object.freeze([
-  Object.freeze({count:5,kind:'coins',amount:300,label:'300G'}),
+  Object.freeze({count:5,kind:'coins',amount:300,label:'코인 300'}),
   Object.freeze({count:10,kind:'fishingXp',amount:240,label:'Fishing XP 240'}),
   Object.freeze({count:15,kind:'rareHints',label:'희귀어 상세 힌트'}),
   Object.freeze({count:19,kind:'finalClue',label:'마지막 물고기 단서'}),

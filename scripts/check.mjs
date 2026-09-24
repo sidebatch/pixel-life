@@ -80,6 +80,7 @@ assert(fishData.length===20,`Expected 20 fish records, found ${fishData.length}`
 assert(new Set(fishData.map(fish=>fish.id)).size===fishData.length,'Fish ids must be unique');
 assert(new Set(fishData.map(fish=>fish.asset)).size===fishData.length,'Fish asset keys must be unique');
 assert(fishRewards.map(reward=>reward.count).join(',')==='5,10,15,19,20','Unexpected fish collection reward thresholds');
+assert(fishRewards[0].label==='코인 300','Coin rewards should use a readable unit instead of G');
 
 const fishingGearContext={};
 vm.createContext(fishingGearContext);
@@ -296,7 +297,8 @@ assert(fishingLogicContext.__collection.record.averageSizeCm===25,'Fish collecti
 assert(fishingLogicContext.__xpProgress.level===2&&fishingLogicContext.__xpProgress.xp===8&&
   fishingLogicContext.__xpProgress.totalXp===80&&fishingLogicContext.__xpProgress.leveledUp,'Fishing XP level-up failed');
 assert(fishingLogicContext.__reward5.unlocked.join(',')==='5'&&
-  fishingLogicContext.__rewardState.progression.coins===300,'Five-fish coin reward failed');
+  fishingLogicContext.__rewardState.progression.coins===300&&
+  fishingLogicContext.__reward5.messages[0]==='5종 보상 · 코인 +300','Five-fish coin reward failed');
 assert(fishingLogicContext.__reward5Duplicate.unlocked.length===0,'Fish collection reward was granted twice');
 assert(fishingLogicContext.__reward10.unlocked.join(',')==='10'&&fishingLogicContext.__reward10.xpGained===240,
   'Ten-fish XP reward failed');
@@ -465,10 +467,11 @@ marketContext.window={matchMedia:()=>({matches:true})};
 let saleSoundCount=0;
 marketContext.playMarketSaleSound=()=>{saleSoundCount+=1;return true;};
 marketContext.saveGame=()=>true;
-vm.runInContext(`renderMarket=()=>{};marketState.selection.set('fish.crucian_carp',2);globalThis.__sold=sellSelectedFish();`,marketContext);
+vm.runInContext(`renderMarket=()=>{};marketState.selection.set('fish.crucian_carp',2);globalThis.__sold=sellSelectedFish();globalThis.__saleMessage=marketState.message;`,marketContext);
 assert(marketContext.__sold===true&&marketContext.GAME_STATE.progression.coins===165&&
   marketContext.GAME_STATE.inventory.length===3&&marketNodes.get('coinCount').textContent==='165'&&
-  marketNodes.get('marketCoinCount').textContent==='165'&&saleSoundCount===1,
+  marketNodes.get('marketCoinCount').textContent==='165'&&saleSoundCount===1&&
+  marketContext.__saleMessage==='판매 완료! +65',
   'Confirmed sale must remove only selected fish, increase coins and play the supplied sound');
 marketContext.saveGame=()=>false;
 vm.runInContext(`marketState.selection.set('fish.goldfish',1);globalThis.__failedSale=sellSelectedFish();`,marketContext);
@@ -490,7 +493,7 @@ marketFrames.shift()(900);
 assert(firstCoinFrame==='165'&&Number(middleCoinFrame)>165&&Number(middleCoinFrame)<265&&
   marketNodes.get('marketCoinCount').textContent==='265'&&
   marketNodes.get('coinCount').textContent==='265'&&
-  marketNodes.get('marketCoinGain').textContent==='+100G',
+  marketNodes.get('marketCoinGain').textContent==='+100',
   'Sale animation must count upward and show the gained amount');
 
 const validationScripts = [

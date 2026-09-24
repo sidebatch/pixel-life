@@ -178,7 +178,7 @@ function applyFishCollectionRewards(){
     unlocked.push(reward.count);
     if(reward.kind==='coins'){
       GAME_STATE.progression.coins+=reward.amount;
-      messages.push(`${reward.count}종 보상 · +${reward.amount}G`);
+      messages.push(`${reward.count}종 보상 · 코인 +${reward.amount}`);
     }else if(reward.kind==='fishingXp'){
       addFishingXp(reward.amount);
       xpGained+=reward.amount;
@@ -300,7 +300,7 @@ function showFishingResult(){
   const fish=FISH_DATA.find(item=>item.id===r.fishId);
   const discoveryText=r.firstDiscovery?'\n✨ 첫 발견! 도감 기록 완료':'';
   const rewardText=r.rewards.messages.length?`\n🎁 ${r.rewards.messages.join('\n🎁 ')}`:'';
-  const resultCopy=`${r.sizeCm.toFixed(1)}cm · 판매가 ${r.price}G${discoveryText}${rewardText}`;
+  const resultCopy=`${r.sizeCm.toFixed(1)}cm · 판매가 ${r.price}${discoveryText}${rewardText}`;
   showDialog(r.name,resultCopy);
   const layout=document.createElement('div');
   layout.className='fishingResultLayout';

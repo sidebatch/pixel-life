@@ -690,13 +690,19 @@ const validationContext = {
   }
 };
 vm.createContext(validationContext);
-vm.runInContext(`${validationScripts}\nglobalThis.__worldReport=WORLD_VALIDATION_REPORT;globalThis.__marketStall=marketStall;globalThis.__merchant=npcs.find(n=>n.id==='elli');globalThis.__blocked=blocked;`,validationContext);
+vm.runInContext(`${validationScripts}\nglobalThis.__worldReport=WORLD_VALIDATION_REPORT;globalThis.__marketShop=marketShop;globalThis.__merchant=npcs.find(n=>n.id==='elli');globalThis.__blocked=blocked;globalThis.__path=pathSet;`,validationContext);
 const worldReport=validationContext.__worldReport;
 assert(worldReport.map==='64x48',`Expected expanded 64x48 world, found ${worldReport.map}`);
 assert(worldReport.errors.length===0,`World validation has ${worldReport.errors.length} errors`);
-assert(validationContext.__blocked.has(`${validationContext.__marketStall.x},${validationContext.__marketStall.y}`)&&
-  validationContext.__merchant.roam===0&&validationContext.__merchant.y===validationContext.__marketStall.y+1,
-  'Village shop and fixed merchant position are invalid');
+const shop=validationContext.__marketShop,shopBlocked=validationContext.__blocked;
+assert(shop.x===27&&shop.y===34&&shop.w===5&&shop.h===4&&
+  [...Array(shop.w).keys()].every(dx=>[...Array(shop.h).keys()].every(dy=>shopBlocked.has(`${shop.x+dx},${shop.y+dy}`)))&&
+  validationContext.__merchant.roam===0&&
+  validationContext.__merchant.x===shop.x+Math.floor(shop.w/2)&&
+  validationContext.__merchant.y===shop.y+shop.h&&
+  ['26,35','32,35','29,33','29,38','33,26','34,26'].every(tile=>!shopBlocked.has(tile))&&
+  ['29,38','29,39','29,40'].every(tile=>validationContext.__path.has(tile)),
+  'The entire shop footprint must block movement while all four surrounding approaches remain clear');
 vm.runInContext(`GAME_STATE.regionId='oldForest';buildWorldRegion(REGION_WORLDS.oldForest);globalThis.__forestReport=validatePlayableRegion();globalThis.__resourceTrees=trees.filter(tree=>tree.interactable).length;`+
   `globalThis.__allForestChoppable=trees.every(tree=>tree.interactable&&!!tree.id&&!!FOREST_WOOD[tree.species]);`+
   `globalThis.__forestBoundaryBlocked=[...Array(MAP_W).keys()].every(x=>blocked.has(key(x,0))&&blocked.has(key(x,MAP_H-1)));`+

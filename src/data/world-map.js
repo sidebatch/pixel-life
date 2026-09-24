@@ -15,6 +15,7 @@ let WORLD_DEFINITION = Object.freeze({
     { x1: 5, y1: 36, x2: 25, y2: 36 },
     { x1: 10, y1: 10, x2: 25, y2: 10 },
     { x1: 25, y1: 40, x2: 43, y2: 40 },
+    { x1: 29, y1: 38, x2: 29, y2: 40 },
     { x1: 47, y1: 24, x2: 57, y2: 24 },
     { x1: 32, y1: 32, x2: 50, y2: 32 },
     { x1: 50, y1: 24, x2: 50, y2: 32 },
@@ -38,17 +39,17 @@ let WORLD_DEFINITION = Object.freeze({
   npcs: [
     {id:'mina',x:28,y:23,homeX:28,homeY:23,name:'미나',role:'villager',sprite:'mina',scale:1.00,face:'down',moving:false,wait:900,roam:3,dialog:'안녕! 연못 산책 중이었어. 물가에 가면 낚시를 시작할 수 있어.'},
     {id:'thomas',x:26,y:29,homeX:26,homeY:29,name:'토마스',role:'fisherman',sprite:'thomas',scale:1.00,face:'left',moving:false,wait:1400,roam:2,dialog:'낚시는 서두르면 안 돼. 물결을 잘 보면 입질 타이밍이 보여.'},
-    {id:'elli',x:33,y:27,homeX:33,homeY:27,name:'엘리',role:'merchant',sprite:'elli',scale:1.00,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 물고기와 수확물을 팔거나 씨앗을 살 수 있어.'},
+    {id:'elli',x:29,y:38,homeX:29,homeY:38,name:'엘리',role:'merchant',sprite:'elli',scale:1.00,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 물고기와 수확물을 팔거나 씨앗을 살 수 있어.'},
     {id:'noah',x:23,y:24,homeX:23,homeY:24,name:'노아',role:'guide',sprite:'noah',scale:1.00,face:'right',moving:false,wait:2200,roam:3,dialog:'북쪽 길 끝은 오래된 숲, 동쪽 길 끝은 햇살 농장이야. 길 끝에서 이동할 수 있어.'},
     {id:'hana',x:31,y:27,homeX:31,homeY:27,name:'하나',role:'florist',sprite:'hana',scale:1.00,face:'left',moving:false,wait:1200,roam:2,dialog:'꽃은 계절마다 분위기가 달라져. 남쪽 초원에는 새로운 꽃밭을 만들 예정이야.'},
     {id:'jun',x:21,y:22,homeX:21,homeY:22,name:'준',role:'carpenter',sprite:'jun',scale:1.00,face:'right',moving:false,wait:1600,roam:2,dialog:'다리랑 집을 손보는 중이야. 길이 넓어져서 할 일이 더 많아졌어.'}
   ],
 
   fixedObjects: {
-    sign: { x: 30, y: 24 },
+    sign: { x: 33, y: 24 },
     bench: { x: 29, y: 26 },
     lamp: { x: 31, y: 23 },
-    marketStall: { x: 33, y: 26, w: 2, h: 1 },
+    marketShop: { x: 27, y: 34, w: 5, h: 4 },
     rocks: [
       {x:21,y:27},{x:44,y:31},{x:19,y:22},{x:12,y:34},{x:50,y:38},{x:53,y:12}
     ]

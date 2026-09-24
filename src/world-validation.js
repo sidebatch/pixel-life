@@ -60,8 +60,8 @@ function validateWorldDefinition(){
   occupy('sign',sign.x,sign.y);
   occupy('bench',bench.x,bench.y);
   occupy('lamp',lamp.x,lamp.y);
-  for(let x=marketStall.x;x<marketStall.x+marketStall.w;x++){
-    for(let y=marketStall.y;y<marketStall.y+marketStall.h;y++) occupy('market shop',x,y);
+  for(let x=marketShop.x;x<marketShop.x+marketShop.w;x++){
+    for(let y=marketShop.y;y<marketShop.y+marketShop.h;y++) occupy('market shop',x,y);
   }
   rocks.forEach((rock,index)=>occupy(`rock[${index}]`,rock.x,rock.y));
 
@@ -83,7 +83,7 @@ function validateWorldDefinition(){
     npcTiles.add(tile);
   }
   const merchant=npcs.find(npc=>npc.id==='elli');
-  if(!merchant||merchant.roam!==0||merchant.x!==marketStall.x||merchant.y!==marketStall.y+marketStall.h){
+  if(!merchant||merchant.roam!==0||merchant.x!==marketShop.x+Math.floor(marketShop.w/2)||merchant.y!==marketShop.y+marketShop.h){
     fail('Merchant must stand at the front of the village shop');
   }
 

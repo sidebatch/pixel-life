@@ -2,7 +2,7 @@ const waterSet=new Set(),pathSet=new Set(),stoneSet=new Set(),bridgeSet=new Set(
 const key=(x,y)=>`${x},${y}`;
 const inside=(x,y)=>x>=0&&y>=0&&x<MAP_W&&y<MAP_H;
 const npcs=[],rocks=[],bushes=[],flowers=[],grassTufts=[],reeds=[],buildings=[],trees=[];
-const sign={x:-100,y:-100},bench={x:-100,y:-100},lamp={x:-100,y:-100},marketStall={x:-100,y:-100,w:0,h:0};
+const sign={x:-100,y:-100},bench={x:-100,y:-100},lamp={x:-100,y:-100},marketShop={x:-100,y:-100,w:0,h:0};
 const treeSet=new Set();
 
 function addSegmentToSet(segment,target){
@@ -63,7 +63,7 @@ function buildWorldRegion(definition){
   Object.assign(sign,{x:-100,y:-100},fixed.sign||{});
   Object.assign(bench,{x:-100,y:-100},fixed.bench||{});
   Object.assign(lamp,{x:-100,y:-100},fixed.lamp||{});
-  Object.assign(marketStall,{x:-100,y:-100,w:0,h:0},fixed.marketStall||{});
+  Object.assign(marketShop,{x:-100,y:-100,w:0,h:0},fixed.marketShop||{});
   rocks.push(...(fixed.rocks||[]).map(o=>({...o})));
   const decoration=definition.decorations||{};
   bushes.push(...(decoration.bushes||[]).map(o=>({...o})));
@@ -79,8 +79,8 @@ function buildWorldRegion(definition){
       for(let y=building.y;y<building.y+building.h;y++) blocked.add(key(x,y));
   }
   for(const object of [sign,bench,lamp,...rocks]) if(inside(object.x,object.y)) blocked.add(key(object.x,object.y));
-  for(let x=marketStall.x;x<marketStall.x+marketStall.w;x++)
-    for(let y=marketStall.y;y<marketStall.y+marketStall.h;y++) blocked.add(key(x,y));
+  for(let x=marketShop.x;x<marketShop.x+marketShop.w;x++)
+    for(let y=marketShop.y;y<marketShop.y+marketShop.h;y++) blocked.add(key(x,y));
   for(const line of definition.treeLines){
     for(let value=line.from;value<=line.to;value+=line.step){
       if(isInGap(value,line.gaps)) continue;

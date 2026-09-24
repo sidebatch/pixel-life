@@ -298,13 +298,13 @@ function roundedRectPath(ctx,x,y,w,h,r){
 function drawMarketShop(){
   const image=imgs.buildingMarket;
   if(!image) return;
-  const width=240,height=218;
-  const doorCenterX=Math.round((marketStall.x+.5)*TILE-camX);
-  const x=Math.round(doorCenterX-width*.51);
-  const groundY=Math.round((marketStall.y+marketStall.h)*TILE-camY);
+  const width=marketShop.w*TILE,height=218;
+  const doorCenterX=Math.round((marketShop.x+marketShop.w/2)*TILE-camX);
+  const x=Math.round(doorCenterX-width/2);
+  const groundY=Math.round((marketShop.y+marketShop.h)*TILE-camY);
   ctx.save();
   ctx.fillStyle='rgba(24,49,37,.20)';
-  ctx.beginPath();ctx.ellipse(doorCenterX,groundY-3,marketStall.w*TILE*.54,14,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.ellipse(doorCenterX,groundY-3,marketShop.w*TILE*.48,14,0,0,Math.PI*2);ctx.fill();
   ctx.drawImage(image,x,groundY-height+8,width,height);
   ctx.restore();
 }
@@ -609,7 +609,7 @@ function drawWorld(){
   trees.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>o.interactable?drawResourceTree(o):drawWorldTree(o)}));
   rocks.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.rock,o.x*TILE-camX-6,o.y*TILE-camY-10,60,58)}));
   if(GAME_STATE.regionId==='lilacVillage'){
-    renderables.push({y:(marketStall.y+marketStall.h)*TILE,draw:drawMarketShop});
+    renderables.push({y:(marketShop.y+marketShop.h)*TILE,draw:drawMarketShop});
     renderables.push({y:sign.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.sign,sign.x*TILE-camX-8,sign.y*TILE-camY-20,64,68)});
     renderables.push({y:bench.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.bench,bench.x*TILE-camX-26,bench.y*TILE-camY-8,100,56)});
     renderables.push({y:lamp.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.lamp,lamp.x*TILE-camX+5,lamp.y*TILE-camY-38,38,86)});

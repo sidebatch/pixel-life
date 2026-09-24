@@ -185,6 +185,7 @@ function closeMarket(options={}){
 
 if(typeof document!=='undefined'){
   document.getElementById('marketClose').addEventListener('click',closeMarket);
+  document.getElementById('marketExitBtn').addEventListener('click',closeMarket);
   document.getElementById('marketSellBtn').addEventListener('click',sellSelectedFish);
   document.getElementById('marketList').addEventListener('click',event=>{
     const button=event.target.closest('[data-market-action]');

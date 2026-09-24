@@ -47,6 +47,9 @@ for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`
 assert((html.match(/role="tab"/g) || []).length === 6, 'Fish dex and inventory tabs must be accessible');
 assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
 assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab panel semantics are missing');
+assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
+  read('src/market.js').includes("getElementById('marketExitBtn').addEventListener('click',closeMarket)"),
+  'Market exit button must use the existing close behavior');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
 assert(assetPaths.length === 54, `Expected 54 runtime asset references, found ${assetPaths.length}`);

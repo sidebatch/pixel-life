@@ -454,11 +454,15 @@ assert(marketContext.__multiSale.count===2&&marketContext.__multiSale.total===10
   marketContext.__multiSale.inventory[0].quantity===2&&
   marketContext.__multiSale.inventory[1].type==='equipment',
   'Market must combine selected species and preserve unsold inventory');
+const testClassList=()=>{
+  const names=new Set();
+  return {add(name){names.add(name);},remove(name){names.delete(name);},contains(name){return names.has(name);}};
+};
 const marketNodes=new Map(['coinCount','marketCoinCount','marketCoinGain'].map(id=>[id,{
-  textContent:'',offsetWidth:100,classList:{add(){},remove(){}}
+  textContent:'',offsetWidth:100,classList:testClassList()
 }]));
-const marketWalletNode={offsetWidth:100,classList:{add(){},remove(){}}};
-const marketPillNode={classList:{add(){},remove(){}}};
+const marketWalletNode={offsetWidth:100,classList:testClassList()};
+const marketPillNode={classList:testClassList()};
 marketContext.document={
   getElementById(id){return marketNodes.get(id);},
   querySelector(selector){return selector==='.marketWallet'?marketWalletNode:marketPillNode;}
@@ -493,8 +497,17 @@ marketFrames.shift()(900);
 assert(firstCoinFrame==='165'&&Number(middleCoinFrame)>165&&Number(middleCoinFrame)<265&&
   marketNodes.get('marketCoinCount').textContent==='265'&&
   marketNodes.get('coinCount').textContent==='265'&&
-  marketNodes.get('marketCoinGain').textContent==='+100',
+  marketNodes.get('marketCoinGain').textContent==='+100'&&
+  marketNodes.get('marketCoinGain').classList.contains('show')&&
+  marketWalletNode.classList.contains('coinBump'),
   'Sale animation must count upward and show the gained amount');
+vm.runInContext('finishMarketCoinAnimation();',marketContext);
+assert(marketNodes.get('marketCoinGain').textContent===''&&
+  !marketNodes.get('marketCoinGain').classList.contains('show')&&
+  !marketWalletNode.classList.contains('coinBump')&&
+  !marketPillNode.classList.contains('coinBump')&&
+  marketNodes.get('marketCoinCount').textContent==='265',
+  'Closing and reopening the market must not replay a previous sale effect');
 
 const validationScripts = [
   'src/assets.js',

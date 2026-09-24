@@ -17,6 +17,11 @@ function finishMarketCoinAnimation(){
   }
   marketCoinAnimation.frame=null;
   setMarketCoinDisplay(GAME_STATE.progression.coins);
+  const gain=document.getElementById('marketCoinGain');
+  gain.classList.remove('show');
+  gain.textContent='';
+  document.querySelector('.marketWallet').classList.remove('coinBump');
+  document.querySelector('.coinPill').classList.remove('coinBump');
 }
 
 function animateMarketCoins(beforeCoins,afterCoins){

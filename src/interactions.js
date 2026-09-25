@@ -26,7 +26,9 @@ function resolveWorldInteraction(tile=facingTile()){
   const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
   if(tree){
     const needed=FORESTRY_TREES[tree.species]?.tier||1;
-    const label=!getTreeState(tree).hp?'재생 중':getEquippedForestryAxe().tier<needed?`${FORESTRY_AXES[needed-1].name} 필요`:'벌목';
+    const name=FOREST_WOOD[tree.species];
+    const label=!getTreeState(tree).hp?`${name} · 재생 중`:
+      getEquippedForestryAxe().tier<needed?`${name} · ${FORESTRY_AXES[needed-1].name} 필요`:`${name} · 벌목`;
     return {kind:'tree',label,target:tree};
   }
   const plot=farmPlotAt(tile.x,tile.y);

@@ -18,8 +18,8 @@ const FOREST_TREE_URLS = Object.freeze({
   oak:'assets/forestry/trees/oak.png',
   pine:'assets/forestry/trees/pine.png',
   birch:'assets/forestry/trees/birch.png',
-  maple:'assets/forestry/trees/maple.png',
-  spruce:'assets/forestry/trees/spruce.png',
+  maple:'assets/forestry/trees/maple-v2.png',
+  spruce:'assets/forestry/trees/spruce-v2.png',
   willow:'assets/forestry/trees/willow.png',
   cypress:'assets/forestry/trees/cypress.png',
   broadleaf:'assets/forestry/trees/broadleaf.png'
@@ -39,6 +39,7 @@ const FORESTRY_AXE_URLS = Object.freeze({
   iron:'assets/forestry/axes/iron.png',
   steel:'assets/forestry/axes/steel.png'
 });
+const FORESTRY_CHOP_PLAYER_URL='assets/forestry/chop/player.png';
 const LIFE_ITEM_URLS = Object.freeze({
   log:'assets/forestry/items/log.png',
   oakLog:'assets/forestry/items/oak.png',

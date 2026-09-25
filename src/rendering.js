@@ -365,21 +365,53 @@ function drawNPC(npc){
   ctx.restore();
 }
 
-function drawEquippedForestryAxe(actorX,actorY,face){
-  if(typeof isFishingActive==='function'&&isFishingActive()) return;
-  const axe=getEquippedForestryAxe(),image=forestryAxeImgs[axe.asset];
+let forestryChopFrameBounds=null;
+function getForestryChopFrameBounds(){
+  if(forestryChopFrameBounds) return forestryChopFrameBounds;
+  const image=forestryChopImg,cellW=image.width/2,cellH=image.height/4;
+  const probe=document.createElement('canvas');
+  probe.width=image.width;probe.height=image.height;
+  const probeCtx=probe.getContext('2d',{willReadFrequently:true});
+  probeCtx.drawImage(image,0,0);
+  const pixels=probeCtx.getImageData(0,0,image.width,image.height).data;
+  forestryChopFrameBounds=[];
+  for(let row=0;row<4;row++) for(let column=0;column<2;column++){
+    let left=cellW,top=cellH,right=0,bottom=0;
+    for(let y=0;y<cellH;y++) for(let x=0;x<cellW;x++){
+      if(pixels[((row*cellH+y)*image.width+column*cellW+x)*4+3]<16) continue;
+      left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);
+    }
+    forestryChopFrameBounds.push({x:column*cellW+left,y:row*cellH+top,w:right-left+1,h:bottom-top+1});
+  }
+  return forestryChopFrameBounds;
+}
+
+function drawForestryChopAxe(actorX,actorY,face,phase){
+  const image=forestryAxeImgs[getEquippedForestryAxe().asset];
   if(!image) return;
-  const chopping=lifeUi.chop?.regionId===GAME_STATE.regionId;
-  const elapsed=chopping?tNow-lifeUi.chop.startedAt:0;
-  const swinging=chopping&&elapsed>=170;
-  const anchor={down:[15,-13],up:[13,-20],right:[17,-15],left:[-17,-15]}[face]||[15,-13];
+  const anchors={
+    down:[[-12,-17],[0,3]],right:[[-13,-20],[14,0]],
+    left:[[13,-20],[-14,0]],up:[[14,-23],[16,-12]]
+  };
+  const [offsetX,offsetY]=(anchors[face]||anchors.down)[phase];
   ctx.save();
-  ctx.translate(Math.round(actorX+anchor[0]),Math.round(actorY+anchor[1]));
+  ctx.translate(Math.round(actorX+offsetX),Math.round(actorY+offsetY));
   if(face==='left') ctx.scale(-1,1);
-  const baseAngle=face==='up'?-.6:face==='down'?.3:-.1;
-  ctx.rotate(baseAngle+(chopping?(swinging?.85:-.85):0));
-  ctx.drawImage(image,280,310,730,650,-11,-24,34,31);
+  ctx.rotate(phase===0?-.35:1.15);
+  // The grip end of the source axe sits at the local origin, inside the hands.
+  ctx.drawImage(image,280,310,730,650,-8,-42,44,44);
   ctx.restore();
+}
+
+function drawForestryChopPlayer(actorX,actorY,face){
+  const row={down:0,right:1,left:2,up:3}[face]??0;
+  const phase=tNow-lifeUi.chop.startedAt<FORESTRY_CHOP_TIMING.impactMs?0:1;
+  const frame=getForestryChopFrameBounds()[row*2+phase];
+  const height=74,width=Math.round(height*frame.w/frame.h);
+  if(face==='up') drawForestryChopAxe(actorX,actorY,face,phase);
+  ctx.drawImage(forestryChopImg,frame.x,frame.y,frame.w,frame.h,
+    Math.round(actorX-width/2),Math.round(actorY+13-height),width,height);
+  if(face!=='up') drawForestryChopAxe(actorX,actorY,face,phase);
 }
 
 function drawPlayer(){
@@ -400,6 +432,11 @@ function drawPlayer(){
   ctx.fillStyle='rgba(10,25,26,.22)';
   ctx.beginPath();ctx.ellipse(actorX,actorY+13,18,7,0,0,Math.PI*2);ctx.fill();
 
+  if(forestryChopImg&&lifeUi.chop?.regionId===GAME_STATE.regionId){
+    drawForestryChopPlayer(actorX,actorY,face);
+    return;
+  }
+
   if(playerSheet){
     if(mirrorLeft){
       ctx.save();
@@ -410,7 +447,6 @@ function drawPlayer(){
     }else{
       ctx.drawImage(playerSheet,frame*CELL,row*CELL,CELL,CELL,dx,dy,size,size);
     }
-    drawEquippedForestryAxe(actorX,actorY,face);
     return;
   }
 
@@ -427,7 +463,6 @@ function drawPlayer(){
       ctx.drawImage(legacy,lx,ly,w,h);
     }
   }
-  drawEquippedForestryAxe(actorX,actorY,face);
 }
 
 function drawFishingEffects(){
@@ -657,7 +692,10 @@ function drawWorld(){
     renderables.push({y:lamp.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.lamp,lamp.x*TILE-camX+5,lamp.y*TILE-camY-38,38,86)});
   }
   npcs.forEach(n=>renderables.push({y:n.y*TILE+TILE,draw:()=>drawNPC(n)}));
-  renderables.push({y:player.py+20,draw:drawPlayer});
+  // A tree in front of the actor must not hide the actual chopping motion.
+  const chopDepth=lifeUi.chop?.regionId===GAME_STATE.regionId?
+    lifeUi.chop.tree.y*TILE+TILE+1:player.py+20;
+  renderables.push({y:Math.max(player.py+20,chopDepth),draw:drawPlayer});
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());
 
   drawFishingEffects();

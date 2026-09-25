@@ -7,9 +7,10 @@ const FOREST_REGION_SPECIES=Object.freeze({
 });
 const forestTreeId=(x,y,regionId='oldForest')=>`${regionId==='deepForest'?'deep_forest':'forest'}_tree_${x}_${y}`;
 const forestTreeSpecies=(x,y,regionId='oldForest')=>{
-  // Forest 1-2 starts at the south edge: stronger trees appear farther north.
+  // A species has the same tool requirement in every region. Forest 1-2
+  // retains starter species near its entrance, then adds stronger species.
   const species=regionId==='deepForest'?
-    (y<=23?FOREST_REGION_SPECIES.deepForest.slice(3):FOREST_REGION_SPECIES.deepForest.slice(0,3)):
+    (y>=32?FOREST_REGION_SPECIES.oldForest:y>=24?FOREST_REGION_SPECIES.deepForest.slice(0,3):FOREST_REGION_SPECIES.deepForest.slice(3)):
     (FOREST_REGION_SPECIES[regionId]||FOREST_SPECIES);
   return species[Math.abs(x*17+y*31)%species.length];
 };
@@ -104,8 +105,8 @@ const REGION_WORLDS=Object.freeze({
       {axis:'y',from:3,to:44,step:2,fixed:62,gaps:[]}
     ],
     trees:[
-      {x:22,y:39,species:'maple'},{x:28,y:38,species:'spruce'},
-      {x:21,y:26,species:'willow'},{x:34,y:23,species:'cypress'},
+      {x:22,y:39,species:'oak'},{x:28,y:38,species:'pine'},
+      {x:21,y:26,species:'willow'},{x:28,y:28,species:'spruce'},{x:34,y:23,species:'cypress'},
       {x:19,y:16,species:'broadleaf'},{x:53,y:23,species:'maple'},
       ...forestGroveTrees('deepForest')
     ],

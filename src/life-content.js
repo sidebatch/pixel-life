@@ -111,7 +111,7 @@ function hitResourceTree(tree){
   const treeType=FORESTRY_TREES[tree.species],axe=getEquippedForestryAxe();
   if(!treeType) return false;
   if(axe.tier<treeType.tier){
-    showLifeToast(`${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
+    showLifeToast(`${FOREST_WOOD[tree.species]}는 ${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
     return false;
   }
   const now=Date.now();
@@ -146,7 +146,7 @@ function startTreeChop(tree){
   const treeType=FORESTRY_TREES[tree.species];
   if(!treeType) return false;
   if(getEquippedForestryAxe().tier<treeType.tier){
-    showLifeToast(`${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
+    showLifeToast(`${FOREST_WOOD[tree.species]}는 ${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
     return false;
   }
   if(getTreeState(tree).hp<=0){showLifeToast('나무가 다시 자라고 있어요');return false;}
@@ -283,12 +283,12 @@ function updateLifeContentUi(now){
   const chop=lifeUi.chop;
   if(chop){
     const elapsed=now-chop.startedAt;
-    if(!chop.struck&&elapsed>=170){
+    if(!chop.struck&&elapsed>=FORESTRY_CHOP_TIMING.impactMs){
       chop.struck=true;
       const cut=getTreeState(chop.tree).hp<=getEquippedForestryAxe().damage;
       if(hitResourceTree(chop.tree)) playForestryChopSound(cut);
     }
-    if(elapsed>=390) lifeUi.chop=null;
+    if(elapsed>=FORESTRY_CHOP_TIMING.durationMs) lifeUi.chop=null;
   }
   if(!lifeUi.open||now-lifeUi.lastRefresh<1000) return;
   if(lifeUi.phase!=='GROWING') return;

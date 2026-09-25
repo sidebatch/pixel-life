@@ -59,7 +59,7 @@ const MOVEMENT_CONFIG=Object.freeze({
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
 const imgs={}, playerImgs={}, npcImgs={}, fishImgs={}, forestTreeImgs={}, forestStumpImgs={}, forestryAxeImgs={}, lifeItemImgs={}, matureCropImgs={}, youngCropImgs={};
-let playerSheet=null;
+let playerSheet=null,forestryChopImg=null;
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
 async function loadImageMap(target, urls, optional=false){
   await Promise.all(Object.entries(urls).map(async ([key,url])=>{
@@ -81,7 +81,8 @@ async function loadAll(){
     loadImageMap(lifeItemImgs,LIFE_ITEM_URLS),
     loadImageMap(matureCropImgs,MATURE_CROP_URLS),
     loadImageMap(youngCropImgs,YOUNG_CROP_URLS),
-    loadImageMap(npcImgs,NPC_SHEET_URLS,true)
+    loadImageMap(npcImgs,NPC_SHEET_URLS,true),
+    loadImage(FORESTRY_CHOP_PLAYER_URL).then(image=>{forestryChopImg=image;})
   ]);
 
   // The normalized sheet is preferred. Legacy frames are loaded only if it fails.

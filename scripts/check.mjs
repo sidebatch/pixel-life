@@ -47,7 +47,7 @@ const htmlIds = new Set(htmlIdList);
 assert(htmlIds.size === htmlIdList.length, 'HTML ids must be unique');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 11, 'Fish dex, inventory, and market tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 13, 'Fish dex, inventory, and market tabs must be accessible');
 assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
 assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab panel semantics are missing');
 assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
@@ -66,8 +66,8 @@ for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
 assert(assetPaths.includes('assets/buildings/elli_market.png')&&
-  read('src/interactions.js').includes("label:npc.id==='elli'?'상점':'대화'"),
-  'Ellie must use the new shop sprite and a buying-and-selling interaction label');
+  read('src/interactions.js').includes("case 'workshopMarket':return openMarket({shop:'workshop'})"),
+  'Ellie and the workshop must use their own shop interactions');
 const marketSprite=fs.readFileSync(path.join(root,'assets/buildings/elli_market.png'));
 assert(marketSprite.readUInt32BE(16)===288&&marketSprite.readUInt32BE(20)===262&&marketSprite[25]===6,
   'Shop sprite must be a 288x262 transparent PNG');
@@ -130,6 +130,41 @@ assert(fishingRods.every((rod,index)=>index===0||rod.waitReduction>=fishingRods[
   'Fishing rod wait bonuses must not decrease');
 assert(fishingRods.at(-1).requiresMasterReward&&fishingRods.at(-1).rareWeightBonus===.35,
   'Master angler rod configuration failed');
+assert(fishingRods.slice(1,4).every(rod=>rod.coins>0&&Object.keys(rod.fishCost).length>0&&
+  Object.keys(rod.fishCost).every(id=>fishData.some(fish=>fish.id===id))),
+  'Shop rods must have valid fish and coin recipes');
+const rodShopContext={
+  document:{getElementById:id=>['openFishingGearBtn','fishingGearClose'].includes(id)?{addEventListener(){}}:null},
+  GAME_STATE:{inventory:[
+    {type:'fish',id:'fish.crucian_carp',quantity:2,price:25},
+    {type:'fish',id:'fish.koi',quantity:2,price:35},
+    {type:'fish',id:'fish.crucian_carp',quantity:2,price:28},
+    {type:'material',id:'oak_log',quantity:3}
+  ],progression:{coins:500,fishing:{level:5,equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']}}},
+  saveGame:()=>true
+};
+vm.createContext(rodShopContext);
+vm.runInContext(`${read('src/data/fishing-gear-data.js')}\n`+
+  `function isFishingRodUnlocked(rod,state=GAME_STATE){return state.progression.fishing.purchasedRodIds.includes(rod.id);}\n`+
+  `${read('src/fishing-gear.js')}\n`+
+  `globalThis.__first=nextFishingRodForSale().id;`+
+  `globalThis.__notEnough=canPurchaseFishingRod(FISHING_ROD_BY_ID.get('rod.steel'));`+
+  `globalThis.__plan=planFishingRodTrade(FISHING_ROD_BY_ID.get('rod.sturdy'));`+
+  `globalThis.__bought=purchaseFishingRod('rod.sturdy');`+
+  `globalThis.__after=JSON.parse(JSON.stringify(GAME_STATE));`+
+  `globalThis.__repeat=purchaseFishingRod('rod.sturdy');`+
+  `GAME_STATE.progression.fishing.level=10;GAME_STATE.inventory.push({type:'fish',id:'fish.goldfish',quantity:2},{type:'fish',id:'fish.largemouth_bass',quantity:2});`+
+  `globalThis.__beforeFailure=JSON.stringify(GAME_STATE);`,rodShopContext);
+assert(rodShopContext.__first==='rod.sturdy'&&!rodShopContext.__notEnough&&rodShopContext.__plan.length===2&&
+  rodShopContext.__bought&&!rodShopContext.__repeat&&rodShopContext.__after.progression.coins===380&&
+  rodShopContext.__after.progression.fishing.equippedRodId==='rod.sturdy'&&
+  rodShopContext.__after.inventory.filter(item=>item.type==='fish').length===1&&
+  rodShopContext.__after.inventory.find(item=>item.id==='fish.crucian_carp').quantity===1,
+  'Rod purchase must consume exact fish and coins once, equip the rod, and preserve unrelated items');
+rodShopContext.saveGame=()=>false;
+vm.runInContext(`globalThis.__failedPurchase=purchaseFishingRod('rod.steel');globalThis.__afterFailure=JSON.stringify(GAME_STATE);`,rodShopContext);
+assert(!rodShopContext.__failedPurchase&&rodShopContext.__afterFailure===rodShopContext.__beforeFailure,
+  'Failed rod purchase save must restore fish, coins, and equipment');
 
 const audioProbe={oscillators:0,starts:0,stops:0,players:[]};
 class FakeAudioParam{
@@ -295,7 +330,7 @@ vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear
   `for(const fish of FISH_DATA.slice(10))recordFishDiscovery(fish,fish.minSizeCm);`+
   `globalThis.__rewardTail=applyFishCollectionRewards();`+
   `globalThis.__rewardState=JSON.parse(JSON.stringify(GAME_STATE));`+
-  `GAME_STATE.progression.fishing.level=15;GAME_STATE.progression.fishing.equippedRodId='rod.expert';`+
+  `GAME_STATE.progression.fishing.level=15;GAME_STATE.progression.fishing.purchasedRodIds=['rod.basic','rod.sturdy','rod.steel','rod.expert'];GAME_STATE.progression.fishing.equippedRodId='rod.expert';`+
   `const expertRod=getEquippedFishingRod();const catfish=FISH_DATA.find(fish=>fish.id==='fish.catfish');`+
   `globalThis.__expertRod={id:expertRod.id,wait:getFishingRodWaitMultiplier(expertRod),rareWeight:getEffectiveFishWeight(catfish,{fishId:null,count:0},expertRod),commonWeight:getEffectiveFishWeight(crucian,{fishId:null,count:0},expertRod),sizeFloor:applyFishingRodSizeBonus(0,expertRod)};`+
   `GAME_STATE.progression.fishing.equippedRodId='rod.master_angler';const masterRod=getEquippedFishingRod();`+
@@ -417,6 +452,10 @@ assert(saveContext.__restored.progression.flags.fishCollectionRewards[20]&&
   saveContext.__restored.progression.flags.masterAnglerTitle&&saveContext.__restored.progression.flags.masterRod,
   'Saved fish collection rewards did not restore');
 assert(saveContext.__lockedRod.equippedRodId==='rod.basic','Locked saved fishing rod must fall back to basic');
+const newRodSave=vm.runInContext(`normalizeSavedFishingProgress({level:15,totalXp:lifeSkillTotalXpForLevel('fishing',15),equippedRodId:'rod.expert',purchasedRodIds:['rod.basic','rod.sturdy']},{},[])`,saveContext);
+assert(newRodSave.equippedRodId==='rod.basic'&&newRodSave.purchasedRodIds.join(',')==='rod.basic,rod.sturdy'&&
+  saveContext.__savedMastery.purchasedRodIds.includes('rod.expert'),
+  'New saves must require rod purchase while legacy saves keep previously available rods');
 assert(saveContext.__oldCap.level>20&&saveContext.__oldCap.totalXp===4320,
   'Saved fishing XP beyond the old level 20 cap must be restored');
 assert(saveContext.__savedMastery.level===100&&saveContext.__savedMastery.mastery===1&&
@@ -755,13 +794,23 @@ assert(vm.runInContext(`['turnip','onion','cabbage','wheat','tomato','pumpkin'].
   return marketGoodDefinition('crop',id).price===crop.sellPrice&&
     planGoodsSale(new Map([['crop:'+id,1]]),[{type:'crop',id,quantity:2}]).total===crop.sellPrice;
 })`,marketContext),'All added crops must sell individually at their configured prices');
-const seedMarketNodes={marketStock:{textContent:''},marketList:{scrollTop:0,innerHTML:''}};
+const seedMarketNodes={marketStock:{textContent:''},marketList:{scrollTop:0,innerHTML:''},marketTotal:{textContent:''},marketSellBtn:{disabled:false}};
 marketContext.document={getElementById:id=>seedMarketNodes[id]};
 marketContext.lifeItemIconMarkup=()=>'<span></span>';
 vm.runInContext('renderSeedMarket();',marketContext);
 assert((seedMarketNodes.marketList.innerHTML.match(/data-seed-id=/g)||[]).length===10&&
   ['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>seedMarketNodes.marketList.innerHTML.includes(`data-seed-id="${id}"`)),
   'Seed shop must list all ten crops, including the six new seeds');
+marketContext.GAME_STATE.inventory.push({type:'material',id:'oak_log',quantity:2},{type:'crop',id:'carrot',quantity:3});
+vm.runInContext(`marketState.shop='elli';marketState.view='crops';renderGoodsMarket();globalThis.__cropRows=document.getElementById('marketList').innerHTML;`+
+  `marketState.shop='workshop';marketState.view='wood';renderGoodsMarket();globalThis.__woodRows=document.getElementById('marketList').innerHTML;`+
+  `marketState.goodsSelection.set('crop:carrot',1);globalThis.__wrongShopSale=sellSelectedGoods();marketState.goodsSelection.clear();`,marketContext);
+assert(marketContext.__cropRows.includes('data-good-key="crop:carrot"')&&!marketContext.__cropRows.includes('data-good-key="material:oak_log"')&&
+  marketContext.__woodRows.includes('data-good-key="material:oak_log"')&&!marketContext.__woodRows.includes('data-good-key="crop:carrot"')&&
+  !marketContext.__wrongShopSale,
+  'Ellie must show only crops and Jun must show only logs, with cross-shop selling rejected');
+marketContext.GAME_STATE.inventory.splice(-2);
+vm.runInContext(`marketState.shop='elli';marketState.view='fish';`,marketContext);
 marketContext.GAME_STATE.progression.logging={level:1};
 marketContext.GAME_STATE.progression.forestry={axeId:'axe.basic'};
 marketContext.FORESTRY_AXE_URLS={basic:'basic.png',iron:'iron.png',steel:'steel.png'};

@@ -69,11 +69,12 @@ function getFishingDebugFish(){
 
 function isFishingRodUnlocked(rod,state=GAME_STATE){
   if(!rod) return false;
+  if(rod.id===DEFAULT_FISHING_ROD_ID) return true;
   if(rod.requiresMasterReward){
     return state.progression?.flags?.masterRod===true||
       state.inventory?.some(item=>item.type==='equipment'&&item.id===rod.id)===true;
   }
-  return (state.progression?.fishing?.level||1)>=(rod.unlockLevel||1);
+  return state.progression?.fishing?.purchasedRodIds?.includes(rod.id)===true;
 }
 
 function getEquippedFishingRod(){
@@ -158,7 +159,7 @@ function getDiscoveredFishCount(){
 
 function fishingNewRodText(previousLevel,currentLevel){
   const rods=FISHING_RODS.filter(rod=>!rod.requiresMasterReward&&rod.unlockLevel>previousLevel&&rod.unlockLevel<=currentLevel);
-  return rods.length?`${rods.map(rod=>rod.name).join('·')} 사용 가능!`:'';
+  return rods.length?`${rods.map(rod=>rod.name).join('·')} 엘리에게서 구매 가능!`:'';
 }
 
 function ensureMasterAnglerRod(){

@@ -21,7 +21,7 @@ function resolveWorldInteraction(tile=facingTile()){
   const exit=regionExitAt(tile.x,tile.y);
   if(exit) return {kind:'exit',label:exit.label,target:exit};
   const npc=npcs.find(n=>n.x===tile.x&&n.y===tile.y);
-  if(npc) return {kind:npc.id==='elli'?'market':'npc',label:npc.id==='elli'?'상점':'대화',target:npc};
+  if(npc) return {kind:npc.id==='elli'?'market':npc.id==='jun'?'workshopMarket':'npc',label:['elli','jun'].includes(npc.id)?'상점':'대화',target:npc};
   if(tile.x===sign.x&&tile.y===sign.y) return {kind:'sign',label:'표지판'};
   const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
   if(tree){
@@ -43,6 +43,7 @@ function activateWorldInteraction(interaction){
   switch(interaction.kind){
     case 'exit':return enterWorldRegion(interaction.target);
     case 'market':return openMarket();
+    case 'workshopMarket':return openMarket({shop:'workshop'});
     case 'npc':return showDialog(interaction.target.name,interaction.target.dialog);
     case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · 물가에서는 낚시할 수 있어요.');
     case 'tree':return startTreeChop(interaction.target);
@@ -117,7 +118,7 @@ window.addEventListener('popstate',()=>{
   }
   if(isInventoryOpen()) closeInventory({fromHistory:true});
   if(layer==='market'){
-    if(!isMarketOpen()) openMarket({fromHistory:true});
+    if(!isMarketOpen()) openMarket({fromHistory:true,shop:window.history.state?.fishId});
     return;
   }
   if(isMarketOpen()) closeMarket({fromHistory:true});

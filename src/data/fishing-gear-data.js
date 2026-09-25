@@ -10,16 +10,19 @@ const FISHING_RODS=Object.freeze([
   }),
   defineFishingRod({
     id:'rod.sturdy',name:'튼튼한 낚싯대',icon:'🪵',unlockLevel:5,
+    coins:120,fishCost:Object.freeze({'fish.crucian_carp':3,'fish.koi':2}),
     waitReduction:.10,rareWeightBonus:0,sizeBonus:0,
     description:'튼튼한 줄과 손잡이로 입질을 조금 더 빠르게 받는다.'
   }),
   defineFishingRod({
     id:'rod.steel',name:'강철 낚싯대',icon:'⚙️',unlockLevel:10,
+    coins:350,fishCost:Object.freeze({'fish.goldfish':2,'fish.largemouth_bass':2}),
     waitReduction:.10,rareWeightBonus:.10,sizeBonus:0,
     description:'단단한 강철 프레임이 희귀한 물고기의 반응을 끌어낸다.'
   }),
   defineFishingRod({
     id:'rod.expert',name:'전문가 낚싯대',icon:'✨',unlockLevel:15,
+    coins:800,fishCost:Object.freeze({'fish.catfish':1,'fish.trout':3,'fish.salmon':2}),
     waitReduction:.15,rareWeightBonus:.20,sizeBonus:.08,
     description:'빠른 입질과 희귀 어종, 큰 개체를 함께 노리는 전문가 장비.'
   }),

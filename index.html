@@ -138,10 +138,10 @@
         <div class="inventoryScroll" id="inventoryScroll" role="tabpanel" aria-label="가방 내용"></div>
       </div>
       <div id="marketPanel" class="marketPanel" role="dialog" aria-modal="true" aria-label="엘리의 상점" aria-hidden="true">
-        <div class="marketHeader"><div><span>엘리의 상점</span><h2 id="marketTitle">물고기 판매</h2></div><div class="marketHeaderRight"><div class="marketWallet" aria-label="보유 코인"><span class="marketWalletCoin" aria-hidden="true">●</span><strong id="marketCoinCount">0</strong><span id="marketCoinGain" class="marketCoinGain" aria-hidden="true"></span></div><button id="marketClose" type="button" aria-label="상점 닫기">×</button></div></div>
+        <div class="marketHeader"><div><span id="marketShopName">엘리의 상점</span><h2 id="marketTitle">물고기 판매</h2></div><div class="marketHeaderRight"><div class="marketWallet" aria-label="보유 코인"><span class="marketWalletCoin" aria-hidden="true">●</span><strong id="marketCoinCount">0</strong><span id="marketCoinGain" class="marketCoinGain" aria-hidden="true"></span></div><button id="marketClose" type="button" aria-label="상점 닫기">×</button></div></div>
         <p class="marketGreeting">엘리: 어떤 물고기를 팔고 싶어?</p>
         <p class="marketRule">같은 어종은 먼저 낚은 물고기부터 판매돼요.</p>
-        <div class="marketTabs" role="tablist" aria-label="상점 분류"><button type="button" data-market-view="fish" class="active" role="tab" aria-selected="true">물고기</button><button type="button" data-market-view="goods" role="tab" aria-selected="false">재료</button><button type="button" data-market-view="seeds" role="tab" aria-selected="false">씨앗</button><button type="button" data-market-view="axes" role="tab" aria-selected="false">도끼</button></div>
+        <div class="marketTabs" role="tablist" aria-label="상점 분류"><button type="button" data-market-view="fish" class="active" role="tab" aria-selected="true">물고기 판매</button><button type="button" data-market-view="crops" role="tab" aria-selected="false">작물 판매</button><button type="button" data-market-view="seeds" role="tab" aria-selected="false">씨앗</button><button type="button" data-market-view="rods" role="tab" aria-selected="false">낚싯대</button><button type="button" data-market-view="wood" role="tab" aria-selected="false" hidden>통나무 판매</button><button type="button" data-market-view="axes" role="tab" aria-selected="false" hidden>도끼</button></div>
         <div class="marketStock" id="marketStock"></div>
         <div class="marketList" id="marketList"></div>
         <div class="marketFooter">

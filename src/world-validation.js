@@ -86,6 +86,12 @@ function validateWorldDefinition(){
   if(!merchant||merchant.roam!==0||merchant.x!==marketShop.x+Math.floor(marketShop.w/2)||merchant.y!==marketShop.y+marketShop.h){
     fail('Merchant must stand at the front of the village shop');
   }
+  const workshop=buildings.find(building=>building.id==='carpenter_workshop');
+  const toolMerchant=npcs.find(npc=>npc.id==='jun');
+  if(!workshop||!toolMerchant||toolMerchant.roam!==0||
+    Math.abs(toolMerchant.x-workshop.entrance.approach.x)+Math.abs(toolMerchant.y-workshop.entrance.approach.y)!==1){
+    fail('Tool merchant must stand beside the workshop entrance');
+  }
 
   coordinate('player spawn',WORLD_DEFINITION.playerSpawn);
   if(blocked.has(key(WORLD_DEFINITION.playerSpawn.x,WORLD_DEFINITION.playerSpawn.y))) fail('Player spawn is blocked');

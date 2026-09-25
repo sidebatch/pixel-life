@@ -141,15 +141,23 @@ function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
   const minimumTotal=lifeSkillTotalXpForLevel('fishing',savedLevel)+savedXp;
   const totalXp=Math.max(minimumTotal,Math.floor(saveFiniteNumber(source.totalXp,minimumTotal)));
   const progress=lifeSkillProgressFromTotal('fishing',totalXp);
+  // Before shop purchases existed, every rod at or below the fishing level
+  // was already usable. Keep those earned entitlements in legacy saves.
+  const purchasedRodIds=Array.isArray(source.purchasedRodIds)?
+    [...new Set([DEFAULT_FISHING_ROD_ID,...source.purchasedRodIds])].filter(id=>{
+      const rod=FISHING_ROD_BY_ID.get(id);
+      return rod&&!rod.requiresMasterReward&&(rod.unlockLevel||1)<=progress.level;
+    }):
+    FISHING_RODS.filter(rod=>!rod.requiresMasterReward&&(rod.unlockLevel||1)<=progress.level).map(rod=>rod.id);
   const requestedRod=FISHING_ROD_BY_ID.get(source.equippedRodId);
   const masterUnlocked=flags.masterRod===true||inventory.some(item=>
     item.type==='equipment'&&item.id==='rod.master_angler'
   );
   const rodUnlocked=requestedRod&&(
-    requestedRod.requiresMasterReward?masterUnlocked:progress.level>=(requestedRod.unlockLevel||1)
+    requestedRod.requiresMasterReward?masterUnlocked:purchasedRodIds.includes(requestedRod.id)
   );
   const equippedRodId=rodUnlocked?requestedRod.id:DEFAULT_FISHING_ROD_ID;
-  return {...progress,equippedRodId};
+  return {...progress,equippedRodId,purchasedRodIds};
 }
 
 function normalizeSavedLoggingProgress(rawProgress){

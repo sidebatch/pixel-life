@@ -9,6 +9,7 @@ const FISHING_CONFIG = Object.freeze({
 const FISHING_HABITAT_BY_REGION=Object.freeze({
   lilacVillage:FISH_HABITATS.POND,
   oldForest:FISH_HABITATS.RIVER,
+  deepForest:FISH_HABITATS.RIVER,
   sunnyFields:FISH_HABITATS.POND,
   riverValley:FISH_HABITATS.RIVER,
   coast:FISH_HABITATS.COAST

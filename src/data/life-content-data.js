@@ -1,5 +1,6 @@
 const LIFE_CONTENT=Object.freeze({
-  treeHp:3,
+  treeHp:100,
+  treeDamage:20,
   treeRespawnMs:5*60*1000,
   initialFarmPlots:4,
   logSellPrice:12,

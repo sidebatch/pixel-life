@@ -79,7 +79,7 @@ function drawPathTile(x,y){
 }
 function drawTerrain(){
   // Movement/collision is still tile based, but the terrain is painted as connected surfaces.
-  ctx.fillStyle=GAME_STATE.regionId==='oldForest'?'#538a53':GAME_STATE.regionId==='sunnyFields'?'#91c66a':'#78b85b';
+  ctx.fillStyle=FOREST_REGION_SPECIES[GAME_STATE.regionId]?'#538a53':GAME_STATE.regionId==='sunnyFields'?'#91c66a':'#78b85b';
   ctx.fillRect(0,0,VIEW_W,VIEW_H);
 
   const x0=Math.max(0,Math.floor(camX/TILE)-2), y0=Math.max(0,Math.floor(camY/TILE)-2);
@@ -168,7 +168,8 @@ function drawRegionExits(){
     ctx.fillStyle='rgba(251,226,143,.28)';ctx.fillRect(x+3,y+3,TILE-6,TILE-6);
     ctx.strokeStyle='#ffe5a0';ctx.lineWidth=3;ctx.strokeRect(x+5,y+5,TILE-10,TILE-10);
     ctx.fillStyle='#fff3cf';ctx.font='900 17px system-ui';ctx.textAlign='center';
-    ctx.fillText(exit.to==='oldForest'?'↑':exit.to==='sunnyFields'?'→':GAME_STATE.regionId==='oldForest'?'↓':'←',x+TILE/2,y+31);
+    const direction=exit.y<=2?'↑':exit.y>=MAP_H-3?'↓':exit.x>=MAP_W-3?'→':'←';
+    ctx.fillText(direction,x+TILE/2,y+31);
     ctx.font='900 9px system-ui';ctx.fillText(exit.label,x+TILE/2,y+44);
     ctx.restore();
   }
@@ -221,26 +222,36 @@ function drawFarmGround(){
   }
 }
 
+function drawTreeHpBar(tree,hp){
+  const ratio=Math.max(0,Math.min(1,hp/LIFE_CONTENT.treeHp));
+  const x=Math.round(tree.x*TILE-camX)+3,y=Math.round(tree.y*TILE-camY)-74;
+  ctx.fillStyle='#102016';ctx.fillRect(x-2,y-2,46,11);
+  ctx.fillStyle='#080808';ctx.fillRect(x,y,42,7);
+  if(ratio>0){
+    ctx.fillStyle=ratio>.75?'#59c871':ratio>.5?'#f1d24e':ratio>.25?'#ee7649':ratio>.1?'#a92b30':'#63151e';
+    ctx.fillRect(x,y,Math.max(1,Math.round(42*ratio)),7);
+  }
+  ctx.strokeStyle='#d9dfc7';ctx.lineWidth=1;ctx.strokeRect(x-.5,y-.5,43,8);
+}
 function drawResourceTree(tree){
   const state=getTreeState(tree),x=Math.round(tree.x*TILE-camX),y=Math.round(tree.y*TILE-camY);
+  const hit=lifeUi.hit&&lifeUi.hit.regionId===GAME_STATE.regionId&&lifeUi.hit.x===tree.x&&lifeUi.hit.y===tree.y&&tNow<lifeUi.hit.until;
   if(state.hp===0){
     const stump=forestStumpImgs[tree.species];
     if(stump) ctx.drawImage(stump,x-8,y-12,64,64);
+    if(hit) drawTreeHpBar(tree,0);
     return;
   }
-  const hit=lifeUi.hit&&lifeUi.hit.x===tree.x&&lifeUi.hit.y===tree.y&&tNow<lifeUi.hit.until;
   const sway=hit?Math.round(Math.sin(tNow/28)*4):0;
   drawWorldTree(tree,sway);
   if(Math.abs(player.x-tree.x)+Math.abs(player.y-tree.y)<=1){
     ctx.fillStyle='#f4d179';ctx.fillRect(x+30,y+29,6,8);
   }
-  if(state.hp<LIFE_CONTENT.treeHp){
-    ctx.fillStyle='#452d25';ctx.fillRect(x+31,y+29,7,5);
-  }
+  if(state.hp<LIFE_CONTENT.treeHp||hit) drawTreeHpBar(tree,state.hp);
 }
 function drawWorldTree(tree,sway=0){
   const x=Math.round(tree.x*TILE-camX),y=Math.round(tree.y*TILE-camY);
-  const forestImage=GAME_STATE.regionId==='oldForest'&&forestTreeImgs[tree.species];
+  const forestImage=FOREST_REGION_SPECIES[GAME_STATE.regionId]&&forestTreeImgs[tree.species];
   if(forestImage) ctx.drawImage(forestImage,x-24+sway,y-64,96,115);
   else ctx.drawImage(imgs.treeStage24||imgs.treeClean||imgs.tree,x-22+sway,y-64,92,116);
 }
@@ -606,7 +617,10 @@ function drawWorld(){
     const localDepth=(b.depthLine ?? b.h);
     renderables.push({y:(b.y+localDepth)*TILE,draw:()=>drawBuilding(b)});
   });
-  trees.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>o.interactable?drawResourceTree(o):drawWorldTree(o)}));
+  trees.forEach(o=>{
+    if(!onScreen(o.x*TILE,o.y*TILE,100,120)) return;
+    renderables.push({y:o.y*TILE+TILE,draw:()=>o.interactable?drawResourceTree(o):drawWorldTree(o)});
+  });
   rocks.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.rock,o.x*TILE-camX-6,o.y*TILE-camY-10,60,58)}));
   if(GAME_STATE.regionId==='lilacVillage'){
     renderables.push({y:(marketShop.y+marketShop.h)*TILE,draw:drawMarketShop});

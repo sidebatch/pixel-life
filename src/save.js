@@ -59,12 +59,15 @@ function normalizeSavedInventory(rawInventory){
 function normalizeSavedLifeWorld(rawWorld){
   const source=rawWorld&&typeof rawWorld==='object'?rawWorld:{};
   const now=Date.now();
-  const forest=REGION_WORLDS.oldForest;
-  const knownTrees=new Set(forest.trees.map(tree=>tree.id||forestTreeId(tree.x,tree.y)));
-  for(const line of forest.treeLines){
-    for(let value=line.from;value<=line.to;value+=line.step){
-      if(line.gaps?.some(([start,end])=>value>=start&&value<=end)) continue;
-      knownTrees.add(line.axis==='x'?forestTreeId(value,line.fixed):forestTreeId(line.fixed,value));
+  const knownTrees=new Set();
+  for(const regionId of Object.keys(FOREST_REGION_SPECIES)){
+    const forest=REGION_WORLDS[regionId];
+    for(const tree of forest.trees) knownTrees.add(tree.id||forestTreeId(tree.x,tree.y,regionId));
+    for(const line of forest.treeLines){
+      for(let value=line.from;value<=line.to;value+=line.step){
+        if(line.gaps?.some(([start,end])=>value>=start&&value<=end)) continue;
+        knownTrees.add(line.axis==='x'?forestTreeId(value,line.fixed,regionId):forestTreeId(line.fixed,value,regionId));
+      }
     }
   }
   const trees={};
@@ -72,10 +75,12 @@ function normalizeSavedLifeWorld(rawWorld){
     if(!knownTrees.has(id)||!value||typeof value!=='object') continue;
     const choppedAt=Math.floor(saveFiniteNumber(value.choppedAt,0));
     if(choppedAt>0&&choppedAt<=now&&now-choppedAt<LIFE_CONTENT.treeRespawnMs){
-      trees[id]={hp:0,choppedAt};
+      trees[id]={hp:0,choppedAt,maxHp:LIFE_CONTENT.treeHp};
     }else if(!choppedAt){
+      const oldScale=value.maxHp!==LIFE_CONTENT.treeHp&&Number(value.hp)<=3;
       const hp=saveClamp(Math.floor(saveFiniteNumber(value.hp,LIFE_CONTENT.treeHp)),1,LIFE_CONTENT.treeHp);
-      if(hp<LIFE_CONTENT.treeHp) trees[id]={hp,choppedAt:null};
+      const normalizedHp=oldScale?Math.ceil(hp*LIFE_CONTENT.treeHp/3):hp;
+      if(normalizedHp<LIFE_CONTENT.treeHp) trees[id]={hp:normalizedHp,choppedAt:null,maxHp:LIFE_CONTENT.treeHp};
     }
   }
   const plots={};

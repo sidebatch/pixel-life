@@ -78,23 +78,23 @@ function showLifeToast(message){
 }
 
 function hitResourceTree(tree){
-  if(!tree?.interactable||GAME_STATE.regionId!=='oldForest') return false;
+  if(!tree?.interactable||!FOREST_REGION_SPECIES[GAME_STATE.regionId]) return false;
   const now=Date.now();
   const current=getTreeState(tree,now);
   if(current.hp<=0){
     showLifeToast('나무가 다시 자라고 있어요');
     return false;
   }
-  const nextHp=current.hp-1;
-  const logs=nextHp===0?2+Math.floor(Math.random()*3):0;
+  const nextHp=Math.max(0,current.hp-LIFE_CONTENT.treeDamage);
+  const logs=nextHp===0?1+Math.floor(Math.random()*3):0;
   const success=commitLifeChange(()=>{
-    GAME_STATE.world.trees[tree.id]=nextHp===0?{hp:0,choppedAt:now}:{hp:nextHp,choppedAt:null};
+    GAME_STATE.world.trees[tree.id]=nextHp===0?{hp:0,choppedAt:now,maxHp:LIFE_CONTENT.treeHp}:{hp:nextHp,choppedAt:null,maxHp:LIFE_CONTENT.treeHp};
     if(logs) addLifeItem('material',`${tree.species}_log`,logs);
     return true;
   });
   if(!success){showLifeToast('저장하지 못했어요. 다시 시도해 주세요');return false;}
-  lifeUi.hit={x:tree.x,y:tree.y,until:performance.now()+350};
-  showLifeToast(logs?`+${logs} ${FOREST_WOOD[tree.species]} 통나무`:`도끼질 · ${nextHp}번 더`);
+  lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,until:performance.now()+650};
+  showLifeToast(logs?`+${logs} ${FOREST_WOOD[tree.species]} 통나무`:`나무 체력 ${nextHp}%`);
   return true;
 }
 

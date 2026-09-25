@@ -413,7 +413,7 @@ assert(saveContext.__savedMastery.level===100&&saveContext.__savedMastery.master
   'Level 100 mastery save restoration failed');
 vm.runInContext(`GAME_STATE.regionId='sunnyFields';GAME_STATE.playerLocation={x:14,y:24,face:'right'};`+
   `GAME_STATE.inventory.push({type:'material',id:'log',name:'통나무',quantity:5},{type:'material',id:'oak_log',name:'참나무 통나무',quantity:3},{type:'seed',id:'carrot',name:'당근 씨앗',quantity:2},{type:'seed',id:'pumpkin',name:'호박 씨앗',quantity:1},{type:'crop',id:'wheat',name:'밀',quantity:4});`+
-  `GAME_STATE.world={trees:{forest_tree_01:{hp:0,choppedAt:Date.now()},forest_tree_15_16:{hp:2,choppedAt:null},forest_tree_1_1:{hp:0,choppedAt:Date.now()}},plots:{farm_09:{unlocked:true,cropId:'carrot',plantedAt:Date.now()-30000},farm_10:{unlocked:true,cropId:'pumpkin',plantedAt:Date.now()-30000}}};`+
+  `GAME_STATE.world={trees:{forest_tree_01:{hp:0,choppedAt:Date.now()},forest_tree_15_16:{hp:2,choppedAt:null},forest_tree_1_1:{hp:0,choppedAt:Date.now()},deep_forest_tree_22_39:{hp:40,choppedAt:null,maxHp:100}},plots:{farm_09:{unlocked:true,cropId:'carrot',plantedAt:Date.now()-30000},farm_10:{unlocked:true,cropId:'pumpkin',plantedAt:Date.now()-30000}}};`+
   `saveGame();GAME_STATE.inventory=[];GAME_STATE.world={trees:{},plots:{}};GAME_STATE.regionId='lilacVillage';`+
   `globalThis.__lifeLoaded=loadGame();globalThis.__lifeRestored=JSON.parse(JSON.stringify(GAME_STATE));`,saveContext);
 assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFields'&&
@@ -424,7 +424,8 @@ assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFie
   saveContext.__lifeRestored.inventory.some(item=>item.type==='seed'&&item.id==='pumpkin'&&item.quantity===1)&&
   saveContext.__lifeRestored.inventory.some(item=>item.type==='crop'&&item.id==='wheat'&&item.quantity===4)&&
   saveContext.__lifeRestored.world.trees.forest_tree_01.hp===0&&
-  saveContext.__lifeRestored.world.trees.forest_tree_15_16.hp===2&&
+  saveContext.__lifeRestored.world.trees.forest_tree_15_16.hp===67&&
+  saveContext.__lifeRestored.world.trees.deep_forest_tree_22_39.hp===40&&
   saveContext.__lifeRestored.world.trees.forest_tree_1_1.hp===0&&
   saveContext.__lifeRestored.world.plots.farm_09.cropId==='carrot'&&
   saveContext.__lifeRestored.world.plots.farm_10.cropId==='pumpkin'&&
@@ -432,6 +433,11 @@ assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFie
   saveContext.__lifeRestored.world.plots.farm_05.unlocked&&
   !saveContext.__lifeRestored.world.plots.farm_03.unlocked,
   'Region, life inventory, tree respawn, and initial farm plot state must survive reload');
+vm.runInContext(`GAME_STATE.regionId='deepForest';GAME_STATE.playerLocation={x:25,y:44,face:'up'};`+
+  `saveGame();GAME_STATE.regionId='lilacVillage';GAME_STATE.world.trees={};loadGame();`+
+  `globalThis.__deepSavedRegion=GAME_STATE.regionId;globalThis.__deepSavedTree=GAME_STATE.world.trees.deep_forest_tree_22_39;`,saveContext);
+assert(saveContext.__deepSavedRegion==='deepForest'&&saveContext.__deepSavedTree.hp===40,
+  'Deep forest position and partial tree HP must survive a reload');
 saveStorage.set('pixel-life.save','{not-json');
 vm.runInContext('globalThis.__invalidJsonSave=loadGame();',saveContext);
 assert(saveContext.__invalidJsonSave===false,'Malformed save JSON must fail safely');
@@ -490,7 +496,7 @@ const toastNode={textContent:'',classList:{add(){},remove(){}}};
 const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
 vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_01');`+
-  `globalThis.__hits=[hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree)];`+
+  `globalThis.__hits=[hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree)];`+
   `globalThis.__logs=lifeItemCount('material','oak_log');`+
   `globalThis.__regrown=getTreeState(testTree,Date.now()+LIFE_CONTENT.treeRespawnMs+1);`+
   `const lockedPlot=REGION_WORLDS.sunnyFields.farmPlots[2];GAME_STATE.regionId='sunnyFields';`+
@@ -503,8 +509,18 @@ vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id
   `globalThis.__offlinePhase=getFarmPlotPhase(lockedPlot);`+
   `globalThis.__harvested=harvestFarmCrop(lockedPlot);globalThis.__doubleHarvest=harvestFarmCrop(lockedPlot);`+
   `globalThis.__cropCount=lifeItemCount('crop','carrot');`,lifeContext);
-assert(lifeContext.__hits.join(',')==='true,true,true,false'&&lifeContext.__logs>=2&&lifeContext.__logs<=4&&
-  lifeContext.__regrown.hp===3,'Trees must take three hits, grant one drop, and regrow from wall-clock time');
+assert(lifeContext.__hits.join(',')==='true,true,true,true,true,false'&&lifeContext.__logs>=1&&lifeContext.__logs<=3&&
+  lifeContext.__regrown.hp===100,'Trees must take five hits, grant one drop, and regrow from wall-clock time');
+vm.runInContext(`GAME_STATE.regionId='deepForest';const deepSource=REGION_WORLDS.deepForest.trees[0];`+
+  `const deepTree={...deepSource,id:forestTreeId(deepSource.x,deepSource.y,'deepForest'),interactable:true};`+
+  `globalThis.__deepFirstHit=hitResourceTree(deepTree);globalThis.__deepFirstHp=getTreeState(deepTree).hp;`+
+  `globalThis.__deepFirstReward=lifeItemCount('material','maple_log');`+
+  `globalThis.__deepHits=[hitResourceTree(deepTree),hitResourceTree(deepTree),hitResourceTree(deepTree),hitResourceTree(deepTree),hitResourceTree(deepTree)];`+
+  `globalThis.__deepFinalHp=getTreeState(deepTree).hp;globalThis.__deepLogs=lifeItemCount('material','maple_log');`,lifeContext);
+assert(lifeContext.__deepFirstHit&&lifeContext.__deepFirstHp===80&&lifeContext.__deepFirstReward===0&&
+  lifeContext.__deepHits.join(',')==='true,true,true,true,false'&&lifeContext.__deepFinalHp===0&&
+  lifeContext.__deepLogs>=1&&lifeContext.__deepLogs<=3,
+  'Deep forest trees must grant wood only on the fifth hit and block duplicate rewards');
 assert(lifeContext.__poorBuy===false&&lifeContext.__plotBought===true&&lifeContext.__doubleBuy===false&&
   lifeContext.GAME_STATE.progression.coins===400&&lifeContext.__planted===true&&lifeContext.__doublePlant===false&&
   lifeContext.__offlinePhase==='READY'&&lifeContext.__harvested===true&&lifeContext.__doubleHarvest===false&&
@@ -704,13 +720,23 @@ assert(shop.x===27&&shop.y===34&&shop.w===5&&shop.h===4&&
   ['29,38','29,39','29,40'].every(tile=>validationContext.__path.has(tile)),
   'The entire shop footprint must block movement while all four surrounding approaches remain clear');
 vm.runInContext(`GAME_STATE.regionId='oldForest';buildWorldRegion(REGION_WORLDS.oldForest);globalThis.__forestReport=validatePlayableRegion();globalThis.__resourceTrees=trees.filter(tree=>tree.interactable).length;`+
+  `globalThis.__forestInterior=trees.filter(tree=>tree.x>2&&tree.x<61&&tree.y>2&&tree.y<45).length;`+
   `globalThis.__allForestChoppable=trees.every(tree=>tree.interactable&&!!tree.id&&!!FOREST_WOOD[tree.species]);`+
+  `globalThis.__starterSpecies=trees.every(tree=>FOREST_REGION_SPECIES.oldForest.includes(tree.species));`+
   `globalThis.__forestBoundaryBlocked=[...Array(MAP_W).keys()].every(x=>blocked.has(key(x,0))&&blocked.has(key(x,MAP_H-1)));`+
+  `GAME_STATE.regionId='deepForest';buildWorldRegion(REGION_WORLDS.deepForest);globalThis.__deepReport=validatePlayableRegion();globalThis.__deepTrees=trees.filter(tree=>tree.interactable).length;`+
+  `globalThis.__deepInterior=trees.filter(tree=>tree.x>2&&tree.x<61&&tree.y>2&&tree.y<45).length;`+
+  `globalThis.__advancedSpecies=trees.every(tree=>FOREST_REGION_SPECIES.deepForest.includes(tree.species));`+
   `GAME_STATE.regionId='sunnyFields';buildWorldRegion(REGION_WORLDS.sunnyFields);globalThis.__farmReport=validatePlayableRegion();globalThis.__plots=WORLD_DEFINITION.farmPlots.length;`,validationContext);
-assert(validationContext.__forestReport.region==='oldForest'&&validationContext.__resourceTrees>8&&
-  validationContext.__allForestChoppable&&validationContext.__forestBoundaryBlocked&&
+assert(validationContext.__forestReport.region==='oldForest'&&validationContext.__resourceTrees>=100&&validationContext.__forestInterior>=60&&
+  validationContext.__allForestChoppable&&validationContext.__starterSpecies&&validationContext.__forestBoundaryBlocked&&
+  validationContext.__deepReport.region==='deepForest'&&validationContext.__deepTrees>=100&&validationContext.__deepInterior>=60&&validationContext.__advancedSpecies&&
   validationContext.__farmReport.region==='sunnyFields'&&validationContext.__plots===16,
   'Forest and farm maps must have exits, fishing water, resource trees, and farm plots');
+const forestRoutes=vm.runInContext(`REGION_EXITS.lilacVillage.some(exit=>exit.to==='oldForest')&&
+  REGION_EXITS.oldForest.some(exit=>exit.to==='deepForest'&&exit.entry.x===25&&exit.entry.y===44)&&
+  REGION_EXITS.deepForest.some(exit=>exit.to==='oldForest'&&exit.entry.x===25&&exit.entry.y===3)`,validationContext);
+assert(forestRoutes,'Forest 1-1 and 1-2 must have reciprocal, walkable entrances');
 const accessibility=vm.runInContext(`Object.values(REGION_WORLDS).map(def=>{
   GAME_STATE.regionId=def.id;buildWorldRegion(def);
   const open=[def.playerSpawn],seen=new Set([key(def.playerSpawn.x,def.playerSpawn.y)]);

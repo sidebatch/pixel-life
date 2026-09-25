@@ -17,7 +17,8 @@ const PROJECT = Object.freeze({
 
 const WORLD_REGIONS = Object.freeze({
   lilacVillage:{id:'lilacVillage',name:'라일락 연못 마을',status:'playable'},
-  oldForest:{id:'oldForest',name:'오래된 숲',status:'playable'},
+  oldForest:{id:'oldForest',name:'오래된 숲 1-1',status:'playable'},
+  deepForest:{id:'deepForest',name:'오래된 숲 1-2',status:'playable'},
   sunnyFields:{id:'sunnyFields',name:'햇살 농장',status:'playable'},
   riverValley:{id:'riverValley',name:'강 계곡',status:'planned'},
   coast:{id:'coast',name:'해변과 항구',status:'planned'}

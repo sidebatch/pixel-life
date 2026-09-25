@@ -2,6 +2,8 @@ const LIFE_CONTENT=Object.freeze({
   treeHp:100,
   treeDamage:20,
   treeRespawnMs:5*60*1000,
+  // Temporary logging XP balance; granted only when a tree is fully cut.
+  loggingXpBySpecies:Object.freeze({oak:10,pine:10,birch:10,maple:25,spruce:25,willow:25,cypress:25,broadleaf:25}),
   initialFarmPlots:4,
   logSellPrice:12,
   farmExpansionCosts:Object.freeze([

@@ -53,11 +53,13 @@ function commitLifeChange(change){
   const beforeInventory=JSON.parse(JSON.stringify(GAME_STATE.inventory));
   const beforeWorld=JSON.parse(JSON.stringify(GAME_STATE.world));
   const beforeCoins=GAME_STATE.progression.coins;
+  const beforeLogging=GAME_STATE.progression.logging?{...GAME_STATE.progression.logging}:null;
   const result=change();
   if(result&&saveGame()) return result;
   GAME_STATE.inventory=beforeInventory;
   GAME_STATE.world=beforeWorld;
   GAME_STATE.progression.coins=beforeCoins;
+  if(beforeLogging) GAME_STATE.progression.logging=beforeLogging;
   return null;
 }
 
@@ -69,12 +71,14 @@ function getTreeState(tree,now=Date.now()){
   return saved;
 }
 
-function showLifeToast(message){
+function showLifeToast(message,options={}){
   const toast=document.getElementById('lifeToast');
   toast.textContent=message;
+  if(options.belowSkill) toast.classList.add('belowSkill');
+  else toast.classList.remove('belowSkill');
   toast.classList.add('show');
   clearTimeout(lifeUi.toastTimer);
-  lifeUi.toastTimer=setTimeout(()=>toast.classList.remove('show'),1900);
+  lifeUi.toastTimer=setTimeout(()=>toast.classList.remove('show','belowSkill'),1900);
 }
 
 function hitResourceTree(tree){
@@ -87,14 +91,20 @@ function hitResourceTree(tree){
   }
   const nextHp=Math.max(0,current.hp-LIFE_CONTENT.treeDamage);
   const logs=nextHp===0?1+Math.floor(Math.random()*3):0;
+  const gainedXp=logs?(LIFE_CONTENT.loggingXpBySpecies[tree.species]||0):0;
+  const progressBefore=gainedXp?lifeSkillProgressSnapshot('logging'):null;
   const success=commitLifeChange(()=>{
     GAME_STATE.world.trees[tree.id]=nextHp===0?{hp:0,choppedAt:now,maxHp:LIFE_CONTENT.treeHp}:{hp:nextHp,choppedAt:null,maxHp:LIFE_CONTENT.treeHp};
     if(logs) addLifeItem('material',`${tree.species}_log`,logs);
+    if(gainedXp) grantLifeSkillXp('logging',gainedXp);
     return true;
   });
   if(!success){showLifeToast('저장하지 못했어요. 다시 시도해 주세요');return false;}
   lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,until:performance.now()+650};
-  showLifeToast(logs?`+${logs} ${FOREST_WOOD[tree.species]} 통나무`:`나무 체력 ${nextHp}%`);
+  if(logs){
+    showLifeToast(`+${logs} ${FOREST_WOOD[tree.species]} 통나무`,{belowSkill:true});
+    showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
+  }
   return true;
 }
 

@@ -402,6 +402,8 @@ assert(saveContext.__restored.progression.coins===1400&&saveContext.__restored.p
   saveContext.__restored.progression.fishing.xp===8&&saveContext.__restored.progression.fishing.totalXp===80&&
   saveContext.__restored.progression.fishing.equippedRodId==='rod.master_angler',
   'Saved fishing progression did not restore');
+assert(saveContext.__restored.progression.logging.level===1&&saveContext.__restored.progression.logging.totalXp===0,
+  'Older saves without logging progress must start at Logging Lv.1');
 assert(saveContext.__restored.progression.flags.fishCollectionRewards[20]&&
   saveContext.__restored.progression.flags.masterAnglerTitle&&saveContext.__restored.progression.flags.masterRod,
   'Saved fish collection rewards did not restore');
@@ -411,6 +413,18 @@ assert(saveContext.__oldCap.level>20&&saveContext.__oldCap.totalXp===4320,
 assert(saveContext.__savedMastery.level===100&&saveContext.__savedMastery.mastery===1&&
   saveContext.__savedMastery.masteryXp===17&&saveContext.__savedMastery.equippedRodId==='rod.expert',
   'Level 100 mastery save restoration failed');
+vm.runInContext(`GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logging',95);saveGame();`+
+  `GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logging',0);loadGame();`+
+  `globalThis.__savedLogging=JSON.parse(JSON.stringify(GAME_STATE.progression.logging));`,saveContext);
+assert(saveContext.__savedLogging.level===2&&saveContext.__savedLogging.xp===23&&saveContext.__savedLogging.totalXp===95,
+  'Logging XP and level must survive a reload');
+vm.runInContext(`${read('src/skill-ui.js')}\nglobalThis.__loggingCard=skillCardMarkup('logging');`,saveContext);
+assert(saveContext.__loggingCard.includes('벌목')&&saveContext.__loggingCard.includes('Lv.2')&&
+  saveContext.__loggingCard.includes('role="progressbar"')&&saveContext.__loggingCard.includes('aria-valuenow="27"'),
+  'Logging must use the shared visible XP bar and level card');
+const loggingLevelEdge=vm.runInContext(`lifeSkillProgressFromTotal('logging',lifeSkillXpForNextLevel('logging',1))`,saveContext);
+assert(loggingLevelEdge.level===2&&loggingLevelEdge.xp===0,
+  'Logging XP must fill to 100% and advance the level at the threshold');
 vm.runInContext(`GAME_STATE.regionId='sunnyFields';GAME_STATE.playerLocation={x:14,y:24,face:'right'};`+
   `GAME_STATE.inventory.push({type:'material',id:'log',name:'통나무',quantity:5},{type:'material',id:'oak_log',name:'참나무 통나무',quantity:3},{type:'seed',id:'carrot',name:'당근 씨앗',quantity:2},{type:'seed',id:'pumpkin',name:'호박 씨앗',quantity:1},{type:'crop',id:'wheat',name:'밀',quantity:4});`+
   `GAME_STATE.world={trees:{forest_tree_01:{hp:0,choppedAt:Date.now()},forest_tree_15_16:{hp:2,choppedAt:null},forest_tree_1_1:{hp:0,choppedAt:Date.now()},deep_forest_tree_22_39:{hp:40,choppedAt:null,maxHp:100}},plots:{farm_09:{unlocked:true,cropId:'carrot',plantedAt:Date.now()-30000},farm_10:{unlocked:true,cropId:'pumpkin',plantedAt:Date.now()-30000}}};`+
@@ -485,18 +499,21 @@ assert(inventorySummaryNode.textContent==='보유 물고기 2마리'&&
   'Inventory grid must badge counts and preserve individual catch data');
 
 const lifeContext={
-  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500}},
+  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0}}},
   saveGame:()=>true,
+  feedback:[],
   performance:{now:()=>100},
   setTimeout:()=>1,clearTimeout:()=>{}
 };
+lifeContext.showSkillXpFeedback=(skillId,before,after,gained)=>lifeContext.feedback.push({skillId,before,after,gained});
 vm.createContext(lifeContext);
-vm.runInContext(`${read('src/assets.js')}\n${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-content.js')}\n`,lifeContext);
+vm.runInContext(`${read('src/assets.js')}\n${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n${read('src/life-content.js')}\n`,lifeContext);
 const toastNode={textContent:'',classList:{add(){},remove(){}}};
 const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
 vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_01');`+
-  `globalThis.__hits=[hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree)];`+
+  `globalThis.__hits=[hitResourceTree(testTree)];globalThis.__firstHitToast=document.getElementById('lifeToast').textContent;`+
+  `__hits.push(hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree));`+
   `globalThis.__logs=lifeItemCount('material','oak_log');`+
   `globalThis.__regrown=getTreeState(testTree,Date.now()+LIFE_CONTENT.treeRespawnMs+1);`+
   `const lockedPlot=REGION_WORLDS.sunnyFields.farmPlots[2];GAME_STATE.regionId='sunnyFields';`+
@@ -511,6 +528,9 @@ vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id
   `globalThis.__cropCount=lifeItemCount('crop','carrot');`,lifeContext);
 assert(lifeContext.__hits.join(',')==='true,true,true,true,true,false'&&lifeContext.__logs>=1&&lifeContext.__logs<=3&&
   lifeContext.__regrown.hp===100,'Trees must take five hits, grant one drop, and regrow from wall-clock time');
+assert(lifeContext.__firstHitToast===''&&lifeContext.GAME_STATE.progression.logging.totalXp===10&&
+  lifeContext.feedback.length===1&&lifeContext.feedback[0].skillId==='logging'&&lifeContext.feedback[0].gained===10,
+  'Partial hits must stay quiet and grant no XP; complete cuts must show Logging XP once');
 vm.runInContext(`GAME_STATE.regionId='deepForest';const deepSource=REGION_WORLDS.deepForest.trees[0];`+
   `const deepTree={...deepSource,id:forestTreeId(deepSource.x,deepSource.y,'deepForest'),interactable:true};`+
   `globalThis.__deepFirstHit=hitResourceTree(deepTree);globalThis.__deepFirstHp=getTreeState(deepTree).hp;`+
@@ -521,6 +541,18 @@ assert(lifeContext.__deepFirstHit&&lifeContext.__deepFirstHp===80&&lifeContext._
   lifeContext.__deepHits.join(',')==='true,true,true,true,false'&&lifeContext.__deepFinalHp===0&&
   lifeContext.__deepLogs>=1&&lifeContext.__deepLogs<=3,
   'Deep forest trees must grant wood only on the fifth hit and block duplicate rewards');
+assert(lifeContext.GAME_STATE.progression.logging.totalXp===35&&lifeContext.feedback.length===2&&
+  lifeContext.feedback[1].gained===25,
+  'Deeper trees must award their provisional Logging XP only on completion');
+vm.runInContext(`GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logging',70);GAME_STATE.regionId='oldForest';`+
+  `const levelTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_03');`+
+  `for(let hit=0;hit<4;hit++)hitResourceTree(levelTree);`+
+  `globalThis.__beforeFinalLevel=GAME_STATE.progression.logging.level;`+
+  `globalThis.__finalLevelHit=hitResourceTree(levelTree);`+
+  `globalThis.__afterFinalLevel=GAME_STATE.progression.logging.level;`,lifeContext);
+assert(lifeContext.__beforeFinalLevel===1&&lifeContext.__finalLevelHit&&lifeContext.__afterFinalLevel===2&&
+  lifeContext.feedback.length===3&&lifeContext.feedback[2].before.level===1&&lifeContext.feedback[2].after.level===2,
+  'Logging level-up must happen only on the finishing strike');
 assert(lifeContext.__poorBuy===false&&lifeContext.__plotBought===true&&lifeContext.__doubleBuy===false&&
   lifeContext.GAME_STATE.progression.coins===400&&lifeContext.__planted===true&&lifeContext.__doublePlant===false&&
   lifeContext.__offlinePhase==='READY'&&lifeContext.__harvested===true&&lifeContext.__doubleHarvest===false&&
@@ -529,9 +561,16 @@ assert(lifeContext.__poorBuy===false&&lifeContext.__plotBought===true&&lifeConte
 lifeContext.saveGame=()=>false;
 vm.runInContext(`GAME_STATE.regionId='oldForest';const before=totalLogCount();`+
   `globalThis.__failedHit=hitResourceTree(REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_02'));`+
-  `globalThis.__rollbackOk=totalLogCount()===before&&!GAME_STATE.world.trees.forest_tree_02;`,lifeContext);
+  `globalThis.__rollbackOk=totalLogCount()===before&&!GAME_STATE.world.trees.forest_tree_02;`+
+  `GAME_STATE.world.trees.forest_tree_02={hp:20,choppedAt:null,maxHp:100};`+
+  `const xpBefore=GAME_STATE.progression.logging.totalXp;`+
+  `globalThis.__failedFinalHit=hitResourceTree(REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_02'));`+
+  `globalThis.__finalRollbackOk=GAME_STATE.world.trees.forest_tree_02.hp===20&&totalLogCount()===before&&`+
+  `GAME_STATE.progression.logging.totalXp===xpBefore;`,lifeContext);
 assert(lifeContext.__failedHit===false&&lifeContext.__rollbackOk,
   'Failed life-content save must roll back tree damage and rewards');
+assert(lifeContext.__failedFinalHit===false&&lifeContext.__finalRollbackOk&&lifeContext.feedback.length===3,
+  'A failed final-cut save must roll back wood, Logging XP, tree HP, and XP feedback');
 lifeContext.saveGame=()=>true;
 vm.runInContext(`GAME_STATE.inventory=[{type:'material',id:'log',quantity:2},{type:'material',id:'oak_log',quantity:3},{type:'material',id:'pine_log',quantity:4}];`+
   `globalThis.__woodBefore=totalLogCount();globalThis.__woodSpent=spendLogs(6);globalThis.__woodAfter=totalLogCount();`+

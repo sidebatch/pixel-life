@@ -146,6 +146,15 @@ function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
   return {...progress,equippedRodId};
 }
 
+function normalizeSavedLoggingProgress(rawProgress){
+  const source=rawProgress&&typeof rawProgress==='object'?rawProgress:{};
+  const savedLevel=saveClamp(Math.floor(saveFiniteNumber(source.level,1)),1,LIFE_SKILL_MAX_LEVEL);
+  const savedXp=Math.max(0,Math.floor(saveFiniteNumber(source.xp,0)));
+  const minimumTotal=lifeSkillTotalXpForLevel('logging',savedLevel)+savedXp;
+  const totalXp=Math.max(minimumTotal,Math.floor(saveFiniteNumber(source.totalXp,minimumTotal)));
+  return lifeSkillProgressFromTotal('logging',totalXp);
+}
+
 function normalizeSavedProgressionFlags(rawFlags){
   const source=rawFlags&&typeof rawFlags==='object'?rawFlags:{};
   const sourceRewards=source.fishCollectionRewards&&typeof source.fishCollectionRewards==='object'?
@@ -178,7 +187,8 @@ function createSaveData(){
       progression:{
         coins:GAME_STATE.progression.coins,
         flags:GAME_STATE.progression.flags,
-        fishing:GAME_STATE.progression.fishing
+        fishing:GAME_STATE.progression.fishing,
+        logging:GAME_STATE.progression.logging
       }
     }
   };
@@ -202,6 +212,7 @@ function applySaveData(saveData){
     GAME_STATE.progression.flags,
     GAME_STATE.inventory
   );
+  GAME_STATE.progression.logging=normalizeSavedLoggingProgress(savedState.progression?.logging);
   return true;
 }
 

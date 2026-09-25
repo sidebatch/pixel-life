@@ -46,8 +46,7 @@ function purchaseFishingRod(rodId){
   GAME_STATE.inventory=remaining;
   GAME_STATE.progression.coins-=rod.coins;
   GAME_STATE.progression.fishing={...beforeFishing,
-    purchasedRodIds:[...new Set([...(beforeFishing.purchasedRodIds||[DEFAULT_FISHING_ROD_ID]),rod.id])],
-    equippedRodId:rod.id};
+    purchasedRodIds:[...new Set([...(beforeFishing.purchasedRodIds||[DEFAULT_FISHING_ROD_ID]),rod.id])]};
   if(!saveGame()){
     GAME_STATE.inventory=beforeInventory;
     GAME_STATE.progression.coins=beforeCoins;
@@ -84,7 +83,8 @@ function equipFishingRod(rodId){
     return false;
   }
   fishingGearState.selectedRodId=rod.id;
-  renderFishingGear();
+  renderFishingGearMenuStatus();
+  if(fishingGearState.open) renderFishingGear();
   return true;
 }
 
@@ -104,15 +104,14 @@ function renderFishingGear(){
     return `<button type="button" class="fishingGearCard${active?' equipped':''}${focused?' selected':''}${unlocked?'':' locked'}" data-rod-id="${rod.id}" aria-pressed="${focused}">
       <span class="fishingGearIcon">${rod.icon}</span>
       <span class="fishingGearCopy"><b>${rod.name}</b><small>${unlocked?fishingRodUnlockText(rod):`🔒 ${fishingRodUnlockText(rod)}`}</small><span>${effects}</span></span>
-      <strong>${active?'장착 중':unlocked?'장착':'보기'}</strong>
+      <strong>${active?'장착 중':unlocked?'보유 중':'보기'}</strong>
     </button>`;
   }).join('');
   list.querySelectorAll('[data-rod-id]').forEach(button=>{
     button.addEventListener('click',()=>{
       const rod=FISHING_ROD_BY_ID.get(button.dataset.rodId);
       fishingGearState.selectedRodId=rod.id;
-      if(isFishingRodUnlocked(rod)) equipFishingRod(rod.id);
-      else renderFishingGear();
+      renderFishingGear();
     });
   });
 
@@ -120,7 +119,7 @@ function renderFishingGear(){
   const requirement=selected.requiresMasterReward?'도감 20종을 모으면 받을 수 있어요':
     progress.level<selected.unlockLevel?`낚시 Lv.${selected.unlockLevel}부터 엘리에게서 구매할 수 있어요`:
       '엘리의 상점에서 물고기와 코인으로 구매할 수 있어요';
-  detail.innerHTML=`<span>${equipped.id===selected.id?'현재 장비':isFishingRodUnlocked(selected)?'선택한 장비':'앞으로 사용할 수 있는 장비'}</span><div><i>${selected.icon}</i><div><b>${selected.name}</b><p>${selected.description}</p></div></div><footer>${fishingRodEffectLabels(selected).map(label=>`<em>${label}</em>`).join('')}</footer>${!isFishingRodUnlocked(selected)?`<p class="fishingGearRequirement">${requirement}</p>`:''}`;
+  detail.innerHTML=`<span>${equipped.id===selected.id?'현재 장비':isFishingRodUnlocked(selected)?'보유한 장비':'앞으로 사용할 수 있는 장비'}</span><div><i>${selected.icon}</i><div><b>${selected.name}</b><p>${selected.description}</p></div></div><footer>${fishingRodEffectLabels(selected).map(label=>`<em>${label}</em>`).join('')}</footer><p class="fishingGearRequirement">${isFishingRodUnlocked(selected)?'장착 변경은 가방의 장비 탭에서 할 수 있어요.':requirement}</p>`;
   renderFishingGearMenuStatus();
 }
 

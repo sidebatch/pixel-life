@@ -45,6 +45,17 @@ new Function(scripts);
 const htmlIdList = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
 const htmlIds = new Set(htmlIdList);
 assert(htmlIds.size === htmlIdList.length, 'HTML ids must be unique');
+const freshContext={WORLD_DEFINITION:{tileSize:48,width:64,height:48},
+  document:{getElementById:()=>({width:576,height:1024,getContext:()=>({})})},
+  DEFAULT_FISHING_ROD_ID:'rod.basic',DEFAULT_FORESTRY_AXE_ID:'axe.basic'};
+vm.createContext(freshContext);
+vm.runInContext(`${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
+assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progression.fishing.level===1&&
+  freshContext.__fresh.progression.logging.level===1&&
+  freshContext.__fresh.progression.fishing.equippedRodId==='rod.basic'&&
+  freshContext.__fresh.progression.forestry.axeId==='axe.basic'&&
+  freshContext.__fresh.progression.forestry.ownedAxeIds.join(',')==='axe.basic',
+  'A new browser session must start at zero coins, skill Lv.1, and starter gear');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
 assert((html.match(/role="tab"/g) || []).length === 13, 'Fish dex, inventory, and market tabs must be accessible');
@@ -133,14 +144,18 @@ assert(fishingRods.at(-1).requiresMasterReward&&fishingRods.at(-1).rareWeightBon
 assert(fishingRods.slice(1,4).every(rod=>rod.coins>0&&Object.keys(rod.fishCost).length>0&&
   Object.keys(rod.fishCost).every(id=>fishData.some(fish=>fish.id===id))),
   'Shop rods must have valid fish and coin recipes');
+assert(fishingRods[1].coins===450&&fishingRods[1].fishCost['fish.crucian_carp']===8&&
+  fishingRods[2].coins===1300&&fishingRods[2].fishCost['fish.goldfish']===5&&
+  fishingRods[3].coins===3500&&fishingRods[3].fishCost['fish.catfish']===3,
+  'Rod recipes must keep the harder provisional costs');
 const rodShopContext={
   document:{getElementById:id=>['openFishingGearBtn','fishingGearClose'].includes(id)?{addEventListener(){}}:null},
   GAME_STATE:{inventory:[
-    {type:'fish',id:'fish.crucian_carp',quantity:2,price:25},
-    {type:'fish',id:'fish.koi',quantity:2,price:35},
-    {type:'fish',id:'fish.crucian_carp',quantity:2,price:28},
+    {type:'fish',id:'fish.crucian_carp',quantity:5,price:25},
+    {type:'fish',id:'fish.koi',quantity:6,price:35},
+    {type:'fish',id:'fish.crucian_carp',quantity:4,price:28},
     {type:'material',id:'oak_log',quantity:3}
-  ],progression:{coins:500,fishing:{level:5,equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']}}},
+  ],progression:{coins:2000,fishing:{level:5,equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']}}},
   saveGame:()=>true
 };
 vm.createContext(rodShopContext);
@@ -153,14 +168,18 @@ vm.runInContext(`${read('src/data/fishing-gear-data.js')}\n`+
   `globalThis.__bought=purchaseFishingRod('rod.sturdy');`+
   `globalThis.__after=JSON.parse(JSON.stringify(GAME_STATE));`+
   `globalThis.__repeat=purchaseFishingRod('rod.sturdy');`+
-  `GAME_STATE.progression.fishing.level=10;GAME_STATE.inventory.push({type:'fish',id:'fish.goldfish',quantity:2},{type:'fish',id:'fish.largemouth_bass',quantity:2});`+
+  `globalThis.__manualEquip=equipFishingRod('rod.sturdy');globalThis.__unownedEquip=equipFishingRod('rod.steel');`+
+  `GAME_STATE.progression.fishing.level=10;GAME_STATE.inventory.push({type:'fish',id:'fish.goldfish',quantity:5},{type:'fish',id:'fish.largemouth_bass',quantity:4});`+
   `globalThis.__beforeFailure=JSON.stringify(GAME_STATE);`,rodShopContext);
 assert(rodShopContext.__first==='rod.sturdy'&&!rodShopContext.__notEnough&&rodShopContext.__plan.length===2&&
-  rodShopContext.__bought&&!rodShopContext.__repeat&&rodShopContext.__after.progression.coins===380&&
-  rodShopContext.__after.progression.fishing.equippedRodId==='rod.sturdy'&&
+  rodShopContext.__bought&&!rodShopContext.__repeat&&rodShopContext.__after.progression.coins===1550&&
+  rodShopContext.__after.progression.fishing.equippedRodId==='rod.basic'&&
+  rodShopContext.__after.progression.fishing.purchasedRodIds.includes('rod.sturdy')&&
+  rodShopContext.__manualEquip&&!rodShopContext.__unownedEquip&&
+  rodShopContext.GAME_STATE.progression.fishing.equippedRodId==='rod.sturdy'&&
   rodShopContext.__after.inventory.filter(item=>item.type==='fish').length===1&&
   rodShopContext.__after.inventory.find(item=>item.id==='fish.crucian_carp').quantity===1,
-  'Rod purchase must consume exact fish and coins once, equip the rod, and preserve unrelated items');
+  'Rod purchase must consume exact fish and coins once, preserve the equipped rod, and keep unrelated items');
 rodShopContext.saveGame=()=>false;
 vm.runInContext(`globalThis.__failedPurchase=purchaseFishingRod('rod.steel');globalThis.__afterFailure=JSON.stringify(GAME_STATE);`,rodShopContext);
 assert(!rodShopContext.__failedPurchase&&rodShopContext.__afterFailure===rodShopContext.__beforeFailure,
@@ -466,12 +485,13 @@ vm.runInContext(`GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logg
   `globalThis.__savedLogging=JSON.parse(JSON.stringify(GAME_STATE.progression.logging));`,saveContext);
 assert(saveContext.__savedLogging.level===2&&saveContext.__savedLogging.xp===23&&saveContext.__savedLogging.totalXp===95,
   'Logging XP and level must survive a reload');
-vm.runInContext(`GAME_STATE.progression.forestry={axeId:'axe.iron'};saveGame();`+
+vm.runInContext(`GAME_STATE.progression.forestry={axeId:'axe.iron',ownedAxeIds:['axe.basic','axe.iron']};saveGame();`+
   `GAME_STATE.progression.forestry={axeId:'axe.basic'};loadGame();`+
   `globalThis.__savedAxe=GAME_STATE.progression.forestry.axeId;`+
   `globalThis.__invalidAxe=normalizeSavedForestryProgress({axeId:'axe.unknown'}).axeId;`,saveContext);
-assert(saveContext.__savedAxe==='axe.iron'&&saveContext.__invalidAxe==='axe.basic',
-  'Equipped axe must survive reload and invalid axe ids must use the starter axe');
+assert(saveContext.__savedAxe==='axe.iron'&&saveContext.__invalidAxe==='axe.basic'&&
+  saveContext.GAME_STATE.progression.forestry.ownedAxeIds.includes('axe.iron'),
+  'Owned and equipped axes must survive reload; invalid axe ids use the starter axe');
 vm.runInContext(`${read('src/skill-ui.js')}\nglobalThis.__loggingCard=skillCardMarkup('logging');`,saveContext);
 assert(saveContext.__loggingCard.includes('벌목')&&saveContext.__loggingCard.includes('Lv.2')&&
   saveContext.__loggingCard.includes('role="progressbar"')&&saveContext.__loggingCard.includes('aria-valuenow="27"'),
@@ -506,12 +526,17 @@ vm.runInContext(`GAME_STATE.regionId='deepForest';GAME_STATE.playerLocation={x:2
   `globalThis.__deepSavedRegion=GAME_STATE.regionId;globalThis.__deepSavedTree=GAME_STATE.world.trees.deep_forest_tree_22_39;`,saveContext);
 assert(saveContext.__deepSavedRegion==='deepForest'&&saveContext.__deepSavedTree.hp===40,
   'Deep forest position and partial tree HP must survive a reload');
-saveStorage.set('pixel-life.save','{not-json');
+saveStorage.set('pixel-life.save.v2','{not-json');
 vm.runInContext('globalThis.__invalidJsonSave=loadGame();',saveContext);
 assert(saveContext.__invalidJsonSave===false,'Malformed save JSON must fail safely');
-saveStorage.set('pixel-life.save',JSON.stringify({version:999,state:{}}));
+saveStorage.set('pixel-life.save.v2',JSON.stringify({version:999,state:{}}));
 vm.runInContext('globalThis.__futureVersionSave=loadGame();',saveContext);
 assert(saveContext.__futureVersionSave===false,'Unknown save version must not be applied');
+saveStorage.delete('pixel-life.save.v2');
+saveStorage.set('pixel-life.save',JSON.stringify({version:1,state:{progression:{coins:9999}}}));
+vm.runInContext('globalThis.__oldSessionLoaded=loadGame();',saveContext);
+assert(saveContext.__oldSessionLoaded===false&&saveStorage.has('pixel-life.save'),
+  'Fresh save namespace must ignore but preserve every prior browser save');
 
 const inventoryContext={
   FISH_DATA:[{id:'fish.crucian_carp',name:'붕어'},{id:'fish.goldfish',name:'금붕어'}],
@@ -567,18 +592,20 @@ assert(inventorySummaryNode.textContent==='보유 재료 8개'&&
 inventoryContext.FISHING_RODS=[{id:'rod.basic',name:'기본 낚싯대'}];
 inventoryContext.isFishingRodUnlocked=()=>true;
 inventoryContext.getEquippedFishingRod=()=>inventoryContext.FISHING_RODS[0];
-inventoryContext.getEquippedForestryAxe=()=>({name:'기본 도끼',asset:'basic'});
-inventoryContext.FORESTRY_AXE_URLS={basic:'/axe.png'};
+inventoryContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',asset:'basic'});
+inventoryContext.getOwnedForestryAxes=()=>[{id:'axe.basic',name:'기본 도끼',asset:'basic'},{id:'axe.iron',name:'철 도끼',asset:'iron'}];
+inventoryContext.FORESTRY_AXE_URLS={basic:'/axe.png',iron:'/iron.png'};
 vm.runInContext('renderInventoryEquipment();',inventoryContext);
 assert(inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착 중"')&&
+  inventoryScrollNode.innerHTML.includes('data-equip-type="axe" data-equip-id="axe.iron" aria-label="철 도끼, 1개, 장착하기"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('inventoryRodArt')&&
-  (inventoryScrollNode.innerHTML.match(/class="inventoryItemCount"/g)||[]).length===2,
-  'Equipped tools must use matching item cards with artwork, counts, and equipped state');
+  (inventoryScrollNode.innerHTML.match(/class="inventoryItemCount"/g)||[]).length===3,
+  'Owned tools must use actionable item cards with artwork, counts, and equipped state');
 
 const lifeContext={
-  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic'}}},
+  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic',ownedAxeIds:['axe.basic']}}},
   saveGame:()=>true,
   feedback:[],
   performance:{now:()=>100},
@@ -587,6 +614,9 @@ const lifeContext={
 lifeContext.showSkillXpFeedback=(skillId,before,after,gained)=>lifeContext.feedback.push({skillId,before,after,gained});
 vm.createContext(lifeContext);
 vm.runInContext(`${read('src/assets.js')}\n${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n${read('src/life-content.js')}\n`,lifeContext);
+assert(vm.runInContext(`FORESTRY_AXES[1].coins===900&&FORESTRY_AXES[1].materials.oak_log===20&&
+  FORESTRY_AXES[2].coins===2800&&FORESTRY_AXES[2].materials.maple_log===18`,lifeContext),
+  'Axe recipes must keep the harder provisional costs');
 const toastNode={textContent:'',classList:{add(){},remove(){}}};
 const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
@@ -613,14 +643,17 @@ assert(lifeContext.__firstHitToast===''&&lifeContext.GAME_STATE.progression.logg
 vm.runInContext(`GAME_STATE.regionId='deepForest';const lockedSource=REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='maple');`+
   `const lockedTree={...lockedSource,id:forestTreeId(lockedSource.x,lockedSource.y,'deepForest'),interactable:true};`+
   `globalThis.__lockedHit=hitResourceTree(lockedTree);globalThis.__lockedHp=getTreeState(lockedTree).hp;`+
-  `GAME_STATE.regionId='oldForest';`+
+  `GAME_STATE.regionId='oldForest';GAME_STATE.progression.coins=1200;`+
   `for(const [id,count] of Object.entries(FORESTRY_AXES[1].materials))addLifeItem('material',id,count);`+
-  `globalThis.__ironBought=upgradeForestryAxe('axe.iron');globalThis.__repeatIron=upgradeForestryAxe('axe.iron');`,lifeContext);
+  `globalThis.__ironBought=upgradeForestryAxe('axe.iron');globalThis.__ironBeforeEquip=getEquippedForestryAxe().id;`+
+  `globalThis.__repeatIron=upgradeForestryAxe('axe.iron');`+
+  `globalThis.__nextWhileBasic=nextForestryAxe().id;globalThis.__ironEquipped=equipForestryAxe('axe.iron');`,lifeContext);
 assert(lifeContext.__lockedHit===false&&lifeContext.__lockedHp===120&&lifeContext.__ironBought&&
-  lifeContext.__repeatIron===false&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.iron'&&
-  lifeContext.GAME_STATE.progression.coins===100&&
+  lifeContext.__repeatIron===false&&lifeContext.__ironBeforeEquip==='axe.basic'&&
+  lifeContext.__nextWhileBasic==='axe.steel'&&lifeContext.__ironEquipped&&
+  lifeContext.GAME_STATE.progression.forestry.axeId==='axe.iron'&&lifeContext.GAME_STATE.progression.coins===300&&
   lifeContext.GAME_STATE.inventory.every(item=>item.id!=='pine_log'&&item.id!=='birch_log'),
-  'Basic axe must not damage tier-2 trees, and iron upgrade must use reachable wood only once');
+  'Iron axe purchase must require reachable wood, avoid duplicates, and wait for manual equip');
 vm.runInContext(`GAME_STATE.regionId='deepForest';const deepSource=REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='maple');`+
   `const deepTree={...deepSource,id:forestTreeId(deepSource.x,deepSource.y,'deepForest'),interactable:true};`+
   `globalThis.__deepFirstHit=hitResourceTree(deepTree);globalThis.__deepFirstHp=getTreeState(deepTree).hp;`+
@@ -637,11 +670,13 @@ assert(lifeContext.GAME_STATE.progression.logging.totalXp===35&&lifeContext.feed
 vm.runInContext(`const upperSource=REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='cypress');`+
   `const upperTree={...upperSource,id:forestTreeId(upperSource.x,upperSource.y,'deepForest'),interactable:true};`+
   `globalThis.__upperLocked=hitResourceTree(upperTree);globalThis.__upperLockedHp=getTreeState(upperTree).hp;`+
-  `GAME_STATE.progression.coins=1600;`+
+  `GAME_STATE.progression.coins=3200;`+
   `for(const [id,count] of Object.entries(FORESTRY_AXES[2].materials))addLifeItem('material',id,count);`+
-  `globalThis.__steelBought=upgradeForestryAxe('axe.steel');`+
+  `globalThis.__steelBought=upgradeForestryAxe('axe.steel');globalThis.__steelBeforeEquip=getEquippedForestryAxe().id;`+
+  `globalThis.__steelEquipped=equipForestryAxe('axe.steel');`+
   `globalThis.__upperHits=[hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree)];`,lifeContext);
 assert(lifeContext.__upperLocked===false&&lifeContext.__upperLockedHp===160&&lifeContext.__steelBought&&
+  lifeContext.__steelBeforeEquip==='axe.iron'&&lifeContext.__steelEquipped&&
   lifeContext.__upperHits.join(',')==='true,true,true,true,false'&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel'&&
   lifeContext.GAME_STATE.progression.logging.totalXp===90,
   'Tier-3 tree must require steel axe and grant its own XP on the final hit');
@@ -660,6 +695,9 @@ assert(lifeContext.__poorBuy===false&&lifeContext.__plotBought===true&&lifeConte
   lifeContext.__cropCount>=2&&lifeContext.__cropCount<=3,
   'Farm must reject unaffordable/duplicate actions and allow offline growth and one harvest');
 lifeContext.saveGame=()=>false;
+vm.runInContext(`globalThis.__failedEquip=equipForestryAxe('axe.basic');globalThis.__unownedAxe=equipForestryAxe('axe.unknown');`,lifeContext);
+assert(!lifeContext.__failedEquip&&!lifeContext.__unownedAxe&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel',
+  'Axe equip must reject unowned gear and roll back when saving fails');
 vm.runInContext(`GAME_STATE.regionId='oldForest';const before=totalLogCount();`+
   `globalThis.__failedHit=hitResourceTree(REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_02'));`+
   `globalThis.__rollbackOk=totalLogCount()===before&&!GAME_STATE.world.trees.forest_tree_02;`+
@@ -672,11 +710,11 @@ assert(lifeContext.__failedHit===false&&lifeContext.__rollbackOk,
   'Failed life-content save must roll back tree damage and rewards');
 assert(lifeContext.__failedFinalHit===false&&lifeContext.__finalRollbackOk&&lifeContext.feedback.length===4,
   'A failed final-cut save must roll back wood, Logging XP, tree HP, and XP feedback');
-vm.runInContext(`GAME_STATE.progression.forestry.axeId='axe.basic';GAME_STATE.progression.coins=500;`+
+vm.runInContext(`GAME_STATE.progression.forestry={axeId:'axe.basic',ownedAxeIds:['axe.basic']};GAME_STATE.progression.coins=1200;`+
   `for(const [id,count] of Object.entries(FORESTRY_AXES[1].materials))addLifeItem('material',id,count);`+
   `const beforeWood=Object.fromEntries(Object.keys(FORESTRY_AXES[1].materials).map(id=>[id,lifeItemCount('material',id)]));`+
   `globalThis.__failedAxe=upgradeForestryAxe('axe.iron');`+
-  `globalThis.__axeRollback=GAME_STATE.progression.forestry.axeId==='axe.basic'&&GAME_STATE.progression.coins===500&&`+
+  `globalThis.__axeRollback=GAME_STATE.progression.forestry.axeId==='axe.basic'&&GAME_STATE.progression.forestry.ownedAxeIds.length===1&&GAME_STATE.progression.coins===1200&&`+
   `Object.entries(beforeWood).every(([id,count])=>lifeItemCount('material',id)===count);`,lifeContext);
 assert(lifeContext.__failedAxe===false&&lifeContext.__axeRollback,
   'Failed axe-upgrade save must restore coins, recipe wood, and equipped axe');
@@ -812,18 +850,19 @@ assert(marketContext.__cropRows.includes('data-good-key="crop:carrot"')&&!market
 marketContext.GAME_STATE.inventory.splice(-2);
 vm.runInContext(`marketState.shop='elli';marketState.view='fish';`,marketContext);
 marketContext.GAME_STATE.progression.logging={level:1};
-marketContext.GAME_STATE.progression.forestry={axeId:'axe.basic'};
+marketContext.GAME_STATE.progression.forestry={axeId:'axe.basic',ownedAxeIds:['axe.basic']};
 marketContext.FORESTRY_AXE_URLS={basic:'basic.png',iron:'iron.png',steel:'steel.png'};
 marketContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic'});
-marketContext.nextForestryAxe=()=>({id:'axe.iron',name:'철 도끼',tier:2,damage:40,asset:'iron',coins:300,
-  materials:{oak_log:8,pine_log:6,birch_log:4}});
+marketContext.getOwnedForestryAxes=()=>[{id:'axe.basic'}];
+marketContext.nextForestryAxe=()=>({id:'axe.iron',name:'철 도끼',tier:2,damage:40,asset:'iron',coins:900,
+  materials:{oak_log:20,pine_log:16,birch_log:12}});
 marketContext.lifeItemCount=()=>0;
 marketContext.canUpgradeForestryAxe=()=>false;
 marketContext.skillCardMarkup=()=>'<div>벌목 Lv.1</div>';
 vm.runInContext('renderForestryMarket();',marketContext);
 assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
-  seedMarketNodes.marketList.innerHTML.includes('참나무 통나무 0/8')&&
-  seedMarketNodes.marketList.innerHTML.includes('코인 100/300')&&
+  seedMarketNodes.marketList.innerHTML.includes('참나무 통나무 0/20')&&
+  seedMarketNodes.marketList.innerHTML.includes('코인 100/900')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled')&&
   seedMarketNodes.marketStock.textContent.includes('기본 도끼'),
   'Axe shop must show current gear, real recipe costs, and disable unaffordable upgrades');

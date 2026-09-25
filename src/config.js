@@ -40,11 +40,11 @@ const GAME_STATE = {
   world:{trees:{},plots:{}},
   collections:{fish:{}},
   progression:{
-    coins:1230,
+    coins:0,
     flags:{},
     fishing:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:DEFAULT_FISHING_ROD_ID,purchasedRodIds:[DEFAULT_FISHING_ROD_ID]},
     logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},
-    forestry:{axeId:DEFAULT_FORESTRY_AXE_ID}
+    forestry:{axeId:DEFAULT_FORESTRY_AXE_ID,ownedAxeIds:[DEFAULT_FORESTRY_AXE_ID]}
   },
   activity:{active:null}
 };

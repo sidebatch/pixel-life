@@ -1,10 +1,20 @@
 const lifeUi={plotId:null,open:false,phase:null,toastTimer:null,hit:null,chop:null,lastRefresh:0};
 
 function getEquippedForestryAxe(){
-  return FORESTRY_AXE_BY_ID.get(GAME_STATE.progression.forestry?.axeId)||FORESTRY_AXES[0];
+  const state=GAME_STATE.progression.forestry;
+  return state?.ownedAxeIds?.includes(state.axeId)?
+    FORESTRY_AXE_BY_ID.get(state.axeId)||FORESTRY_AXES[0]:FORESTRY_AXES[0];
 }
 
-function nextForestryAxe(){return FORESTRY_AXES.find(axe=>axe.tier===getEquippedForestryAxe().tier+1)||null;}
+function getOwnedForestryAxes(){
+  const owned=[DEFAULT_FORESTRY_AXE_ID,...(GAME_STATE.progression.forestry?.ownedAxeIds||[])];
+  return FORESTRY_AXES.filter(axe=>owned.includes(axe.id));
+}
+
+function nextForestryAxe(){
+  const tier=Math.max(...getOwnedForestryAxes().map(axe=>axe.tier));
+  return FORESTRY_AXES.find(axe=>axe.tier===tier+1)||null;
+}
 
 function canUpgradeForestryAxe(axe){
   return axe?.id===nextForestryAxe()?.id&&GAME_STATE.progression.coins>=axe.coins&&
@@ -17,9 +27,19 @@ function upgradeForestryAxe(axeId){
   return Boolean(commitLifeChange(()=>{
     GAME_STATE.progression.coins-=axe.coins;
     for(const [id,count] of Object.entries(axe.materials)) removeLifeItem('material',id,count);
-    GAME_STATE.progression.forestry.axeId=axe.id;
+    GAME_STATE.progression.forestry={...GAME_STATE.progression.forestry,
+      ownedAxeIds:[...new Set([...getOwnedForestryAxes().map(owned=>owned.id),axe.id])]};
     return true;
   }));
+}
+
+function equipForestryAxe(axeId){
+  if(!getOwnedForestryAxes().some(axe=>axe.id===axeId)) return false;
+  const previous=GAME_STATE.progression.forestry.axeId;
+  GAME_STATE.progression.forestry.axeId=axeId;
+  if(saveGame()) return true;
+  GAME_STATE.progression.forestry.axeId=previous;
+  return false;
 }
 
 function lifeItemIconMarkup(type,id,fallback=''){

@@ -1,6 +1,8 @@
 const SAVE_CONFIG=Object.freeze({
-  key:'pixel-life.save',
-  version:1
+  // A fresh namespace starts every browser at Lv.1 and zero coins. Keep the
+  // previous key untouched so an accidental reset remains recoverable.
+  key:'pixel-life.save.v2',
+  version:2
 });
 
 const SAVE_FISH_BY_ID=new Map(FISH_DATA.map(fish=>[fish.id,fish]));
@@ -170,8 +172,10 @@ function normalizeSavedLoggingProgress(rawProgress){
 }
 
 function normalizeSavedForestryProgress(rawProgress){
-  const id=rawProgress?.axeId;
-  return {axeId:FORESTRY_AXE_BY_ID.has(id)?id:DEFAULT_FORESTRY_AXE_ID};
+  const ids=Array.isArray(rawProgress?.ownedAxeIds)?rawProgress.ownedAxeIds:[];
+  const ownedAxeIds=[...new Set([DEFAULT_FORESTRY_AXE_ID,...ids])].filter(id=>FORESTRY_AXE_BY_ID.has(id));
+  const axeId=ownedAxeIds.includes(rawProgress?.axeId)?rawProgress.axeId:DEFAULT_FORESTRY_AXE_ID;
+  return {axeId,ownedAxeIds};
 }
 
 function normalizeSavedProgressionFlags(rawFlags){

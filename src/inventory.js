@@ -20,11 +20,13 @@ function groupInventoryFish(items=GAME_STATE.inventory){
     .sort((a,b)=>b.latestIndex-a.latestIndex);
 }
 
-function inventoryItemCardMarkup({name,count,unit='개',art,className='',equipped=false}){
+function inventoryItemCardMarkup({name,count,unit='개',art,className='',equipped=false,equipType='',equipId=''}){
   const quantity=count.toLocaleString();
-  return `<button type="button" class="inventoryItemCard ${className}${equipped?' equipped':''}" aria-label="${name}, ${quantity}${unit}${equipped?', 장착 중':''}">
+  const equipAttributes=equipType?` data-equip-type="${equipType}" data-equip-id="${equipId}"`:'';
+  return `<button type="button" class="inventoryItemCard ${className}${equipped?' equipped':''}"${equipAttributes} aria-label="${name}, ${quantity}${unit}${equipped?', 장착 중':equipType?', 장착하기':''}">
     <span class="inventoryItemArt">${art}<strong class="inventoryItemCount" aria-hidden="true">${quantity}</strong></span>
     ${equipped?'<span class="inventoryItemEquipped" aria-hidden="true">장착 중</span>':''}
+    ${equipType&&!equipped?'<span class="inventoryEquipPrompt" aria-hidden="true">장착</span>':''}
     <span class="inventoryItemName" aria-hidden="true">${name}</span>
   </button>`;
 }
@@ -51,16 +53,18 @@ function inventoryRodArt(){
 
 function renderInventoryEquipment(){
   const rods=FISHING_RODS.filter(rod=>isFishingRodUnlocked(rod));
-  const equipped=getEquippedFishingRod();
-  const axe=getEquippedForestryAxe();
-  document.getElementById('inventorySummary').textContent=`현재 ${equipped.name} · ${axe.name}`;
+  const equippedRod=getEquippedFishingRod();
+  const equippedAxe=getEquippedForestryAxe();
+  document.getElementById('inventorySummary').textContent=`현재 ${equippedRod.name} · ${equippedAxe.name}`;
   const equipment=[
-    inventoryItemCardMarkup({name:axe.name,count:1,art:`<img src="${FORESTRY_AXE_URLS[axe.asset]}" alt="">`,className:'inventoryEquipmentCard inventoryAxeCard',equipped:true}),
+    ...getOwnedForestryAxes().map(axe=>inventoryItemCardMarkup({name:axe.name,count:1,
+      art:`<img src="${FORESTRY_AXE_URLS[axe.asset]}" alt="">`,className:'inventoryEquipmentCard inventoryAxeCard',
+      equipped:axe.id===equippedAxe.id,equipType:'axe',equipId:axe.id})),
     ...rods.map(rod=>inventoryItemCardMarkup({name:rod.name,count:1,art:inventoryRodArt(),
-      className:`inventoryEquipmentCard rod-${rod.id.slice(4)}`,equipped:rod.id===equipped.id}))
+      className:`inventoryEquipmentCard rod-${rod.id.slice(4)}`,equipped:rod.id===equippedRod.id,equipType:'rod',equipId:rod.id}))
   ];
   document.getElementById('inventoryScroll').innerHTML=`<div class="inventoryItemGrid">${equipment.join('')}</div>
-    <p class="inventoryHint">낚싯대 변경은 메뉴에서, 도끼 강화는 엘리의 상점에서 할 수 있어요.</p>`;
+    <p class="inventoryHint">장착할 도끼나 낚싯대를 눌러 주세요. 도끼는 준에게, 낚싯대는 엘리에게서 구매할 수 있어요.</p>`;
 }
 
 function renderInventorySupplies(){
@@ -122,6 +126,16 @@ if(typeof document!=='undefined'){
   document.getElementById('inventoryScroll').addEventListener('click',event=>{
     const card=event.target.closest('.inventoryItemCard');
     if(!card) return;
+    if(card.dataset.equipType){
+      if(card.classList.contains('equipped')) return;
+      const success=card.dataset.equipType==='rod'?equipFishingRod(card.dataset.equipId):
+        equipForestryAxe(card.dataset.equipId);
+      if(success){
+        renderInventoryEquipment();
+        document.querySelector(`[data-equip-id="${card.dataset.equipId}"]`)?.focus();
+      }else document.getElementById('inventorySummary').textContent='장착 상태를 저장하지 못했어요. 다시 시도해 주세요.';
+      return;
+    }
     const show=!card.classList.contains('showName');
     document.querySelectorAll('.inventoryItemCard.showName').forEach(other=>other.classList.remove('showName'));
     card.classList.toggle('showName',show);

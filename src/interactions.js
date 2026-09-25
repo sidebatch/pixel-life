@@ -66,7 +66,6 @@ function pressB(){
   else if(dialogOpen) closeDialog();
   else if(typeof isFishDexDetailOpen==='function'&&isFishDexDetailOpen()) closeFishDexDetail();
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
-  else if(typeof isFishingGearOpen==='function'&&isFishingGearOpen()) closeFishingGear();
   else if(typeof isInventoryOpen==='function'&&isInventoryOpen()) closeInventory();
   else if(typeof isMarketOpen==='function'&&isMarketOpen()) closeMarket();
   else if(typeof isFarmPlotOpen==='function'&&isFarmPlotOpen()) closeFarmPlot();
@@ -107,11 +106,6 @@ window.addEventListener('popstate',()=>{
     return;
   }
   if(isFishDexOpen()) closeFishDex({fromHistory:true});
-  if(layer==='fishing-gear'){
-    if(!isFishingGearOpen()) openFishingGear({fromHistory:true});
-    return;
-  }
-  if(isFishingGearOpen()) closeFishingGear({fromHistory:true});
   if(layer==='inventory'){
     if(!isInventoryOpen()) openInventory({fromHistory:true});
     return;
@@ -140,6 +134,9 @@ function toggleMenu(force){
   panel.setAttribute('aria-hidden',String(!menuOpen));
   if(menuOpen){inputs.up=inputs.down=inputs.left=inputs.right=false;}
 }
+
+document.getElementById('menuBagIcon').src=MENU_ICON_URLS.bag;
+document.getElementById('menuFishDexIcon').src=MENU_ICON_URLS.fishDex;
 
 function clearMovement(){for(const k of Object.keys(inputs)) inputs[k]=false; activeDir=null;clearPlayerInputBuffer?.();}
 const joystick=document.getElementById('joystick');

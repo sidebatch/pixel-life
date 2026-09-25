@@ -14,6 +14,11 @@ const ASSET_URLS = Object.freeze({
   reeds: 'assets/world/reeds.png'
 });
 
+const MENU_ICON_URLS = Object.freeze({
+  bag:'assets/ui/menu/bag.png',
+  fishDex:'assets/ui/menu/fish-dex.png'
+});
+
 const FOREST_TREE_URLS = Object.freeze({
   oak:'assets/forestry/trees/oak.png',
   pine:'assets/forestry/trees/pine.png',

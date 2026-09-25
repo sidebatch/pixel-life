@@ -65,14 +65,15 @@ assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   read('src/market.js').includes("getElementById('marketExitBtn').addEventListener('click',closeMarket)"),
   'Market exit button must use the existing close behavior');
 const menuMarkup=html.match(/<div id="menuPanel"[\s\S]*?(?=<div id="fishDexPanel")/)?.[0]||'';
-assert((menuMarkup.match(/class="menuCard(?: menuCardFeatured)?"/g)||[]).length===3&&
-  ['openInventoryBtn','openFishingGearBtn','openFishDexBtn','menuDismiss','closeMenu'].every(id=>menuMarkup.includes(`id="${id}"`))&&
+assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
+  ['openInventoryBtn','openFishDexBtn','menuBagIcon','menuFishDexIcon','menuDismiss','closeMenu'].every(id=>menuMarkup.includes(`id="${id}"`))&&
+  !menuMarkup.includes('openFishingGearBtn')&&!html.includes('id="fishingGearPanel"')&&
   !menuMarkup.includes('디펜스')&&!menuMarkup.includes('마을 북쪽 숲')&&
-  (menuMarkup.match(/<svg /g)||[]).length===3,
-  'World menu must contain only live destinations with illustrated icons and working close controls');
+  (menuMarkup.match(/<img /g)||[]).length===2&&!(menuMarkup.match(/<small>/g)||[]).length,
+  'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 131, `Expected 131 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 133, `Expected 133 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -95,6 +96,11 @@ for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/fishing
   const bytes=fs.readFileSync(path.join(root,assetPath));
   assert(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))&&bytes[25]===6,
     `Fishing rod sprite must be a transparent PNG: ${assetPath}`);
+}
+for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/ui/menu/'))){
+  const bytes=fs.readFileSync(path.join(root,assetPath));
+  assert(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10]))&&bytes[25]===6,
+    `Menu icon must be a transparent PNG: ${assetPath}`);
 }
 const cropCatalog=new Function(`${read('src/assets.js')}\n${read('src/data/life-content-data.js')}\nreturn {crops:LIFE_CONTENT.crops,items:LIFE_ITEM_URLS,young:YOUNG_CROP_URLS,mature:MATURE_CROP_URLS};`)();
 assert(cropCatalog.crops.length===10&&new Set(cropCatalog.crops.map(crop=>crop.id)).size===10&&
@@ -158,7 +164,6 @@ assert(fishingRods[1].coins===1800&&fishingRods[1].fishCost['fish.crucian_carp']
 assert(fishingRods.every(rod=>assetPaths.includes(`assets/fishing/rods/${rod.asset}.png`)),
   'Every rod must have its own pixel-art sprite');
 const rodShopContext={
-  document:{getElementById:id=>['openFishingGearBtn','fishingGearClose'].includes(id)?{addEventListener(){}}:null},
   GAME_STATE:{inventory:[
     {type:'fish',id:'fish.crucian_carp',quantity:13,price:25},
     {type:'fish',id:'fish.koi',quantity:20,price:35},
@@ -911,10 +916,12 @@ vm.runInContext('renderForestryMarket();',marketContext);
 assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.steel"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.master"')&&
-  (seedMarketNodes.marketList.innerHTML.match(/class="marketAxeCard/g)||[]).length===4&&
-  seedMarketNodes.marketList.innerHTML.includes('이전 도끼 구매 후 이용 가능')&&
-  seedMarketNodes.marketList.innerHTML.includes('참나무 0/60')&&
-  seedMarketNodes.marketList.innerHTML.includes('코인 100/3,600')&&
+  (seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===4&&
+  seedMarketNodes.marketList.innerHTML.includes('이전 도끼를 먼저 구매해 주세요')&&
+  seedMarketNodes.marketList.innerHTML.includes('참나무 ×60')&&
+  seedMarketNodes.marketList.innerHTML.includes('코인 ×3,600')&&
+  seedMarketNodes.marketList.innerHTML.includes('부족: 참나무 60개')&&
+  !seedMarketNodes.marketList.innerHTML.includes('0/60')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled')&&
   seedMarketNodes.marketStock.textContent.includes('기본 도끼'),
   'Axe shop must show all four tiers and their recipes while disabling unaffordable or future upgrades');
@@ -926,8 +933,26 @@ assert(!seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.steel"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.master"')&&
   seedMarketNodes.marketList.innerHTML.includes('보유 중')&&
-  seedMarketNodes.marketList.innerHTML.includes('이전 도끼 구매 후 이용 가능'),
+  seedMarketNodes.marketList.innerHTML.includes('이전 도끼를 먼저 구매해 주세요'),
   'Buying one axe must leave later tiers visible and make only the next tier eligible');
+marketContext.__allFishData=fishData;
+vm.runInContext(`for(const fish of __allFishData) MARKET_FISH_BY_ID.set(fish.id,fish);`,marketContext);
+marketContext.FISHING_ROD_URLS=Object.fromEntries(fishingRods.map(rod=>[rod.asset,`${rod.asset}.png`]));
+marketContext.GAME_STATE.progression.fishing={level:1,equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']};
+marketContext.getEquippedFishingRod=()=>fishingRods[0];
+marketContext.isFishingRodUnlocked=(rod)=>rod?.id==='rod.basic'||marketContext.GAME_STATE.progression.fishing.purchasedRodIds.includes(rod?.id);
+marketContext.canPurchaseFishingRod=()=>false;
+vm.runInContext(`${read('src/data/fishing-gear-data.js')}\n${read('src/fishing-gear.js')}\nrenderRodMarket();`,marketContext);
+assert((seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===6&&
+  ['rod.sturdy','rod.steel','rod.expert','rod.deepwater'].every(id=>seedMarketNodes.marketList.innerHTML.includes(`data-rod-id="${id}"`))&&
+  seedMarketNodes.marketList.innerHTML.includes('강태공의 낚싯대')&&
+  seedMarketNodes.marketList.innerHTML.includes('도감 보상')&&
+  seedMarketNodes.marketList.innerHTML.includes('붕어 ×25')&&
+  seedMarketNodes.marketList.innerHTML.includes('코인 ×1,800')&&
+  !seedMarketNodes.marketList.innerHTML.includes('0/25')&&
+  seedMarketNodes.marketList.innerHTML.includes('낚시 Lv.5 필요')&&
+  seedMarketNodes.marketList.innerHTML.includes('disabled'),
+  'Ellie must show all rods and concise expandable recipes, including the collection reward and locked tiers');
 assert(marketContext.__sale.count===2&&marketContext.__sale.total===65&&
   marketContext.__sale.inventory.length===3&&
   marketContext.__sale.inventory[0].id==='fish.goldfish'&&

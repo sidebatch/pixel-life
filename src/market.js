@@ -170,6 +170,17 @@ function renderSeedMarket(){
   list.scrollTop=scrollTop;
 }
 
+function equipmentCostChip(label,held,needed){
+  return `<span class="${held>=needed?'ready':'missing'}">${label} ×${needed.toLocaleString()}</span>`;
+}
+
+function equipmentCardMarkup({id,asset,name,effect,status,details,costs='',note='',action='',active=false,open=false}){
+  return `<details class="marketEquipmentCard${active?' equipped':''}" data-equipment-id="${id}" ${open?'open':''}>
+    <summary><img src="${asset}" alt=""><span class="marketEquipmentCopy"><b>${name}</b><small>${effect}</small></span><span class="marketEquipmentStatus">${status}</span></summary>
+    <div class="marketEquipmentDetail"><p>${details}</p>${costs?`<div class="marketEquipmentCosts">${costs}</div>`:''}${note?`<p class="marketEquipmentNote">${note}</p>`:''}${action}</div>
+  </details>`;
+}
+
 function renderForestryMarket(){
   const equipped=getEquippedForestryAxe(),next=nextForestryAxe();
   const ownedIds=new Set(getOwnedForestryAxes().map(axe=>axe.id));
@@ -177,15 +188,22 @@ function renderForestryMarket(){
   const catalog=FORESTRY_AXES.map(axe=>{
     const owned=ownedIds.has(axe.id),active=equipped.id===axe.id;
     const available=next?.id===axe.id;
-    const status=active?'장착 중':owned?'보유 중':available?'다음 도끼':'이전 도끼 구매 후';
-    const details=axe.tier<=3?`${axe.tier}단계 나무 벌목 가능`:'현재 숲의 나무를 더 빠르게 벌목';
-    const materials=owned?'':`<div class="marketAxeMaterials">${Object.entries(axe.materials).map(([id,count])=>{
-      const name=FOREST_WOOD[id.slice(0,-4)];
-      const held=lifeItemCount('material',id);
-      return `<span class="${held>=count?'ready':'missing'}">${name} ${held}/${count}</span>`;
-    }).join('')}<span class="${GAME_STATE.progression.coins>=axe.coins?'ready':'missing'}">코인 ${GAME_STATE.progression.coins.toLocaleString()}/${axe.coins.toLocaleString()}</span></div>`;
-    const action=owned?'':`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${available?`${axe.name} 구매`:'이전 도끼 구매 후 이용 가능'}</button>`;
-    return `<div class="marketAxeCard${active?' equipped':''}${!owned&&!available?' locked':''}"><img src="${FORESTRY_AXE_URLS[axe.asset]}" alt=""><div><b>${axe.name}</b><small>${status} · 나무 피해 ${axe.damage} · ${details}</small>${materials}${action}</div></div>`;
+    const missing=Object.entries(axe.materials).flatMap(([id,count])=>{
+      const short=count-lifeItemCount('material',id);
+      return short>0?[`${FOREST_WOOD[id.slice(0,-4)]} ${short}개`]:[];
+    });
+    if(GAME_STATE.progression.coins<axe.coins) missing.push(`코인 ${(axe.coins-GAME_STATE.progression.coins).toLocaleString()}`);
+    const costs=owned?'':Object.entries(axe.materials).map(([id,count])=>
+      equipmentCostChip(FOREST_WOOD[id.slice(0,-4)],lifeItemCount('material',id),count)).join('')+
+      equipmentCostChip('코인',GAME_STATE.progression.coins,axe.coins);
+    const note=owned?'가방의 장비 탭에서 장착할 수 있어요.':
+      !available?'이전 도끼를 먼저 구매해 주세요.':missing.length?`부족: ${missing.join(' · ')}`:'구매할 수 있어요.';
+    return equipmentCardMarkup({id:axe.id,asset:FORESTRY_AXE_URLS[axe.asset],name:axe.name,
+      effect:`나무 피해 ${axe.damage} · ${axe.tier<=3?`${axe.tier}단계 나무 벌목`:'벌목 속도 향상'}`,
+      status:active?'장착 중':owned?'보유 중':available?'다음 도끼':'순서대로 구매',
+      details:axe.tier<=3?`${axe.tier}단계 나무까지 벨 수 있어요.`:'현재 숲의 나무를 더 빠르게 벨 수 있어요.',
+      costs,note,active,open:available,
+      action:owned?'':`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${axe.name} 구매</button>`});
   }).join('');
   document.getElementById('marketList').innerHTML=`${skillCardMarkup('logging')}${catalog}`;
 }
@@ -193,15 +211,30 @@ function renderForestryMarket(){
 function renderRodMarket(){
   const equipped=getEquippedFishingRod(),next=nextFishingRodForSale();
   document.getElementById('marketStock').textContent=`현재 ${equipped.name} · 낚시 Lv.${GAME_STATE.progression.fishing.level}`;
-  const current=`<div class="marketAxeCard equipped"><span class="marketRodIcon" aria-hidden="true"><img src="${FISHING_ROD_URLS[equipped.asset]}" alt=""></span><div><b>${equipped.name}</b><small>현재 장착 중</small></div></div>`;
-  const upgrade=next?`<div class="marketAxeCard"><span class="marketRodIcon" aria-hidden="true"><img src="${FISHING_ROD_URLS[next.asset]}" alt=""></span><div><b>${next.name}</b><small>낚시 Lv.${next.unlockLevel}부터 구매 · ${next.description}</small>
-    <div class="marketAxeMaterials"><span class="${GAME_STATE.progression.fishing.level>=next.unlockLevel?'ready':'missing'}">낚시 레벨 ${GAME_STATE.progression.fishing.level}/${next.unlockLevel}</span>${next.requiresMasterRod?`<span class="${isFishingRodUnlocked(FISHING_ROD_BY_ID.get('rod.master_angler'))?'ready':'missing'}">도감 20종 완성</span>`:''}${Object.entries(next.fishCost).map(([id,count])=>{
-      const fish=MARKET_FISH_BY_ID.get(id),held=lifeItemCount('fish',id);
-      return `<span class="${held>=count?'ready':'missing'}">${fish.name} ${held}/${count}마리</span>`;
-    }).join('')}<span class="${GAME_STATE.progression.coins>=next.coins?'ready':'missing'}">코인 ${GAME_STATE.progression.coins.toLocaleString()}/${next.coins.toLocaleString()}</span></div>
-    <button type="button" class="marketAxeUpgrade" data-rod-id="${next.id}" ${canPurchaseFishingRod(next)?'':'disabled'}>${next.name} 구매</button></div></div>`:
-    '<div class="marketEmpty"><span>🎣</span><b>구매할 낚싯대가 없어요</b><p>보유한 낚싯대는 가방에서 바꿔 장착할 수 있어요.</p></div>';
-  document.getElementById('marketList').innerHTML=`${skillCardMarkup('fishing')}${current}${upgrade}`;
+  const catalog=FISHING_RODS.map(rod=>{
+    const owned=isFishingRodUnlocked(rod),active=equipped.id===rod.id,available=next?.id===rod.id;
+    const reward=rod.requiresMasterReward;
+    const levelReady=reward||GAME_STATE.progression.fishing.level>=rod.unlockLevel;
+    const masterReady=!rod.requiresMasterRod||isFishingRodUnlocked(FISHING_ROD_BY_ID.get('rod.master_angler'));
+    const missing=[];
+    if(!levelReady) missing.push(`낚시 Lv.${rod.unlockLevel} 필요`);
+    if(!masterReady) missing.push('도감 20종 완성 필요');
+    for(const [id,count] of Object.entries(rod.fishCost||{})){
+      const short=count-lifeItemCount('fish',id);
+      if(short>0) missing.push(`${MARKET_FISH_BY_ID.get(id).name} ${short}마리`);
+    }
+    if(rod.coins&&GAME_STATE.progression.coins<rod.coins) missing.push(`코인 ${(rod.coins-GAME_STATE.progression.coins).toLocaleString()}`);
+    const costs=owned||reward?'':Object.entries(rod.fishCost).map(([id,count])=>
+      equipmentCostChip(MARKET_FISH_BY_ID.get(id).name,lifeItemCount('fish',id),count)).join('')+
+      equipmentCostChip('코인',GAME_STATE.progression.coins,rod.coins);
+    const note=owned?'가방의 장비 탭에서 장착할 수 있어요.':reward?'물고기 도감 20종을 완성하면 받아요.':
+      !available?'이전 낚싯대를 먼저 구매해 주세요.':missing.length?`부족: ${missing.join(' · ')}`:'구매할 수 있어요.';
+    return equipmentCardMarkup({id:rod.id,asset:FISHING_ROD_URLS[rod.asset],name:rod.name,
+      effect:fishingRodEffectLabels(rod)[0],status:active?'장착 중':owned?'보유 중':reward?'도감 보상':available?'다음 낚싯대':'순서대로 구매',
+      details:`${rod.description} ${fishingRodEffectLabels(rod).join(' · ')}`,costs,note,active,open:available,
+      action:owned||reward?'':`<button type="button" class="marketAxeUpgrade" data-rod-id="${rod.id}" ${canPurchaseFishingRod(rod)?'':'disabled'}>${rod.name} 구매</button>`});
+  }).join('');
+  document.getElementById('marketList').innerHTML=`${skillCardMarkup('fishing')}${catalog}`;
 }
 
 function buyMarketSeed(cropId){

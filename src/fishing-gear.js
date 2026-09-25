@@ -6,6 +6,7 @@ function fishingRodUnlockText(rod){
   if(rod.requiresMasterReward) return '도감 20종 보상';
   if(rod.unlockLevel<=1) return '기본 지급';
   if(isFishingRodUnlocked(rod)) return '보유 중';
+  if(rod.requiresMasterRod&&!isFishingRodUnlocked(FISHING_ROD_BY_ID.get('rod.master_angler'))) return '도감 20종 완성 후 구매';
   return GAME_STATE.progression.fishing.level>=rod.unlockLevel?'엘리에게서 구매 가능':`낚시 Lv.${rod.unlockLevel}부터 엘리에게서 구매`;
 }
 
@@ -31,6 +32,7 @@ function planFishingRodTrade(rod,inventory=GAME_STATE.inventory){
 function canPurchaseFishingRod(rod,state=GAME_STATE){
   return rod?.id===nextFishingRodForSale(state)?.id&&
     state.progression.fishing.level>=rod.unlockLevel&&
+    (!rod.requiresMasterRod||isFishingRodUnlocked(FISHING_ROD_BY_ID.get('rod.master_angler'),state))&&
     state.progression.coins>=rod.coins&&
     Boolean(planFishingRodTrade(rod,state.inventory));
 }
@@ -102,7 +104,7 @@ function renderFishingGear(){
     const focused=selected.id===rod.id;
     const effects=fishingRodEffectLabels(rod).map(label=>`<em>${label}</em>`).join('');
     return `<button type="button" class="fishingGearCard${active?' equipped':''}${focused?' selected':''}${unlocked?'':' locked'}" data-rod-id="${rod.id}" aria-pressed="${focused}">
-      <span class="fishingGearIcon">${rod.icon}</span>
+      <span class="fishingGearIcon"><img src="${FISHING_ROD_URLS[rod.asset]}" alt=""></span>
       <span class="fishingGearCopy"><b>${rod.name}</b><small>${unlocked?fishingRodUnlockText(rod):`🔒 ${fishingRodUnlockText(rod)}`}</small><span>${effects}</span></span>
       <strong>${active?'장착 중':unlocked?'보유 중':'보기'}</strong>
     </button>`;
@@ -118,8 +120,9 @@ function renderFishingGear(){
   const detail=document.getElementById('fishingGearDetail');
   const requirement=selected.requiresMasterReward?'도감 20종을 모으면 받을 수 있어요':
     progress.level<selected.unlockLevel?`낚시 Lv.${selected.unlockLevel}부터 엘리에게서 구매할 수 있어요`:
+    selected.requiresMasterRod&&!isFishingRodUnlocked(FISHING_ROD_BY_ID.get('rod.master_angler'))?'도감 20종을 완성한 뒤 엘리에게서 구매할 수 있어요':
       '엘리의 상점에서 물고기와 코인으로 구매할 수 있어요';
-  detail.innerHTML=`<span>${equipped.id===selected.id?'현재 장비':isFishingRodUnlocked(selected)?'보유한 장비':'앞으로 사용할 수 있는 장비'}</span><div><i>${selected.icon}</i><div><b>${selected.name}</b><p>${selected.description}</p></div></div><footer>${fishingRodEffectLabels(selected).map(label=>`<em>${label}</em>`).join('')}</footer><p class="fishingGearRequirement">${isFishingRodUnlocked(selected)?'장착 변경은 가방의 장비 탭에서 할 수 있어요.':requirement}</p>`;
+  detail.innerHTML=`<span>${equipped.id===selected.id?'현재 장비':isFishingRodUnlocked(selected)?'보유한 장비':'앞으로 사용할 수 있는 장비'}</span><div><i><img src="${FISHING_ROD_URLS[selected.asset]}" alt=""></i><div><b>${selected.name}</b><p>${selected.description}</p></div></div><footer>${fishingRodEffectLabels(selected).map(label=>`<em>${label}</em>`).join('')}</footer><p class="fishingGearRequirement">${isFishingRodUnlocked(selected)?'장착 변경은 가방의 장비 탭에서 할 수 있어요.':requirement}</p>`;
   renderFishingGearMenuStatus();
 }
 

@@ -150,7 +150,7 @@ function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
       const rod=FISHING_ROD_BY_ID.get(id);
       return rod&&!rod.requiresMasterReward&&(rod.unlockLevel||1)<=progress.level;
     }):
-    FISHING_RODS.filter(rod=>!rod.requiresMasterReward&&(rod.unlockLevel||1)<=progress.level).map(rod=>rod.id);
+    FISHING_RODS.filter(rod=>!rod.requiresMasterReward&&!rod.requiresMasterRod&&(rod.unlockLevel||1)<=progress.level).map(rod=>rod.id);
   const requestedRod=FISHING_ROD_BY_ID.get(source.equippedRodId);
   const masterUnlocked=flags.masterRod===true||inventory.some(item=>
     item.type==='equipment'&&item.id==='rod.master_angler'

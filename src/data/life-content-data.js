@@ -40,8 +40,9 @@ const FORESTRY_TREES=Object.freeze({
 });
 const FORESTRY_AXES=Object.freeze([
   Object.freeze({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic',coins:0,materials:Object.freeze({})}),
-  Object.freeze({id:'axe.iron',name:'철 도끼',tier:2,damage:40,asset:'iron',coins:900,materials:Object.freeze({oak_log:20,pine_log:16,birch_log:12})}),
-  Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:50,asset:'steel',coins:2800,materials:Object.freeze({maple_log:18,spruce_log:14,willow_log:12})})
+  Object.freeze({id:'axe.iron',name:'철 도끼',tier:2,damage:40,asset:'iron',coins:3600,materials:Object.freeze({oak_log:60,pine_log:48,birch_log:36})}),
+  Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:50,asset:'steel',coins:11200,materials:Object.freeze({maple_log:54,spruce_log:42,willow_log:36})}),
+  Object.freeze({id:'axe.master',name:'명장의 도끼',tier:4,damage:80,asset:'master',coins:30000,materials:Object.freeze({cypress_log:60,broadleaf_log:50})})
 ]);
 const FORESTRY_AXE_BY_ID=new Map(FORESTRY_AXES.map(axe=>[axe.id,axe]));
 const DEFAULT_FORESTRY_AXE_ID='axe.basic';

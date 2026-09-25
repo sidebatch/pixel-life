@@ -16,6 +16,25 @@ const GAME_SOUND_URLS=Object.freeze({
 const gameSoundPlayers=new Map();
 const gameSoundBuffers=new Map();
 const gameSoundSources=new Map();
+const gameSoundLevels=new Map();
+
+function balancedGameSoundLevel(buffer){
+  if(typeof buffer?.getChannelData!=='function') return .65;
+  let sum=0,count=0,peak=0;
+  for(let channel=0;channel<buffer.numberOfChannels;channel++){
+    const samples=buffer.getChannelData(channel);
+    for(let index=0;index<samples.length;index+=64){
+      const amplitude=Math.abs(samples[index]);
+      if(amplitude<.01) continue;
+      sum+=amplitude*amplitude;
+      count++;
+      peak=Math.max(peak,amplitude);
+    }
+  }
+  if(!count) return .65;
+  const activeRms=Math.sqrt(sum/count);
+  return Math.max(.35,Math.min(1.25,.12/activeRms,.85/peak));
+}
 
 function getGameAudioContext(){
   const AudioContextClass=typeof window!=='undefined'&&(window.AudioContext||window.webkitAudioContext);
@@ -30,7 +49,9 @@ async function preloadGameSound(kind,context){
   try{
     const response=await fetch(GAME_SOUND_URLS[kind]);
     if(!response.ok) return;
-    gameSoundBuffers.set(kind,await context.decodeAudioData(await response.arrayBuffer()));
+    const buffer=await context.decodeAudioData(await response.arrayBuffer());
+    gameSoundBuffers.set(kind,buffer);
+    gameSoundLevels.set(kind,balancedGameSoundLevel(buffer));
   }catch(_){/* The HTMLAudioElement fallback remains available. */}
 }
 
@@ -87,7 +108,10 @@ function playGameSample(kind){
     if(context&&buffer){
       const source=context.createBufferSource();
       source.buffer=buffer;
-      source.connect(context.destination);
+      const gain=context.createGain();
+      gain.gain.value=gameSoundLevels.get(kind)||.65;
+      source.connect(gain);
+      gain.connect(context.destination);
       source.onended=()=>{
         if(gameSoundSources.get(kind)===source) gameSoundSources.delete(kind);
       };
@@ -98,6 +122,7 @@ function playGameSample(kind){
     }
     const player=getGameSoundPlayer(kind);
     if(!player) return false;
+    player.volume=Math.min(1,gameSoundLevels.get(kind)||.65);
     player.pause();
     player.currentTime=0;
     player.play()?.catch(()=>{});

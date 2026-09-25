@@ -37,7 +37,16 @@ const FOREST_STUMP_URLS = Object.freeze({
 const FORESTRY_AXE_URLS = Object.freeze({
   basic:'assets/forestry/axes/basic.png',
   iron:'assets/forestry/axes/iron.png',
-  steel:'assets/forestry/axes/steel.png'
+  steel:'assets/forestry/axes/steel.png',
+  master:'assets/forestry/axes/master.png'
+});
+const FISHING_ROD_URLS = Object.freeze({
+  basic:'assets/fishing/rods/basic.png',
+  sturdy:'assets/fishing/rods/sturdy.png',
+  steel:'assets/fishing/rods/steel.png',
+  expert:'assets/fishing/rods/expert.png',
+  deepwater:'assets/fishing/rods/deepwater.png',
+  master_angler:'assets/fishing/rods/master_angler.png'
 });
 const FORESTRY_CHOP_PLAYER_URL='assets/forestry/chop/player-v2.png';
 const LIFE_ITEM_URLS = Object.freeze({

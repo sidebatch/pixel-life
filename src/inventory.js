@@ -47,10 +47,6 @@ function renderInventoryFish(){
   })).join('')}</div>`;
 }
 
-function inventoryRodArt(){
-  return '<svg class="inventoryRodArt" viewBox="0 0 64 64" fill="none" aria-hidden="true"><path d="M12 50 48 9" stroke="currentColor" stroke-width="5" stroke-linecap="round"/><path d="M46 9c7 3 10 9 10 18v13c0 5-2 8-6 8-3 0-5-2-5-5" stroke="#c5eee1" stroke-width="2.5" stroke-linecap="round"/><circle cx="26" cy="34" r="7" fill="#d0a066" stroke="#fff2c3" stroke-width="2"/><circle cx="26" cy="34" r="2" fill="#17463f"/></svg>';
-}
-
 function renderInventoryEquipment(){
   const rods=FISHING_RODS.filter(rod=>isFishingRodUnlocked(rod));
   const equippedRod=getEquippedFishingRod();
@@ -60,7 +56,7 @@ function renderInventoryEquipment(){
     ...getOwnedForestryAxes().map(axe=>inventoryItemCardMarkup({name:axe.name,count:1,
       art:`<img src="${FORESTRY_AXE_URLS[axe.asset]}" alt="">`,className:'inventoryEquipmentCard inventoryAxeCard',
       equipped:axe.id===equippedAxe.id,equipType:'axe',equipId:axe.id})),
-    ...rods.map(rod=>inventoryItemCardMarkup({name:rod.name,count:1,art:inventoryRodArt(),
+    ...rods.map(rod=>inventoryItemCardMarkup({name:rod.name,count:1,art:`<img src="${FISHING_ROD_URLS[rod.asset]}" alt="">`,
       className:`inventoryEquipmentCard rod-${rod.id.slice(4)}`,equipped:rod.id===equippedRod.id,equipType:'rod',equipId:rod.id}))
   ];
   document.getElementById('inventoryScroll').innerHTML=`<div class="inventoryItemGrid">${equipment.join('')}</div>

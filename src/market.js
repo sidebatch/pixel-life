@@ -174,7 +174,7 @@ function renderForestryMarket(){
   const equipped=getEquippedForestryAxe(),next=nextForestryAxe();
   document.getElementById('marketStock').textContent=`현재 ${equipped.name} · 벌목 Lv.${GAME_STATE.progression.logging.level}`;
   const current=`<div class="marketAxeCard equipped"><img src="${FORESTRY_AXE_URLS[equipped.asset]}" alt=""><div><b>${equipped.name}</b><small>장착 중 · 보유 도끼 ${getOwnedForestryAxes().length}종</small></div></div>`;
-  const upgrade=next?`<div class="marketAxeCard"><img src="${FORESTRY_AXE_URLS[next.asset]}" alt=""><div><b>${next.name}</b><small>나무 피해 ${next.damage} · ${next.tier}단계 나무 벌목 가능</small>
+  const upgrade=next?`<div class="marketAxeCard"><img src="${FORESTRY_AXE_URLS[next.asset]}" alt=""><div><b>${next.name}</b><small>나무 피해 ${next.damage} · ${next.tier<=3?`${next.tier}단계 나무 벌목 가능`:'현재 숲의 나무를 더 빠르게 벌목'}</small>
     <div class="marketAxeMaterials">${Object.entries(next.materials).map(([id,count])=>{
       const name=FOREST_WOOD[id.slice(0,-4)];
       const held=lifeItemCount('material',id);
@@ -188,9 +188,9 @@ function renderForestryMarket(){
 function renderRodMarket(){
   const equipped=getEquippedFishingRod(),next=nextFishingRodForSale();
   document.getElementById('marketStock').textContent=`현재 ${equipped.name} · 낚시 Lv.${GAME_STATE.progression.fishing.level}`;
-  const current=`<div class="marketAxeCard equipped"><span class="marketRodIcon" aria-hidden="true">${equipped.icon}</span><div><b>${equipped.name}</b><small>현재 장착 중</small></div></div>`;
-  const upgrade=next?`<div class="marketAxeCard"><span class="marketRodIcon" aria-hidden="true">${next.icon}</span><div><b>${next.name}</b><small>낚시 Lv.${next.unlockLevel}부터 구매 · ${next.description}</small>
-    <div class="marketAxeMaterials"><span class="${GAME_STATE.progression.fishing.level>=next.unlockLevel?'ready':'missing'}">낚시 레벨 ${GAME_STATE.progression.fishing.level}/${next.unlockLevel}</span>${Object.entries(next.fishCost).map(([id,count])=>{
+  const current=`<div class="marketAxeCard equipped"><span class="marketRodIcon" aria-hidden="true"><img src="${FISHING_ROD_URLS[equipped.asset]}" alt=""></span><div><b>${equipped.name}</b><small>현재 장착 중</small></div></div>`;
+  const upgrade=next?`<div class="marketAxeCard"><span class="marketRodIcon" aria-hidden="true"><img src="${FISHING_ROD_URLS[next.asset]}" alt=""></span><div><b>${next.name}</b><small>낚시 Lv.${next.unlockLevel}부터 구매 · ${next.description}</small>
+    <div class="marketAxeMaterials"><span class="${GAME_STATE.progression.fishing.level>=next.unlockLevel?'ready':'missing'}">낚시 레벨 ${GAME_STATE.progression.fishing.level}/${next.unlockLevel}</span>${next.requiresMasterRod?`<span class="${isFishingRodUnlocked(FISHING_ROD_BY_ID.get('rod.master_angler'))?'ready':'missing'}">도감 20종 완성</span>`:''}${Object.entries(next.fishCost).map(([id,count])=>{
       const fish=MARKET_FISH_BY_ID.get(id),held=lifeItemCount('fish',id);
       return `<span class="${held>=count?'ready':'missing'}">${fish.name} ${held}/${count}마리</span>`;
     }).join('')}<span class="${GAME_STATE.progression.coins>=next.coins?'ready':'missing'}">코인 ${GAME_STATE.progression.coins.toLocaleString()}/${next.coins.toLocaleString()}</span></div>

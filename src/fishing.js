@@ -159,7 +159,7 @@ function getDiscoveredFishCount(){
 
 function fishingNewRodText(previousLevel,currentLevel){
   const rods=FISHING_RODS.filter(rod=>!rod.requiresMasterReward&&rod.unlockLevel>previousLevel&&rod.unlockLevel<=currentLevel);
-  return rods.length?`${rods.map(rod=>rod.name).join('·')} 엘리에게서 구매 가능!`:'';
+  return rods.length?`${rods.map(rod=>rod.name).join('·')} ${rods.some(rod=>rod.requiresMasterRod)?'도감 20종 완성 후 엘리에게서 구매 가능!':'엘리에게서 구매 가능!'}`:'';
 }
 
 function ensureMasterAnglerRod(){

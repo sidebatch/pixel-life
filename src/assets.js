@@ -39,7 +39,7 @@ const FORESTRY_AXE_URLS = Object.freeze({
   iron:'assets/forestry/axes/iron.png',
   steel:'assets/forestry/axes/steel.png'
 });
-const FORESTRY_CHOP_PLAYER_URL='assets/forestry/chop/player.png';
+const FORESTRY_CHOP_PLAYER_URL='assets/forestry/chop/player-v2.png';
 const LIFE_ITEM_URLS = Object.freeze({
   log:'assets/forestry/items/log.png',
   oakLog:'assets/forestry/items/oak.png',

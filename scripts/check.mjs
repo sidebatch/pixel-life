@@ -69,7 +69,7 @@ for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/forestr
   const bytes=fs.readFileSync(path.join(root,assetPath));
   assert(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),`Invalid PNG asset: ${assetPath}`);
   const actual=`${bytes.readUInt32BE(16)}x${bytes.readUInt32BE(20)}`;
-  const expected=assetPath.includes('/axes/')?'1254x1254':assetPath.includes('/chop/')?'1086x1448':
+  const expected=assetPath.includes('/axes/')?'1254x1254':assetPath.includes('/chop/')?'640x1280':
     assetPath.includes('/trees/')?'120x144':'96x96';
   assert(actual===expected,`Wrong life asset size: ${assetPath} (${actual}, expected ${expected})`);
   assert([4,6].includes(bytes[25]),`Life asset must have an alpha channel: ${assetPath}`);
@@ -671,6 +671,31 @@ assert(farmDrawCalls.length===farmIds.length*2&&farmIds.every((id,index)=>
   farmDrawCalls[index*2].id===id&&farmDrawCalls[index*2].stage==='young'&&farmDrawCalls[index*2].width===48&&
   farmDrawCalls[index*2+1].id===id&&farmDrawCalls[index*2+1].stage==='mature'&&farmDrawCalls[index*2+1].width===58),
   'Covered seeds and shared sprouts must not show mature art; only later stages use distinct crop-specific sprites');
+
+const chopSpriteCalls=[],chopAxeRotations=[];
+const chopDrawContext={
+  forestryChopImg:{id:'chop'},forestryAxeImgs:{basic:{id:'axe'}},
+  getEquippedForestryAxe:()=>({asset:'basic'}),
+  FORESTRY_CHOP_TIMING:{impactMs:270},
+  GAME_STATE:{regionId:'oldForest'},lifeUi:{chop:{startedAt:0,regionId:'oldForest',tree:{y:10}}},
+  player:{py:480,face:'down'},TILE:48,tNow:100,
+  ctx:{save(){},restore(){},translate(){},scale(){},rotate(angle){chopAxeRotations.push(angle);},
+    drawImage(sprite,...args){if(sprite.id==='chop') chopSpriteCalls.push(args);}}
+};
+vm.createContext(chopDrawContext);
+vm.runInContext(`${read('src/rendering.js')}\n`+
+  `for(const face of ['down','right','left','up']){`+
+  `tNow=100;drawForestryChopPlayer(100,100,face);`+
+  `tNow=300;drawForestryChopPlayer(100,100,face);}`+
+  `globalThis.__downDepth=forestryPlayerDrawDepth();`+
+  `player.face='right';globalThis.__sideDepth=forestryPlayerDrawDepth();`+
+  `player.face='up';globalThis.__upDepth=forestryPlayerDrawDepth();`,chopDrawContext);
+assert(chopSpriteCalls.length===8&&chopSpriteCalls.every((args,index)=>
+  args[0]===(index%2)*320&&args[1]===Math.floor(index/2)*320&&
+  args[2]===320&&args[3]===320&&args[6]===68&&args[7]===68)&&
+  chopAxeRotations.length===8&&chopAxeRotations[7]===-1.2&&
+  chopDrawContext.__downDepth===500&&chopDrawContext.__sideDepth===529&&chopDrawContext.__upDepth===529,
+  'All chop directions must use equal clean cells; the north-facing strike swings away and south target occludes the player');
 
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],

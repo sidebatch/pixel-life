@@ -365,39 +365,18 @@ function drawNPC(npc){
   ctx.restore();
 }
 
-let forestryChopFrameBounds=null;
-function getForestryChopFrameBounds(){
-  if(forestryChopFrameBounds) return forestryChopFrameBounds;
-  const image=forestryChopImg,cellW=image.width/2,cellH=image.height/4;
-  const probe=document.createElement('canvas');
-  probe.width=image.width;probe.height=image.height;
-  const probeCtx=probe.getContext('2d',{willReadFrequently:true});
-  probeCtx.drawImage(image,0,0);
-  const pixels=probeCtx.getImageData(0,0,image.width,image.height).data;
-  forestryChopFrameBounds=[];
-  for(let row=0;row<4;row++) for(let column=0;column<2;column++){
-    let left=cellW,top=cellH,right=0,bottom=0;
-    for(let y=0;y<cellH;y++) for(let x=0;x<cellW;x++){
-      if(pixels[((row*cellH+y)*image.width+column*cellW+x)*4+3]<16) continue;
-      left=Math.min(left,x);top=Math.min(top,y);right=Math.max(right,x);bottom=Math.max(bottom,y);
-    }
-    forestryChopFrameBounds.push({x:column*cellW+left,y:row*cellH+top,w:right-left+1,h:bottom-top+1});
-  }
-  return forestryChopFrameBounds;
-}
-
 function drawForestryChopAxe(actorX,actorY,face,phase){
   const image=forestryAxeImgs[getEquippedForestryAxe().asset];
   if(!image) return;
   const anchors={
     down:[[-12,-17],[0,3]],right:[[-13,-20],[14,0]],
-    left:[[13,-20],[-14,0]],up:[[14,-23],[16,-12]]
+    left:[[13,-20],[-14,0]],up:[[18,-23],[10,-20]]
   };
   const [offsetX,offsetY]=(anchors[face]||anchors.down)[phase];
   ctx.save();
   ctx.translate(Math.round(actorX+offsetX),Math.round(actorY+offsetY));
   if(face==='left') ctx.scale(-1,1);
-  ctx.rotate(phase===0?-.35:1.15);
+  ctx.rotate(face==='up'?(phase===0?-.35:-1.2):(phase===0?-.35:1.15));
   // The grip end of the source axe sits at the local origin, inside the hands.
   ctx.drawImage(image,280,310,730,650,-8,-42,44,44);
   ctx.restore();
@@ -406,12 +385,21 @@ function drawForestryChopAxe(actorX,actorY,face,phase){
 function drawForestryChopPlayer(actorX,actorY,face){
   const row={down:0,right:1,left:2,up:3}[face]??0;
   const phase=tNow-lifeUi.chop.startedAt<FORESTRY_CHOP_TIMING.impactMs?0:1;
-  const frame=getForestryChopFrameBounds()[row*2+phase];
-  const height=74,width=Math.round(height*frame.w/frame.h);
+  // Every pose occupies one isolated 320px cell. Fixed scale keeps the left,
+  // right, front and back characters the same size and avoids border bleed.
+  const cell=320,size=68;
   if(face==='up') drawForestryChopAxe(actorX,actorY,face,phase);
-  ctx.drawImage(forestryChopImg,frame.x,frame.y,frame.w,frame.h,
-    Math.round(actorX-width/2),Math.round(actorY+13-height),width,height);
+  ctx.drawImage(forestryChopImg,phase*cell,row*cell,cell,cell,
+    Math.round(actorX-size/2),Math.round(actorY+15-size),size,size);
   if(face!=='up') drawForestryChopAxe(actorX,actorY,face,phase);
+}
+
+function forestryPlayerDrawDepth(){
+  const playerDepth=player.py+20;
+  const chop=lifeUi.chop?.regionId===GAME_STATE.regionId?lifeUi.chop:null;
+  // The target tree should cover a player standing north of it.
+  return chop&&player.face!=='down'?
+    Math.max(playerDepth,chop.tree.y*TILE+TILE+1):playerDepth;
 }
 
 function drawPlayer(){
@@ -692,10 +680,7 @@ function drawWorld(){
     renderables.push({y:lamp.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.lamp,lamp.x*TILE-camX+5,lamp.y*TILE-camY-38,38,86)});
   }
   npcs.forEach(n=>renderables.push({y:n.y*TILE+TILE,draw:()=>drawNPC(n)}));
-  // A tree in front of the actor must not hide the actual chopping motion.
-  const chopDepth=lifeUi.chop?.regionId===GAME_STATE.regionId?
-    lifeUi.chop.tree.y*TILE+TILE+1:player.py+20;
-  renderables.push({y:Math.max(player.py+20,chopDepth),draw:drawPlayer});
+  renderables.push({y:forestryPlayerDrawDepth(),draw:drawPlayer});
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());
 
   drawFishingEffects();

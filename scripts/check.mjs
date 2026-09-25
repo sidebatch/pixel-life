@@ -535,7 +535,8 @@ vm.runInContext(`GAME_STATE.regionId='sunnyFields';GAME_STATE.playerLocation={x:
 assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFields'&&
   saveContext.__lifeRestored.playerLocation.x===14&&
   saveContext.__lifeRestored.inventory.some(item=>item.type==='material'&&item.quantity===5)&&
-  saveContext.__lifeRestored.inventory.some(item=>item.id==='oak_log'&&item.quantity===3)&&
+  saveContext.__lifeRestored.inventory.some(item=>item.id==='log'&&item.name==='일반 목재')&&
+  saveContext.__lifeRestored.inventory.some(item=>item.id==='oak_log'&&item.name==='참나무'&&item.quantity===3)&&
   saveContext.__lifeRestored.inventory.some(item=>item.type==='seed'&&item.id==='carrot'&&item.quantity===2)&&
   saveContext.__lifeRestored.inventory.some(item=>item.type==='seed'&&item.id==='pumpkin'&&item.quantity===1)&&
   saveContext.__lifeRestored.inventory.some(item=>item.type==='crop'&&item.id==='wheat'&&item.quantity===4)&&
@@ -606,13 +607,14 @@ assert(inventorySummaryNode.textContent==='보유 물고기 2마리'&&
   'Inventory grid must badge counts and preserve individual catch data');
 inventoryContext.FOREST_SPECIES=['oak'];
 inventoryContext.FOREST_WOOD={oak:'참나무'};
+inventoryContext.lifeItemName=(type,id)=>id==='log'?'일반 목재':inventoryContext.FOREST_WOOD[id.slice(0,-4)]||'';
 inventoryContext.LIFE_CONTENT={crops:[{id:'carrot',name:'당근',icon:'🥕'}]};
 inventoryContext.lifeItemCount=(type,id)=>type==='material'&&id==='oak_log'?3:type==='seed'&&id==='carrot'?5:0;
 inventoryContext.lifeItemIconMarkup=(type,id)=>`<img class="lifeItemIcon" src="/${type}-${id}.png" alt="">`;
 vm.runInContext('renderInventorySupplies();',inventoryContext);
 assert(inventorySummaryNode.textContent==='보유 재료 8개'&&
   inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
-  inventoryScrollNode.innerHTML.includes('aria-label="참나무 통나무, 3개"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="참나무, 3개"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="당근 씨앗, 5개"')&&
   inventoryScrollNode.innerHTML.includes('class="inventoryItemCount" aria-hidden="true">5</strong>')&&
   !inventoryScrollNode.innerHTML.includes('class="inventorySupply"'),
@@ -647,6 +649,9 @@ assert(vm.runInContext(`FORESTRY_AXES[1].coins===3600&&FORESTRY_AXES[1].material
   FORESTRY_AXES[2].coins===11200&&FORESTRY_AXES[2].materials.maple_log===54&&
   FORESTRY_AXES[3].coins===30000&&FORESTRY_AXES[3].materials.cypress_log===60`,lifeContext),
   'Axe recipes must keep the revised progression costs');
+assert(vm.runInContext(`lifeItemName('material','log')==='일반 목재'&&
+  FOREST_SPECIES.every(species=>lifeItemName('material',species+'_log')===FOREST_WOOD[species])`,lifeContext),
+  'Wood item names must be short and consistent across all eight species');
 const toastNode={textContent:'',classList:{add(){},remove(){}}};
 const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
@@ -855,7 +860,9 @@ const marketContext={
   ],progression:{coins:100}}
 };
 vm.createContext(marketContext);
-vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\n${read('src/market.js')}\n`+
+vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\n`+
+  `function lifeItemName(type,id){return id==='log'?'일반 목재':FOREST_WOOD[id.slice(0,-4)]||'';}\n`+
+  `${read('src/market.js')}\n`+
   `globalThis.__sale=planFishSale(new Map([['fish.crucian_carp',2]]));`+
   `globalThis.__multiSale=planFishSale(new Map([['fish.crucian_carp',1],['fish.goldfish',1]]));`+
   `globalThis.__overSale=planFishSale(new Map([['fish.crucian_carp',4]]));`+
@@ -863,7 +870,8 @@ vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.
   `const goods=[{type:'material',id:'log',quantity:4},{type:'crop',id:'carrot',quantity:3},{type:'equipment',id:'rod.master_angler',quantity:1}];`+
   `globalThis.__goodsSale=planGoodsSale(new Map([['material:log',2],['crop:carrot',1]]),goods);`+
   `globalThis.__goodsOversale=planGoodsSale(new Map([['material:log',5]]),goods);`,marketContext);
-assert(vm.runInContext(`marketGoodDefinition('material','birch_log').name==='자작나무 통나무'&&
+assert(vm.runInContext(`marketGoodDefinition('material','birch_log').name==='자작나무'&&
+  marketGoodDefinition('material','log').name==='일반 목재'&&
   planGoodsSale(new Map([['material:birch_log',2]]),[{type:'material',id:'birch_log',quantity:3}]).total===32`,marketContext),
   'Species logs must sell for their configured per-species price');
 assert(vm.runInContext(`['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>{
@@ -905,7 +913,7 @@ assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.master"')&&
   (seedMarketNodes.marketList.innerHTML.match(/class="marketAxeCard/g)||[]).length===4&&
   seedMarketNodes.marketList.innerHTML.includes('이전 도끼 구매 후 이용 가능')&&
-  seedMarketNodes.marketList.innerHTML.includes('참나무 통나무 0/60')&&
+  seedMarketNodes.marketList.innerHTML.includes('참나무 0/60')&&
   seedMarketNodes.marketList.innerHTML.includes('코인 100/3,600')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled')&&
   seedMarketNodes.marketStock.textContent.includes('기본 도끼'),

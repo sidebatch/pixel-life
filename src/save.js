@@ -33,7 +33,7 @@ function normalizeSavedInventory(rawInventory){
     const wood=item.type==='material'&&typeof item.id==='string'&&item.id.endsWith('_log')?FOREST_WOOD[item.id.slice(0,-4)]:null;
     if(item.type==='material'&&(item.id==='log'||wood)){
       const quantity=saveClamp(Math.floor(saveFiniteNumber(item.quantity,0)),0,99999);
-      if(quantity) inventory.push({type:'material',id:item.id,name:wood?`${wood} 통나무`:'통나무',quantity});
+      if(quantity) inventory.push({type:'material',id:item.id,name:wood||'일반 목재',quantity});
       continue;
     }
     if((item.type==='seed'||item.type==='crop')&&LIFE_CROP_BY_ID.has(item.id)){

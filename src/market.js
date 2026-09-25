@@ -95,7 +95,7 @@ function planFishSale(selection,inventory=GAME_STATE.inventory){
 function marketGoodDefinition(type,id){
   if(type==='material'){
     const wood=id.endsWith('_log')&&FOREST_WOOD[id.slice(0,-4)];
-    if(id==='log'||wood) return {name:wood?`${wood} 통나무`:'통나무',icon:'🪵',price:wood?FORESTRY_TREES[id.slice(0,-4)].logPrice:LIFE_CONTENT.logSellPrice};
+    if(id==='log'||wood) return {name:lifeItemName('material',id),icon:'🪵',price:wood?FORESTRY_TREES[id.slice(0,-4)].logPrice:LIFE_CONTENT.logSellPrice};
   }
   if(type==='crop'&&LIFE_CROP_BY_ID.has(id)){
     const crop=LIFE_CROP_BY_ID.get(id);
@@ -138,7 +138,7 @@ function renderGoodsMarket(){
     else if(quantity>count) marketState.goodsSelection.set(itemKey,count);
   }
   const plan=planGoodsSale(marketState.goodsSelection);
-  document.getElementById('marketStock').textContent=`판매 가능한 ${marketState.view==='wood'?'통나무':'작물'} ${goods.reduce((sum,item)=>sum+item.count,0)}개`;
+  document.getElementById('marketStock').textContent=`판매 가능한 ${marketState.view==='wood'?'목재':'작물'} ${goods.reduce((sum,item)=>sum+item.count,0)}개`;
   const list=document.getElementById('marketList'),scrollTop=list.scrollTop;
   list.innerHTML=goods.length?goods.map(item=>{
     const itemKey=`${item.type}:${item.id}`,selected=marketState.goodsSelection.get(itemKey)||0;
@@ -151,7 +151,7 @@ function renderGoodsMarket(){
         <strong>${selected}</strong><button type="button" data-good-action="plus" aria-label="${item.definition.name} 판매 수량 늘리기" ${selected<item.count?'':'disabled'}>+</button></div>
         <button type="button" class="marketAll" data-good-action="all" ${selected<item.count?'':'disabled'}>전부</button>
         <span class="marketRowTotal">${(selected*item.definition.price).toLocaleString()}</span></div></div></div>`;
-  }).join(''):`<div class="marketEmpty"><span>${marketState.view==='wood'?'🪵':'🌾'}</span><b>판매할 ${marketState.view==='wood'?'통나무가':'작물이'} 없어요</b><p>${marketState.view==='wood'?'숲에서 나무를 베어 보세요.':'농장에서 작물을 수확해 보세요.'}</p></div>`;
+  }).join(''):`<div class="marketEmpty"><span>${marketState.view==='wood'?'🪵':'🌾'}</span><b>판매할 ${marketState.view==='wood'?'목재가':'작물이'} 없어요</b><p>${marketState.view==='wood'?'숲에서 나무를 베어 보세요.':'농장에서 작물을 수확해 보세요.'}</p></div>`;
   list.scrollTop=scrollTop;
   document.getElementById('marketTotal').textContent=`${plan?.count||0}개 · ${(plan?.total||0).toLocaleString()}`;
   document.getElementById('marketSellBtn').disabled=!plan||plan.count===0;
@@ -182,7 +182,7 @@ function renderForestryMarket(){
     const materials=owned?'':`<div class="marketAxeMaterials">${Object.entries(axe.materials).map(([id,count])=>{
       const name=FOREST_WOOD[id.slice(0,-4)];
       const held=lifeItemCount('material',id);
-      return `<span class="${held>=count?'ready':'missing'}">${name} 통나무 ${held}/${count}</span>`;
+      return `<span class="${held>=count?'ready':'missing'}">${name} ${held}/${count}</span>`;
     }).join('')}<span class="${GAME_STATE.progression.coins>=axe.coins?'ready':'missing'}">코인 ${GAME_STATE.progression.coins.toLocaleString()}/${axe.coins.toLocaleString()}</span></div>`;
     const action=owned?'':`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${available?`${axe.name} 구매`:'이전 도끼 구매 후 이용 가능'}</button>`;
     return `<div class="marketAxeCard${active?' equipped':''}${!owned&&!available?' locked':''}"><img src="${FORESTRY_AXE_URLS[axe.asset]}" alt=""><div><b>${axe.name}</b><small>${status} · 나무 피해 ${axe.damage} · ${details}</small>${materials}${action}</div></div>`;
@@ -250,21 +250,21 @@ function renderMarket(){
   document.querySelector('.marketTabs').style.gridTemplateColumns=`repeat(${shop.views.length},minmax(0,1fr))`;
   document.getElementById('marketShopName').textContent=shop.name;
   document.getElementById('marketPanel').setAttribute('aria-label',shop.name);
-  document.getElementById('marketTitle').textContent={fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 구매',wood:'통나무 판매',axes:'도끼 구매'}[marketState.view];
+  document.getElementById('marketTitle').textContent={fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 구매',wood:'목재 판매',axes:'도끼 구매'}[marketState.view];
   document.querySelector('.marketGreeting').textContent={fish:'엘리: 어떤 물고기를 팔고 싶어?',
     crops:'엘리: 수확한 작물을 보여 줘!',seeds:'엘리: 농장에 심을 씨앗을 골라 봐!',rods:'엘리: 잡아 온 물고기로 낚싯대를 바꿔 줄게!',
-    wood:'준: 통나무를 가져왔어?',axes:'준: 새 도끼를 만들 재료를 가져왔어?'}[marketState.view];
+    wood:'준: 목재를 가져왔어?',axes:'준: 새 도끼를 만들 재료를 가져왔어?'}[marketState.view];
   document.querySelector('.marketRule').textContent=marketState.view==='fish'?'같은 어종은 먼저 낚은 물고기부터 판매돼요.':
     marketState.view==='crops'?'수확한 작물을 원하는 수량만큼 팔 수 있어요.':
-    marketState.view==='wood'?'통나무를 원하는 수량만큼 팔 수 있어요.':
-    marketState.view==='axes'?'통나무와 코인으로 도끼를 구매해요. 장착은 가방에서 해 주세요.':
+    marketState.view==='wood'?'목재를 원하는 수량만큼 팔 수 있어요.':
+    marketState.view==='axes'?'목재와 코인으로 도끼를 구매해요. 장착은 가방에서 해 주세요.':
     marketState.view==='rods'?'물고기와 코인으로 낚싯대를 구매해요. 도감 기록은 남고 장착은 가방에서 해 주세요.':'씨앗을 사서 햇살 농장의 빈 밭에 심어 보세요.';
   document.getElementById('marketMessage').textContent=marketState.message;
   const noSale=['seeds','axes','rods'].includes(marketState.view);
   document.querySelector('.marketTotalLine').hidden=noSale;
   document.getElementById('marketSellBtn').hidden=noSale;
-  document.getElementById('marketTotalLabel').textContent=marketState.view==='fish'?'선택한 물고기':marketState.view==='wood'?'선택한 통나무':'선택한 작물';
-  document.getElementById('marketSellBtn').textContent=marketState.view==='fish'?'선택한 물고기 판매':marketState.view==='wood'?'선택한 통나무 판매':'선택한 작물 판매';
+  document.getElementById('marketTotalLabel').textContent=marketState.view==='fish'?'선택한 물고기':marketState.view==='wood'?'선택한 목재':'선택한 작물';
+  document.getElementById('marketSellBtn').textContent=marketState.view==='fish'?'선택한 물고기 판매':marketState.view==='wood'?'선택한 목재 판매':'선택한 작물 판매';
   if(marketState.view==='seeds'){renderSeedMarket();return;}
   if(marketState.view==='rods'){renderRodMarket();return;}
   if(marketState.view==='axes'){renderForestryMarket();return;}

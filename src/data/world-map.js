@@ -42,7 +42,7 @@ let WORLD_DEFINITION = Object.freeze({
     {id:'elli',x:29,y:38,homeX:29,homeY:38,name:'엘리',role:'merchant',sprite:'elli',scale:1.00,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 물고기와 수확물을 팔거나 씨앗과 낚싯대를 살 수 있어.'},
     {id:'noah',x:23,y:24,homeX:23,homeY:24,name:'노아',role:'guide',sprite:'noah',scale:1.00,face:'right',moving:false,wait:2200,roam:3,dialog:'북쪽 길 끝은 오래된 숲, 동쪽 길 끝은 햇살 농장이야. 길 끝에서 이동할 수 있어.'},
     {id:'hana',x:31,y:27,homeX:31,homeY:27,name:'하나',role:'florist',sprite:'hana',scale:1.00,face:'left',moving:false,wait:1200,roam:2,dialog:'꽃은 계절마다 분위기가 달라져. 남쪽 초원에는 새로운 꽃밭을 만들 예정이야.'},
-    {id:'jun',x:30,y:20,homeX:30,homeY:20,name:'준',role:'toolMerchant',sprite:'jun',scale:1.00,face:'down',moving:false,wait:1600,roam:0,dialog:'통나무를 팔거나 도끼를 업그레이드하고 싶으면 말해 줘.'}
+    {id:'jun',x:30,y:20,homeX:30,homeY:20,name:'준',role:'toolMerchant',sprite:'jun',scale:1.00,face:'down',moving:false,wait:1600,roam:0,dialog:'목재를 팔거나 도끼를 업그레이드하고 싶으면 말해 줘.'}
   ],
 
   fixedObjects: {
@@ -94,7 +94,7 @@ let WORLD_DEFINITION = Object.freeze({
       artAnchor:{doorCenterX:166,groundOffsetY:10},
       entrance:{door:{x:29,y:19},approach:{x:29,y:20},side:'left'},
       interactType:'workshop',action:'openWorkshop',
-      dialog:'통나무와 도끼를 다루는 작업실이다. 앞에 있는 준에게 말을 걸어 보자.'
+      dialog:'목재와 도끼를 다루는 작업실이다. 앞에 있는 준에게 말을 걸어 보자.'
     }
   ],
 

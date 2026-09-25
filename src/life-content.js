@@ -49,7 +49,7 @@ function lifeItemIconMarkup(type,id,fallback=''){
 }
 
 function lifeItemName(type,id){
-  if(type==='material') return id==='log'?'통나무':FOREST_WOOD[id.slice(0,-4)]&&id.endsWith('_log')?`${FOREST_WOOD[id.slice(0,-4)]} 통나무`:'';
+  if(type==='material') return id==='log'?'일반 목재':FOREST_WOOD[id.slice(0,-4)]&&id.endsWith('_log')?FOREST_WOOD[id.slice(0,-4)]:'';
   const crop=LIFE_CROP_BY_ID.get(id);
   return crop?(type==='seed'?`${crop.name} 씨앗`:type==='crop'?crop.name:''):'';
 }
@@ -153,7 +153,7 @@ function hitResourceTree(tree){
   if(!success){showLifeToast('저장하지 못했어요. 다시 시도해 주세요');return false;}
   lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,cut:nextHp===0,until:performance.now()+650};
   if(logs){
-    showLifeToast(`+${logs} ${FOREST_WOOD[tree.species]} 통나무`,{belowSkill:true});
+    showLifeToast(`${FOREST_WOOD[tree.species]} +${logs}개`,{belowSkill:true});
     showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
   }
   return true;
@@ -199,7 +199,7 @@ function buyFarmPlot(plot){
   const cost=farmExpansionCost();
   if(!cost) return false;
   if(GAME_STATE.progression.coins<cost.coins||totalLogCount()<cost.logs){
-    showLifeToast('코인이나 통나무가 부족해요');return false;
+    showLifeToast('코인이나 목재가 부족해요');return false;
   }
   const success=commitLifeChange(()=>{
     GAME_STATE.progression.coins-=cost.coins;
@@ -263,8 +263,8 @@ function renderLifePanel(){
   if(phase==='LOCKED'){
     const cost=farmExpansionCost();
     const affordable=cost&&GAME_STATE.progression.coins>=cost.coins&&totalLogCount()>=cost.logs;
-    info.textContent=`이 밭을 확장하면 앞으로 계속 사용할 수 있어요. 보유 ${GAME_STATE.progression.coins.toLocaleString()}코인 · 통나무 ${totalLogCount()}개`;
-    actions.innerHTML=`<button type="button" data-life-action="unlock" ${affordable?'':'disabled'}>밭 확장 · ${cost?.coins.toLocaleString()||0}코인${cost?.logs?` + 통나무 ${cost.logs}개`:''}</button>`;
+    info.textContent=`이 밭을 확장하면 앞으로 계속 사용할 수 있어요. 보유 ${GAME_STATE.progression.coins.toLocaleString()}코인 · 목재 ${totalLogCount()}개`;
+    actions.innerHTML=`<button type="button" data-life-action="unlock" ${affordable?'':'disabled'}>밭 확장 · ${cost?.coins.toLocaleString()||0}코인${cost?.logs?` + 목재 ${cost.logs}개`:''}</button>`;
   }else if(phase==='EMPTY'){
     info.textContent='씨앗을 고르면 시간이 지나 자동으로 자라요.';
     actions.innerHTML=LIFE_CONTENT.crops.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}" ${lifeItemCount('seed',item.id)?'':'disabled'}>${lifeItemIconMarkup('seed',item.id,item.icon)} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');

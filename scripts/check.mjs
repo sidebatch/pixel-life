@@ -829,15 +829,16 @@ assert(farmDrawCalls.length===farmIds.length*2&&farmIds.every((id,index)=>
   farmDrawCalls[index*2+1].id===id&&farmDrawCalls[index*2+1].stage==='mature'&&farmDrawCalls[index*2+1].width===58),
   'Covered seeds and shared sprouts must not show mature art; only later stages use distinct crop-specific sprites');
 
-const chopSpriteCalls=[],chopAxeRotations=[];
+const chopSpriteCalls=[],chopAxeCalls=[],chopAxeRotations=[],chopAxeTranslations=[],chopAxeMirrors=[];
 const chopDrawContext={
   forestryChopImg:{id:'chop'},forestryAxeImgs:{basic:{id:'axe'}},
   getEquippedForestryAxe:()=>({asset:'basic'}),
   FORESTRY_CHOP_TIMING:{impactMs:270},
   GAME_STATE:{regionId:'oldForest'},lifeUi:{chop:{startedAt:0,regionId:'oldForest',tree:{y:10}}},
   player:{py:480,face:'down'},TILE:48,tNow:100,
-  ctx:{save(){},restore(){},translate(){},scale(){},rotate(angle){chopAxeRotations.push(angle);},
-    drawImage(sprite,...args){if(sprite.id==='chop') chopSpriteCalls.push(args);}}
+  ctx:{save(){},restore(){},translate(x,y){chopAxeTranslations.push([x,y]);},
+    scale(x,y){chopAxeMirrors.push([x,y]);},rotate(angle){chopAxeRotations.push(angle);},
+    drawImage(sprite,...args){if(sprite.id==='chop') chopSpriteCalls.push(args);else if(sprite.id==='axe') chopAxeCalls.push(args);}}
 };
 vm.createContext(chopDrawContext);
 vm.runInContext(`${read('src/rendering.js')}\n`+
@@ -850,9 +851,21 @@ vm.runInContext(`${read('src/rendering.js')}\n`+
 assert(chopSpriteCalls.length===8&&chopSpriteCalls.every((args,index)=>
   args[0]===(index%2)*320&&args[1]===Math.floor(index/2)*320&&
   args[2]===320&&args[3]===320&&args[6]===68&&args[7]===68)&&
+  chopAxeCalls.length===8&&chopAxeCalls.every(args=>args.join(',')==='280,310,730,650,-8,-42,44,44')&&
+  chopAxeTranslations.map(pair=>pair.join(',')).join('|')===
+    '88,83|100,103|88,85|110,101|112,85|90,102|118,77|110,80'&&
+  chopAxeMirrors.map(pair=>pair.join(',')).join('|')==='-1,1|-1,1'&&
   chopAxeRotations.length===8&&chopAxeRotations[7]===-1.2&&
   chopDrawContext.__downDepth===500&&chopDrawContext.__sideDepth===529&&chopDrawContext.__upDepth===529,
-  'All chop directions must use equal clean cells; the north-facing strike swings away and south target occludes the player');
+  'Side grips must meet both hands without changing sprite cells, axe size, or front/back depth');
+chopDrawContext.forestryAxeImgs.master={id:'axe'};
+chopDrawContext.getEquippedForestryAxe=()=>({asset:'master'});
+vm.runInContext(`for(const face of ['right','left']){
+  drawForestryChopAxe(100,100,face,0);drawForestryChopAxe(100,100,face,1);
+}`,chopDrawContext);
+assert(chopAxeCalls.length===12&&chopAxeCalls.slice(8).every(args=>
+  args.join(',')==='0,60,1254,1140,-5,-44,44,44'),
+  'The master axe must render its full handle at the same size as the other axe tiers');
 
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],

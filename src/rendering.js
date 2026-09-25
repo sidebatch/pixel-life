@@ -366,19 +366,22 @@ function drawNPC(npc){
 }
 
 function drawForestryChopAxe(actorX,actorY,face,phase){
-  const image=forestryAxeImgs[getEquippedForestryAxe().asset];
+  const axeAsset=getEquippedForestryAxe().asset;
+  const image=forestryAxeImgs[axeAsset];
   if(!image) return;
   const anchors={
-    down:[[-12,-17],[0,3]],right:[[-13,-20],[14,0]],
-    left:[[13,-20],[-14,0]],up:[[18,-23],[10,-20]]
+    down:[[-12,-17],[0,3]],right:[[-12,-15],[10,1]],
+    left:[[12,-15],[-10,2]],up:[[18,-23],[10,-20]]
   };
   const [offsetX,offsetY]=(anchors[face]||anchors.down)[phase];
   ctx.save();
   ctx.translate(Math.round(actorX+offsetX),Math.round(actorY+offsetY));
   if(face==='left') ctx.scale(-1,1);
   ctx.rotate(face==='up'?(phase===0?-.35:-1.2):(phase===0?-.35:1.15));
-  // The grip end of the source axe sits at the local origin, inside the hands.
-  ctx.drawImage(image,280,310,730,650,-8,-42,44,44);
+  // The master axe has a longer decorated handle; include its grip end.
+  // Both crops keep the same 44px destination size and pivot at the hands.
+  if(axeAsset==='master') ctx.drawImage(image,0,60,1254,1140,-5,-44,44,44);
+  else ctx.drawImage(image,280,310,730,650,-8,-42,44,44);
   ctx.restore();
 }
 

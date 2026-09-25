@@ -205,10 +205,10 @@ assert(rodShopContext.__deepwaterLocked&&rodShopContext.__deepwaterBought&&
   rodShopContext.GAME_STATE.progression.fishing.equippedRodId==='rod.sturdy',
   'Deepwater rod must require the collection reward and consume its full recipe without auto-equipping');
 
-const audioProbe={oscillators:0,starts:0,stops:0,players:[]};
+const audioProbe={oscillators:0,starts:0,stops:0,players:[],gains:[]};
 class FakeAudioParam{
   setValueAtTime(){}
-  exponentialRampToValueAtTime(){}
+  exponentialRampToValueAtTime(value){this.ramps??=[];this.ramps.push(value);}
 }
 class FakeAudioContext{
   constructor(){this.currentTime=0;this.state='running';this.destination={};this.sampleRate=48000;}
@@ -216,7 +216,7 @@ class FakeAudioContext{
     audioProbe.oscillators+=1;
     return {type:'sine',frequency:new FakeAudioParam(),connect(){},start(){audioProbe.starts+=1;},stop(){audioProbe.stops+=1;}};
   }
-  createGain(){return {gain:new FakeAudioParam(),connect(){}};}
+  createGain(){const gain=new FakeAudioParam();audioProbe.gains.push(gain);return {gain,connect(){}};}
 }
 class FakeAudio{
   constructor(src){this.src=src;this.currentTime=3;this.plays=0;this.pauses=0;audioProbe.players.push(this);}
@@ -246,6 +246,11 @@ assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fis
 assert(vm.runInContext(`balancedGameSoundLevel({numberOfChannels:1,getChannelData:()=>new Float32Array(128).fill(.5)})<
   balancedGameSoundLevel({numberOfChannels:1,getChannelData:()=>new Float32Array(128).fill(.02)})`,fishingEffectsContext),
   'Audio balancing must lower loud effects relative to quiet effects');
+vm.runInContext(`globalThis.__chop=playForestryChopSound();globalThis.__cut=playForestryChopSound(true);`,fishingEffectsContext);
+assert(fishingEffectsContext.__chop&&fishingEffectsContext.__cut&&audioProbe.oscillators===15&&
+  audioProbe.gains.some(gain=>gain.ramps?.includes(.23))&&audioProbe.gains.some(gain=>gain.ramps?.includes(.28))&&
+  audioProbe.gains.some(gain=>gain.ramps?.includes(.055)),
+  'Both chop sounds must have a stronger impact and a high-frequency attack audible on phone speakers');
 
 const bufferedProbe={loaded:[],started:[],stopped:0,resumed:0};
 class FakeBufferedAudioContext extends FakeAudioContext{
@@ -885,7 +890,8 @@ marketContext.GAME_STATE.inventory.splice(-2);
 vm.runInContext(`marketState.shop='elli';marketState.view='fish';`,marketContext);
 marketContext.GAME_STATE.progression.logging={level:1};
 marketContext.GAME_STATE.progression.forestry={axeId:'axe.basic',ownedAxeIds:['axe.basic']};
-marketContext.FORESTRY_AXE_URLS={basic:'basic.png',iron:'iron.png',steel:'steel.png'};
+marketContext.FORESTRY_AXE_URLS={basic:'basic.png',iron:'iron.png',steel:'steel.png',master:'master.png'};
+marketContext.FORESTRY_AXES=vm.runInContext('FORESTRY_AXES',lifeContext);
 marketContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic'});
 marketContext.getOwnedForestryAxes=()=>[{id:'axe.basic'}];
 marketContext.nextForestryAxe=()=>({id:'axe.iron',name:'철 도끼',tier:2,damage:40,asset:'iron',coins:3600,
@@ -895,11 +901,25 @@ marketContext.canUpgradeForestryAxe=()=>false;
 marketContext.skillCardMarkup=()=>'<div>벌목 Lv.1</div>';
 vm.runInContext('renderForestryMarket();',marketContext);
 assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
+  seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.steel"')&&
+  seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.master"')&&
+  (seedMarketNodes.marketList.innerHTML.match(/class="marketAxeCard/g)||[]).length===4&&
+  seedMarketNodes.marketList.innerHTML.includes('이전 도끼 구매 후 이용 가능')&&
   seedMarketNodes.marketList.innerHTML.includes('참나무 통나무 0/60')&&
   seedMarketNodes.marketList.innerHTML.includes('코인 100/3,600')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled')&&
   seedMarketNodes.marketStock.textContent.includes('기본 도끼'),
-  'Axe shop must show current gear, real recipe costs, and disable unaffordable upgrades');
+  'Axe shop must show all four tiers and their recipes while disabling unaffordable or future upgrades');
+marketContext.getEquippedForestryAxe=()=>marketContext.FORESTRY_AXES[1];
+marketContext.getOwnedForestryAxes=()=>marketContext.FORESTRY_AXES.slice(0,2);
+marketContext.nextForestryAxe=()=>marketContext.FORESTRY_AXES[2];
+vm.runInContext('renderForestryMarket();',marketContext);
+assert(!seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
+  seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.steel"')&&
+  seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.master"')&&
+  seedMarketNodes.marketList.innerHTML.includes('보유 중')&&
+  seedMarketNodes.marketList.innerHTML.includes('이전 도끼 구매 후 이용 가능'),
+  'Buying one axe must leave later tiers visible and make only the next tier eligible');
 assert(marketContext.__sale.count===2&&marketContext.__sale.total===65&&
   marketContext.__sale.inventory.length===3&&
   marketContext.__sale.inventory[0].id==='fish.goldfish'&&

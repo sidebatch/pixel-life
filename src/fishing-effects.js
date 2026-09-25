@@ -144,13 +144,22 @@ function playForestryChopSound(cut=false){
     const start=context.currentTime;
     const tone=context.createOscillator(),gain=context.createGain();
     tone.type='triangle';
-    tone.frequency.setValueAtTime(cut?150:210,start);
-    tone.frequency.exponentialRampToValueAtTime(cut?65:95,start+.12);
+    tone.frequency.setValueAtTime(cut?330:420,start);
+    tone.frequency.exponentialRampToValueAtTime(cut?135:175,start+.13);
     gain.gain.setValueAtTime(.0001,start);
-    gain.gain.exponentialRampToValueAtTime(cut?.12:.08,start+.008);
-    gain.gain.exponentialRampToValueAtTime(.0001,start+.18);
+    gain.gain.exponentialRampToValueAtTime(cut?.28:.23,start+.009);
+    gain.gain.exponentialRampToValueAtTime(.0001,start+.20);
     tone.connect(gain);gain.connect(context.destination);
-    tone.start(start);tone.stop(start+.19);
+    tone.start(start);tone.stop(start+.21);
+    const crack=context.createOscillator(),crackGain=context.createGain();
+    crack.type='square';
+    crack.frequency.setValueAtTime(cut?900:1150,start);
+    crack.frequency.exponentialRampToValueAtTime(cut?390:520,start+.045);
+    crackGain.gain.setValueAtTime(.0001,start);
+    crackGain.gain.exponentialRampToValueAtTime(cut?.07:.055,start+.003);
+    crackGain.gain.exponentialRampToValueAtTime(.0001,start+.07);
+    crack.connect(crackGain);crackGain.connect(context.destination);
+    crack.start(start);crack.stop(start+.075);
   });
 }
 

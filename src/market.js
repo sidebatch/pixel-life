@@ -172,17 +172,22 @@ function renderSeedMarket(){
 
 function renderForestryMarket(){
   const equipped=getEquippedForestryAxe(),next=nextForestryAxe();
+  const ownedIds=new Set(getOwnedForestryAxes().map(axe=>axe.id));
   document.getElementById('marketStock').textContent=`현재 ${equipped.name} · 벌목 Lv.${GAME_STATE.progression.logging.level}`;
-  const current=`<div class="marketAxeCard equipped"><img src="${FORESTRY_AXE_URLS[equipped.asset]}" alt=""><div><b>${equipped.name}</b><small>장착 중 · 보유 도끼 ${getOwnedForestryAxes().length}종</small></div></div>`;
-  const upgrade=next?`<div class="marketAxeCard"><img src="${FORESTRY_AXE_URLS[next.asset]}" alt=""><div><b>${next.name}</b><small>나무 피해 ${next.damage} · ${next.tier<=3?`${next.tier}단계 나무 벌목 가능`:'현재 숲의 나무를 더 빠르게 벌목'}</small>
-    <div class="marketAxeMaterials">${Object.entries(next.materials).map(([id,count])=>{
+  const catalog=FORESTRY_AXES.map(axe=>{
+    const owned=ownedIds.has(axe.id),active=equipped.id===axe.id;
+    const available=next?.id===axe.id;
+    const status=active?'장착 중':owned?'보유 중':available?'다음 도끼':'이전 도끼 구매 후';
+    const details=axe.tier<=3?`${axe.tier}단계 나무 벌목 가능`:'현재 숲의 나무를 더 빠르게 벌목';
+    const materials=owned?'':`<div class="marketAxeMaterials">${Object.entries(axe.materials).map(([id,count])=>{
       const name=FOREST_WOOD[id.slice(0,-4)];
       const held=lifeItemCount('material',id);
       return `<span class="${held>=count?'ready':'missing'}">${name} 통나무 ${held}/${count}</span>`;
-    }).join('')}<span class="${GAME_STATE.progression.coins>=next.coins?'ready':'missing'}">코인 ${GAME_STATE.progression.coins.toLocaleString()}/${next.coins.toLocaleString()}</span></div>
-    <button type="button" class="marketAxeUpgrade" data-axe-id="${next.id}" ${canUpgradeForestryAxe(next)?'':'disabled'}>${next.name} 구매</button></div></div>`:
-    '<div class="marketEmpty"><span>🪓</span><b>모든 도끼를 보유했어요</b><p>가방의 장비 탭에서 사용할 도끼를 장착해 주세요.</p></div>';
-  document.getElementById('marketList').innerHTML=`${skillCardMarkup('logging')}${current}${upgrade}`;
+    }).join('')}<span class="${GAME_STATE.progression.coins>=axe.coins?'ready':'missing'}">코인 ${GAME_STATE.progression.coins.toLocaleString()}/${axe.coins.toLocaleString()}</span></div>`;
+    const action=owned?'':`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${available?`${axe.name} 구매`:'이전 도끼 구매 후 이용 가능'}</button>`;
+    return `<div class="marketAxeCard${active?' equipped':''}${!owned&&!available?' locked':''}"><img src="${FORESTRY_AXE_URLS[axe.asset]}" alt=""><div><b>${axe.name}</b><small>${status} · 나무 피해 ${axe.damage} · ${details}</small>${materials}${action}</div></div>`;
+  }).join('');
+  document.getElementById('marketList').innerHTML=`${skillCardMarkup('logging')}${catalog}`;
 }
 
 function renderRodMarket(){

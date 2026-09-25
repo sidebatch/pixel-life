@@ -114,6 +114,21 @@ function playFishingCatchSound(){return playGameSample('catch');}
 function playSkillLevelUpSound(){return playGameSample('levelUp');}
 function playMarketSaleSound(){return playGameSample('marketSale');}
 
+function playForestryChopSound(cut=false){
+  return playFishingAudio(context=>{
+    const start=context.currentTime;
+    const tone=context.createOscillator(),gain=context.createGain();
+    tone.type='triangle';
+    tone.frequency.setValueAtTime(cut?150:210,start);
+    tone.frequency.exponentialRampToValueAtTime(cut?65:95,start+.12);
+    gain.gain.setValueAtTime(.0001,start);
+    gain.gain.exponentialRampToValueAtTime(cut?.12:.08,start+.008);
+    gain.gain.exponentialRampToValueAtTime(.0001,start+.18);
+    tone.connect(gain);gain.connect(context.destination);
+    tone.start(start);tone.stop(start+.19);
+  });
+}
+
 for(const kind of Object.keys(GAME_SOUND_URLS)) getGameSoundPlayer(kind);
 
 function clearFishingRarityEffect(dialog=document.getElementById('dialog')){

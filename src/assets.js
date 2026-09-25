@@ -34,6 +34,11 @@ const FOREST_STUMP_URLS = Object.freeze({
   cypress:'assets/forestry/stumps/cypress.png',
   broadleaf:'assets/forestry/stumps/broadleaf.png'
 });
+const FORESTRY_AXE_URLS = Object.freeze({
+  basic:'assets/forestry/axes/basic.png',
+  iron:'assets/forestry/axes/iron.png',
+  steel:'assets/forestry/axes/steel.png'
+});
 const LIFE_ITEM_URLS = Object.freeze({
   log:'assets/forestry/items/log.png',
   oakLog:'assets/forestry/items/oak.png',

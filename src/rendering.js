@@ -223,7 +223,7 @@ function drawFarmGround(){
 }
 
 function drawTreeHpBar(tree,hp){
-  const ratio=Math.max(0,Math.min(1,hp/LIFE_CONTENT.treeHp));
+  const ratio=Math.max(0,Math.min(1,hp/(FORESTRY_TREES[tree.species]?.maxHp||LIFE_CONTENT.treeHp)));
   const x=Math.round(tree.x*TILE-camX)+3,y=Math.round(tree.y*TILE-camY)-74;
   ctx.fillStyle='#102016';ctx.fillRect(x-2,y-2,46,11);
   ctx.fillStyle='#080808';ctx.fillRect(x,y,42,7);
@@ -240,6 +240,15 @@ function drawResourceTree(tree){
     const stump=forestStumpImgs[tree.species];
     if(stump) ctx.drawImage(stump,x-8,y-12,64,64);
     if(hit) drawTreeHpBar(tree,0);
+    if(hit&&lifeUi.hit.cut){
+      const age=650-(lifeUi.hit.until-tNow);
+      for(let index=0;index<6;index++){
+        const angle=-Math.PI/2+(index-2.5)*.42;
+        const reach=age*.065*(.75+(index%3)*.2);
+        ctx.fillStyle=index%2?'#9b6b36':'#dfad61';
+        ctx.fillRect(Math.round(x+24+Math.cos(angle)*reach),Math.round(y+14+Math.sin(angle)*reach+age*age*.00005),3,3);
+      }
+    }
     return;
   }
   const sway=hit?Math.round(Math.sin(tNow/28)*4):0;
@@ -247,7 +256,7 @@ function drawResourceTree(tree){
   if(Math.abs(player.x-tree.x)+Math.abs(player.y-tree.y)<=1){
     ctx.fillStyle='#f4d179';ctx.fillRect(x+30,y+29,6,8);
   }
-  if(state.hp<LIFE_CONTENT.treeHp||hit) drawTreeHpBar(tree,state.hp);
+  if(state.hp<FORESTRY_TREES[tree.species].maxHp||hit) drawTreeHpBar(tree,state.hp);
 }
 function drawWorldTree(tree,sway=0){
   const x=Math.round(tree.x*TILE-camX),y=Math.round(tree.y*TILE-camY);
@@ -356,6 +365,23 @@ function drawNPC(npc){
   ctx.restore();
 }
 
+function drawEquippedForestryAxe(actorX,actorY,face){
+  if(typeof isFishingActive==='function'&&isFishingActive()) return;
+  const axe=getEquippedForestryAxe(),image=forestryAxeImgs[axe.asset];
+  if(!image) return;
+  const chopping=lifeUi.chop?.regionId===GAME_STATE.regionId;
+  const elapsed=chopping?tNow-lifeUi.chop.startedAt:0;
+  const swinging=chopping&&elapsed>=170;
+  const anchor={down:[15,-13],up:[13,-20],right:[17,-15],left:[-17,-15]}[face]||[15,-13];
+  ctx.save();
+  ctx.translate(Math.round(actorX+anchor[0]),Math.round(actorY+anchor[1]));
+  if(face==='left') ctx.scale(-1,1);
+  const baseAngle=face==='up'?-.6:face==='down'?.3:-.1;
+  ctx.rotate(baseAngle+(chopping?(swinging?.85:-.85):0));
+  ctx.drawImage(image,280,310,730,650,-11,-24,34,31);
+  ctx.restore();
+}
+
 function drawPlayer(){
   // Player side-animation safety rule:
   // row 1 (right) is the canonical side animation. Left ALWAYS mirrors row 1.
@@ -384,6 +410,7 @@ function drawPlayer(){
     }else{
       ctx.drawImage(playerSheet,frame*CELL,row*CELL,CELL,CELL,dx,dy,size,size);
     }
+    drawEquippedForestryAxe(actorX,actorY,face);
     return;
   }
 
@@ -400,6 +427,7 @@ function drawPlayer(){
       ctx.drawImage(legacy,lx,ly,w,h);
     }
   }
+  drawEquippedForestryAxe(actorX,actorY,face);
 }
 
 function drawFishingEffects(){

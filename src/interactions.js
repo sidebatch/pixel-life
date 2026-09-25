@@ -24,7 +24,11 @@ function resolveWorldInteraction(tile=facingTile()){
   if(npc) return {kind:npc.id==='elli'?'market':'npc',label:npc.id==='elli'?'상점':'대화',target:npc};
   if(tile.x===sign.x&&tile.y===sign.y) return {kind:'sign',label:'표지판'};
   const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
-  if(tree) return {kind:'tree',label:getTreeState(tree).hp?'벌목':'재생 중',target:tree};
+  if(tree){
+    const needed=FORESTRY_TREES[tree.species]?.tier||1;
+    const label=!getTreeState(tree).hp?'재생 중':getEquippedForestryAxe().tier<needed?`${FORESTRY_AXES[needed-1].name} 필요`:'벌목';
+    return {kind:'tree',label,target:tree};
+  }
   const plot=farmPlotAt(tile.x,tile.y);
   if(plot) return {kind:'farm',label:farmPlotActionLabel(plot),target:plot};
   if(waterSet.has(key(tile.x,tile.y))) return {kind:'fishing',label:'낚시'};
@@ -39,13 +43,14 @@ function activateWorldInteraction(interaction){
     case 'market':return openMarket();
     case 'npc':return showDialog(interaction.target.name,interaction.target.dialog);
     case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · 물가에서는 낚시할 수 있어요.');
-    case 'tree':return hitResourceTree(interaction.target);
+    case 'tree':return startTreeChop(interaction.target);
     case 'farm':return openFarmPlot(interaction.target);
     case 'fishing':return startFishing();
     case 'building':return showDialog(interaction.target.name,interaction.target.dialog);
   }
 }
 function interact(){
+  if(isChoppingTree()) return;
   if(menuOpen) return;
   if(dialogOpen){ closeDialog(); return; }
   if(typeof isFishingActive==='function'&&isFishingActive()) return handleFishingAction();

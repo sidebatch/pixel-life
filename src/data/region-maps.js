@@ -7,7 +7,10 @@ const FOREST_REGION_SPECIES=Object.freeze({
 });
 const forestTreeId=(x,y,regionId='oldForest')=>`${regionId==='deepForest'?'deep_forest':'forest'}_tree_${x}_${y}`;
 const forestTreeSpecies=(x,y,regionId='oldForest')=>{
-  const species=FOREST_REGION_SPECIES[regionId]||FOREST_SPECIES;
+  // Forest 1-2 starts at the south edge: stronger trees appear farther north.
+  const species=regionId==='deepForest'?
+    (y<=23?FOREST_REGION_SPECIES.deepForest.slice(3):FOREST_REGION_SPECIES.deepForest.slice(0,3)):
+    (FOREST_REGION_SPECIES[regionId]||FOREST_SPECIES);
   return species[Math.abs(x*17+y*31)%species.length];
 };
 // Fixed coordinates make groves reproducible across visits and saved tree states.

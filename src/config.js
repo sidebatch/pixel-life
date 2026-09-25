@@ -43,7 +43,8 @@ const GAME_STATE = {
     coins:1230,
     flags:{},
     fishing:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:DEFAULT_FISHING_ROD_ID},
-    logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0}
+    logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},
+    forestry:{axeId:DEFAULT_FORESTRY_AXE_ID}
   },
   activity:{active:null}
 };
@@ -57,7 +58,7 @@ const MOVEMENT_CONFIG=Object.freeze({
 });
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
-const imgs={}, playerImgs={}, npcImgs={}, fishImgs={}, forestTreeImgs={}, forestStumpImgs={}, lifeItemImgs={}, matureCropImgs={}, youngCropImgs={};
+const imgs={}, playerImgs={}, npcImgs={}, fishImgs={}, forestTreeImgs={}, forestStumpImgs={}, forestryAxeImgs={}, lifeItemImgs={}, matureCropImgs={}, youngCropImgs={};
 let playerSheet=null;
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
 async function loadImageMap(target, urls, optional=false){
@@ -76,6 +77,7 @@ async function loadAll(){
     loadImageMap(fishImgs,FISH_URLS),
     loadImageMap(forestTreeImgs,FOREST_TREE_URLS),
     loadImageMap(forestStumpImgs,FOREST_STUMP_URLS),
+    loadImageMap(forestryAxeImgs,FORESTRY_AXE_URLS),
     loadImageMap(lifeItemImgs,LIFE_ITEM_URLS),
     loadImageMap(matureCropImgs,MATURE_CROP_URLS),
     loadImageMap(youngCropImgs,YOUNG_CROP_URLS),

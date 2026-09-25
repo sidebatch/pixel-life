@@ -2,8 +2,6 @@ const LIFE_CONTENT=Object.freeze({
   treeHp:100,
   treeDamage:20,
   treeRespawnMs:5*60*1000,
-  // Temporary logging XP balance; granted only when a tree is fully cut.
-  loggingXpBySpecies:Object.freeze({oak:10,pine:10,birch:10,maple:25,spruce:25,willow:25,cypress:25,broadleaf:25}),
   initialFarmPlots:4,
   logSellPrice:12,
   farmExpansionCosts:Object.freeze([
@@ -27,3 +25,23 @@ const LIFE_CONTENT=Object.freeze({
 });
 const LIFE_CROP_BY_ID=new Map(LIFE_CONTENT.crops.map(crop=>[crop.id,crop]));
 const isInitialFarmPlot=index=>index%4<2&&Math.floor(index/4)<2;
+
+// Provisional forestry balance. Upgrade recipes only use wood from trees
+// reachable with the player's current axe, so progression cannot deadlock.
+const FORESTRY_TREES=Object.freeze({
+  oak:Object.freeze({tier:1,maxHp:100,xp:10,logPrice:12}),
+  pine:Object.freeze({tier:1,maxHp:100,xp:12,logPrice:14}),
+  birch:Object.freeze({tier:1,maxHp:100,xp:14,logPrice:16}),
+  maple:Object.freeze({tier:2,maxHp:120,xp:25,logPrice:24}),
+  spruce:Object.freeze({tier:2,maxHp:120,xp:28,logPrice:27}),
+  willow:Object.freeze({tier:2,maxHp:120,xp:32,logPrice:30}),
+  cypress:Object.freeze({tier:3,maxHp:160,xp:55,logPrice:42}),
+  broadleaf:Object.freeze({tier:3,maxHp:160,xp:65,logPrice:48})
+});
+const FORESTRY_AXES=Object.freeze([
+  Object.freeze({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic',coins:0,materials:Object.freeze({})}),
+  Object.freeze({id:'axe.iron',name:'철 도끼',tier:2,damage:40,asset:'iron',coins:300,materials:Object.freeze({oak_log:8,pine_log:6,birch_log:4})}),
+  Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:50,asset:'steel',coins:1200,materials:Object.freeze({maple_log:8,spruce_log:6,willow_log:4})})
+]);
+const FORESTRY_AXE_BY_ID=new Map(FORESTRY_AXES.map(axe=>[axe.id,axe]));
+const DEFAULT_FORESTRY_AXE_ID='axe.basic';

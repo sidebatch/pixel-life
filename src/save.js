@@ -59,28 +59,34 @@ function normalizeSavedInventory(rawInventory){
 function normalizeSavedLifeWorld(rawWorld){
   const source=rawWorld&&typeof rawWorld==='object'?rawWorld:{};
   const now=Date.now();
-  const knownTrees=new Set();
+  const knownTrees=new Map();
   for(const regionId of Object.keys(FOREST_REGION_SPECIES)){
     const forest=REGION_WORLDS[regionId];
-    for(const tree of forest.trees) knownTrees.add(tree.id||forestTreeId(tree.x,tree.y,regionId));
     for(const line of forest.treeLines){
       for(let value=line.from;value<=line.to;value+=line.step){
         if(line.gaps?.some(([start,end])=>value>=start&&value<=end)) continue;
-        knownTrees.add(line.axis==='x'?forestTreeId(value,line.fixed,regionId):forestTreeId(line.fixed,value,regionId));
+        const x=line.axis==='x'?value:line.fixed,y=line.axis==='x'?line.fixed:value;
+        knownTrees.set(forestTreeId(x,y,regionId),forestTreeSpecies(x,y,regionId));
       }
+    }
+    for(const tree of forest.trees){
+      const id=tree.id||forestTreeId(tree.x,tree.y,regionId);
+      if(!knownTrees.has(id)) knownTrees.set(id,tree.species||forestTreeSpecies(tree.x,tree.y,regionId));
     }
   }
   const trees={};
   for(const [id,value] of Object.entries(source.trees||{})){
-    if(!knownTrees.has(id)||!value||typeof value!=='object') continue;
+    const species=knownTrees.get(id);
+    if(!species||!value||typeof value!=='object') continue;
+    const targetMaxHp=FORESTRY_TREES[species].maxHp;
     const choppedAt=Math.floor(saveFiniteNumber(value.choppedAt,0));
     if(choppedAt>0&&choppedAt<=now&&now-choppedAt<LIFE_CONTENT.treeRespawnMs){
-      trees[id]={hp:0,choppedAt,maxHp:LIFE_CONTENT.treeHp};
+      trees[id]={hp:0,choppedAt,maxHp:targetMaxHp};
     }else if(!choppedAt){
-      const oldScale=value.maxHp!==LIFE_CONTENT.treeHp&&Number(value.hp)<=3;
-      const hp=saveClamp(Math.floor(saveFiniteNumber(value.hp,LIFE_CONTENT.treeHp)),1,LIFE_CONTENT.treeHp);
-      const normalizedHp=oldScale?Math.ceil(hp*LIFE_CONTENT.treeHp/3):hp;
-      if(normalizedHp<LIFE_CONTENT.treeHp) trees[id]={hp:normalizedHp,choppedAt:null,maxHp:LIFE_CONTENT.treeHp};
+      const sourceMaxHp=Math.max(1,saveFiniteNumber(value.maxHp,Number(value.hp)<=3?3:LIFE_CONTENT.treeHp));
+      const hp=saveClamp(Math.floor(saveFiniteNumber(value.hp,sourceMaxHp)),1,sourceMaxHp);
+      const normalizedHp=saveClamp(Math.ceil(hp/sourceMaxHp*targetMaxHp),1,targetMaxHp);
+      if(normalizedHp<targetMaxHp) trees[id]={hp:normalizedHp,choppedAt:null,maxHp:targetMaxHp};
     }
   }
   const plots={};
@@ -155,6 +161,11 @@ function normalizeSavedLoggingProgress(rawProgress){
   return lifeSkillProgressFromTotal('logging',totalXp);
 }
 
+function normalizeSavedForestryProgress(rawProgress){
+  const id=rawProgress?.axeId;
+  return {axeId:FORESTRY_AXE_BY_ID.has(id)?id:DEFAULT_FORESTRY_AXE_ID};
+}
+
 function normalizeSavedProgressionFlags(rawFlags){
   const source=rawFlags&&typeof rawFlags==='object'?rawFlags:{};
   const sourceRewards=source.fishCollectionRewards&&typeof source.fishCollectionRewards==='object'?
@@ -188,7 +199,8 @@ function createSaveData(){
         coins:GAME_STATE.progression.coins,
         flags:GAME_STATE.progression.flags,
         fishing:GAME_STATE.progression.fishing,
-        logging:GAME_STATE.progression.logging
+        logging:GAME_STATE.progression.logging,
+        forestry:GAME_STATE.progression.forestry
       }
     }
   };
@@ -213,6 +225,7 @@ function applySaveData(saveData){
     GAME_STATE.inventory
   );
   GAME_STATE.progression.logging=normalizeSavedLoggingProgress(savedState.progression?.logging);
+  GAME_STATE.progression.forestry=normalizeSavedForestryProgress(savedState.progression?.forestry);
   return true;
 }
 

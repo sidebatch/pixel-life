@@ -47,7 +47,7 @@ const htmlIds = new Set(htmlIdList);
 assert(htmlIds.size === htmlIdList.length, 'HTML ids must be unique');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 10, 'Fish dex, inventory, and market tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 11, 'Fish dex, inventory, and market tabs must be accessible');
 assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
 assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab panel semantics are missing');
 assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
@@ -55,7 +55,7 @@ assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   'Market exit button must use the existing close behavior');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 120, `Expected 120 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 123, `Expected 123 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -69,7 +69,7 @@ for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/forestr
   const bytes=fs.readFileSync(path.join(root,assetPath));
   assert(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),`Invalid PNG asset: ${assetPath}`);
   const actual=`${bytes.readUInt32BE(16)}x${bytes.readUInt32BE(20)}`;
-  const expected=assetPath.includes('/trees/')?'120x144':'96x96';
+  const expected=assetPath.includes('/axes/')?'1254x1254':assetPath.includes('/trees/')?'120x144':'96x96';
   assert(actual===expected,`Wrong life asset size: ${assetPath} (${actual}, expected ${expected})`);
   assert([4,6].includes(bytes[25]),`Life asset must have an alpha channel: ${assetPath}`);
 }
@@ -404,6 +404,8 @@ assert(saveContext.__restored.progression.coins===1400&&saveContext.__restored.p
   'Saved fishing progression did not restore');
 assert(saveContext.__restored.progression.logging.level===1&&saveContext.__restored.progression.logging.totalXp===0,
   'Older saves without logging progress must start at Logging Lv.1');
+assert(saveContext.__restored.progression.forestry.axeId==='axe.basic',
+  'Older saves without a forestry axe must receive the basic axe');
 assert(saveContext.__restored.progression.flags.fishCollectionRewards[20]&&
   saveContext.__restored.progression.flags.masterAnglerTitle&&saveContext.__restored.progression.flags.masterRod,
   'Saved fish collection rewards did not restore');
@@ -418,6 +420,12 @@ vm.runInContext(`GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logg
   `globalThis.__savedLogging=JSON.parse(JSON.stringify(GAME_STATE.progression.logging));`,saveContext);
 assert(saveContext.__savedLogging.level===2&&saveContext.__savedLogging.xp===23&&saveContext.__savedLogging.totalXp===95,
   'Logging XP and level must survive a reload');
+vm.runInContext(`GAME_STATE.progression.forestry={axeId:'axe.iron'};saveGame();`+
+  `GAME_STATE.progression.forestry={axeId:'axe.basic'};loadGame();`+
+  `globalThis.__savedAxe=GAME_STATE.progression.forestry.axeId;`+
+  `globalThis.__invalidAxe=normalizeSavedForestryProgress({axeId:'axe.unknown'}).axeId;`,saveContext);
+assert(saveContext.__savedAxe==='axe.iron'&&saveContext.__invalidAxe==='axe.basic',
+  'Equipped axe must survive reload and invalid axe ids must use the starter axe');
 vm.runInContext(`${read('src/skill-ui.js')}\nglobalThis.__loggingCard=skillCardMarkup('logging');`,saveContext);
 assert(saveContext.__loggingCard.includes('벌목')&&saveContext.__loggingCard.includes('Lv.2')&&
   saveContext.__loggingCard.includes('role="progressbar"')&&saveContext.__loggingCard.includes('aria-valuenow="27"'),
@@ -439,7 +447,7 @@ assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFie
   saveContext.__lifeRestored.inventory.some(item=>item.type==='crop'&&item.id==='wheat'&&item.quantity===4)&&
   saveContext.__lifeRestored.world.trees.forest_tree_01.hp===0&&
   saveContext.__lifeRestored.world.trees.forest_tree_15_16.hp===67&&
-  saveContext.__lifeRestored.world.trees.deep_forest_tree_22_39.hp===40&&
+  saveContext.__lifeRestored.world.trees.deep_forest_tree_22_39.hp===48&&
   saveContext.__lifeRestored.world.trees.forest_tree_1_1.hp===0&&
   saveContext.__lifeRestored.world.plots.farm_09.cropId==='carrot'&&
   saveContext.__lifeRestored.world.plots.farm_10.cropId==='pumpkin'&&
@@ -450,7 +458,7 @@ assert(saveContext.__lifeLoaded&&saveContext.__lifeRestored.regionId==='sunnyFie
 vm.runInContext(`GAME_STATE.regionId='deepForest';GAME_STATE.playerLocation={x:25,y:44,face:'up'};`+
   `saveGame();GAME_STATE.regionId='lilacVillage';GAME_STATE.world.trees={};loadGame();`+
   `globalThis.__deepSavedRegion=GAME_STATE.regionId;globalThis.__deepSavedTree=GAME_STATE.world.trees.deep_forest_tree_22_39;`,saveContext);
-assert(saveContext.__deepSavedRegion==='deepForest'&&saveContext.__deepSavedTree.hp===40,
+assert(saveContext.__deepSavedRegion==='deepForest'&&saveContext.__deepSavedTree.hp===48,
   'Deep forest position and partial tree HP must survive a reload');
 saveStorage.set('pixel-life.save','{not-json');
 vm.runInContext('globalThis.__invalidJsonSave=loadGame();',saveContext);
@@ -499,7 +507,7 @@ assert(inventorySummaryNode.textContent==='보유 물고기 2마리'&&
   'Inventory grid must badge counts and preserve individual catch data');
 
 const lifeContext={
-  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0}}},
+  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic'}}},
   saveGame:()=>true,
   feedback:[],
   performance:{now:()=>100},
@@ -525,36 +533,58 @@ vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id
   `GAME_STATE.world.plots[lockedPlot.id].plantedAt=Date.now()-LIFE_CROP_BY_ID.get('carrot').growMs-1;`+
   `globalThis.__offlinePhase=getFarmPlotPhase(lockedPlot);`+
   `globalThis.__harvested=harvestFarmCrop(lockedPlot);globalThis.__doubleHarvest=harvestFarmCrop(lockedPlot);`+
-  `globalThis.__cropCount=lifeItemCount('crop','carrot');`,lifeContext);
+  `globalThis.__cropCount=lifeItemCount('crop','carrot');globalThis.__farmCoins=GAME_STATE.progression.coins;`,lifeContext);
 assert(lifeContext.__hits.join(',')==='true,true,true,true,true,false'&&lifeContext.__logs>=1&&lifeContext.__logs<=3&&
   lifeContext.__regrown.hp===100,'Trees must take five hits, grant one drop, and regrow from wall-clock time');
 assert(lifeContext.__firstHitToast===''&&lifeContext.GAME_STATE.progression.logging.totalXp===10&&
   lifeContext.feedback.length===1&&lifeContext.feedback[0].skillId==='logging'&&lifeContext.feedback[0].gained===10,
   'Partial hits must stay quiet and grant no XP; complete cuts must show Logging XP once');
+vm.runInContext(`GAME_STATE.regionId='deepForest';const lockedSource=REGION_WORLDS.deepForest.trees[0];`+
+  `const lockedTree={...lockedSource,id:forestTreeId(lockedSource.x,lockedSource.y,'deepForest'),interactable:true};`+
+  `globalThis.__lockedHit=hitResourceTree(lockedTree);globalThis.__lockedHp=getTreeState(lockedTree).hp;`+
+  `GAME_STATE.regionId='oldForest';`+
+  `for(const [id,count] of Object.entries(FORESTRY_AXES[1].materials))addLifeItem('material',id,count);`+
+  `globalThis.__ironBought=upgradeForestryAxe('axe.iron');globalThis.__repeatIron=upgradeForestryAxe('axe.iron');`,lifeContext);
+assert(lifeContext.__lockedHit===false&&lifeContext.__lockedHp===120&&lifeContext.__ironBought&&
+  lifeContext.__repeatIron===false&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.iron'&&
+  lifeContext.GAME_STATE.progression.coins===100&&
+  lifeContext.GAME_STATE.inventory.every(item=>item.id!=='pine_log'&&item.id!=='birch_log'),
+  'Basic axe must not damage tier-2 trees, and iron upgrade must use reachable wood only once');
 vm.runInContext(`GAME_STATE.regionId='deepForest';const deepSource=REGION_WORLDS.deepForest.trees[0];`+
   `const deepTree={...deepSource,id:forestTreeId(deepSource.x,deepSource.y,'deepForest'),interactable:true};`+
   `globalThis.__deepFirstHit=hitResourceTree(deepTree);globalThis.__deepFirstHp=getTreeState(deepTree).hp;`+
   `globalThis.__deepFirstReward=lifeItemCount('material','maple_log');`+
-  `globalThis.__deepHits=[hitResourceTree(deepTree),hitResourceTree(deepTree),hitResourceTree(deepTree),hitResourceTree(deepTree),hitResourceTree(deepTree)];`+
+  `globalThis.__deepHits=[hitResourceTree(deepTree),hitResourceTree(deepTree),hitResourceTree(deepTree)];`+
   `globalThis.__deepFinalHp=getTreeState(deepTree).hp;globalThis.__deepLogs=lifeItemCount('material','maple_log');`,lifeContext);
 assert(lifeContext.__deepFirstHit&&lifeContext.__deepFirstHp===80&&lifeContext.__deepFirstReward===0&&
-  lifeContext.__deepHits.join(',')==='true,true,true,true,false'&&lifeContext.__deepFinalHp===0&&
+  lifeContext.__deepHits.join(',')==='true,true,false'&&lifeContext.__deepFinalHp===0&&
   lifeContext.__deepLogs>=1&&lifeContext.__deepLogs<=3,
-  'Deep forest trees must grant wood only on the fifth hit and block duplicate rewards');
+  'Iron axe must cut tier-2 trees in three hits and block duplicate rewards');
 assert(lifeContext.GAME_STATE.progression.logging.totalXp===35&&lifeContext.feedback.length===2&&
   lifeContext.feedback[1].gained===25,
   'Deeper trees must award their provisional Logging XP only on completion');
-vm.runInContext(`GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logging',70);GAME_STATE.regionId='oldForest';`+
+vm.runInContext(`const upperSource=REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='cypress');`+
+  `const upperTree={...upperSource,id:forestTreeId(upperSource.x,upperSource.y,'deepForest'),interactable:true};`+
+  `globalThis.__upperLocked=hitResourceTree(upperTree);globalThis.__upperLockedHp=getTreeState(upperTree).hp;`+
+  `GAME_STATE.progression.coins=1600;`+
+  `for(const [id,count] of Object.entries(FORESTRY_AXES[2].materials))addLifeItem('material',id,count);`+
+  `globalThis.__steelBought=upgradeForestryAxe('axe.steel');`+
+  `globalThis.__upperHits=[hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree)];`,lifeContext);
+assert(lifeContext.__upperLocked===false&&lifeContext.__upperLockedHp===160&&lifeContext.__steelBought&&
+  lifeContext.__upperHits.join(',')==='true,true,true,true,false'&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel'&&
+  lifeContext.GAME_STATE.progression.logging.totalXp===90,
+  'Tier-3 tree must require steel axe and grant its own XP on the final hit');
+vm.runInContext(`GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logging',65);GAME_STATE.regionId='oldForest';`+
   `const levelTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_03');`+
-  `for(let hit=0;hit<4;hit++)hitResourceTree(levelTree);`+
+  `hitResourceTree(levelTree);`+
   `globalThis.__beforeFinalLevel=GAME_STATE.progression.logging.level;`+
   `globalThis.__finalLevelHit=hitResourceTree(levelTree);`+
   `globalThis.__afterFinalLevel=GAME_STATE.progression.logging.level;`,lifeContext);
 assert(lifeContext.__beforeFinalLevel===1&&lifeContext.__finalLevelHit&&lifeContext.__afterFinalLevel===2&&
-  lifeContext.feedback.length===3&&lifeContext.feedback[2].before.level===1&&lifeContext.feedback[2].after.level===2,
+  lifeContext.feedback.length===4&&lifeContext.feedback[3].before.level===1&&lifeContext.feedback[3].after.level===2,
   'Logging level-up must happen only on the finishing strike');
 assert(lifeContext.__poorBuy===false&&lifeContext.__plotBought===true&&lifeContext.__doubleBuy===false&&
-  lifeContext.GAME_STATE.progression.coins===400&&lifeContext.__planted===true&&lifeContext.__doublePlant===false&&
+  lifeContext.__farmCoins===400&&lifeContext.__planted===true&&lifeContext.__doublePlant===false&&
   lifeContext.__offlinePhase==='READY'&&lifeContext.__harvested===true&&lifeContext.__doubleHarvest===false&&
   lifeContext.__cropCount>=2&&lifeContext.__cropCount<=3,
   'Farm must reject unaffordable/duplicate actions and allow offline growth and one harvest');
@@ -569,8 +599,16 @@ vm.runInContext(`GAME_STATE.regionId='oldForest';const before=totalLogCount();`+
   `GAME_STATE.progression.logging.totalXp===xpBefore;`,lifeContext);
 assert(lifeContext.__failedHit===false&&lifeContext.__rollbackOk,
   'Failed life-content save must roll back tree damage and rewards');
-assert(lifeContext.__failedFinalHit===false&&lifeContext.__finalRollbackOk&&lifeContext.feedback.length===3,
+assert(lifeContext.__failedFinalHit===false&&lifeContext.__finalRollbackOk&&lifeContext.feedback.length===4,
   'A failed final-cut save must roll back wood, Logging XP, tree HP, and XP feedback');
+vm.runInContext(`GAME_STATE.progression.forestry.axeId='axe.basic';GAME_STATE.progression.coins=500;`+
+  `for(const [id,count] of Object.entries(FORESTRY_AXES[1].materials))addLifeItem('material',id,count);`+
+  `const beforeWood=Object.fromEntries(Object.keys(FORESTRY_AXES[1].materials).map(id=>[id,lifeItemCount('material',id)]));`+
+  `globalThis.__failedAxe=upgradeForestryAxe('axe.iron');`+
+  `globalThis.__axeRollback=GAME_STATE.progression.forestry.axeId==='axe.basic'&&GAME_STATE.progression.coins===500&&`+
+  `Object.entries(beforeWood).every(([id,count])=>lifeItemCount('material',id)===count);`,lifeContext);
+assert(lifeContext.__failedAxe===false&&lifeContext.__axeRollback,
+  'Failed axe-upgrade save must restore coins, recipe wood, and equipped axe');
 lifeContext.saveGame=()=>true;
 vm.runInContext(`GAME_STATE.inventory=[{type:'material',id:'log',quantity:2},{type:'material',id:'oak_log',quantity:3},{type:'material',id:'pine_log',quantity:4}];`+
   `globalThis.__woodBefore=totalLogCount();globalThis.__woodSpent=spendLogs(6);globalThis.__woodAfter=totalLogCount();`+
@@ -635,8 +673,8 @@ vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.
   `globalThis.__goodsSale=planGoodsSale(new Map([['material:log',2],['crop:carrot',1]]),goods);`+
   `globalThis.__goodsOversale=planGoodsSale(new Map([['material:log',5]]),goods);`,marketContext);
 assert(vm.runInContext(`marketGoodDefinition('material','birch_log').name==='자작나무 통나무'&&
-  planGoodsSale(new Map([['material:birch_log',2]]),[{type:'material',id:'birch_log',quantity:3}]).total===24`,marketContext),
-  'Species logs must be sellable without changing the existing log price');
+  planGoodsSale(new Map([['material:birch_log',2]]),[{type:'material',id:'birch_log',quantity:3}]).total===32`,marketContext),
+  'Species logs must sell for their configured per-species price');
 assert(vm.runInContext(`['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>{
   const crop=LIFE_CROP_BY_ID.get(id);
   return marketGoodDefinition('crop',id).price===crop.sellPrice&&
@@ -649,6 +687,22 @@ vm.runInContext('renderSeedMarket();',marketContext);
 assert((seedMarketNodes.marketList.innerHTML.match(/data-seed-id=/g)||[]).length===10&&
   ['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>seedMarketNodes.marketList.innerHTML.includes(`data-seed-id="${id}"`)),
   'Seed shop must list all ten crops, including the six new seeds');
+marketContext.GAME_STATE.progression.logging={level:1};
+marketContext.GAME_STATE.progression.forestry={axeId:'axe.basic'};
+marketContext.FORESTRY_AXE_URLS={basic:'basic.png',iron:'iron.png',steel:'steel.png'};
+marketContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic'});
+marketContext.nextForestryAxe=()=>({id:'axe.iron',name:'철 도끼',tier:2,damage:40,asset:'iron',coins:300,
+  materials:{oak_log:8,pine_log:6,birch_log:4}});
+marketContext.lifeItemCount=()=>0;
+marketContext.canUpgradeForestryAxe=()=>false;
+marketContext.skillCardMarkup=()=>'<div>벌목 Lv.1</div>';
+vm.runInContext('renderForestryMarket();',marketContext);
+assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
+  seedMarketNodes.marketList.innerHTML.includes('참나무 통나무 0/8')&&
+  seedMarketNodes.marketList.innerHTML.includes('코인 100/300')&&
+  seedMarketNodes.marketList.innerHTML.includes('disabled')&&
+  seedMarketNodes.marketStock.textContent.includes('기본 도끼'),
+  'Axe shop must show current gear, real recipe costs, and disable unaffordable upgrades');
 assert(marketContext.__sale.count===2&&marketContext.__sale.total===65&&
   marketContext.__sale.inventory.length===3&&
   marketContext.__sale.inventory[0].id==='fish.goldfish'&&
@@ -729,6 +783,7 @@ const validationScripts = [
   'src/data/world-map.js',
   'src/data/region-maps.js',
   'src/data/fishing-gear-data.js',
+  'src/data/life-content-data.js',
   'src/config.js',
   'src/world.js',
   'src/world-validation.js'
@@ -766,10 +821,12 @@ vm.runInContext(`GAME_STATE.regionId='oldForest';buildWorldRegion(REGION_WORLDS.
   `GAME_STATE.regionId='deepForest';buildWorldRegion(REGION_WORLDS.deepForest);globalThis.__deepReport=validatePlayableRegion();globalThis.__deepTrees=trees.filter(tree=>tree.interactable).length;`+
   `globalThis.__deepInterior=trees.filter(tree=>tree.x>2&&tree.x<61&&tree.y>2&&tree.y<45).length;`+
   `globalThis.__advancedSpecies=trees.every(tree=>FOREST_REGION_SPECIES.deepForest.includes(tree.species));`+
+  `globalThis.__advancedFartherNorth=trees.some(tree=>FORESTRY_TREES[tree.species].tier===3)&&`+
+  `trees.filter(tree=>FORESTRY_TREES[tree.species].tier===3).every(tree=>tree.y<=23);`+
   `GAME_STATE.regionId='sunnyFields';buildWorldRegion(REGION_WORLDS.sunnyFields);globalThis.__farmReport=validatePlayableRegion();globalThis.__plots=WORLD_DEFINITION.farmPlots.length;`,validationContext);
 assert(validationContext.__forestReport.region==='oldForest'&&validationContext.__resourceTrees>=100&&validationContext.__forestInterior>=60&&
   validationContext.__allForestChoppable&&validationContext.__starterSpecies&&validationContext.__forestBoundaryBlocked&&
-  validationContext.__deepReport.region==='deepForest'&&validationContext.__deepTrees>=100&&validationContext.__deepInterior>=60&&validationContext.__advancedSpecies&&
+  validationContext.__deepReport.region==='deepForest'&&validationContext.__deepTrees>=100&&validationContext.__deepInterior>=60&&validationContext.__advancedSpecies&&validationContext.__advancedFartherNorth&&
   validationContext.__farmReport.region==='sunnyFields'&&validationContext.__plots===16,
   'Forest and farm maps must have exits, fishing water, resource trees, and farm plots');
 const forestRoutes=vm.runInContext(`REGION_EXITS.lilacVillage.some(exit=>exit.to==='oldForest')&&

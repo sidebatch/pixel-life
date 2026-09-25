@@ -38,8 +38,11 @@ function renderInventoryFish(){
 function renderInventoryEquipment(){
   const rods=FISHING_RODS.filter(rod=>isFishingRodUnlocked(rod));
   const equipped=getEquippedFishingRod();
-  document.getElementById('inventorySummary').textContent=`사용 가능한 낚싯대 ${rods.length}개 · 현재 ${equipped.name}`;
+  const axe=getEquippedForestryAxe();
+  document.getElementById('inventorySummary').textContent=`현재 ${equipped.name} · ${axe.name}`;
   document.getElementById('inventoryScroll').innerHTML=`<p class="inventoryHint">장착 변경은 메뉴의 ‘낚시 장비’에서 할 수 있어요.</p>
+    <div class="inventoryEquipment equipped"><span class="inventoryEquipmentIcon"><img src="${FORESTRY_AXE_URLS[axe.asset]}" alt="" style="width:42px;height:42px;object-fit:contain;image-rendering:pixelated"></span>
+      <span><b>${axe.name}</b><small>나무 피해 ${axe.damage} · 엘리 상점에서 업그레이드</small></span><strong>장착 중</strong></div>
     ${rods.map(rod=>`<div class="inventoryEquipment${rod.id===equipped.id?' equipped':''}">
       <span class="inventoryEquipmentIcon">${rod.icon}</span>
       <span><b>${rod.name}</b><small>${rod.description}</small></span>

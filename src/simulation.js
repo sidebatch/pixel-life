@@ -32,7 +32,7 @@ function bufferPlayerDirection(d){
 }
 function clearPlayerInputBuffer(){ bufferedDir=null; }
 function tryMove(d){
-  if(!d||dialogOpen||menuOpen||player.moving) return;
+  if(!d||dialogOpen||menuOpen||player.moving||isChoppingTree()) return;
   player.face=d;
   const [dx,dy]=dirVec[d], nx=player.x+dx,ny=player.y+dy;
   if(isBlocked(nx,ny)) return;

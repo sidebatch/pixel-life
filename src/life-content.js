@@ -1,4 +1,26 @@
-const lifeUi={plotId:null,open:false,phase:null,toastTimer:null,hit:null,lastRefresh:0};
+const lifeUi={plotId:null,open:false,phase:null,toastTimer:null,hit:null,chop:null,lastRefresh:0};
+
+function getEquippedForestryAxe(){
+  return FORESTRY_AXE_BY_ID.get(GAME_STATE.progression.forestry?.axeId)||FORESTRY_AXES[0];
+}
+
+function nextForestryAxe(){return FORESTRY_AXES.find(axe=>axe.tier===getEquippedForestryAxe().tier+1)||null;}
+
+function canUpgradeForestryAxe(axe){
+  return axe?.id===nextForestryAxe()?.id&&GAME_STATE.progression.coins>=axe.coins&&
+    Object.entries(axe.materials).every(([id,count])=>lifeItemCount('material',id)>=count);
+}
+
+function upgradeForestryAxe(axeId){
+  const axe=FORESTRY_AXE_BY_ID.get(axeId);
+  if(!canUpgradeForestryAxe(axe)) return false;
+  return Boolean(commitLifeChange(()=>{
+    GAME_STATE.progression.coins-=axe.coins;
+    for(const [id,count] of Object.entries(axe.materials)) removeLifeItem('material',id,count);
+    GAME_STATE.progression.forestry.axeId=axe.id;
+    return true;
+  }));
+}
 
 function lifeItemIconMarkup(type,id,fallback=''){
   const asset=type==='material'?(id==='log'?LIFE_ITEM_URLS.log:LIFE_ITEM_URLS[`${id.slice(0,-4)}Log`]):
@@ -54,20 +76,23 @@ function commitLifeChange(change){
   const beforeWorld=JSON.parse(JSON.stringify(GAME_STATE.world));
   const beforeCoins=GAME_STATE.progression.coins;
   const beforeLogging=GAME_STATE.progression.logging?{...GAME_STATE.progression.logging}:null;
+  const beforeForestry=GAME_STATE.progression.forestry?{...GAME_STATE.progression.forestry}:null;
   const result=change();
   if(result&&saveGame()) return result;
   GAME_STATE.inventory=beforeInventory;
   GAME_STATE.world=beforeWorld;
   GAME_STATE.progression.coins=beforeCoins;
   if(beforeLogging) GAME_STATE.progression.logging=beforeLogging;
+  if(beforeForestry) GAME_STATE.progression.forestry=beforeForestry;
   return null;
 }
 
 function getTreeState(tree,now=Date.now()){
+  const maxHp=FORESTRY_TREES[tree.species]?.maxHp||LIFE_CONTENT.treeHp;
   const saved=GAME_STATE.world.trees?.[tree.id];
-  if(!saved) return {hp:LIFE_CONTENT.treeHp,choppedAt:null};
+  if(!saved) return {hp:maxHp,choppedAt:null,maxHp};
   if(saved.choppedAt&&now-saved.choppedAt>=LIFE_CONTENT.treeRespawnMs)
-    return {hp:LIFE_CONTENT.treeHp,choppedAt:null};
+    return {hp:maxHp,choppedAt:null,maxHp};
   return saved;
 }
 
@@ -83,28 +108,50 @@ function showLifeToast(message,options={}){
 
 function hitResourceTree(tree){
   if(!tree?.interactable||!FOREST_REGION_SPECIES[GAME_STATE.regionId]) return false;
+  const treeType=FORESTRY_TREES[tree.species],axe=getEquippedForestryAxe();
+  if(!treeType) return false;
+  if(axe.tier<treeType.tier){
+    showLifeToast(`${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
+    return false;
+  }
   const now=Date.now();
   const current=getTreeState(tree,now);
   if(current.hp<=0){
     showLifeToast('나무가 다시 자라고 있어요');
     return false;
   }
-  const nextHp=Math.max(0,current.hp-LIFE_CONTENT.treeDamage);
+  const nextHp=Math.max(0,current.hp-axe.damage);
   const logs=nextHp===0?1+Math.floor(Math.random()*3):0;
-  const gainedXp=logs?(LIFE_CONTENT.loggingXpBySpecies[tree.species]||0):0;
+  const gainedXp=logs?treeType.xp:0;
   const progressBefore=gainedXp?lifeSkillProgressSnapshot('logging'):null;
   const success=commitLifeChange(()=>{
-    GAME_STATE.world.trees[tree.id]=nextHp===0?{hp:0,choppedAt:now,maxHp:LIFE_CONTENT.treeHp}:{hp:nextHp,choppedAt:null,maxHp:LIFE_CONTENT.treeHp};
+    GAME_STATE.world.trees[tree.id]=nextHp===0?{hp:0,choppedAt:now,maxHp:treeType.maxHp}:{hp:nextHp,choppedAt:null,maxHp:treeType.maxHp};
     if(logs) addLifeItem('material',`${tree.species}_log`,logs);
     if(gainedXp) grantLifeSkillXp('logging',gainedXp);
     return true;
   });
   if(!success){showLifeToast('저장하지 못했어요. 다시 시도해 주세요');return false;}
-  lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,until:performance.now()+650};
+  lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,cut:nextHp===0,until:performance.now()+650};
   if(logs){
     showLifeToast(`+${logs} ${FOREST_WOOD[tree.species]} 통나무`,{belowSkill:true});
     showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
   }
+  return true;
+}
+
+function isChoppingTree(){return Boolean(lifeUi.chop);}
+
+function startTreeChop(tree){
+  if(!tree||lifeUi.chop||player.moving||menuOpen||dialogOpen) return false;
+  const treeType=FORESTRY_TREES[tree.species];
+  if(!treeType) return false;
+  if(getEquippedForestryAxe().tier<treeType.tier){
+    showLifeToast(`${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
+    return false;
+  }
+  if(getTreeState(tree).hp<=0){showLifeToast('나무가 다시 자라고 있어요');return false;}
+  clearMovement();
+  lifeUi.chop={tree,regionId:GAME_STATE.regionId,startedAt:performance.now(),struck:false};
   return true;
 }
 
@@ -233,6 +280,16 @@ function closeFarmPlot(options={}){
 function isFarmPlotOpen(){return lifeUi.open;}
 
 function updateLifeContentUi(now){
+  const chop=lifeUi.chop;
+  if(chop){
+    const elapsed=now-chop.startedAt;
+    if(!chop.struck&&elapsed>=170){
+      chop.struck=true;
+      const cut=getTreeState(chop.tree).hp<=getEquippedForestryAxe().damage;
+      if(hitResourceTree(chop.tree)) playForestryChopSound(cut);
+    }
+    if(elapsed>=390) lifeUi.chop=null;
+  }
   if(!lifeUi.open||now-lifeUi.lastRefresh<1000) return;
   if(lifeUi.phase!=='GROWING') return;
   lifeUi.lastRefresh=now;renderLifePanel();

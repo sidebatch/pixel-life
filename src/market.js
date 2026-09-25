@@ -91,7 +91,7 @@ function planFishSale(selection,inventory=GAME_STATE.inventory){
 function marketGoodDefinition(type,id){
   if(type==='material'){
     const wood=id.endsWith('_log')&&FOREST_WOOD[id.slice(0,-4)];
-    if(id==='log'||wood) return {name:wood?`${wood} 통나무`:'통나무',icon:'🪵',price:LIFE_CONTENT.logSellPrice};
+    if(id==='log'||wood) return {name:wood?`${wood} 통나무`:'통나무',icon:'🪵',price:wood?FORESTRY_TREES[id.slice(0,-4)].logPrice:LIFE_CONTENT.logSellPrice};
   }
   if(type==='crop'&&LIFE_CROP_BY_ID.has(id)){
     const crop=LIFE_CROP_BY_ID.get(id);
@@ -165,6 +165,21 @@ function renderSeedMarket(){
   list.scrollTop=scrollTop;
 }
 
+function renderForestryMarket(){
+  const equipped=getEquippedForestryAxe(),next=nextForestryAxe();
+  document.getElementById('marketStock').textContent=`현재 ${equipped.name} · 벌목 Lv.${GAME_STATE.progression.logging.level}`;
+  const current=`<div class="marketAxeCard equipped"><img src="${FORESTRY_AXE_URLS[equipped.asset]}" alt=""><div><b>${equipped.name}</b><small>장착 중 · 나무 피해 ${equipped.damage}</small></div></div>`;
+  const upgrade=next?`<div class="marketAxeCard"><img src="${FORESTRY_AXE_URLS[next.asset]}" alt=""><div><b>${next.name}</b><small>나무 피해 ${next.damage} · ${next.tier}단계 나무 벌목 가능</small>
+    <div class="marketAxeMaterials">${Object.entries(next.materials).map(([id,count])=>{
+      const name=FOREST_WOOD[id.slice(0,-4)];
+      const held=lifeItemCount('material',id);
+      return `<span class="${held>=count?'ready':'missing'}">${name} 통나무 ${held}/${count}</span>`;
+    }).join('')}<span class="${GAME_STATE.progression.coins>=next.coins?'ready':'missing'}">코인 ${GAME_STATE.progression.coins.toLocaleString()}/${next.coins.toLocaleString()}</span></div>
+    <button type="button" class="marketAxeUpgrade" data-axe-id="${next.id}" ${canUpgradeForestryAxe(next)?'':'disabled'}>${next.name}로 업그레이드</button></div></div>`:
+    '<div class="marketEmpty"><span>🪓</span><b>최고 단계 도끼예요</b><p>모든 숲의 나무를 벨 수 있어요.</p></div>';
+  document.getElementById('marketList').innerHTML=`${skillCardMarkup('logging')}${current}${upgrade}`;
+}
+
 function buyMarketSeed(cropId){
   const crop=LIFE_CROP_BY_ID.get(cropId);
   if(!crop||GAME_STATE.progression.coins<crop.seedPrice) return false;
@@ -200,18 +215,20 @@ function renderMarket(){
     const active=button.dataset.marketView===marketState.view;
     button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));
   });
-  document.getElementById('marketTitle').textContent={fish:'물고기 판매',goods:'재료 판매',seeds:'씨앗 구매'}[marketState.view];
+  document.getElementById('marketTitle').textContent={fish:'물고기 판매',goods:'재료 판매',seeds:'씨앗 구매',axes:'도끼 업그레이드'}[marketState.view];
   document.querySelector('.marketGreeting').textContent={fish:'엘리: 어떤 물고기를 팔고 싶어?',
-    goods:'엘리: 어떤 재료를 팔고 싶어?',seeds:'엘리: 농장에 심을 씨앗을 골라 봐!'}[marketState.view];
+    goods:'엘리: 어떤 재료를 팔고 싶어?',seeds:'엘리: 농장에 심을 씨앗을 골라 봐!',axes:'엘리: 도끼를 더 단단하게 만들어 줄게!'}[marketState.view];
   document.querySelector('.marketRule').textContent=marketState.view==='fish'?'같은 어종은 먼저 낚은 물고기부터 판매돼요.':
-    marketState.view==='goods'?'통나무와 수확한 작물을 원하는 수량만큼 팔 수 있어요.':'씨앗을 사서 햇살 농장의 빈 밭에 심어 보세요.';
+    marketState.view==='goods'?'통나무와 수확한 작물을 원하는 수량만큼 팔 수 있어요.':
+    marketState.view==='axes'?'목재를 남겨 두면 더 좋은 도끼로 업그레이드할 수 있어요.':'씨앗을 사서 햇살 농장의 빈 밭에 심어 보세요.';
   document.getElementById('marketMessage').textContent=marketState.message;
-  const seeds=marketState.view==='seeds';
-  document.querySelector('.marketTotalLine').hidden=seeds;
-  document.getElementById('marketSellBtn').hidden=seeds;
+  const noSale=marketState.view==='seeds'||marketState.view==='axes';
+  document.querySelector('.marketTotalLine').hidden=noSale;
+  document.getElementById('marketSellBtn').hidden=noSale;
   document.getElementById('marketTotalLabel').textContent=marketState.view==='fish'?'선택한 물고기':'선택한 재료';
   document.getElementById('marketSellBtn').textContent=marketState.view==='goods'?'선택한 재료 판매':'선택한 물고기 판매';
-  if(seeds){renderSeedMarket();return;}
+  if(marketState.view==='seeds'){renderSeedMarket();return;}
+  if(marketState.view==='axes'){renderForestryMarket();return;}
   if(marketState.view==='goods'){renderGoodsMarket();return;}
   const groups=groupInventoryFish();
   const availableById=new Map(groups.map(group=>[group.fish.id,group.count]));
@@ -323,6 +340,15 @@ if(typeof document!=='undefined'){
     renderMarket();document.getElementById('marketList').scrollTop=0;
   }));
   document.getElementById('marketList').addEventListener('click',event=>{
+    if(marketState.view==='axes'){
+      const button=event.target.closest('[data-axe-id]');
+      if(!button||button.disabled) return;
+      const axe=FORESTRY_AXE_BY_ID.get(button.dataset.axeId);
+      const success=upgradeForestryAxe(button.dataset.axeId);
+      marketState.message=success?`${axe.name}로 업그레이드했어요!`:'도끼를 업그레이드하지 못했어요.';
+      if(success) setMarketCoinDisplay(GAME_STATE.progression.coins);
+      renderMarket();return;
+    }
     if(marketState.view==='seeds'){
       const button=event.target.closest('[data-seed-id]');
       if(button&&!button.disabled) buyMarketSeed(button.dataset.seedId);

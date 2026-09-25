@@ -148,3 +148,10 @@
   .marketEquipmentCosts .ready{background:rgba(91,207,146,.18);color:#bdf5d4}
   .marketEquipmentCosts .missing{background:rgba(212,127,85,.18);color:#f0c1a4}
   .marketEquipmentDetail .marketEquipmentNote{color:#ffe0a1;font-weight:750}
+
+  .inventoryHandPicker{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 11px;padding:10px;border:1px solid rgba(169,231,200,.3);border-radius:14px;background:rgba(112,193,155,.1)}
+  .inventoryHandPicker>span{grid-column:1/-1;color:#d9f4e3;font-size:11px;font-weight:850}
+  .inventoryHandPicker button{min-height:42px;border:1px solid rgba(218,241,225,.27);border-radius:10px;background:rgba(255,255,255,.07);color:#eafbf0;font:800 12px system-ui}
+  .inventoryHandPicker button.active{border-color:#a1ecca;background:#bcecd4;color:#194b3d}
+  .inventoryHandPicker button:focus-visible{outline:2px solid #e3ffd5;outline-offset:2px}
+  .inventoryOutfitPreview{display:block;width:72px;height:72px;background-repeat:no-repeat;background-size:216px 288px;background-position:-72px 0;image-rendering:pixelated}

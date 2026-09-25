@@ -365,6 +365,65 @@ function drawNPC(npc){
   ctx.restore();
 }
 
+function splitStarterOutfitSheet(image,cell){
+  if(!image) return null;
+  const source=document.createElement('canvas');
+  source.width=image.width;source.height=image.height;
+  const sourceCtx=source.getContext('2d',{willReadFrequently:true});
+  sourceCtx.drawImage(image,0,0);
+  const sourcePixels=sourceCtx.getImageData(0,0,image.width,image.height).data;
+  const base=document.createElement('canvas'),outfit=document.createElement('canvas');
+  base.width=outfit.width=image.width;base.height=outfit.height=image.height;
+  const baseCtx=base.getContext('2d'),outfitCtx=outfit.getContext('2d');
+  const baseData=baseCtx.createImageData(image.width,image.height);
+  const outfitData=outfitCtx.createImageData(image.width,image.height);
+  for(let pixel=0;pixel<image.width*image.height;pixel++){
+    const index=pixel*4,alpha=sourcePixels[index+3];
+    if(!alpha) continue;
+    const red=sourcePixels[index],green=sourcePixels[index+1],blue=sourcePixels[index+2];
+    const frameY=Math.floor(pixel/image.width)%cell;
+    const skin=red>145&&red>green+25&&green>blue+12&&green>75&&blue>50;
+    const hair=red>green+12&&green>blue+5&&red<175&&frameY<cell*.7;
+    const coat=blue>red+8&&blue>=green&&frameY>cell*.34;
+    const isOutfit=coat||(frameY>cell*.62&&!skin&&!hair);
+    const target=isOutfit?outfitData.data:baseData.data;
+    target[index]=red;target[index+1]=green;target[index+2]=blue;target[index+3]=alpha;
+  }
+  baseCtx.putImageData(baseData,0,0);
+  outfitCtx.putImageData(outfitData,0,0);
+  return {base,outfit};
+}
+
+async function prepareCharacterOutfitLayers(){
+  try{
+    characterLayerSheets[DEFAULT_OUTFIT_ID]={
+      walk:splitStarterOutfitSheet(playerSheet,96),
+      chop:splitStarterOutfitSheet(forestryChopImg,320)
+    };
+    for(const outfit of CHARACTER_OUTFITS){
+      if(outfit.id===DEFAULT_OUTFIT_ID||outfit.renderMode!=='layered') continue;
+      const [walk,chop]=await Promise.all([loadImage(outfit.walkSheet),loadImage(outfit.chopSheet)]);
+      if(!playerSheet||!forestryChopImg||walk.width!==playerSheet.width||walk.height!==playerSheet.height||
+        chop.width!==forestryChopImg.width||chop.height!==forestryChopImg.height)
+        throw new Error(`Wrong frame dimensions for ${outfit.id}`);
+      characterLayerSheets[outfit.id]={
+        walk:{base:characterLayerSheets[DEFAULT_OUTFIT_ID].walk.base,outfit:walk},
+        chop:{base:characterLayerSheets[DEFAULT_OUTFIT_ID].chop.base,outfit:chop}
+      };
+    }
+  }catch(error){
+    console.warn('Starter outfit layers unavailable; using original character art.',error);
+  }
+}
+
+function drawCharacterFrame(pose,image,...drawArgs){
+  const outfitId=GAME_STATE.appearance?.outfitId||DEFAULT_OUTFIT_ID;
+  const layers=characterLayerSheets[outfitId]?.[pose];
+  if(!layers){ctx.drawImage(image,...drawArgs);return;}
+  ctx.drawImage(layers.base,...drawArgs);
+  ctx.drawImage(layers.outfit,...drawArgs);
+}
+
 function drawForestryChopAxe(actorX,actorY,face,phase){
   const axeAsset=getEquippedForestryAxe().asset;
   const image=forestryAxeImgs[axeAsset];
@@ -392,7 +451,7 @@ function drawForestryChopPlayer(actorX,actorY,face){
   // right, front and back characters the same size and avoids border bleed.
   const cell=320,size=68;
   if(face==='up') drawForestryChopAxe(actorX,actorY,face,phase);
-  ctx.drawImage(forestryChopImg,phase*cell,row*cell,cell,cell,
+  drawCharacterFrame('chop',forestryChopImg,phase*cell,row*cell,cell,cell,
     Math.round(actorX-size/2),Math.round(actorY+15-size),size,size);
   if(face!=='up') drawForestryChopAxe(actorX,actorY,face,phase);
 }
@@ -403,6 +462,26 @@ function forestryPlayerDrawDepth(){
   // The target tree should cover a player standing north of it.
   return chop&&player.face!=='down'?
     Math.max(playerDepth,chop.tree.y*TILE+TILE+1):playerDepth;
+}
+
+function drawPlayerHeldTool(actorX,actorY,face,frame){
+  const tool=typeof isFishingActive==='function'&&isFishingActive()?'rod':
+    GAME_STATE.appearance?.activeTool||'axe';
+  const image=tool==='rod'?fishingRodImgs[getEquippedFishingRod().asset]:
+    forestryAxeImgs[getEquippedForestryAxe().asset];
+  if(!image) return;
+  const [handX,handY]={down:[14,4],right:[12,2],up:[17,-1]}[face]||[14,4];
+  const bob=player.moving&&frame===2?1:0;
+  ctx.save();
+  ctx.translate(Math.round(actorX+handX),Math.round(actorY+handY+bob));
+  if(tool==='rod'){
+    ctx.drawImage(image,0,0,image.width,image.height,-4,-41,44,44);
+  }else if(getEquippedForestryAxe().asset==='master'){
+    ctx.drawImage(image,0,60,1254,1140,-2,-30,30,30);
+  }else{
+    ctx.drawImage(image,280,310,730,650,-3,-29,30,30);
+  }
+  ctx.restore();
 }
 
 function drawPlayer(){
@@ -433,10 +512,13 @@ function drawPlayer(){
       ctx.save();
       ctx.translate(actorX,0);
       ctx.scale(-1,1);
-      ctx.drawImage(playerSheet,frame*CELL,row*CELL,CELL,CELL,-size/2,dy,size,size);
+      drawCharacterFrame('walk',playerSheet,frame*CELL,row*CELL,CELL,CELL,-size/2,dy,size,size);
+      drawPlayerHeldTool(0,actorY,'right',frame);
       ctx.restore();
     }else{
-      ctx.drawImage(playerSheet,frame*CELL,row*CELL,CELL,CELL,dx,dy,size,size);
+      if(face==='up') drawPlayerHeldTool(actorX,actorY,face,frame);
+      drawCharacterFrame('walk',playerSheet,frame*CELL,row*CELL,CELL,CELL,dx,dy,size,size);
+      if(face!=='up') drawPlayerHeldTool(actorX,actorY,face,frame);
     }
     return;
   }
@@ -449,9 +531,13 @@ function drawPlayer(){
     const lx=actorX-w/2, ly=actorY-h+24;
     if(mirrorLeft){
       ctx.save();ctx.translate(actorX,0);ctx.scale(-1,1);
-      ctx.drawImage(legacy,-w/2,ly,w,h);ctx.restore();
+      ctx.drawImage(legacy,-w/2,ly,w,h);
+      drawPlayerHeldTool(0,actorY,'right',frame);
+      ctx.restore();
     }else{
+      if(face==='up') drawPlayerHeldTool(actorX,actorY,face,frame);
       ctx.drawImage(legacy,lx,ly,w,h);
+      if(face!=='up') drawPlayerHeldTool(actorX,actorY,face,frame);
     }
   }
 }

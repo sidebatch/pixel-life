@@ -15,6 +15,14 @@ const PROJECT = Object.freeze({
   coreRule:'CORE systems stay stable; gameplay grows through Activity Modules.'
 });
 
+// Appearance data is independent of the equipped axe and fishing rod.
+const DEFAULT_OUTFIT_ID='outfit.traveler';
+const CHARACTER_OUTFITS=Object.freeze([
+  Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
+    chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'layered'})
+]);
+const CHARACTER_OUTFIT_BY_ID=new Map(CHARACTER_OUTFITS.map(outfit=>[outfit.id,outfit]));
+
 const WORLD_REGIONS = Object.freeze({
   lilacVillage:{id:'lilacVillage',name:'라일락 연못 마을',status:'playable'},
   oldForest:{id:'oldForest',name:'오래된 숲 1-1',status:'playable'},
@@ -39,6 +47,7 @@ const GAME_STATE = {
   inventory:[],
   world:{trees:{},plots:{}},
   collections:{fish:{}},
+  appearance:{outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],activeTool:'axe'},
   progression:{
     coins:0,
     flags:{},
@@ -58,9 +67,22 @@ const MOVEMENT_CONFIG=Object.freeze({
 });
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
-const imgs={}, playerImgs={}, npcImgs={}, fishImgs={}, forestTreeImgs={}, forestStumpImgs={}, forestryAxeImgs={}, lifeItemImgs={}, matureCropImgs={}, youngCropImgs={};
+const imgs={}, playerImgs={}, npcImgs={}, fishImgs={}, forestTreeImgs={}, forestStumpImgs={}, forestryAxeImgs={}, fishingRodImgs={}, lifeItemImgs={}, matureCropImgs={}, youngCropImgs={};
 let playerSheet=null,forestryChopImg=null;
+const characterLayerSheets={};
+const fishingRodImageLoads=new Map();
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
+function ensureFishingRodImage(asset){
+  if(fishingRodImgs[asset]) return Promise.resolve(fishingRodImgs[asset]);
+  if(!FISHING_ROD_URLS[asset]) return Promise.reject(new Error(`Unknown fishing rod art: ${asset}`));
+  if(!fishingRodImageLoads.has(asset)){
+    fishingRodImageLoads.set(asset,loadImage(FISHING_ROD_URLS[asset]).then(image=>{
+      fishingRodImgs[asset]=image;
+      return image;
+    }).catch(error=>{fishingRodImageLoads.delete(asset);throw error;}));
+  }
+  return fishingRodImageLoads.get(asset);
+}
 async function loadImageMap(target, urls, optional=false){
   await Promise.all(Object.entries(urls).map(async ([key,url])=>{
     try{ target[key]=await loadImage(url); }
@@ -78,6 +100,7 @@ async function loadAll(){
     loadImageMap(forestTreeImgs,FOREST_TREE_URLS),
     loadImageMap(forestStumpImgs,FOREST_STUMP_URLS),
     loadImageMap(forestryAxeImgs,FORESTRY_AXE_URLS),
+    ensureFishingRodImage(getEquippedFishingRod().asset),
     loadImageMap(lifeItemImgs,LIFE_ITEM_URLS),
     loadImageMap(matureCropImgs,MATURE_CROP_URLS),
     loadImageMap(youngCropImgs,YOUNG_CROP_URLS),
@@ -91,4 +114,5 @@ async function loadAll(){
     console.warn('Player sheet failed; loading legacy fallback frames.',err);
     await loadImageMap(playerImgs,PLAYER_URLS);
   }
+  await prepareCharacterOutfitLayers();
 }

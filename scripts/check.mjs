@@ -49,12 +49,14 @@ const freshContext={WORLD_DEFINITION:{tileSize:48,width:64,height:48},
   document:{getElementById:()=>({width:576,height:1024,getContext:()=>({})})},
   DEFAULT_FISHING_ROD_ID:'rod.basic',DEFAULT_FORESTRY_AXE_ID:'axe.basic'};
 vm.createContext(freshContext);
-vm.runInContext(`${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
+vm.runInContext(`${read('src/assets.js')}\n${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
 assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progression.fishing.level===1&&
   freshContext.__fresh.progression.logging.level===1&&
   freshContext.__fresh.progression.fishing.equippedRodId==='rod.basic'&&
   freshContext.__fresh.progression.forestry.axeId==='axe.basic'&&
-  freshContext.__fresh.progression.forestry.ownedAxeIds.join(',')==='axe.basic',
+  freshContext.__fresh.progression.forestry.ownedAxeIds.join(',')==='axe.basic'&&
+  freshContext.__fresh.appearance.outfitId==='outfit.traveler'&&
+  freshContext.__fresh.appearance.activeTool==='axe',
   'A new browser session must start at zero coins, skill Lv.1, and starter gear');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
@@ -169,7 +171,7 @@ const rodShopContext={
     {type:'fish',id:'fish.koi',quantity:20,price:35},
     {type:'fish',id:'fish.crucian_carp',quantity:13,price:28},
     {type:'material',id:'oak_log',quantity:3}
-  ],progression:{coins:2000,fishing:{level:5,equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']}}},
+  ],appearance:{activeTool:'axe'},progression:{coins:2000,fishing:{level:5,equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']}}},
   saveGame:()=>true
 };
 vm.createContext(rodShopContext);
@@ -191,10 +193,15 @@ assert(rodShopContext.__first==='rod.sturdy'&&!rodShopContext.__notEnough&&rodSh
   rodShopContext.__after.progression.fishing.purchasedRodIds.includes('rod.sturdy')&&
   rodShopContext.__manualEquip&&!rodShopContext.__unownedEquip&&
   rodShopContext.GAME_STATE.progression.fishing.equippedRodId==='rod.sturdy'&&
+  rodShopContext.GAME_STATE.appearance.activeTool==='rod'&&
   rodShopContext.__after.inventory.filter(item=>item.type==='fish').length===1&&
   rodShopContext.__after.inventory.find(item=>item.id==='fish.crucian_carp').quantity===1,
   'Rod purchase must consume exact fish and coins once, preserve the equipped rod, and keep unrelated items');
 rodShopContext.saveGame=()=>false;
+vm.runInContext(`globalThis.__failedRodEquip=equipFishingRod('rod.basic');`,rodShopContext);
+assert(!rodShopContext.__failedRodEquip&&rodShopContext.GAME_STATE.progression.fishing.equippedRodId==='rod.sturdy'&&
+  rodShopContext.GAME_STATE.appearance.activeTool==='rod',
+  'Failed rod equip must restore both equipment and the held tool');
 vm.runInContext(`globalThis.__failedPurchase=purchaseFishingRod('rod.steel');globalThis.__afterFailure=JSON.stringify(GAME_STATE);`,rodShopContext);
 assert(!rodShopContext.__failedPurchase&&rodShopContext.__afterFailure===rodShopContext.__beforeFailure,
   'Failed rod purchase save must restore fish, coins, and equipment');
@@ -475,18 +482,27 @@ const saveContext={
   }
 };
 vm.createContext(saveContext);
-vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n${read('src/save.js')}\n`+
+vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n`+
+  `const DEFAULT_OUTFIT_ID='outfit.traveler';const CHARACTER_OUTFIT_BY_ID=new Map([[DEFAULT_OUTFIT_ID,{id:DEFAULT_OUTFIT_ID}]]);\n`+
+  `${read('src/save.js')}\n`+
   `GAME_STATE.inventory.push({type:'fish',id:'fish.crucian_carp',name:'붕어',rarity:'common',sizeCm:22.5,price:26,quantity:1});`+
   `GAME_STATE.collections.fish['fish.crucian_carp']={fishId:'fish.crucian_carp',name:'붕어',rarity:'common',count:2,minSizeCm:20,maxSizeCm:25,totalSizeCm:45,averageSizeCm:22.5};`+
   `GAME_STATE.inventory.push({type:'equipment',id:'rod.master_angler',name:'강태공의 낚싯대',quantity:1});`+
+  `GAME_STATE.appearance={outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],activeTool:'rod'};`+
   `GAME_STATE.progression.coins=1400;GAME_STATE.progression.flags={fishCollectionRewards:{5:true,10:true,15:true,19:true,20:true},rareFishHints:true,finalFishClue:true,masterAnglerTitle:true,masterRod:true};GAME_STATE.progression.fishing={level:2,xp:8,totalXp:80,equippedRodId:'rod.master_angler'};`+
   `saveGame();`+
-  `GAME_STATE.inventory=[];GAME_STATE.collections.fish={};GAME_STATE.progression.coins=0;GAME_STATE.progression.flags={};GAME_STATE.progression.fishing={level:1,xp:0,totalXp:0};`+
+  `GAME_STATE.inventory=[];GAME_STATE.appearance=null;GAME_STATE.collections.fish={};GAME_STATE.progression.coins=0;GAME_STATE.progression.flags={};GAME_STATE.progression.fishing={level:1,xp:0,totalXp:0};`+
   `globalThis.__loaded=loadGame();globalThis.__restored=JSON.parse(JSON.stringify(GAME_STATE));`+
   `globalThis.__lockedRod=normalizeSavedFishingProgress({level:2,xp:0,totalXp:0,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__oldCap=normalizeSavedFishingProgress({level:20,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',20)+900,equippedRodId:'rod.expert'},{},[]);`+
-  `globalThis.__savedMastery=normalizeSavedFishingProgress({level:100,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17,equippedRodId:'rod.expert'},{},[]);`,saveContext);
+  `globalThis.__savedMastery=normalizeSavedFishingProgress({level:100,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17,equippedRodId:'rod.expert'},{},[]);`+
+  `globalThis.__invalidAppearance=normalizeSavedAppearance({outfitId:'outfit.unknown',ownedOutfitIds:['outfit.unknown'],activeTool:'bad'});`,saveContext);
 assert(saveContext.__loaded,'Versioned save did not load');
+assert(saveContext.__restored.appearance.outfitId==='outfit.traveler'&&
+  saveContext.__restored.appearance.activeTool==='rod'&&
+  saveContext.__invalidAppearance.outfitId==='outfit.traveler'&&
+  saveContext.__invalidAppearance.activeTool==='axe',
+  'Appearance and held tool must save safely and invalid legacy values must fall back to defaults');
 assert(saveContext.__restored.inventory.length===2&&saveContext.__restored.inventory[0].id==='fish.crucian_carp'&&
   saveContext.__restored.inventory[1].id==='rod.master_angler',
   'Saved inventory did not restore');
@@ -631,17 +647,31 @@ inventoryContext.getEquippedFishingRod=()=>inventoryContext.FISHING_RODS[0];
 inventoryContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',asset:'basic'});
 inventoryContext.getOwnedForestryAxes=()=>[{id:'axe.basic',name:'기본 도끼',asset:'basic'},{id:'axe.iron',name:'철 도끼',asset:'iron'}];
 inventoryContext.FORESTRY_AXE_URLS={basic:'/axe.png',iron:'/iron.png'};
+inventoryContext.GAME_STATE.appearance={outfitId:'outfit.traveler',ownedOutfitIds:['outfit.traveler'],activeTool:'axe'};
+inventoryContext.normalizeSavedAppearance=value=>value;
+inventoryContext.CHARACTER_OUTFIT_BY_ID=new Map([['outfit.traveler',{id:'outfit.traveler',name:'여행자의 옷',walkSheet:'/player.png'}]]);
 vm.runInContext('renderInventoryEquipment();',inventoryContext);
 assert(inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="여행자의 옷, 1개, 장착 중"')&&
+  inventoryScrollNode.innerHTML.includes('data-held-tool="axe" aria-pressed="true"')&&
+  inventoryScrollNode.innerHTML.includes('data-held-tool="rod" aria-pressed="false"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('data-equip-type="axe" data-equip-id="axe.iron" aria-label="철 도끼, 1개, 장착하기"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('fishing/rods/basic.png')&&
-  (inventoryScrollNode.innerHTML.match(/class="inventoryItemCount"/g)||[]).length===3,
-  'Owned tools must use actionable item cards with artwork, counts, and equipped state');
+  (inventoryScrollNode.innerHTML.match(/class="inventoryItemCount"/g)||[]).length===4,
+  'Starter outfit and owned tools must show item art, hand selection, counts, and equipped state');
+inventoryContext.saveGame=()=>true;
+vm.runInContext("globalThis.__selectedHeldRod=selectHeldTool('rod');",inventoryContext);
+assert(inventoryContext.__selectedHeldRod&&inventoryContext.GAME_STATE.appearance.activeTool==='rod',
+  'Hand tool selection must update the active visual tool');
+inventoryContext.saveGame=()=>false;
+vm.runInContext("globalThis.__failedHeldAxe=selectHeldTool('axe');",inventoryContext);
+assert(!inventoryContext.__failedHeldAxe&&inventoryContext.GAME_STATE.appearance.activeTool==='rod',
+  'A failed hand tool save must restore the previous selection');
 
 const lifeContext={
-  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic',ownedAxeIds:['axe.basic']}}},
+  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},appearance:{activeTool:'rod'},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic',ownedAxeIds:['axe.basic']}}},
   saveGame:()=>true,
   feedback:[],
   performance:{now:()=>100},
@@ -692,6 +722,7 @@ assert(lifeContext.__lockedHit===false&&lifeContext.__lockedHp===120&&lifeContex
   lifeContext.__repeatIron===false&&lifeContext.__ironBeforeEquip==='axe.basic'&&
   lifeContext.__nextWhileBasic==='axe.steel'&&lifeContext.__ironEquipped&&
   lifeContext.GAME_STATE.progression.forestry.axeId==='axe.iron'&&lifeContext.GAME_STATE.progression.coins===400&&
+  lifeContext.GAME_STATE.appearance.activeTool==='axe'&&
   lifeContext.GAME_STATE.inventory.every(item=>item.id!=='pine_log'&&item.id!=='birch_log'),
   'Iron axe purchase must require reachable wood, avoid duplicates, and wait for manual equip');
 vm.runInContext(`GAME_STATE.regionId='deepForest';const deepSource=REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='maple');`+
@@ -744,8 +775,10 @@ assert(lifeContext.__poorBuy===false&&lifeContext.__plotBought===true&&lifeConte
   lifeContext.__cropCount>=2&&lifeContext.__cropCount<=3,
   'Farm must reject unaffordable/duplicate actions and allow offline growth and one harvest');
 lifeContext.saveGame=()=>false;
+lifeContext.GAME_STATE.appearance.activeTool='rod';
 vm.runInContext(`globalThis.__failedEquip=equipForestryAxe('axe.basic');globalThis.__unownedAxe=equipForestryAxe('axe.unknown');`,lifeContext);
-assert(!lifeContext.__failedEquip&&!lifeContext.__unownedAxe&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel',
+assert(!lifeContext.__failedEquip&&!lifeContext.__unownedAxe&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel'&&
+  lifeContext.GAME_STATE.appearance.activeTool==='rod',
   'Axe equip must reject unowned gear and roll back when saving fails');
 vm.runInContext(`GAME_STATE.regionId='oldForest';const before=totalLogCount();`+
   `globalThis.__failedHit=hitResourceTree(REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_02'));`+
@@ -829,16 +862,17 @@ assert(farmDrawCalls.length===farmIds.length*2&&farmIds.every((id,index)=>
   farmDrawCalls[index*2+1].id===id&&farmDrawCalls[index*2+1].stage==='mature'&&farmDrawCalls[index*2+1].width===58),
   'Covered seeds and shared sprouts must not show mature art; only later stages use distinct crop-specific sprites');
 
-const chopSpriteCalls=[],chopAxeCalls=[],chopAxeRotations=[],chopAxeTranslations=[],chopAxeMirrors=[];
+const chopSpriteCalls=[],chopAxeCalls=[],heldRodCalls=[],chopAxeRotations=[],chopAxeTranslations=[],chopAxeMirrors=[];
 const chopDrawContext={
   forestryChopImg:{id:'chop'},forestryAxeImgs:{basic:{id:'axe'}},
+  DEFAULT_OUTFIT_ID:'outfit.traveler',characterLayerSheets:{},
   getEquippedForestryAxe:()=>({asset:'basic'}),
   FORESTRY_CHOP_TIMING:{impactMs:270},
   GAME_STATE:{regionId:'oldForest'},lifeUi:{chop:{startedAt:0,regionId:'oldForest',tree:{y:10}}},
   player:{py:480,face:'down'},TILE:48,tNow:100,
   ctx:{save(){},restore(){},translate(x,y){chopAxeTranslations.push([x,y]);},
     scale(x,y){chopAxeMirrors.push([x,y]);},rotate(angle){chopAxeRotations.push(angle);},
-    drawImage(sprite,...args){if(sprite.id==='chop') chopSpriteCalls.push(args);else if(sprite.id==='axe') chopAxeCalls.push(args);}}
+    drawImage(sprite,...args){if(sprite.id==='chop') chopSpriteCalls.push(args);else if(sprite.id==='axe') chopAxeCalls.push(args);else if(sprite.id==='rod') heldRodCalls.push(args);}}
 };
 vm.createContext(chopDrawContext);
 vm.runInContext(`${read('src/rendering.js')}\n`+
@@ -866,6 +900,19 @@ vm.runInContext(`for(const face of ['right','left']){
 assert(chopAxeCalls.length===12&&chopAxeCalls.slice(8).every(args=>
   args.join(',')==='0,60,1254,1140,-5,-44,44,44'),
   'The master axe must render its full handle at the same size as the other axe tiers');
+chopDrawContext.forestryAxeImgs.basic={id:'axe'};
+chopDrawContext.getEquippedForestryAxe=()=>({asset:'basic'});
+chopDrawContext.fishingRodImgs={basic:{id:'rod',width:1254,height:1254}};
+chopDrawContext.getEquippedFishingRod=()=>({asset:'basic'});
+chopDrawContext.GAME_STATE.appearance={activeTool:'axe'};
+chopDrawContext.isFishingActive=()=>false;
+vm.runInContext(`drawPlayerHeldTool(100,100,'right',1);
+  GAME_STATE.appearance.activeTool='rod';drawPlayerHeldTool(100,100,'down',1);
+  GAME_STATE.appearance.activeTool='axe';isFishingActive=()=>true;drawPlayerHeldTool(100,100,'up',1);`,chopDrawContext);
+assert(chopAxeCalls.at(-1).join(',')==='280,310,730,650,-3,-29,30,30'&&
+  heldRodCalls.length===2&&heldRodCalls.every(args=>args.join(',')==='0,0,1254,1254,-4,-41,44,44')&&
+  chopAxeTranslations.slice(-3).map(pair=>pair.join(',')).join('|')==='112,102|114,104|117,99',
+  'Walking must show the selected hand tool and fishing must temporarily show the rod at the hand');
 
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],

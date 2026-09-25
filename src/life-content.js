@@ -36,9 +36,12 @@ function upgradeForestryAxe(axeId){
 function equipForestryAxe(axeId){
   if(!getOwnedForestryAxes().some(axe=>axe.id===axeId)) return false;
   const previous=GAME_STATE.progression.forestry.axeId;
+  const previousTool=GAME_STATE.appearance?.activeTool;
   GAME_STATE.progression.forestry.axeId=axeId;
+  if(GAME_STATE.appearance) GAME_STATE.appearance.activeTool='axe';
   if(saveGame()) return true;
   GAME_STATE.progression.forestry.axeId=previous;
+  if(GAME_STATE.appearance) GAME_STATE.appearance.activeTool=previousTool;
   return false;
 }
 

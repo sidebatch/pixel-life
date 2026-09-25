@@ -43,6 +43,8 @@ function purchaseFishingRod(rodId){
     GAME_STATE.progression.fishing=beforeFishing;
     return false;
   }
+  if(typeof ensureFishingRodImage==='function')
+    ensureFishingRodImage(rod.asset).catch(error=>console.warn('Equipped rod art unavailable:',error));
   return true;
 }
 
@@ -59,10 +61,15 @@ function equipFishingRod(rodId){
   const rod=FISHING_ROD_BY_ID.get(rodId);
   if(!rod||!isFishingRodUnlocked(rod)) return false;
   const before=GAME_STATE.progression.fishing.equippedRodId;
+  const previousTool=GAME_STATE.appearance?.activeTool;
   GAME_STATE.progression.fishing.equippedRodId=rod.id;
+  if(GAME_STATE.appearance) GAME_STATE.appearance.activeTool='rod';
   if(!saveGame()){
     GAME_STATE.progression.fishing.equippedRodId=before;
+    if(GAME_STATE.appearance) GAME_STATE.appearance.activeTool=previousTool;
     return false;
   }
+  if(typeof ensureFishingRodImage==='function')
+    ensureFishingRodImage(rod.asset).catch(error=>console.warn('Equipped rod art unavailable:',error));
   return true;
 }

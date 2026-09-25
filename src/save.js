@@ -195,6 +195,17 @@ function normalizeSavedProgressionFlags(rawFlags){
   };
 }
 
+function normalizeSavedAppearance(rawAppearance){
+  const source=rawAppearance&&typeof rawAppearance==='object'?rawAppearance:{};
+  const ownedOutfitIds=[DEFAULT_OUTFIT_ID,...(Array.isArray(source.ownedOutfitIds)?source.ownedOutfitIds:[])]
+    .filter((id,index,ids)=>CHARACTER_OUTFIT_BY_ID.has(id)&&ids.indexOf(id)===index);
+  return {
+    outfitId:ownedOutfitIds.includes(source.outfitId)?source.outfitId:DEFAULT_OUTFIT_ID,
+    ownedOutfitIds,
+    activeTool:source.activeTool==='rod'?'rod':'axe'
+  };
+}
+
 function createSaveData(){
   return {
     version:SAVE_CONFIG.version,
@@ -205,6 +216,7 @@ function createSaveData(){
         y:typeof player!=='undefined'?player.y:GAME_STATE.playerLocation?.y,
         face:typeof player!=='undefined'?player.face:GAME_STATE.playerLocation?.face},
       inventory:GAME_STATE.inventory,
+      appearance:GAME_STATE.appearance,
       world:GAME_STATE.world,
       collections:{fish:GAME_STATE.collections.fish},
       progression:{
@@ -227,6 +239,7 @@ function applySaveData(saveData){
     savedLocation.x>=1&&savedLocation.x<63&&savedLocation.y>=1&&savedLocation.y<47?
     {x:savedLocation.x,y:savedLocation.y,face:['up','down','left','right'].includes(savedLocation.face)?savedLocation.face:'down'}:null;
   GAME_STATE.inventory=normalizeSavedInventory(savedState.inventory);
+  GAME_STATE.appearance=normalizeSavedAppearance(savedState.appearance);
   GAME_STATE.world=normalizeSavedLifeWorld(savedState.world);
   GAME_STATE.collections.fish=normalizeSavedFishCollections(savedState.collections?.fish);
   GAME_STATE.progression.coins=Math.max(0,Math.floor(saveFiniteNumber(savedState.progression?.coins,GAME_STATE.progression.coins)));

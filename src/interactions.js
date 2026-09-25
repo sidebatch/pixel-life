@@ -134,7 +134,9 @@ window.addEventListener('popstate',()=>{
 
 function toggleMenu(force){
   menuOpen = force===undefined ? !menuOpen : force;
-  document.getElementById('menuPanel').classList.toggle('show',menuOpen);
+  const panel=document.getElementById('menuPanel');
+  panel.classList.toggle('show',menuOpen);
+  panel.setAttribute('aria-hidden',String(!menuOpen));
   if(menuOpen){inputs.up=inputs.down=inputs.left=inputs.right=false;}
 }
 
@@ -218,6 +220,7 @@ document.getElementById('dialog').addEventListener('pointerdown',e=>{
 document.getElementById('menuBtn').addEventListener('click',()=>toggleMenu());
 document.getElementById('settingsBtn').addEventListener('click',()=>toggleMenu());
 document.getElementById('closeMenu').addEventListener('click',()=>toggleMenu(false));
+document.getElementById('menuDismiss').addEventListener('click',()=>toggleMenu(false));
 document.getElementById('coinCount').textContent=Number(GAME_STATE.progression.coins||0).toLocaleString();
 
 function contextInfo(){

@@ -53,6 +53,12 @@ assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab pan
 assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   read('src/market.js').includes("getElementById('marketExitBtn').addEventListener('click',closeMarket)"),
   'Market exit button must use the existing close behavior');
+const menuMarkup=html.match(/<div id="menuPanel"[\s\S]*?(?=<div id="fishDexPanel")/)?.[0]||'';
+assert((menuMarkup.match(/class="menuCard(?: menuCardFeatured)?"/g)||[]).length===3&&
+  ['openInventoryBtn','openFishingGearBtn','openFishDexBtn','menuDismiss','closeMenu'].every(id=>menuMarkup.includes(`id="${id}"`))&&
+  !menuMarkup.includes('디펜스')&&!menuMarkup.includes('마을 북쪽 숲')&&
+  (menuMarkup.match(/<svg /g)||[]).length===3,
+  'World menu must contain only live destinations with illustrated icons and working close controls');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
 assert(assetPaths.length === 124, `Expected 124 runtime asset references, found ${assetPaths.length}`);
@@ -496,16 +502,41 @@ inventoryContext.GAME_STATE.inventory=[
 ];
 vm.runInContext('renderInventoryFish();',inventoryContext);
 assert(inventorySummaryNode.textContent==='보유 물고기 2마리'&&
-  inventoryScrollNode.innerHTML.includes('class="inventoryFishGrid"')&&
-  inventoryScrollNode.innerHTML.includes('class="inventoryFishCard rarity-')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryItemCard inventoryFishCard rarity-')&&
   inventoryScrollNode.innerHTML.includes('aria-label="붕어, 2마리"')&&
-  inventoryScrollNode.innerHTML.includes('class="inventoryFishCount" aria-hidden="true">2</strong>')&&
-  inventoryScrollNode.innerHTML.includes('class="inventoryFishName" aria-hidden="true">붕어</span>')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryItemCount" aria-hidden="true">2</strong>')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryItemName" aria-hidden="true">붕어</span>')&&
   !inventoryScrollNode.innerHTML.includes('22.5cm')&&
   !inventoryScrollNode.innerHTML.includes('판매가')&&
   inventoryContext.GAME_STATE.inventory[0].price===26&&
   inventoryContext.GAME_STATE.inventory[1].sizeCm===28.1,
   'Inventory grid must badge counts and preserve individual catch data');
+inventoryContext.FOREST_SPECIES=['oak'];
+inventoryContext.FOREST_WOOD={oak:'참나무'};
+inventoryContext.LIFE_CONTENT={crops:[{id:'carrot',name:'당근',icon:'🥕'}]};
+inventoryContext.lifeItemCount=(type,id)=>type==='material'&&id==='oak_log'?3:type==='seed'&&id==='carrot'?5:0;
+inventoryContext.lifeItemIconMarkup=(type,id)=>`<img class="lifeItemIcon" src="/${type}-${id}.png" alt="">`;
+vm.runInContext('renderInventorySupplies();',inventoryContext);
+assert(inventorySummaryNode.textContent==='보유 재료 8개'&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="참나무 통나무, 3개"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="당근 씨앗, 5개"')&&
+  inventoryScrollNode.innerHTML.includes('class="inventoryItemCount" aria-hidden="true">5</strong>')&&
+  !inventoryScrollNode.innerHTML.includes('class="inventorySupply"'),
+  'Material and seed items must use the same image grid and count badges as fish');
+inventoryContext.FISHING_RODS=[{id:'rod.basic',name:'기본 낚싯대'}];
+inventoryContext.isFishingRodUnlocked=()=>true;
+inventoryContext.getEquippedFishingRod=()=>inventoryContext.FISHING_RODS[0];
+inventoryContext.getEquippedForestryAxe=()=>({name:'기본 도끼',asset:'basic'});
+inventoryContext.FORESTRY_AXE_URLS={basic:'/axe.png'};
+vm.runInContext('renderInventoryEquipment();',inventoryContext);
+assert(inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착 중"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착 중"')&&
+  inventoryScrollNode.innerHTML.includes('inventoryRodArt')&&
+  (inventoryScrollNode.innerHTML.match(/class="inventoryItemCount"/g)||[]).length===2,
+  'Equipped tools must use matching item cards with artwork, counts, and equipped state');
 
 const lifeContext={
   GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic'}}},

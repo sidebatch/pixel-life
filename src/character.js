@@ -48,22 +48,29 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const x=actorX+(frame.grip[0]-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
   const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):pose.pose==='chop'?34:26)*unit;
-  // Keep the shaft on the same hand/angle, but turn the cutting edge toward
-  // the character's facing direction when carrying an axe front/back.
-  // Side views and active swings keep their existing orientation.
+  // Front/back carry shows the axe almost edge-on, not its broad side face.
+  // Keep the right-hand pivot and shaft length; side views/swings stay intact.
   const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&
     (pose.face==='down'||pose.face==='up');
   const mirror=pose.face==='left'||frontBackCarry;
   const nativeAngle=mirror?Math.PI-tool.nativeAngle:tool.nativeAngle;
-  return {key,x,y,rotation:frame.angle-nativeAngle,scale:length/tool.nativeLength,mirror,
-    behind:frame.toolBehind,tip:{x:x+Math.cos(frame.angle)*length,y:y+Math.sin(frame.angle)*length}};
+  const axisAngle=frontBackCarry?(pose.face==='down'?-1.85:-1.29):frame.angle;
+  return {key,x,y,rotation:axisAngle-nativeAngle,axisAngle,
+    edgeScale:frontBackCarry?0.3:1,scale:length/tool.nativeLength,mirror,
+    behind:frame.toolBehind,tip:{x:x+Math.cos(axisAngle)*length,y:y+Math.sin(axisAngle)*length}};
 }
 
 function drawCharacterTool(transform){
   const image=transform&&characterToolImgs[transform.key];
   if(!image) return;
   const tool=CHARACTER_RIG.tools[transform.key];
-  ctx.save();ctx.translate(transform.x,transform.y);ctx.rotate(transform.rotation);
+  ctx.save();ctx.translate(transform.x,transform.y);
+  if(transform.edgeScale<1){
+    // Foreshorten only the dimension across the handle axis. Squashing the
+    // texture's x axis would move the grip and bend its diagonal handle.
+    ctx.rotate(transform.axisAngle);ctx.scale(1,transform.edgeScale);
+    ctx.rotate(transform.rotation-transform.axisAngle);
+  }else ctx.rotate(transform.rotation);
   ctx.scale(transform.mirror?-transform.scale:transform.scale,transform.scale);
   // The origin is the actual handle grip, never the texture corner.
   ctx.drawImage(image,-tool.grip[0],-tool.grip[1]);ctx.restore();

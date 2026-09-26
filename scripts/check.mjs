@@ -962,6 +962,13 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       const grip=definition.frames[face][frame].grip,unit=100/96;
       const expectedMirror=face==='left'||tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
       assert(transform.mirror===expectedMirror,'Only carried front/back axes change blade side; rods and swings retain orientation');
+      const edgeOn=tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
+      assert(transform.edgeScale===(edgeOn?0.3:1),'Only front/back carried axes use an edge-on projection');
+      const expectedAxis=edgeOn?(face==='down'?-1.85:-1.29):definition.frames[face][frame].angle;
+      assert(transform.axisAngle===expectedAxis,'Side views, rods and swing angles must remain unchanged');
+      const expectedLength=(tool==='rod'?(pose==='fish'?48:36):pose==='chop'?34:26)*unit;
+      assert(Math.abs(Math.hypot(transform.tip.x-transform.x,transform.tip.y-transform.y)-expectedLength)<1e-8,
+        'Edge-on projection must preserve handle attachment and shaft length');
       // A source point on the blade side of the shaft must point forward in
       // both front/back carry views, without changing the handle or shaft tip.
       if(tool==='axe'&&pose==='walk'&&(face==='down'||face==='up')){

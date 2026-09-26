@@ -54,6 +54,17 @@ const report=await page.evaluate(()=>{
   return {poses:32,layers:18,tools:10,progressionUnchanged:true};
 });
 await page.locator('#game').screenshot({path:path.join(output,'rig-contact-sheet.png')});
+await page.evaluate(()=>{
+  ctx.fillStyle='#73a07a';ctx.fillRect(0,0,1100,900);
+  ctx.imageSmoothingEnabled=false;
+  for(const [row,face] of ['right','left'].entries())for(const frame of [0,1]){
+    ctx.save();ctx.scale(4,4);
+    drawCharacterActor(65+frame*135,85+row*105,{pose:'chop',face,frame,tool:'axe'});
+    ctx.restore();ctx.fillStyle='#102b2c';ctx.font='18px sans-serif';ctx.textAlign='center';
+    ctx.fillText(face+' / '+(frame===0?'ready':'impact'),260+frame*540,450+row*420);
+  }
+});
+await page.locator('#game').screenshot({path:path.join(output,'backpack-side-closeups.png')});
 await page.close();
 const phone=await browser.newContext({viewport:{width:393,height:780},isMobile:true,hasTouch:true,deviceScaleFactor:1});
 const mobile=await phone.newPage();

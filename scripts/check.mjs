@@ -928,6 +928,21 @@ for(const [pose,definition] of Object.entries(rig.poses)){
     for(let i=0;i<pixels.length;i+=4)if(pixels[i+3])pixels.copy(composed,i,i,i+4);
   }
   assert(composed.equals(reference.data),`Default layers must reproduce normalized original exactly: ${pose}`);
+  if(pose==='chop'){
+    // Regression: these original backpack cap pixels must survive replacing
+    // action head/hair with the canonical idle head, and tint with the bag.
+    const spans=[[54,30,36],[55,28,36],[56,27,35],[57,27,35],[58,26,36],[59,25,36],[60,24,34]];
+    let capPixels=0;
+    for(const row of [1,2])for(const [y,left,right] of spans)for(let x=left;x<=right;x++){
+      const xx=row===1?x:95-x,p=((row*96+y)*reference.width+96+xx)*4;
+      if(!reference.data[p+3])continue;
+      assert(layers.backpack.data.subarray(p,p+4).equals(reference.data.subarray(p,p+4))&&
+        !layers.head.data[p+3]&&!layers.hair.data[p+3],
+        'Side impact backpack top/outline must belong to backpack, not replaceable head/hair');
+      capPixels++;
+    }
+    assert(capPixels>=120,'Both side impact backpack caps must retain the full original contour');
+  }
   let coveredBody=0;
   for(let i=0;i<layers.body.data.length;i+=4)if(layers.body.data[i+3]&&layers.outfit.data[i+3])coveredBody++;
   assert(coveredBody>60,`Body must exist underneath clothing, not only as cut-out exposed pixels: ${pose}`);

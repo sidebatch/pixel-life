@@ -21,6 +21,13 @@ const specs={
       [],[[55,67,11,13],[55,64,12,16],[53,65,12,15]]
     ],angles:[[-Math.PI+.9,-Math.PI+.95,-Math.PI+.9],[-.6,-.55,-.6],[],[-.79,-.79,-.79]]},
   chop:{file:'assets/forestry/chop/player-v2.png',body:`${source}/chop-body.png`,columns:2,
+    // Authored row spans for the impact backpack cap (inclusive x bounds).
+    // Its brown pixels overlap the old y<64 hair heuristic. Keep the original
+    // outline with the bag when rendering canonical walking head/hair instead.
+    backpackTopRows:{1:{1:[
+      [54,30,36],[55,28,36],[56,27,35],[57,27,35],
+      [58,26,36],[59,25,36],[60,24,34]
+    ]}},
     // Keep head dimensions canonical, but follow the torso's wind-up/lean.
     headMotion:[
       [{offset:[0,-1],rotation:-.025},{offset:[0,1],rotation:.025}],
@@ -57,7 +64,7 @@ function neighbors(frame,x,y,predicate){
   }
   return false;
 }
-function split(frame,bodyTemplate,handBox,face){
+function split(frame,bodyTemplate,handBox,face,backpackTopRows=[]){
   const layers=Object.fromEntries(layerNames.map(name=>[name,blank(cell,cell)]));
   const template=normalize(bodyTemplate,62,true);
   let sx=0,sy=0,count=0;
@@ -69,8 +76,9 @@ function split(frame,bodyTemplate,handBox,face){
     const [r,g,b]=frame.data.subarray(p,p+3);
     const isSkin=skin(r,g,b),dark=r<85&&g<85&&b<85;
     const isGrip=inside(x,y,handBox)&&(isSkin||(dark&&neighbors(frame,x,y,skin)));
-    const isPack=inside(x,y,packBox)&&!blue(r,g,b)&&y>60&&
-      (r>g+10&&g>b+10||(dark&&neighbors(frame,x,y,brown)));
+    const packTop=backpackTopRows.some(([py,left,right])=>y===py&&x>=left&&x<=right);
+    const isPack=packTop||(inside(x,y,packBox)&&!blue(r,g,b)&&y>60&&
+      (r>g+10&&g>b+10||(dark&&neighbors(frame,x,y,brown))));
     const isHair=y<64&&(brown(r,g,b)||(dark&&y<59&&neighbors(frame,x,y,brown)));
     let layer=isGrip?'grip':isPack?'backpack':isHair?'hair':y<64&&!blue(r,g,b)?'head':isSkin&&y<80?'body':'outfit';
     if(template.data[p+3]){
@@ -109,7 +117,8 @@ for(const [pose,spec] of Object.entries(specs)){
         continue;
       }
       const frame=normalize(sourceFrame(full,f,row,spec.columns),height,pose==='fish');
-      const {layers,grip}=split(frame,sourceFrame(body,f,row,spec.columns),spec.hand[row][f],directions[row]);
+      const {layers,grip}=split(frame,sourceFrame(body,f,row,spec.columns),spec.hand[row][f],directions[row],
+        spec.backpackTopRows?.[row]?.[f]);
       for(const name of layerNames)blitNearest(atlases[name],layers[name],f*cell,row*cell);
       blitNearest(reference,frame,f*cell,row*cell);
       frames[directions[row]].push({grip,angle:spec.angles[row][f],toolBehind:row===3,

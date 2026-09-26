@@ -32,4 +32,6 @@ Use case: precise-object-edit. Asset type: transparent pixel-art body template f
 
 ## 정규화
 
+2026-09-26 가방 cap 분리 보정: 기존 원화는 수정하거나 새로 생성하지 않았다. `scripts/pack-character-rig.mjs`의 chop `backpackTopRows`에 오른쪽 타격의 가방 윗부분 윤곽을 행별로 기록하고 왼쪽은 반전한다. 이 영역을 Hair/Head가 아니라 Backpack에 배치해 canonical walk 머리 교체로 인한 누락을 막는다. 패킹 후 기준 원화 재합성은 이전과 픽셀 단위로 동일하고 게임 시트는 계속 2×4다.
+
 생성 결과의 해상도·셀 간격이 게임 규격과 같다고 가정하지 않는다. scripts/pack-character-rig.mjs가 인접 셀의 잔여 픽셀을 제외한 주 연결 영역을 선택하고, 최근접 패킹으로 발 기준 (48,88)에 맞춘다. 왼쪽은 정규화된 오른쪽을 반전한다. 현재 옷·머리·배낭은 기준 그림에서 분리한 정확한 픽셀을 사용하고, 생성 몸은 그 아래 영역에 넣는다. 전체 기본 외형의 재합성 일치는 자동 검사 대상이다.

@@ -25,6 +25,7 @@ const scriptFiles = [
   'src/character.js',
   'src/interactions.js',
   'src/fishing-effects.js',
+  'src/region-music.js',
   'src/fishing.js',
   'src/skill-ui.js',
   'src/fish-dex.js',
@@ -40,6 +41,7 @@ const assetPattern = /(['"])(assets\/[A-Za-z0-9_./-]+\.(?:png|mp3))\1/g;
 let scripts = scriptFiles.map(read).join('\n');
 new Function(scripts);
 scripts = scripts.replace(assetPattern, (_match, quote, relativePath) => {
+  if(relativePath.startsWith('assets/audio/music/'))return `${quote}${relativePath}${quote}`;
   const bytes = fs.readFileSync(path.join(root, relativePath));
   const mimeType=relativePath.endsWith('.mp3')?'audio/mpeg':'image/png';
   return `${quote}data:${mimeType};base64,${bytes.toString('base64')}${quote}`;
@@ -56,7 +58,8 @@ html = html.replace(
   `<!-- standalone scripts -->\n<script>\n${scripts}</script>`
 );
 
-if (html.includes('<script src=') || html.includes('<link rel="stylesheet"') || /['"]assets\//.test(html)) {
+const inlineOnlyHtml=html.replace(/['"]assets\/audio\/music\/(?:meadow|woodland|lakeside)\.mp3['"]/g,'');
+if (html.includes('<script src=') || html.includes('<link rel="stylesheet"') || /['"]assets\//.test(inlineOnlyHtml)) {
   throw new Error('Standalone build still contains external runtime dependencies');
 }
 if((html.match(/data:audio\/mpeg;base64,/g)||[]).length!==5){
@@ -67,5 +70,12 @@ const outputDirectory = path.join(root, 'dist');
 fs.mkdirSync(outputDirectory, { recursive: true });
 const outputFile = path.join(outputDirectory, 'index.html');
 fs.writeFileSync(outputFile, html);
+const musicDirectory=path.join(outputDirectory,'assets/audio/music');
+fs.mkdirSync(musicDirectory,{recursive:true});
+for(const track of ['meadow','woodland','lakeside']){
+  const relative=`assets/audio/music/${track}.mp3`;
+  if(!html.includes(relative))throw new Error(`Missing streaming music reference: ${relative}`);
+  fs.copyFileSync(path.join(root,relative),path.join(musicDirectory,`${track}.mp3`));
+}
 
 console.log(`Built and verified ${path.relative(root, outputFile)} (${fs.statSync(outputFile).size.toLocaleString()} bytes)`);

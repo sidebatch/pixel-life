@@ -7,6 +7,8 @@
 
 소스, 원본 에셋, 개발 기록과 생성된 독립 실행형 빌드는 하나의 공개 저장소에서 관리한다. GitHub Actions가 `dist/index.html`을 Pages artifact로 만들어 배포한다.
 
+2026-09-26부터 긴 지역 배경음악만 스트리밍 파일로 분리한다. 배포물은 `dist/index.html`과 `dist/assets/audio/music/{meadow,woodland,lakeside}.mp3`다. 기존 이미지·코드·CSS·짧은 효과음 5개는 계속 HTML에 포함한다. Actions는 dist 전체를 업로드하므로 설정 변경은 필요 없지만, 수동 복사/오프라인 테스트에서는 HTML만 옮기지 말고 dist 폴더 전체를 보존해야 한다. 음악은 첫 터치/키 입력 후 재생되며 메뉴에서 음악 켜기/끄기를 선택할 수 있다.
+
 ## 배포 절차
 
 1. 로컬에서 검사와 빌드를 실행한다.

@@ -1,3 +1,5 @@
+  .menuMusicToggle{align-self:flex-end;min-height:38px;margin-top:12px;padding:7px 12px;border:1px solid rgba(226,245,221,.28);border-radius:10px;background:rgba(255,255,255,.07);color:#d5eadb;font:750 12px system-ui;cursor:pointer}
+  .menuMusicToggle:focus-visible{outline:2px solid #dff5c9;outline-offset:2px}
   :root{
     --ink:#f7fbff;
     --glass:rgba(20,58,54,.56);

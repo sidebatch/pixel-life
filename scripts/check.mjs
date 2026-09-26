@@ -27,6 +27,7 @@ const scriptFiles = [
   'src/character.js',
   'src/interactions.js',
   'src/fishing-effects.js',
+  'src/region-music.js',
   'src/fishing.js',
   'src/skill-ui.js',
   'src/fish-dex.js',
@@ -149,6 +150,65 @@ assert(read('src/fishing-effects.js').includes(`'${levelUpAudioPath}'`),'Missing
 const marketSaleAudioPath='assets/audio/market-sale.mp3';
 assert(read('src/fishing-effects.js').includes(`'${marketSaleAudioPath}'`),'Missing market sale audio mapping');
 const gameAudioPaths=[...fishingAudioPaths,levelUpAudioPath,marketSaleAudioPath];
+const musicProbe={players:[],events:{},storage:new Map()};
+class FakeMusicAudio{
+  constructor(){this.paused=true;this.currentTime=0;this.plays=0;this.loads=0;musicProbe.players.push(this);}
+  load(){this.loads++;this.currentTime=0;}
+  pause(){this.paused=true;}
+  play(){this.paused=false;this.plays++;return Promise.resolve();}
+  removeAttribute(){this.src='';}
+}
+const musicContext={GAME_STATE:{regionId:'lilacVillage'},Audio:FakeMusicAudio,
+  document:{hidden:false,getElementById:()=>null,addEventListener:(name,fn)=>{musicProbe.events[name]=fn;}},
+  window:{addEventListener:(name,fn)=>{musicProbe.events[name]=fn;}},
+  localStorage:{getItem:key=>musicProbe.storage.get(key),setItem:(key,value)=>musicProbe.storage.set(key,value)}};
+vm.createContext(musicContext);
+vm.runInContext(read('src/region-music.js')+'\nglobalThis.musicUrls=REGION_MUSIC_URLS;',musicContext);
+assert(musicProbe.players.length===1&&musicProbe.players[0].paused&&musicProbe.players[0].plays===0&&
+  musicProbe.players[0].loop&&musicProbe.players[0].preload==='metadata'&&musicProbe.players[0].volume===.3,
+  'Music must use one streaming loop player and wait for a trusted gesture');
+for(const file of Object.values(musicContext.musicUrls)){
+  const bytes=fs.readFileSync(path.join(root,file));
+  assert(bytes.length>100000&&bytes.length<8000000&&
+    (bytes.subarray(0,3).toString()==='ID3'||bytes[0]===0xff&&(bytes[1]&0xe0)===0xe0),
+    `Missing/invalid compressed region music: ${file}`);
+}
+musicProbe.events.pointerdown();await Promise.resolve();await Promise.resolve();await Promise.resolve();
+assert(!musicProbe.players[0].paused&&musicProbe.players[0].src===musicContext.musicUrls.meadow,'Village music did not unlock');
+musicContext.GAME_STATE.regionId='oldForest';vm.runInContext('syncRegionMusic()',musicContext);
+await Promise.resolve();await Promise.resolve();await Promise.resolve();
+musicProbe.players[0].currentTime=123;
+const woodlandLoads=musicProbe.players[0].loads,woodlandPlays=musicProbe.players[0].plays;
+musicContext.GAME_STATE.regionId='deepForest';vm.runInContext('syncRegionMusic()',musicContext);
+assert(musicProbe.players[0].currentTime===123&&musicProbe.players[0].loads===woodlandLoads&&
+  musicProbe.players[0].plays===woodlandPlays&&musicProbe.players[0].src===musicContext.musicUrls.woodland,
+  'Forest 1-1/1-2 must continue the same woodland track without reloading');
+vm.runInContext('toggleRegionMusic()',musicContext);
+assert(musicProbe.players[0].paused&&musicProbe.storage.get('pixel-life.music-muted.v1')==='true','Music mute must persist separately');
+musicContext.GAME_STATE.regionId='sunnyFields';vm.runInContext('syncRegionMusic()',musicContext);
+assert(musicProbe.players[0].paused&&musicProbe.players[0].src===musicContext.musicUrls.lakeside,'Muted farm transition must not play');
+vm.runInContext('toggleRegionMusic()',musicContext);
+await Promise.resolve();await Promise.resolve();await Promise.resolve();
+assert(!musicProbe.players[0].paused,'Unmuting must resume the current map track');
+musicProbe.players[0].currentTime=23;musicContext.document.hidden=true;musicProbe.events.visibilitychange();
+assert(musicProbe.players[0].paused,'Hidden tab must pause background music');
+musicContext.document.hidden=false;musicProbe.events.visibilitychange();
+await Promise.resolve();await Promise.resolve();await Promise.resolve();
+assert(!musicProbe.players[0].paused&&musicProbe.players[0].currentTime===23&&musicProbe.players.length===1,
+  'Returning to game must resume at the same position without duplicate players');
+musicProbe.events.pagehide();assert(musicProbe.players[0].paused,'Pagehide must stop background music');
+musicProbe.events.pageshow();await Promise.resolve();await Promise.resolve();await Promise.resolve();
+assert(!musicProbe.players[0].paused&&read('src/world.js').includes("if(typeof syncRegionMusic==='function')syncRegionMusic();"),
+  'Restored page and actual map transitions must sync region music');
+const successfulMusicPlay=musicProbe.players[0].play;
+musicProbe.players[0].play=()=>Promise.reject(new Error('Autoplay blocked'));
+vm.runInContext('pauseRegionMusic();unlockRegionMusic()',musicContext);
+await new Promise(resolve=>setImmediate(resolve));
+assert(vm.runInContext('regionMusicPending===false',musicContext),'Rejected autoplay must release its pending play lock');
+musicProbe.players[0].play=successfulMusicPlay;musicProbe.events.pointerdown();
+assert(!musicProbe.players[0].paused,'A later trusted gesture must retry rejected music playback');
+musicContext.GAME_STATE.regionId='unmappedRegion';vm.runInContext('syncRegionMusic()',musicContext);
+assert(musicProbe.players[0].paused&&musicProbe.players[0].src==='','An unmapped region must not keep the previous map music');
 for(const assetPath of gameAudioPaths){
   const bytes=fs.readFileSync(path.join(root,assetPath));
   assert(bytes.length>1000&&bytes[0]===0xff&&(bytes[1]&0xe0)===0xe0,`Invalid MP3 asset: ${assetPath}`);

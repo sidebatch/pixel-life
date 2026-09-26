@@ -23,7 +23,21 @@ const server = http.createServer((request, response) => {
     return;
   }
 
-  response.writeHead(200, { 'Content-Type': mimeTypes[path.extname(filePath)] || 'application/octet-stream' });
+  const type=mimeTypes[path.extname(filePath)]||'application/octet-stream';
+  const size=fs.statSync(filePath).size;
+  // HTML audio can request the tail for metadata, seek, and native looping.
+  if(path.extname(filePath)==='.mp3'&&request.headers.range){
+    const range=/^bytes=(\d*)-(\d*)$/.exec(request.headers.range);
+    let start=range?.[1]?Number(range[1]):0,end=range?.[2]?Number(range[2]):size-1;
+    if(range&&!range[1]&&range[2]){start=Math.max(0,size-Number(range[2]));end=size-1;}
+    end=Math.min(size-1,end);
+    if(!range||!range[1]&&!range[2]||start>end||start>=size){response.writeHead(416,{'Content-Range':`bytes */${size}`}).end();return;}
+    response.writeHead(206,{'Content-Type':type,'Accept-Ranges':'bytes',
+      'Content-Range':`bytes ${start}-${end}/${size}`,'Content-Length':end-start+1});
+    fs.createReadStream(filePath,{start,end}).pipe(response);return;
+  }
+  response.writeHead(200, { 'Content-Type':type,'Content-Length':size,
+    'Accept-Ranges':path.extname(filePath)==='.mp3'?'bytes':'none' });
   fs.createReadStream(filePath).pipe(response);
 });
 

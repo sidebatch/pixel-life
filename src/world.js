@@ -119,6 +119,7 @@ function enterWorldRegion(exit){
   camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));
   camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));
   updateWorldClockUI();
+  if(typeof syncRegionMusic==='function')syncRegionMusic();
   saveGame();
   return true;
 }

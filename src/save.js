@@ -198,11 +198,11 @@ function normalizeSavedProgressionFlags(rawFlags){
 function normalizeSavedAppearance(rawAppearance){
   const source=rawAppearance&&typeof rawAppearance==='object'?rawAppearance:{};
   const ownedOutfitIds=[DEFAULT_OUTFIT_ID,...(Array.isArray(source.ownedOutfitIds)?source.ownedOutfitIds:[])]
-    .filter((id,index,ids)=>CHARACTER_OUTFIT_BY_ID.has(id)&&ids.indexOf(id)===index);
+    .filter((id,index,ids)=>CHARACTER_OUTFIT_BY_ID.has(id)&&!CHARACTER_OUTFIT_BY_ID.get(id).testOnly&&ids.indexOf(id)===index);
   return {
     bodyId:CHARACTER_PARTS.body.has(source.bodyId)?source.bodyId:'body.starter',
-    hairId:CHARACTER_PARTS.hair.has(source.hairId)?source.hairId:'hair.brown',
-    backpackId:CHARACTER_PARTS.backpack.has(source.backpackId)?source.backpackId:'pack.traveler',
+    hairId:CHARACTER_PARTS.hair.has(source.hairId)&&!CHARACTER_PARTS.hair.get(source.hairId).testOnly?source.hairId:'hair.brown',
+    backpackId:CHARACTER_PARTS.backpack.has(source.backpackId)&&!CHARACTER_PARTS.backpack.get(source.backpackId).testOnly?source.backpackId:'pack.traveler',
     outfitId:ownedOutfitIds.includes(source.outfitId)?source.outfitId:DEFAULT_OUTFIT_ID,
     ownedOutfitIds,
     activeTool:source.activeTool==='rod'?'rod':'axe'

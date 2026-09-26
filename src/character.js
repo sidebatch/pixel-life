@@ -82,8 +82,8 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   const x=actorX-CHARACTER_RIG.feet[0]*size/cell;
   const y=actorY+20-CHARACTER_RIG.feet[1]*size/cell;
   const transform=getCharacterToolTransform(actorX,actorY,pose);
-  const outfit=GAME_STATE.appearance?.outfitId||DEFAULT_OUTFIT_ID;
-  const appearance=GAME_STATE.appearance||{};
+  const appearance=typeof getCharacterRenderAppearance==='function'?getCharacterRenderAppearance():GAME_STATE.appearance||{};
+  const outfit=appearance.outfitId||DEFAULT_OUTFIT_ID;
   const drawLayer=name=>{
     // Chop source art has wider heads on some impact frames despite equal
     // cell/feet dimensions. Keep the same head dimensions, but translate/tilt

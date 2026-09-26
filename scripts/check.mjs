@@ -64,6 +64,23 @@ assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progress
   freshContext.__fresh.appearance.backpackId==='pack.traveler'&&
   freshContext.__fresh.appearance.activeTool==='axe',
   'A new browser session must start at zero coins, skill Lv.1, and starter gear');
+assert(vm.runInContext("!CHARACTER_TRIAL_ENABLED&&CHARACTER_OUTFITS.length===1&&setCharacterAppearancePreview(['hairId'])===false",freshContext),
+  'Ordinary game sessions must not expose or apply trial appearances');
+const trialContext={...freshContext,window:{location:{search:'?appearance-preview'}},URLSearchParams};
+vm.createContext(trialContext);
+vm.runInContext(`${read('src/assets.js')}\n${read('src/config.js')}\n
+  const trialBefore=JSON.stringify(GAME_STATE);
+  globalThis.__trialValid=setCharacterAppearancePreview(['outfitId','hairId','backpackId']);
+  globalThis.__trialAppearance=getCharacterRenderAppearance();
+  globalThis.__trialInvalid=setCharacterAppearancePreview(['bodyId']);
+  globalThis.__trialSafe=JSON.stringify(GAME_STATE)===trialBefore;
+  setCharacterAppearancePreview(null);globalThis.__trialOff=getCharacterRenderAppearance();`,trialContext);
+assert(trialContext.__trialValid&&!trialContext.__trialInvalid&&trialContext.__trialSafe&&
+  trialContext.__trialAppearance.hairId==='hair.trial.blond'&&
+  trialContext.__trialAppearance.outfitId==='outfit.trial.green'&&
+  trialContext.__trialAppearance.backpackId==='pack.trial.red'&&
+  trialContext.__trialOff.hairId==='hair.brown',
+  'Trial parts must switch independently through appearance IDs without changing saved game state');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
 assert((html.match(/role="tab"/g) || []).length === 13, 'Fish dex, inventory, and market tabs must be accessible');

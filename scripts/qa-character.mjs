@@ -7,6 +7,7 @@ const require=createRequire(import.meta.url);
 const {chromium}=require(process.env.PIXEL_LIFE_PLAYWRIGHT||'playwright');
 const output=path.resolve(process.argv[2]||'output/character-qa');
 const base=process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/';
+const trialQuery=process.env.PIXEL_LIFE_QA_APPEARANCE==='trial'?'&appearance-preview':'';
 fs.mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.PIXEL_LIFE_CHROME||undefined});
 try{
@@ -15,7 +16,7 @@ const errors=[];
 const page=await context.newPage();
 page.on('pageerror',e=>errors.push(e.message));
 await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
-await page.goto(base+'?debug&time=12:00&weather=clear');
+await page.goto(base+'?debug&time=12:00&weather=clear'+trialQuery);
 await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler'],{timeout:30000});
 const report=await page.evaluate(()=>{
   const before=JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression});
@@ -58,7 +59,7 @@ const phone=await browser.newContext({viewport:{width:393,height:780},isMobile:t
 const mobile=await phone.newPage();
 mobile.on('pageerror',e=>errors.push(e.message));
 await mobile.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
-await mobile.goto(base+'?time=12:00&weather=clear');
+await mobile.goto(base+'?time=12:00&weather=clear'+trialQuery);
 await mobile.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler'],{timeout:30000});
 for(const face of ['down','right','left','up']){
   await mobile.evaluate(face=>{

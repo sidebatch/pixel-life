@@ -17,15 +17,24 @@ const PROJECT = Object.freeze({
 
 // Appearance data is independent of the equipped axe and fishing rod.
 const DEFAULT_OUTFIT_ID='outfit.traveler';
+const CHARACTER_TRIAL_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('appearance-preview');
+const CHARACTER_TRIAL_SET=Object.freeze({
+  outfitId:'outfit.trial.green',hairId:'hair.trial.blond',backpackId:'pack.trial.red'
+});
+let characterAppearancePreview=null;
 const CHARACTER_OUTFITS=Object.freeze([
   Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
-    chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1'})
+    chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1'}),
+  ...(CHARACTER_TRIAL_ENABLED?[Object.freeze({id:CHARACTER_TRIAL_SET.outfitId,name:'시험용 녹색 옷',
+    renderMode:'palette-test',testOnly:true})]:[])
 ]);
 const CHARACTER_OUTFIT_BY_ID=new Map(CHARACTER_OUTFITS.map(outfit=>[outfit.id,outfit]));
 const CHARACTER_PARTS=Object.freeze({
   body:new Map([['body.starter',{walkBody:'walkBody',walkHead:'walkHead',walkGrip:'walkGrip',chopBody:'chopBody',chopHead:'chopHead',chopGrip:'chopGrip',fishBody:'fishBody',fishHead:'fishHead',fishGrip:'fishGrip'}]]),
-  hair:new Map([['hair.brown',{walkHair:'walkHair',chopHair:'chopHair',fishHair:'fishHair'}]]),
-  backpack:new Map([['pack.traveler',{walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}]])
+  hair:new Map([['hair.brown',{walkHair:'walkHair',chopHair:'chopHair',fishHair:'fishHair'}],
+    ...(CHARACTER_TRIAL_ENABLED?[[CHARACTER_TRIAL_SET.hairId,{walkHair:'trialWalkHair',chopHair:'trialChopHair',fishHair:'trialFishHair',testOnly:true}]]:[])]),
+  backpack:new Map([['pack.traveler',{walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}],
+    ...(CHARACTER_TRIAL_ENABLED?[[CHARACTER_TRIAL_SET.backpackId,{walkBackpack:'trialWalkBackpack',chopBackpack:'trialChopBackpack',fishBackpack:'trialFishBackpack',testOnly:true}]]:[])])
 });
 
 const WORLD_REGIONS = Object.freeze({
@@ -85,6 +94,45 @@ async function loadImageMap(target, urls, optional=false){
     }
   }));
 }
+// Code-native palette variants for rig QA. Alpha/geometry are copied exactly;
+// these are not production art or changes to the original PNGs.
+function createCharacterTrialLayer(source,kind){
+  const layer=document.createElement('canvas');layer.width=source.width;layer.height=source.height;
+  const painter=layer.getContext('2d');painter.drawImage(source,0,0);
+  const pixels=painter.getImageData(0,0,layer.width,layer.height),data=pixels.data;
+  const color={outfit:[48,119,76],hair:[211,183,119],backpack:[154,58,83]}[kind];
+  for(let p=0;p<data.length;p+=4){
+    if(!data[p+3])continue;
+    const [r,g,b]=data.subarray(p,p+3),light=.2126*r+.7152*g+.0722*b;
+    if(light<42||kind==='outfit'&&!(b>r+5&&b>=g))continue;
+    const shade=.45+light/170;
+    for(let c=0;c<3;c++)data[p+c]=Math.min(255,Math.round(color[c]*shade));
+  }
+  painter.putImageData(pixels,0,0);return layer;
+}
+function prepareCharacterTrialSet(){
+  if(!CHARACTER_TRIAL_ENABLED)return;
+  const outfit={};
+  for(const pose of ['walk','chop','fish']){
+    const prefix='trial'+pose[0].toUpperCase()+pose.slice(1);
+    for(const [part,name] of [['hair','Hair'],['backpack','Backpack'],['outfit','Outfit']]){
+      const image=createCharacterTrialLayer(characterLayerImgs[pose+name],part);
+      if(part==='outfit')outfit[pose]=image;
+      else characterLayerImgs[prefix+name]=image;
+    }
+  }
+  characterOutfitImgs[CHARACTER_TRIAL_SET.outfitId]=outfit;
+}
+function setCharacterAppearancePreview(parts=null){
+  if(!CHARACTER_TRIAL_ENABLED)return false;
+  const allowed=['outfitId','hairId','backpackId'];
+  if(parts!==null&&(!Array.isArray(parts)||parts.some(part=>!allowed.includes(part))))return false;
+  characterAppearancePreview=parts===null?null:Object.fromEntries(parts.map(part=>[part,CHARACTER_TRIAL_SET[part]]));
+  return true;
+}
+function getCharacterRenderAppearance(){
+  return characterAppearancePreview?{...GAME_STATE.appearance,...characterAppearancePreview}:GAME_STATE.appearance||{};
+}
 async function loadAll(){
   await Promise.all([
     loadImageMap(imgs,ASSET_URLS),
@@ -99,13 +147,15 @@ async function loadAll(){
     loadImageMap(youngCropImgs,YOUNG_CROP_URLS),
     loadImageMap(npcImgs,NPC_SHEET_URLS,true)
   ]);
-  validateCharacterRigAssets();
   characterOutfitImgs[DEFAULT_OUTFIT_ID]={
     walk:characterLayerImgs.walkOutfit,chop:characterLayerImgs.chopOutfit,fish:characterLayerImgs.fishOutfit
   };
+  prepareCharacterTrialSet();
+  validateCharacterRigAssets();
   // Every future outfit must provide all three pose atlases, not one static icon.
   for(const outfit of CHARACTER_OUTFITS){
     if(outfit.id===DEFAULT_OUTFIT_ID)continue;
+    if(outfit.renderMode==='palette-test')continue;
     const images={};
     for(const pose of ['walk','chop','fish']){
       if(!outfit.layers?.[pose])throw new Error(`Missing ${pose} art for ${outfit.id}`);

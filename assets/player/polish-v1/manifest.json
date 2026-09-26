@@ -7,6 +7,11 @@
   "renderSize": 100,
   "rigUnchanged": true,
   "headRegistration": "single-uniform-master",
+  "attachmentMode": "full-pack-anatomical-outfit",
+  "headMaxSize": [
+    39,
+    36
+  ],
   "frames": 32,
   "files": [
     "assets/player/polish-v1/head-registration.png",
@@ -31,58 +36,58 @@
   "canonicalHeads": [
     {
       "head": {
+        "x": 34,
+        "y": 48,
+        "width": 30,
+        "height": 16
+      },
+      "hair": {
         "x": 30,
-        "y": 45,
-        "width": 36,
-        "height": 19
-      },
-      "hair": {
-        "x": 26,
-        "y": 21,
-        "width": 44,
-        "height": 31
+        "y": 28,
+        "width": 37,
+        "height": 26
       }
     },
     {
       "head": {
-        "x": 41,
-        "y": 43,
-        "width": 27,
-        "height": 21
+        "x": 43,
+        "y": 47,
+        "width": 22,
+        "height": 17
       },
       "hair": {
-        "x": 25,
-        "y": 21,
-        "width": 46,
-        "height": 41
-      }
-    },
-    {
-      "head": {
         "x": 29,
-        "y": 44,
-        "width": 28,
-        "height": 20
-      },
-      "hair": {
-        "x": 25,
-        "y": 24,
-        "width": 46,
-        "height": 38
+        "y": 28,
+        "width": 39,
+        "height": 34
       }
     },
     {
       "head": {
-        "x": 29,
-        "y": 54,
-        "width": 38,
-        "height": 10
+        "x": 33,
+        "y": 47,
+        "width": 24,
+        "height": 17
       },
       "hair": {
-        "x": 25,
-        "y": 25,
-        "width": 46,
-        "height": 37
+        "x": 29,
+        "y": 30,
+        "width": 39,
+        "height": 32
+      }
+    },
+    {
+      "head": {
+        "x": 32,
+        "y": 55,
+        "width": 33,
+        "height": 9
+      },
+      "hair": {
+        "x": 29,
+        "y": 31,
+        "width": 39,
+        "height": 32
       }
     }
   ]

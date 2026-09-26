@@ -2,6 +2,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import {blank,crop,alphaBounds,mainSpriteBounds,blitNearest,decodePNG,encodePNG} from './lib/png.mjs';
+import {attachedPack} from './lib/character-attachments.mjs';
 const source='assets/player/source/temporary-appearance';
 const output='assets/player/temporary-appearance';
 const poses={walk:{columns:3,offset:0},chop:{columns:2,offset:3},fish:{columns:3,offset:5}};
@@ -49,6 +50,12 @@ if(process.argv.includes('--references')){
       const atlas=blank(columns*96,384);
       for(let row=0;row<4;row++)for(let frame=0;frame<columns;frame++){
         const base=crop(original,frame*96,row*96,96,96),main=mainOnly(base);
+        if(type==='backpack'){
+          const view=[3,1,2,0][row],x=Math.round(view%2*generated.width/2),y=Math.round(Math.floor(view/2)*generated.height/2);
+          const tile=crop(generated,x,y,Math.round((view%2+1)*generated.width/2)-x,Math.round((Math.floor(view/2)+1)*generated.height/2)-y);
+          blitNearest(atlas,attachedPack(mainOnly(tile),row,pose,frame),frame*96,row*96);
+          stats.frames++;continue;
+        }
         if(!main.data.some((alpha,index)=>index%4===3&&alpha>=128)){
           // The backpack is fully occluded in some front-facing poses.
           stats.frames++;continue;
@@ -71,6 +78,9 @@ if(process.argv.includes('--references')){
           if(type==='outfit'&&base.data[point*4+3]&&!main.data[point*4+3])
             base.data.copy(packed.data,point*4,point*4,point*4+4);
         }
+        // Remove the original classifier's hair/face fragments from clothes.
+        // A smaller head must not expose old brown pixels above the collar.
+        if(type==='outfit')for(let y=0;y<54;y++)for(let x=0;x<96;x++)packed.data.fill(0,(y*96+x)*4,(y*96+x)*4+4);
         blitNearest(atlas,packed,frame*96,row*96);
         stats.frames++;
       }

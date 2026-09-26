@@ -9,6 +9,8 @@ const manifest=JSON.parse(fs.readFileSync('assets/player/polish-v1/manifest.json
 assert.equal(manifest.cell,96);assert.deepEqual(manifest.feet,[48,88]);assert.equal(manifest.frames,32);
 assert.equal(manifest.files.length,18);
 assert.equal(manifest.headRegistration,'single-uniform-master');
+assert.equal(manifest.attachmentMode,'full-pack-anatomical-outfit');
+assert.deepEqual(manifest.headMaxSize,[39,36]);
 const registration=read('assets/player/polish-v1/head-registration.png');
 for(const file of ['src/data/character-rig-data.js',
   ...['walk','chop','fish'].flatMap(pose=>['body','head','hair','outfit','backpack','grip'].map(part=>'assets/player/rig-v1/'+pose+'-'+part+'.png')),
@@ -17,6 +19,7 @@ for(const file of ['src/data/character-rig-data.js',
   assert.ok(fs.readFileSync(file).equals(previous),'Original motion/rig/sprite must remain unchanged: '+file);
 }
 let verified=0,packCapPixels=0;
+const wholePacks=new Map();
 for(const pose of ['walk','chop','fish']){
   const columns=pose==='chop'?2:3;
   const layers=Object.fromEntries(['head','hair','outfit','backpack'].map(part=>[part,read('assets/player/polish-v1/'+pose+'-'+part+'.png')]));
@@ -45,9 +48,16 @@ for(const pose of ['walk','chop','fish']){
     for(let p=3;p<54*96*4;p+=4)assert.equal(cleanBody.data[p],0,'Body must not retain old head classifier fragments');
     const outfit=crop(layers.outfit,frame*96,face*96,96,96),pack=crop(layers.backpack,frame*96,face*96,96,96),hand=crop(grip,frame*96,face*96,96,96);
     for(let p=0;p<outfit.data.length;p+=4){
-      if(hand.data[p+3])assert.ok(!outfit.data[p+3]&&!pack.data[p+3],'Clothes/pack must retain exposed gripping hands');
+      if(hand.data[p+3])assert.ok(!outfit.data[p+3],'Clothes must retain exposed gripping hands');
       if(p/4<54*96)assert.equal(outfit.data[p+3],0,'Old stray hair pixels must not remain in clothes');
       if(face===0)assert.equal(pack.data[p+3],0,'Front-facing pack must remain naturally occluded');
+    }
+    if(face!==0){
+      const bounds=alphaBounds(pack),pixels=pack.data.filter((a,i)=>i%4===3&&a>=128).length;
+      const contract=JSON.stringify({width:bounds.width,height:bounds.height,pixels});
+      if(!wholePacks.has(face))wholePacks.set(face,contract);
+      assert.equal(contract,wholePacks.get(face),'Backpack must retain its complete size and pixel count through every pose');
+      assert.ok(pixels>=100,'A side backpack must not degenerate into a clipped strip');
     }
     if(pose==='chop'&&frame===1&&(face===1||face===2)){
       let cap=0;for(let y=54;y<=60;y++)for(let x=0;x<96;x++)if(pack.data[(y*96+x)*4+3])cap++;
@@ -60,8 +70,22 @@ for(const part of ['outfit','backpack']){
   const icon=read('assets/player/polish-v1/'+part+'-icon.png');assert.equal(icon.width,96);assert.equal(icon.height,96);
   assert.ok(icon.data.some((n,index)=>index%4===3&&n===0),'Icons must retain transparency');
 }
+for(const name of ['ranger','berry']){
+  const sizes=new Map();
+  for(const pose of ['walk','chop','fish']){
+    const image=read('assets/player/temporary-appearance/'+name+'-'+pose+'.png'),columns=pose==='chop'?2:3;
+    for(let face=1;face<4;face++)for(let frame=0;frame<columns;frame++){
+      const tile=crop(image,frame*96,face*96,96,96),b=alphaBounds(tile);
+      const pixels=tile.data.filter((a,i)=>i%4===3&&a>=128).length;
+      const size=JSON.stringify({width:b.width,height:b.height,pixels});
+      if(!sizes.has(face))sizes.set(face,size);
+      assert.equal(size,sizes.get(face),'Temporary backpack silhouette must never shrink or clip: '+name);
+      assert.ok(pixels>=100,'Temporary backpack must not become a cut-off strip: '+name);
+    }
+  }
+}
 const assets=fs.readFileSync('src/assets.js','utf8');
 for(const pose of ['walk','chop','fish'])for(const part of ['head','hair','outfit','backpack'])
   assert.ok(assets.includes('assets/player/polish-v1/'+pose+'-'+part+'.png'),'Runtime must load every polished part');
 assert.ok(fs.readFileSync('src/character.js','utf8').includes("if(handBehindHead)drawLayer('Grip')"),'Raised hands must be occluded by the head');
-console.log('Polish contracts passed: '+verified+' poses, exact registered head reconstruction, no Body head fragments, stable head size, preserved grips/caps, 18 assets, original rig/tools unchanged. Cap pixels: '+packCapPixels);
+console.log('Polish contracts passed: '+verified+' poses, registered smaller head, filled neck/collar, full invariant backpack silhouettes, 18 assets, original rig/tools unchanged. Cap pixels: '+packCapPixels);

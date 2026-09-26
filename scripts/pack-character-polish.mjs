@@ -1,6 +1,7 @@
 // Versioned replacement art. Never changes the original rig or tool transforms.
 import fs from 'node:fs';
 import {blank,crop,alphaBounds,mainSpriteBounds,blitNearest,decodePNG,encodePNG} from './lib/png.mjs';
+import {attachedPack} from './lib/character-attachments.mjs';
 const source='assets/player/source/polish-v1',output='assets/player/polish-v1';
 const read=file=>decodePNG(fs.readFileSync(file));
 const write=(file,image)=>{fs.mkdirSync(file.slice(0,file.lastIndexOf('/')),{recursive:true});fs.writeFileSync(file,encodePNG(image));};
@@ -33,21 +34,29 @@ function fit(art,bounds){
   blitNearest(result,crop(clean,b.x,b.y,b.width,b.height),bounds.x,bounds.y,bounds.width,bounds.height);
   return result;
 }
-function fitGarment(art,bounds){
-  const clean=mainOnly(art),b=alphaBounds(clean),result=blank(96,96);
-  // Preserve the approved garment's proportions. Register the feet/bottom
-  // and torso centre instead of separately stretching width and height.
-  const scale=Math.min(bounds.width/b.width,bounds.height/b.height);
-  const w=Math.round(b.width*scale),h=Math.round(b.height*scale);
-  blitNearest(result,crop(clean,b.x,b.y,b.width,b.height),
-    Math.round(bounds.x+(bounds.width-w)/2),bounds.y+bounds.height-h,w,h);
+function anatomicalGarment(art,mask){
+  const bounds=alphaBounds(mask),paint=fit(art,bounds),result=blank(96,96);
+  // The authored body contour is the common wardrobe template. Never leave
+  // a hole at the collar just because a separately fitted source has padding.
+  for(let y=0;y<96;y++)for(let x=0;x<96;x++){
+    const p=(y*96+x)*4;if(!mask.data[p+3])continue;
+    let source=p;
+    if(!paint.data[p+3]){
+      let distance=Infinity;
+      for(let yy=bounds.y;yy<bounds.y+bounds.height;yy++)for(let xx=bounds.x;xx<bounds.x+bounds.width;xx++){
+        const q=(yy*96+xx)*4,d=(xx-x)**2+(yy-y)**2;
+        if(paint.data[q+3]&&d<distance){source=q;distance=d;}
+      }
+    }
+    paint.data.copy(result.data,p,source,source+4);
+  }
   return result;
 }
 // A single assembled head is registered ONCE. Head and Hair are a partition
 // of those same pixels, not independently stretched bald/hair silhouettes.
 function registeredHead(art,face){
   const clean=mainOnly(art),b=alphaBounds(clean),master=blank(96,96);
-  const height=face===3?40:43,scale=Math.min(46/b.width,height/b.height);
+  const height=face===3?34:36,scale=Math.min(39/b.width,height/b.height);
   const width=Math.round(b.width*scale),h=Math.round(b.height*scale);
   blitNearest(master,crop(clean,b.x,b.y,b.width,b.height),Math.round(48-width/2),64-h,width,h);
   const head=blank(96,96),hair=blank(96,96),bounds=alphaBounds(master);
@@ -89,7 +98,7 @@ if(process.argv.includes('--references')){
   const reference=blank(96,384);
   canonical.forEach((pair,face)=>blitNearest(reference,pair.master,0,face*96));
   write(output+'/head-registration.png',reference);
-  const manifest={cell:96,feet:[48,88],renderSize:100,rigUnchanged:true,headRegistration:'single-uniform-master',frames:32,files:[output+'/head-registration.png'],canonicalHeads:canonical.map(pair=>Object.fromEntries(['head','hair'].map(part=>[part,alphaBounds(pair[part])])))};
+  const manifest={cell:96,feet:[48,88],renderSize:100,rigUnchanged:true,headRegistration:'single-uniform-master',attachmentMode:'full-pack-anatomical-outfit',headMaxSize:[39,36],frames:32,files:[output+'/head-registration.png'],canonicalHeads:canonical.map(pair=>Object.fromEntries(['head','hair'].map(part=>[part,alphaBounds(pair[part])])))};
   for(const [pose,{columns,offset}] of Object.entries(poses)){
     const original=Object.fromEntries(['body','head','hair','outfit','backpack','grip'].map(part=>[part,read('assets/player/rig-v1/'+pose+'-'+part+'.png')]));
     const atlas=Object.fromEntries(['body','head','hair','outfit','backpack'].map(part=>[part,blank(columns*96,384)]));
@@ -99,6 +108,17 @@ if(process.argv.includes('--references')){
       // They must not peek out behind the new registered head when it tilts.
       const body={...base.body,data:Buffer.from(base.body.data)};
       for(let y=0;y<54;y++)for(let x=0;x<96;x++)body.data.fill(0,(y*96+x)*4,(y*96+x)*4+4);
+      // Fill the hidden neck from the existing skin artwork, not a separate
+      // moving cutout. It spans the shared neck pivot in both chopping poses.
+      const skin=canonical[face].head;
+      let colour=skin.data.subarray((62*96+48)*4,(62*96+48)*4+4);
+      if(!colour[3])for(let y=63;y>=57;y--)for(let x=46;x<=50;x++){
+        const p=(y*96+x)*4;
+        if(skin.data[p+3]&&skin.data[p]>190&&skin.data[p+1]>125)colour=skin.data.subarray(p,p+4);
+      }
+      for(let y=59;y<=67;y++)for(let x=44;x<=52;x++){
+        const p=(y*96+x)*4;if(!body.data[p+3])colour.copy(body.data,p);
+      }
       blitNearest(atlas.body,body,frame*96,face*96);
       // Head dimensions are canonical in every pose. Small authored placement
       // deltas follow the original skull, never rescale at the impact frame.
@@ -109,19 +129,15 @@ if(process.argv.includes('--references')){
       // outline pixels above the neck instead of carrying them into new art.
       const mask={...base.outfit,data:Buffer.from(base.outfit.data)};
       for(let y=0;y<54;y++)for(let x=0;x<96;x++)mask.data[(y*96+x)*4+3]=0;
-      const bounds=alphaBounds(mask),outfit=fitGarment(grid(outfits,offset+frame,face,8,4),bounds);
+      const outfit=anatomicalGarment(grid(outfits,offset+frame,face,8,4),mask);
       // Exposed original skin and final gripping hands retain exact positions.
       for(let p=0;p<outfit.data.length;p+=4){
         const exposed=base.body.data[p+3]&&!base.outfit.data[p+3]&&!base.backpack.data[p+3]&&!base.head.data[p+3]&&!base.hair.data[p+3];
         if(base.grip.data[p+3]||exposed)outfit.data.fill(0,p,p+4);
       }
       blitNearest(atlas.outfit,outfit,frame*96,face*96);
-      const packMask=mainOnly(base.backpack);
-      if(packMask.data.some((a,index)=>index%4===3&&a)){
-        const view=[3,1,2,0][face],pack=fit(grid(bags,view%2,Math.floor(view/2),2,2),alphaBounds(packMask));
-        for(let p=0;p<pack.data.length;p+=4)if((face!==3&&!packMask.data[p+3])||base.grip.data[p+3])pack.data.fill(0,p,p+4);
-        blitNearest(atlas.backpack,pack,frame*96,face*96);
-      }
+      const view=[3,1,2,0][face],pack=attachedPack(grid(bags,view%2,Math.floor(view/2),2,2),face,pose,frame);
+      blitNearest(atlas.backpack,pack,frame*96,face*96);
     }
     for(const [part,image] of Object.entries(atlas)){
       const file=output+'/'+pose+'-'+part+'.png';write(file,image);manifest.files.push(file);

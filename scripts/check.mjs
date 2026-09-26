@@ -125,7 +125,10 @@ for(const [design,{type,frames,files}] of Object.entries(temporaryManifest.desig
     assert(image.width===original.width&&image.height===original.height,`${design} ${pose} must preserve rig dimensions`);
     let visible=0,changed=0;
     for(let at=0;at<image.data.length;at+=4){
-      if(type==='outfit')assert(image.data[at+3]===original.data[at+3],`${design} ${pose} changed garment coverage`);
+      if(type==='outfit'){
+        const localY=Math.floor(at/4/image.width)%96;
+        assert(image.data[at+3]===(localY<54?0:original.data[at+3]),`${design} ${pose} changed anatomical garment coverage`);
+      }
       if(image.data[at+3]){visible++;if(image.data[at]!==original.data[at]||image.data[at+1]!==original.data[at+1]||image.data[at+2]!==original.data[at+2])changed++;}
     }
     assert(visible>100&&changed>visible*.25,`${design} ${pose} must have distinct visible artwork`);
@@ -1057,7 +1060,7 @@ for(const pose of ['walk','chop','fish']){
   for(const part of ['body','head','hair','outfit','backpack']){
     const image=decodePNG(fs.readFileSync(`assets/player/polish-v1/${pose}-${part}.png`));
     assert(image.width===columns*96&&image.height===384,`Polished atlas dimensions: ${pose}/${part}`);
-    if(part==='outfit'||part==='backpack')for(let p=0;p<image.data.length;p+=4)
+    if(part==='outfit')for(let p=0;p<image.data.length;p+=4)
       assert(!grips.data[p+3]||!image.data[p+3],`Polished ${part} must not cover gripping hands`);
   }
 }
@@ -1174,6 +1177,12 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       const raisedHand=(pose==='chop'||pose==='fish')&&frame===0;
       const handIndex=characterCalls.findIndex(call=>call.id===pose+'Grip');
       const headIndex=characterCalls.findIndex(call=>call.id===(pose==='chop'?'walk':pose)+'Head');
+      const packIndex=characterCalls.findIndex(call=>call.id===pose+'Backpack');
+      const bodyIndex=characterCalls.findIndex(call=>call.id===pose+'Body');
+      const outfitIndex=characterCalls.findIndex(call=>call.id===pose+'Outfit');
+      assert((face==='right'||face==='left')?packIndex<bodyIndex:packIndex>outfitIndex,
+        'Whole side bags must be occluded by the torso; rear bags stay above clothing');
+      assert(packIndex<handIndex,'Gripping hands must cover whole backpack art without cutting its silhouette');
       assert((raisedHand?handIndex<headIndex:characterCalls.at(-1).id===pose+'Grip')&&
         handIndex>characterCalls.findIndex(call=>call.id===key)&&
         (definition.frames[face][frame].toolBehind?characterCalls[0].id===key:characterCalls[3].id===key),

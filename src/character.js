@@ -107,7 +107,12 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
     }else ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,x,y,size,size);
   };
   if(transform?.behind)drawCharacterTool(transform);
-  drawLayer('Body');drawLayer('Outfit');drawLayer('Backpack');
+  // Side bags are complete silhouettes attached behind the torso. Let the
+  // anatomy occlude them; do not reuse a clipped strip from the old costume.
+  const sidePack=pose.face==='right'||pose.face==='left';
+  if(sidePack)drawLayer('Backpack');
+  drawLayer('Body');drawLayer('Outfit');
+  if(!sidePack)drawLayer('Backpack');
   if(!transform?.behind)drawCharacterTool(transform);
   // A raised preparation hand passes behind the head. Drawing all gripping
   // hands last made this skin patch look like an exposed bald rear skull.

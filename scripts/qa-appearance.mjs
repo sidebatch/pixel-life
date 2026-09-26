@@ -15,7 +15,6 @@ try{
   await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await page.goto(base+'?appearance-preview&time=12:00&weather=clear');
   await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.trial.green']);
-  await page.setViewportSize({width:await page.evaluate(()=>Object.values(CHARACTER_RIG.poses).reduce((n,p)=>n+p.columns*105+35,25)),height:900});
   const alpha=await page.evaluate(()=>{
     const raster=image=>{
       const surface=document.createElement('canvas');surface.width=image.width;surface.height=image.height;
@@ -47,20 +46,18 @@ try{
       const appearance=getCharacterRenderAppearance(),calls=[],originalDraw=ctx.drawImage.bind(ctx);
       let poses=0,toolChecks=0;
       ctx.drawImage=(image,...args)=>{calls.push({image,args});return originalDraw(image,...args);};
-      const width=Object.values(CHARACTER_RIG.poses).reduce((n,p)=>n+p.columns*105+35,25);
-      canvas.width=width;canvas.height=900;
-      canvas.style.cssText=`position:relative;width:${width}px;height:900px;max-width:none;max-height:none;`;
+      canvas.width=1100;canvas.height=900;
+      canvas.style.cssText='position:relative;width:1100px;height:900px;max-width:none;max-height:none;';
       document.body.style.cssText='margin:0;background:#172f30;display:block;overflow:auto;';
       document.body.appendChild(canvas);
       for(const element of document.body.children)if(element!==canvas)element.style.display='none';
-      ctx.imageSmoothingEnabled=false;ctx.fillStyle='#73a07a';ctx.fillRect(0,0,width,900);
+      ctx.imageSmoothingEnabled=false;ctx.fillStyle='#73a07a';ctx.fillRect(0,0,1100,900);
       ctx.fillStyle='#102b2c';ctx.font='16px sans-serif';ctx.fillText('Trial mix '+mask+': '+(parts.join(', ')||'default'),25,22);
       try{
-        let groupX=25;
-        for(const pose of ['walk','chop','fish']){
+        for(const [p,pose] of ['walk','chop','fish'].entries()){
           const definition=CHARACTER_RIG.poses[pose];
           for(const [row,face] of ['down','right','left','up'].entries())for(let frame=0;frame<definition.columns;frame++){
-            const action={pose,face,frame,tool:pose==='fish'?'rod':'axe'},x=groupX+40+frame*105,y=125+row*140;
+            const action={pose,face,frame,tool:pose==='fish'?'rod':'axe'},x=65+p*350+frame*105,y=125+row*140;
             calls.length=0;drawCharacterActor(x,y,action);poses++;
             const hairPose=pose==='chop'?'walk':pose;
             const hair=characterLayerImgs[CHARACTER_PARTS.hair.get(appearance.hairId)[hairPose+'Hair']];
@@ -74,7 +71,6 @@ try{
             if(JSON.stringify(selected)!==JSON.stringify(standard))throw new Error('Appearance moved the weapon');
             toolChecks++;
           }
-          groupX+=definition.columns*105+35;
         }
       }finally{ctx.drawImage=originalDraw;}
       if(JSON.stringify(GAME_STATE)!==before)throw new Error('Preview mutated save state');

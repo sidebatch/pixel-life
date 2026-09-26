@@ -28,12 +28,7 @@ function validateCharacterRigAssets(){
 function getCharacterPose(){
   const face=player.face||'down';
   if(lifeUi.chop?.regionId===GAME_STATE.regionId){
-    const elapsed=Math.max(0,tNow-lifeUi.chop.startedAt);
-    const side=face==='left'||face==='right';
-    const times=CHARACTER_RIG.poses.chop.sideFrameTimes;
-    const frame=side?times.reduce((current,time,index)=>elapsed>=time?index:current,0):
-      elapsed<FORESTRY_CHOP_TIMING.impactMs?2:4;
-    return {pose:'chop',face,frame,tool:'axe'};
+    return {pose:'chop',face,frame:tNow-lifeUi.chop.startedAt<FORESTRY_CHOP_TIMING.impactMs?0:1,tool:'axe'};
   }
   if(typeof isFishingActive==='function'&&isFishingActive()){
     const phase=fishingState.phase;
@@ -52,7 +47,7 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const unit=CHARACTER_RIG.renderSize/CHARACTER_RIG.cell;
   const x=actorX+(frame.grip[0]-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
-  const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):frame.toolLength??(pose.pose==='chop'?34:26))*unit;
+  const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):pose.pose==='chop'?34:26)*unit;
   // Front/back carry shows a narrow three-quarter edge, not the broad side.
   // Keep the right-hand pivot and shaft length; side views/swings stay intact.
   const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&

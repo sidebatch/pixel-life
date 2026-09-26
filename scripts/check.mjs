@@ -936,8 +936,8 @@ for(const [pose,definition] of Object.entries(rig.poses)){
     for(const frame of frames)assert(frame.grip.every(n=>Number.isInteger(n)&&n>=0&&n<96)&&Number.isFinite(frame.angle),
       `Invalid frame grip: ${pose}/${face}`);
     if(face==='left')for(let i=0;i<frames.length;i++)assert(
-      frames[i].grip[0]===95-definition.frames.right[i].grip[0]-(pose==='walk'||pose==='chop'&&(i===0||i===7)?8:0)&&
-      frames[i].grip[1]===definition.frames.right[i].grip[1]-(pose==='walk'||pose==='chop'&&(i===0||i===7)?3:0)&&frames[i].toolBehind,
+      frames[i].grip[0]===95-definition.frames.right[i].grip[0]-(pose==='walk'?8:0)&&
+      frames[i].grip[1]===definition.frames.right[i].grip[1]-(pose==='walk'?3:0)&&frames[i].toolBehind,
       'Left-facing right hand must stay on the far side; shared two-hand action pivots stay aligned');
   }
 }
@@ -986,7 +986,7 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       assert(transform.edgeScale===(edgeOn?0.55:1),'Only front/back carried axes use a partially visible edge projection');
       const expectedAxis=edgeOn?(face==='down'?-1.95:-1.19):definition.frames[face][frame].angle;
       assert(transform.axisAngle===expectedAxis,'Side views, rods and swing angles must remain unchanged');
-      const expectedLength=(tool==='rod'?(pose==='fish'?48:36):definition.frames[face][frame].toolLength??(pose==='chop'?34:26))*unit;
+      const expectedLength=(tool==='rod'?(pose==='fish'?48:36):pose==='chop'?34:26)*unit;
       assert(Math.abs(Math.hypot(transform.tip.x-transform.x,transform.tip.y-transform.y)-expectedLength)<1e-8,
         'Edge-on projection must preserve handle attachment and shaft length');
       // A source point on the blade side of the shaft must point forward in
@@ -1022,13 +1022,13 @@ for(const [pose,definition] of Object.entries(rig.poses)){
   }
 }
 for(const face of ['down','right','left','up']){
-  const ready=rig.poses.chop.frames[face][2].headMotion,impact=rig.poses.chop.frames[face][4].headMotion;
+  const [ready,impact]=rig.poses.chop.frames[face].map(frame=>frame.headMotion);
   assert(ready&&impact&&ready.pivot.join(',')==='48,63'&&impact.pivot.join(',')==='48,63'&&
     ready.offset[1]!==impact.offset[1]&&ready.rotation!==impact.rotation&&
     Math.abs(ready.rotation)<=.05&&Math.abs(impact.rotation)<=.05,
     'Chopping heads must move with the body without scaling or exaggerated tilt');
 }
-for(let frame=0;frame<rig.poses.chop.columns;frame++){
+for(let frame=0;frame<2;frame++){
   const right=rig.poses.chop.frames.right[frame].headMotion,left=rig.poses.chop.frames.left[frame].headMotion;
   assert(left.offset[0]===-right.offset[0]&&left.offset[1]===right.offset[1]&&left.rotation===-right.rotation,
     'Left/right head follow-through must be symmetric');
@@ -1045,34 +1045,9 @@ characterContext.fishingState.phase='result';
 assert(vm.runInContext('getCharacterPose().frame===2',characterContext),'Catching must use dedicated pull pose');
 characterContext.lifeUi.chop={startedAt:0,regionId:'oldForest',tree:{y:10}};
 characterContext.tNow=100;
-assert(vm.runInContext('getCharacterPose().pose===\'chop\'&&getCharacterPose().frame===2',characterContext),'Front/back chop preparation must retain the ready pose');
+assert(vm.runInContext('getCharacterPose().pose===\'chop\'&&getCharacterPose().frame===0',characterContext),'Chop preparation must use the ready pose');
 characterContext.tNow=300;
-assert(vm.runInContext('getCharacterPose().frame===4',characterContext),'Chop impact must match the existing damage timing');
-assert(rig.poses.chop.sideFrameTimes.join(',')==='0,70,140,210,270,345,470,600',
-  'Side swing must include wind-up, descent, impact and recovery without delaying damage');
-for(const face of ['right','left']){
-  characterContext.player.face=face;
-  for(const [frame,time] of rig.poses.chop.sideFrameTimes.entries()){
-    characterContext.tNow=time;
-    assert(vm.runInContext('getCharacterPose().frame',characterContext)===frame,'Side frame boundary failed');
-    if(frame>0){characterContext.tNow=time-1;
-      assert(vm.runInContext('getCharacterPose().frame',characterContext)===frame-1,'Side frame advanced early');}
-  }
-  for(const frame of [0,7]){
-    const idle=vm.runInContext(`getCharacterToolTransform(100,100,{pose:'walk',face:'${face}',frame:0,tool:'axe'})`,characterContext);
-    const end=vm.runInContext(`getCharacterToolTransform(100,100,{pose:'chop',face:'${face}',frame:${frame},tool:'axe'})`,characterContext);
-    assert(JSON.stringify(idle)===JSON.stringify(end),'Side swing endpoints must match idle hand, angle and tool size exactly');
-    for(const name of ['body','head','hair','outfit','backpack','grip']){
-      const walk=decodePNG(fs.readFileSync(path.join(root,`assets/player/rig-v1/walk-${name}.png`)));
-      const chop=decodePNG(fs.readFileSync(path.join(root,`assets/player/rig-v1/chop-${name}.png`)));
-      const row=face==='right'?1:2;
-      for(let y=0;y<96;y++)assert(
-        walk.data.subarray(((row*96+y)*walk.width)*4,((row*96+y)*walk.width+96)*4).equals(
-          chop.data.subarray(((row*96+y)*chop.width+frame*96)*4,((row*96+y)*chop.width+(frame+1)*96)*4)),
-        'Idle and side swing endpoint layer pixels must be identical');
-    }
-  }
-}
+assert(vm.runInContext('getCharacterPose().frame===1',characterContext),'Chop impact must match the existing damage timing');
 characterContext.lifeUi.chop=null;
 characterContext.isFishingActive=()=>false;
 characterContext.player.face='right';characterContext.player.moving=true;

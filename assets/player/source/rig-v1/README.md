@@ -32,12 +32,4 @@ Use case: precise-object-edit. Asset type: transparent pixel-art body template f
 
 ## 정규화
 
-### 2026-09-26 좌우 벌목 중간 원화
-
-`chop-side-inbetweens.png`는 내장 이미지 제작 도구(imagegen)로 만든 2×2 투명 원화다. 참조는 `chop-reference.png`의 기존 2×4 버전과 `assets/player/player.png`였다. 생성 원본은 보존하고 workspace에 복사했다. 상단 왼쪽 들기 / 상단 오른쪽 내려치기 / 하단 왼쪽 타격 여운 / 하단 오른쪽 회복을 게임용 좌우 프레임 1/3/5/6에 패킹한다. 2/4는 기존 준비/타격, 0/7은 정확한 walk 대기 레이어다. 왼쪽은 오른쪽 반전, 상하는 기존 두 그림을 유지한다. 게임용 시트 8×4, 셀96·발(48,88)·표시100. 타임라인 0/70/140/210/270/345/470/600ms, 종료700ms. 생성 원화 자체는 런타임 로딩하지 않는다.
-
-최종 생성 프롬프트:
-
-Use case: identity-preserve. Asset type: transparent production pixel-game chopping IN-BETWEEN poses atlas, EXACT 2 columns x 2 rows, four equal isolated cells. Input 1 is existing two-keyframe chopping atlas, Input 2 is walking identity/style reference. Create the SAME brown spiky-haired chibi adventurer with blue jacket, cream shirt, dark trousers, brown boots and brown backpack. ALL FOUR sprites face RIGHT, same body/head size and same feet baseline in their cells. Keep head/body proportions slim exactly like reference, not larger, no added gear. Only change arms/torso poses: top-left WIND-UP intermediate between idle and raised hands, both empty gripping hands lifting diagonally near shoulder/chest; top-right DESCENT intermediate from raised hands to forward impact, joined empty gripping hands moving down/forward around cheek/chest level; bottom-left FOLLOW-THROUGH just after impact, joined empty gripping hands forward and slightly lower toward waist, torso slightly leaned forward; bottom-right RECOVERY, hands retracting toward hip/chest and torso returning to idle. Each must be a coherent distinct transitional pose, hands joined at ONE imaginary handle grip; preserve wrist/shoulder continuity. DO NOT draw axe, weapon, tool, swoosh, motion lines, background, shadow, grid, text or labels. Crisp restricted-palette pixel art with true transparent alpha, no anti-alias glow. Four centered isolated equal-scale full-body sprites with generous transparent separation, regular 2x2 grid mandatory. No down/up/left facing sprites. Output only the sheet.
-
 생성 결과의 해상도·셀 간격이 게임 규격과 같다고 가정하지 않는다. scripts/pack-character-rig.mjs가 인접 셀의 잔여 픽셀을 제외한 주 연결 영역을 선택하고, 최근접 패킹으로 발 기준 (48,88)에 맞춘다. 왼쪽은 정규화된 오른쪽을 반전한다. 현재 옷·머리·배낭은 기준 그림에서 분리한 정확한 픽셀을 사용하고, 생성 몸은 그 아래 영역에 넣는다. 전체 기본 외형의 재합성 일치는 자동 검사 대상이다.

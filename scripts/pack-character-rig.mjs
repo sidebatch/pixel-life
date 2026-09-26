@@ -7,9 +7,9 @@ const output='assets/player/rig-v1',source='assets/player/source/rig-v1';
 fs.mkdirSync(output,{recursive:true});fs.mkdirSync(`${output}/tools`,{recursive:true});
 const read=file=>decodePNG(fs.readFileSync(file));
 const write=(file,image)=>fs.writeFileSync(file,encodePNG(image));
-function sourceFrame(image,column,row,columns,rows=4){
-  const x=Math.round(column*image.width/columns),y=Math.round(row*image.height/rows);
-  return crop(image,x,y,Math.round((column+1)*image.width/columns)-x,Math.round((row+1)*image.height/rows)-y);
+function sourceFrame(image,column,row,columns){
+  const x=Math.round(column*image.width/columns),y=Math.round(row*image.height/4);
+  return crop(image,x,y,Math.round((column+1)*image.width/columns)-x,Math.round((row+1)*image.height/4)-y);
 }
 const inside=(x,y,[rx,ry,rw,rh])=>x>=rx&&x<rx+rw&&y>=ry&&y<ry+rh;
 const directions=['down','right','left','up'];
@@ -20,7 +20,7 @@ const specs={
       [[37,67,15,14],[42,64,14,14],[32,62,16,14]],
       [],[[55,67,11,13],[55,64,12,16],[53,65,12,15]]
     ],angles:[[-Math.PI+.9,-Math.PI+.95,-Math.PI+.9],[-.6,-.55,-.6],[],[-.79,-.79,-.79]]},
-  chop:{file:'assets/forestry/chop/player-v2.png',body:`${source}/chop-body.png`,columns:8,sourceColumns:2,
+  chop:{file:'assets/forestry/chop/player-v2.png',body:`${source}/chop-body.png`,columns:2,
     // Keep head dimensions canonical, but follow the torso's wind-up/lean.
     headMotion:[
       [{offset:[0,-1],rotation:-.025},{offset:[0,1],rotation:.025}],
@@ -41,18 +41,6 @@ const specs={
 const rig={version:1,handedness:'right',cell,feet,renderSize:100,poses:{},tools:{}};
 const layerNames=['body','head','hair','outfit','backpack','grip'];
 const urls={};
-const packed={};
-const sideSource=read(`${source}/chop-side-inbetweens.png`);
-const sideTimes=[0,70,140,210,270,345,470,600];
-const sideAngles=[-.6,-1.3,-2,-.9,.2,.65,-.1,-.6];
-const sideLengths=[26,30,34,34,34,32,28,26];
-const sideHands={1:[28,43,14,15],3:[43,54,18,20],5:[49,64,21,18],6:[43,62,20,19]};
-const sideMotion=[
-  {offset:[0,0],rotation:0},{offset:[-1,-1],rotation:-.025},
-  {offset:[-1,-1],rotation:-.05},{offset:[0,0],rotation:-.015},
-  {offset:[2,1],rotation:.05},{offset:[2,2],rotation:.05},
-  {offset:[1,1],rotation:.025},{offset:[0,0],rotation:0}
-];
 function normalize(frame,targetHeight=height,generated=false){
   const b=generated?mainSpriteBounds(frame):alphaBounds(frame),out=blank(cell,cell);
   const w=Math.round(b.width*targetHeight/b.height);
@@ -111,7 +99,7 @@ for(const [pose,spec] of Object.entries(specs)){
           image.data.copy(image.data,d,s,s+4);
         }
         const right=frames.right[f];
-        const farHandOffset=pose==='walk'||pose==='chop'&&(f===0||f===7)?[-8,-3]:[0,0];
+        const farHandOffset=pose==='walk'?[-8,-3]:[0,0];
         frames.left.push({...right,
           grip:[cell-1-right.grip[0]+farHandOffset[0],right.grip[1]+farHandOffset[1]],
           angle:Math.PI-right.angle,toolBehind:true,
@@ -120,31 +108,15 @@ for(const [pose,spec] of Object.entries(specs)){
             rotation:-right.headMotion.rotation}}:{})});
         continue;
       }
-      // Side swings have real in-between art. Endpoints reuse the exact idle
-      // layers so returning to walking cannot resize or snap the held tool.
-      const side=pose==='chop'&&row===1;
-      const endpoint=side&&(f===0||f===7);
-      const originalFrame=pose==='chop'?(f<4?0:1):f;
-      const generatedIndex=({1:0,3:1,5:2,6:3})[f];
-      const columns=spec.sourceColumns||spec.columns;
-      const frame=endpoint?crop(packed.walk.reference,0,cell,cell,cell):
-        side&&generatedIndex!==undefined?
-          normalize(sourceFrame(sideSource,generatedIndex%2,Math.floor(generatedIndex/2),2,2),height,true):
-          normalize(sourceFrame(full,originalFrame,row,columns),height,pose==='fish');
-      const {layers,grip}=endpoint?{
-        layers:Object.fromEntries(layerNames.map(name=>[name,crop(packed.walk.atlases[name],0,cell,cell,cell)])),
-        grip:rig.poses.walk.frames.right[0].grip
-      }:split(frame,sourceFrame(body,originalFrame,row,columns),
-        side&&generatedIndex!==undefined?sideHands[f]:spec.hand[row][originalFrame],directions[row]);
+      const frame=normalize(sourceFrame(full,f,row,spec.columns),height,pose==='fish');
+      const {layers,grip}=split(frame,sourceFrame(body,f,row,spec.columns),spec.hand[row][f],directions[row]);
       for(const name of layerNames)blitNearest(atlases[name],layers[name],f*cell,row*cell);
       blitNearest(reference,frame,f*cell,row*cell);
-      frames[directions[row]].push({grip,angle:side?sideAngles[f]:spec.angles[row][originalFrame],toolBehind:row===3,
-        ...(side?{toolLength:sideLengths[f]}:{}),
-        ...(spec.headMotion?{headMotion:{...(side?sideMotion[f]:spec.headMotion[row][originalFrame]),pivot:[48,63]}}:{})});
+      frames[directions[row]].push({grip,angle:spec.angles[row][f],toolBehind:row===3,
+        ...(spec.headMotion?{headMotion:{...spec.headMotion[row][f],pivot:[48,63]}}:{})});
     }
   }
-  rig.poses[pose]={columns:spec.columns,frames,...(pose==='chop'?{sideFrameTimes:sideTimes}:{})};
-  packed[pose]={atlases,reference};
+  rig.poses[pose]={columns:spec.columns,frames};
   for(const name of layerNames){
     const file=`${output}/${pose}-${name}.png`;write(file,atlases[name]);
     urls[`${pose}${name[0].toUpperCase()}${name.slice(1)}`]=file;
@@ -181,4 +153,4 @@ for(const [kind,assets] of Object.entries({axe:['basic','iron','steel','master']
 fs.writeFileSync('src/data/character-rig-data.js',
   `// Generated by scripts/pack-character-rig.mjs. Do not hand-edit packed metadata.\nconst CHARACTER_RIG=Object.freeze(${JSON.stringify(rig,null,2)});\n`);
 fs.writeFileSync(`${output}/manifest.json`,JSON.stringify({rig,urls},null,2)+'\n');
-console.log(`Packed ${Object.values(rig.poses).reduce((n,p)=>n+p.columns*4,0)} poses, 18 appearance layers and 10 tool sprites into rig v1.`);
+console.log('Packed 32 poses, 18 appearance layers and 10 tool sprites into rig v1.');

@@ -64,19 +64,19 @@ const CHARACTER_TEMP_APPEARANCE_URLS=Object.freeze({
   berry:{icon:'assets/player/temporary-appearance/berry-icon.png'}
 });
 const CHARACTER_LAYER_URLS=Object.freeze({
-  walkBody:'assets/player/rig-v1/walk-body.png',
+  walkBody:'assets/player/polish-v1/walk-body.png',
   walkHead:'assets/player/polish-v1/walk-head.png',
   walkHair:'assets/player/polish-v1/walk-hair.png',
   walkOutfit:'assets/player/polish-v1/walk-outfit.png',
   walkBackpack:'assets/player/polish-v1/walk-backpack.png',
   walkGrip:'assets/player/rig-v1/walk-grip.png',
-  chopBody:'assets/player/rig-v1/chop-body.png',
+  chopBody:'assets/player/polish-v1/chop-body.png',
   chopHead:'assets/player/polish-v1/chop-head.png',
   chopHair:'assets/player/polish-v1/chop-hair.png',
   chopOutfit:'assets/player/polish-v1/chop-outfit.png',
   chopBackpack:'assets/player/polish-v1/chop-backpack.png',
   chopGrip:'assets/player/rig-v1/chop-grip.png',
-  fishBody:'assets/player/rig-v1/fish-body.png',
+  fishBody:'assets/player/polish-v1/fish-body.png',
   fishHead:'assets/player/polish-v1/fish-head.png',
   fishHair:'assets/player/polish-v1/fish-hair.png',
   fishOutfit:'assets/player/polish-v1/fish-outfit.png',

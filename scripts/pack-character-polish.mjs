@@ -33,6 +33,41 @@ function fit(art,bounds){
   blitNearest(result,crop(clean,b.x,b.y,b.width,b.height),bounds.x,bounds.y,bounds.width,bounds.height);
   return result;
 }
+function fitGarment(art,bounds){
+  const clean=mainOnly(art),b=alphaBounds(clean),result=blank(96,96);
+  // Preserve the approved garment's proportions. Register the feet/bottom
+  // and torso centre instead of separately stretching width and height.
+  const scale=Math.min(bounds.width/b.width,bounds.height/b.height);
+  const w=Math.round(b.width*scale),h=Math.round(b.height*scale);
+  blitNearest(result,crop(clean,b.x,b.y,b.width,b.height),
+    Math.round(bounds.x+(bounds.width-w)/2),bounds.y+bounds.height-h,w,h);
+  return result;
+}
+// A single assembled head is registered ONCE. Head and Hair are a partition
+// of those same pixels, not independently stretched bald/hair silhouettes.
+function registeredHead(art,face){
+  const clean=mainOnly(art),b=alphaBounds(clean),master=blank(96,96);
+  const height=face===3?40:43,scale=Math.min(46/b.width,height/b.height);
+  const width=Math.round(b.width*scale),h=Math.round(b.height*scale);
+  blitNearest(master,crop(clean,b.x,b.y,b.width,b.height),Math.round(48-width/2),64-h,width,h);
+  const head=blank(96,96),hair=blank(96,96),bounds=alphaBounds(master);
+  for(let y=0;y<96;y++)for(let x=0;x<96;x++){
+    const p=(y*96+x)*4,[r,g,blue,a]=master.data.subarray(p,p+4);
+    if(!a)continue;
+    const nx=(x-bounds.x)/bounds.width,ny=(y-bounds.y)/bounds.height;
+    const skin=r>=190&&g>=125&&blue>=80&&r>g*1.12&&g>blue*1.08;
+    // Eyes, mouth, ear shadows and facial outlines belong to Head, even
+    // though their dark colours also occur in the hair. Authored face zones
+    // are in the unified master's coordinates, never a separate fit.
+    const faceZone=face===0?ny>.72&&nx>.23&&nx<.77:
+      face===1?ny>.65&&nx>.57:face===2?ny>.65&&nx<.43:false;
+    const ears=ny>.72&&ny<.93&&(face===0?(nx<.25||nx>.75):
+      face===1?(nx>.37&&nx<.57):face===2?(nx>.43&&nx<.63):(nx<.25||nx>.75));
+    const owner=skin||faceZone||ears||ny>.94?head:hair;
+    master.data.copy(owner.data,p,p,p+4);
+  }
+  return {head,hair,master};
+}
 function icon(image){
   const b=alphaBounds(image),result=blank(96,96),scale=88/Math.max(b.width,b.height);
   const w=Math.round(b.width*scale),h=Math.round(b.height*scale);
@@ -45,28 +80,26 @@ if(process.argv.includes('--references')){
   const large=blank(1536,768);blitNearest(large,heads,0,0,1536,768);write(source+'/head-hair-reference.png',large);
   console.log('Four direction columns down/right/left/up; head row then hair row.');
 }else{
-  const heads=read(source+'/head-hair-generated.png'),outfits=read(source+'/outfit-generated.png'),bags=read(source+'/backpack-generated.png');
+  const heads=read(source+'/head-registered-generated.png'),outfits=read(source+'/outfit-generated.png'),bags=read(source+'/backpack-generated.png');
   const canonical=[];
   for(let face=0;face<4;face++){
-    const pair={};
-    for(const [row,part] of ['head','hair'].entries()){
-      const target=mainSpriteBounds(crop(read('assets/player/rig-v1/walk-'+part+'.png'),0,face*96,96,96));
-      pair[part]=fit(grid(heads,face,row,4,2),target);
-    }
-    // Explicit skin ownership: generator painted ears onto the hair layer.
-    // Transfer their light skin pixels to Head so palette hair never dyes ears.
-    for(let p=0;p<pair.hair.data.length;p+=4){
-      const [r,g,b,a]=pair.hair.data.subarray(p,p+4);
-      if(a&&r>=215&&g>=155&&b>=110&&r>g+20&&g>b+15){pair.hair.data.copy(pair.head.data,p,p,p+4);pair.hair.data.fill(0,p,p+4);}
-    }
+    const pair=registeredHead(grid(heads,face%2,Math.floor(face/2),2,2),face);
     canonical.push(pair);
   }
-  const manifest={cell:96,feet:[48,88],renderSize:100,rigUnchanged:true,frames:32,files:[],canonicalHeads:canonical.map(pair=>Object.fromEntries(Object.entries(pair).map(([part,image])=>[part,alphaBounds(image)])))};
+  const reference=blank(96,384);
+  canonical.forEach((pair,face)=>blitNearest(reference,pair.master,0,face*96));
+  write(output+'/head-registration.png',reference);
+  const manifest={cell:96,feet:[48,88],renderSize:100,rigUnchanged:true,headRegistration:'single-uniform-master',frames:32,files:[output+'/head-registration.png'],canonicalHeads:canonical.map(pair=>Object.fromEntries(['head','hair'].map(part=>[part,alphaBounds(pair[part])])))};
   for(const [pose,{columns,offset}] of Object.entries(poses)){
     const original=Object.fromEntries(['body','head','hair','outfit','backpack','grip'].map(part=>[part,read('assets/player/rig-v1/'+pose+'-'+part+'.png')]));
-    const atlas=Object.fromEntries(['head','hair','outfit','backpack'].map(part=>[part,blank(columns*96,384)]));
+    const atlas=Object.fromEntries(['body','head','hair','outfit','backpack'].map(part=>[part,blank(columns*96,384)]));
     for(let face=0;face<4;face++)for(let frame=0;frame<columns;frame++){
       const base=Object.fromEntries(Object.entries(original).map(([part,image])=>[part,crop(image,frame*96,face*96,96,96)]));
+      // The old Body contains tiny classifier remnants above the neck.
+      // They must not peek out behind the new registered head when it tilts.
+      const body={...base.body,data:Buffer.from(base.body.data)};
+      for(let y=0;y<54;y++)for(let x=0;x<96;x++)body.data.fill(0,(y*96+x)*4,(y*96+x)*4+4);
+      blitNearest(atlas.body,body,frame*96,face*96);
       // Head dimensions are canonical in every pose. Small authored placement
       // deltas follow the original skull, never rescale at the impact frame.
       const first=mainSpriteBounds(crop(read('assets/player/rig-v1/walk-head.png'),0,face*96,96,96)),now=mainSpriteBounds(base.head);
@@ -76,7 +109,7 @@ if(process.argv.includes('--references')){
       // outline pixels above the neck instead of carrying them into new art.
       const mask={...base.outfit,data:Buffer.from(base.outfit.data)};
       for(let y=0;y<54;y++)for(let x=0;x<96;x++)mask.data[(y*96+x)*4+3]=0;
-      const bounds=alphaBounds(mask),outfit=fit(grid(outfits,offset+frame,face,8,4),bounds);
+      const bounds=alphaBounds(mask),outfit=fitGarment(grid(outfits,offset+frame,face,8,4),bounds);
       // Exposed original skin and final gripping hands retain exact positions.
       for(let p=0;p<outfit.data.length;p+=4){
         const exposed=base.body.data[p+3]&&!base.outfit.data[p+3]&&!base.backpack.data[p+3]&&!base.head.data[p+3]&&!base.hair.data[p+3];
@@ -98,5 +131,5 @@ if(process.argv.includes('--references')){
     }
   }
   fs.writeFileSync(output+'/manifest.json',JSON.stringify(manifest,null,2)+'\n');
-  console.log('Packed polished head/hair/outfit/backpack for 32 poses; original body/grip/tools/rig unchanged.');
+  console.log('Packed registered head/hair and clean body/outfit/backpack for 32 poses; original grip/tools/rig preserved.');
 }

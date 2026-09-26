@@ -1041,11 +1041,20 @@ assert(farmDrawCalls.length===farmIds.length*2&&farmIds.every((id,index)=>
 
 // Sprite contracts are verified using the actual packed PNGs, not just string checks.
 const polishedManifest=JSON.parse(read('assets/player/polish-v1/manifest.json'));
-assert(polishedManifest.cell===96&&polishedManifest.feet.join(',')==='48,88'&&polishedManifest.frames===32&&polishedManifest.files.length===14,
+assert(polishedManifest.cell===96&&polishedManifest.feet.join(',')==='48,88'&&polishedManifest.frames===32&&polishedManifest.files.length===18&&polishedManifest.headRegistration==='single-uniform-master',
   'Polished appearance must retain the existing rig and all 32 poses');
+const registeredHead=decodePNG(fs.readFileSync('assets/player/polish-v1/head-registration.png'));
+const registeredParts=['head','hair'].map(part=>decodePNG(fs.readFileSync(`assets/player/polish-v1/walk-${part}.png`)));
+for(let y=0;y<384;y++)for(let x=0;x<96;x++){
+  const p=(y*96+x)*4,q=(y*288+x)*4;
+  assert(!(registeredParts[0].data[q+3]&&registeredParts[1].data[q+3]),'Registered head pixels must have one part owner');
+  const part=registeredParts[1].data[q+3]?registeredParts[1]:registeredParts[0];
+  assert(part.data.subarray(q,q+4).equals(registeredHead.data.subarray(p,p+4)),
+    'Head and Hair must reconstruct their shared master without an exposed bald skull');
+}
 for(const pose of ['walk','chop','fish']){
   const columns=pose==='chop'?2:3,grips=decodePNG(fs.readFileSync(`assets/player/rig-v1/${pose}-grip.png`));
-  for(const part of ['head','hair','outfit','backpack']){
+  for(const part of ['body','head','hair','outfit','backpack']){
     const image=decodePNG(fs.readFileSync(`assets/player/polish-v1/${pose}-${part}.png`));
     assert(image.width===columns*96&&image.height===384,`Polished atlas dimensions: ${pose}/${part}`);
     if(part==='outfit'||part==='backpack')for(let p=0;p<image.data.length;p+=4)
@@ -1162,9 +1171,13 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       assert(Math.abs(transform.x-(100+(grip[0]-48)*unit))<1e-8&&
         Math.abs(transform.y-(120+(grip[1]-88)*unit))<1e-8,
         'Every equipped tool must attach its own pivot to the same frame-specific hand');
-      assert(characterCalls.at(-1).id===pose+'Grip'&&
+      const raisedHand=(pose==='chop'||pose==='fish')&&frame===0;
+      const handIndex=characterCalls.findIndex(call=>call.id===pose+'Grip');
+      const headIndex=characterCalls.findIndex(call=>call.id===(pose==='chop'?'walk':pose)+'Head');
+      assert((raisedHand?handIndex<headIndex:characterCalls.at(-1).id===pose+'Grip')&&
+        handIndex>characterCalls.findIndex(call=>call.id===key)&&
         (definition.frames[face][frame].toolBehind?characterCalls[0].id===key:characterCalls[3].id===key),
-        'Hands must cover the handle; back-facing tools must be behind the body');
+        'Hands must cover the handle, raised preparation hands go behind the head, back-facing tools stay behind the body');
       if(pose==='chop'){
         const motion=definition.frames[face][frame].headMotion;
         const expectedNeck=[100+motion.offset[0]*unit,120+(63-88+motion.offset[1])*unit];

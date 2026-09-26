@@ -6,18 +6,23 @@
   ],
   "renderSize": 100,
   "rigUnchanged": true,
+  "headRegistration": "single-uniform-master",
   "frames": 32,
   "files": [
+    "assets/player/polish-v1/head-registration.png",
+    "assets/player/polish-v1/walk-body.png",
     "assets/player/polish-v1/walk-head.png",
     "assets/player/polish-v1/walk-hair.png",
     "assets/player/polish-v1/walk-outfit.png",
     "assets/player/polish-v1/outfit-icon.png",
     "assets/player/polish-v1/walk-backpack.png",
     "assets/player/polish-v1/backpack-icon.png",
+    "assets/player/polish-v1/chop-body.png",
     "assets/player/polish-v1/chop-head.png",
     "assets/player/polish-v1/chop-hair.png",
     "assets/player/polish-v1/chop-outfit.png",
     "assets/player/polish-v1/chop-backpack.png",
+    "assets/player/polish-v1/fish-body.png",
     "assets/player/polish-v1/fish-head.png",
     "assets/player/polish-v1/fish-hair.png",
     "assets/player/polish-v1/fish-outfit.png",
@@ -26,10 +31,24 @@
   "canonicalHeads": [
     {
       "head": {
-        "x": 27,
-        "y": 27,
-        "width": 42,
-        "height": 37
+        "x": 30,
+        "y": 45,
+        "width": 36,
+        "height": 19
+      },
+      "hair": {
+        "x": 26,
+        "y": 21,
+        "width": 44,
+        "height": 31
+      }
+    },
+    {
+      "head": {
+        "x": 41,
+        "y": 43,
+        "width": 27,
+        "height": 21
       },
       "hair": {
         "x": 25,
@@ -40,44 +59,30 @@
     },
     {
       "head": {
-        "x": 26,
-        "y": 27,
-        "width": 39,
-        "height": 37
+        "x": 29,
+        "y": 44,
+        "width": 28,
+        "height": 20
       },
       "hair": {
-        "x": 28,
-        "y": 21,
-        "width": 41,
-        "height": 42
+        "x": 25,
+        "y": 24,
+        "width": 46,
+        "height": 38
       }
     },
     {
       "head": {
-        "x": 31,
-        "y": 27,
-        "width": 39,
+        "x": 29,
+        "y": 54,
+        "width": 38,
+        "height": 10
+      },
+      "hair": {
+        "x": 25,
+        "y": 25,
+        "width": 46,
         "height": 37
-      },
-      "hair": {
-        "x": 27,
-        "y": 21,
-        "width": 42,
-        "height": 42
-      }
-    },
-    {
-      "head": {
-        "x": 28,
-        "y": 27,
-        "width": 42,
-        "height": 34
-      },
-      "hair": {
-        "x": 26,
-        "y": 21,
-        "width": 42,
-        "height": 35
       }
     }
   ]

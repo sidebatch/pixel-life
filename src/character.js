@@ -109,7 +109,12 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   if(transform?.behind)drawCharacterTool(transform);
   drawLayer('Body');drawLayer('Outfit');drawLayer('Backpack');
   if(!transform?.behind)drawCharacterTool(transform);
-  drawLayer('Head');drawLayer('Hair');drawLayer('Grip');
+  // A raised preparation hand passes behind the head. Drawing all gripping
+  // hands last made this skin patch look like an exposed bald rear skull.
+  const handBehindHead=(pose.pose==='chop'||pose.pose==='fish')&&pose.frame===0;
+  if(handBehindHead)drawLayer('Grip');
+  drawLayer('Head');drawLayer('Hair');
+  if(!handBehindHead)drawLayer('Grip');
   return transform;
 }
 

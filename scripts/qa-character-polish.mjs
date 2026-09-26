@@ -7,8 +7,10 @@ import {decodePNG,crop,alphaBounds} from './lib/png.mjs';
 const read=file=>decodePNG(fs.readFileSync(file));
 const manifest=JSON.parse(fs.readFileSync('assets/player/polish-v1/manifest.json','utf8'));
 assert.equal(manifest.cell,96);assert.deepEqual(manifest.feet,[48,88]);assert.equal(manifest.frames,32);
-assert.equal(manifest.files.length,14);
-for(const file of ['src/character.js','src/data/character-rig-data.js',
+assert.equal(manifest.files.length,18);
+assert.equal(manifest.headRegistration,'single-uniform-master');
+const registration=read('assets/player/polish-v1/head-registration.png');
+for(const file of ['src/data/character-rig-data.js',
   ...['walk','chop','fish'].flatMap(pose=>['body','head','hair','outfit','backpack','grip'].map(part=>'assets/player/rig-v1/'+pose+'-'+part+'.png')),
   ...['axe-basic','axe-iron','axe-steel','axe-master','rod-basic','rod-sturdy','rod-steel','rod-expert','rod-master_angler','rod-deepwater'].map(name=>'assets/player/rig-v1/tools/'+name+'.png')]){
   const previous=execFileSync('git',['show','HEAD:'+file],{maxBuffer:8*1024*1024});
@@ -31,6 +33,16 @@ for(const pose of ['walk','chop','fish']){
       assert.equal(bounds.width,expected.width,'Head must not enlarge by pose');
       assert.equal(bounds.height,expected.height,'Head must not enlarge by pose');
     }
+    if(pose==='walk'&&frame===0){
+      const head=crop(layers.head,0,face*96,96,96),hair=crop(layers.hair,0,face*96,96,96),master=crop(registration,0,face*96,96,96);
+      for(let p=0;p<master.data.length;p+=4){
+        assert.ok(!(head.data[p+3]&&hair.data[p+3]),'Head and Hair must have one pixel owner');
+        const pixel=hair.data[p+3]?hair.data.subarray(p,p+4):head.data.subarray(p,p+4);
+        assert.ok(pixel.equals(master.data.subarray(p,p+4)),'Merged head must exactly reproduce registered master without bald protrusions');
+      }
+    }
+    const cleanBody=crop(read('assets/player/polish-v1/'+pose+'-body.png'),frame*96,face*96,96,96);
+    for(let p=3;p<54*96*4;p+=4)assert.equal(cleanBody.data[p],0,'Body must not retain old head classifier fragments');
     const outfit=crop(layers.outfit,frame*96,face*96,96,96),pack=crop(layers.backpack,frame*96,face*96,96,96),hand=crop(grip,frame*96,face*96,96,96);
     for(let p=0;p<outfit.data.length;p+=4){
       if(hand.data[p+3])assert.ok(!outfit.data[p+3]&&!pack.data[p+3],'Clothes/pack must retain exposed gripping hands');
@@ -51,4 +63,5 @@ for(const part of ['outfit','backpack']){
 const assets=fs.readFileSync('src/assets.js','utf8');
 for(const pose of ['walk','chop','fish'])for(const part of ['head','hair','outfit','backpack'])
   assert.ok(assets.includes('assets/player/polish-v1/'+pose+'-'+part+'.png'),'Runtime must load every polished part');
-console.log('Polish contracts passed: '+verified+' poses, stable head size, preserved grips/caps, 14 assets, original renderer/rig/tools unchanged. Cap pixels: '+packCapPixels);
+assert.ok(fs.readFileSync('src/character.js','utf8').includes("if(handBehindHead)drawLayer('Grip')"),'Raised hands must be occluded by the head');
+console.log('Polish contracts passed: '+verified+' poses, exact registered head reconstruction, no Body head fragments, stable head size, preserved grips/caps, 18 assets, original rig/tools unchanged. Cap pixels: '+packCapPixels);

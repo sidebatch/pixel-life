@@ -1,5 +1,20 @@
 # 승인된 기본 캐릭터 — 게임용 부품 제작 기록
 
+## 2026-09-26 머리 등록·가림 수정 (최신 기준)
+
+최초 개별 Head/Hair 정렬은 뒤통수가 노출되어 부적합했다. 아래 최초 제작/검사 기록은 이력이다. 최신 pack-character-polish.mjs는 완성된 사방향 머리 원본을 한 번 등비 정규화하고 동일 좌표에서 피부/얼굴/귀와 헤어를 분리한다. 이전의 독립적인 bald skull 크기 맞춤은 사용하지 않는다. head-registration.png가 실제 합성 기준이며 자동 검사에서 정확한 픽셀 일치를 확인한다. Head는 현재 머리에서 보이는 얼굴/귀 픽셀을 갖는다. 향후 완전히 다른 헤어스타일은 이 얼굴과 새 헤어의 가림 마스크/숨겨진 두피를 함께 검토해야 하며 셀 크기만 맞춘다고 자동 호환되는 것으로 간주하지 않는다.
+
+- 제작 도구: 내장 image_gen 기본 모드, 투명 배경. CLI/API 키 미사용.
+- 입력: 승인된 turnaround-generated.png(스타일/동일 인물 참고).
+- 생성 원본 exec-fe8c4845-72a5-49de-9973-bfa694eb49e1.png를 head-registered-generated.png로 이 폴더에 보존했다.
+- 결과: assets/player/polish-v1/{walk,chop,fish}-{body,head,hair,outfit,backpack}.png 15개, outfit/backpack-icon.png 2개, head-registration.png 1개. Body는 기존 원본의 y54 위 분리 잔여만 제거한 복사본이며 손/몸 자세는 유지한다. 옷은 원화 비율을 등비 유지하고 원래 중심/발에 맞춘다.
+- 준비 자세의 그립 손은 머리 뒤에 그린다. 타격/대기/당기기 손 순서는 유지한다. 기존 rig-v1, 도구 및 리그/손 좌표/타이밍/저장은 변경하지 않았다. 임시 옷의 기존 디자인과 선택도 유지한다.
+- 검사는 qa-character-polish.mjs 및 QA_REPORT.md 최신 절 참고. Android 실기기 확인은 별도다.
+
+### 수정 원화의 정확한 프롬프트
+
+Use case: identity-preserve. Asset type: production pixel-art game head sprite atlas. Reference image is the approved male character turnaround. Create ONLY four fully assembled heads with attached brown hair, face and ears, no torso, no clothing, no neck longer than a tiny 2 pixel stem. EXACT layout 2 columns by 2 rows: top-left front/down, top-right looking right, bottom-left looking left, bottom-right rear/up. Same approved rounded layered chestnut hair, large brown eyes, peach skin, refined cozy RPG pixel-art outline. Each head is a unified correctly fitting silhouette, hair covers the entire crown and rear skull; absolutely no exposed bald forehead above hair and no skin protrusion behind hair. Rear view only brown hair and small ear tips, NO bare skull and NO long neck. Equal scale in every view, generous transparent margins within each equal cell. Preserve approved identity, hair design/color, direction, pixel art style. No props, no labels, no grid, no shadow, transparent background. Produce crisp clean pixels suitable for nearest-neighbor downsampling to a 44x42 pixel head inside a 96x96 game cell.
+
 사용자 승인: 방향별 디자인을 보고 ‘좋아요. 맘에들어요’라고 확인했다. 갈색 머리·파란 여행복·갈색 가방의 개선안을 기존 모션 규격으로 제작·연결했다.
 
 ## 도구·입력·최종 저장 경로

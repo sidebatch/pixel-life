@@ -960,6 +960,16 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       characterCalls.length=0;
       const transform=vm.runInContext(`drawCharacterActor(100,100,{pose:'${pose}',face:'${face}',frame:${frame},tool:'${tool}'})`,characterContext);
       const grip=definition.frames[face][frame].grip,unit=100/96;
+      const expectedMirror=face==='left'||tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
+      assert(transform.mirror===expectedMirror,'Only carried front/back axes change blade side; rods and swings retain orientation');
+      // A source point on the blade side of the shaft must point forward in
+      // both front/back carry views, without changing the handle or shaft tip.
+      if(tool==='axe'&&pose==='walk'&&(face==='down'||face==='up')){
+        const native=rig.tools[key].nativeAngle;
+        const bx=-Math.sin(native)*(transform.mirror?-1:1),by=Math.cos(native);
+        const bladeY=Math.sin(transform.rotation)*bx+Math.cos(transform.rotation)*by;
+        assert(face==='down'?bladeY>0:bladeY<0,'Carried axe cutting edge must face forward');
+      }
       assert(Math.abs(transform.x-(100+(grip[0]-48)*unit))<1e-8&&
         Math.abs(transform.y-(120+(grip[1]-88)*unit))<1e-8,
         'Every equipped tool must attach its own pivot to the same frame-specific hand');

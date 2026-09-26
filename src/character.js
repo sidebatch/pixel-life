@@ -48,7 +48,12 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const x=actorX+(frame.grip[0]-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
   const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):pose.pose==='chop'?34:26)*unit;
-  const mirror=pose.face==='left';
+  // Keep the shaft on the same hand/angle, but turn the cutting edge toward
+  // the character's facing direction when carrying an axe front/back.
+  // Side views and active swings keep their existing orientation.
+  const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&
+    (pose.face==='down'||pose.face==='up');
+  const mirror=pose.face==='left'||frontBackCarry;
   const nativeAngle=mirror?Math.PI-tool.nativeAngle:tool.nativeAngle;
   return {key,x,y,rotation:frame.angle-nativeAngle,scale:length/tool.nativeLength,mirror,
     behind:frame.toolBehind,tip:{x:x+Math.cos(frame.angle)*length,y:y+Math.sin(frame.angle)*length}};

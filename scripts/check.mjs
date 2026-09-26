@@ -848,6 +848,18 @@ assert(lifeContext.__sharedStart&&lifeContext.__repeatDuringChop===false&&
   lifeContext.__beforeImpactHp===100&&lifeContext.__afterImpactHp===80&&
   lifeContext.__chopFinished&&chopSoundCount===1,
   'The same oak must accept the basic axe in forest 1-2; damage and sound occur once on the swing frame');
+vm.runInContext(`const airBefore=JSON.stringify(GAME_STATE);
+  globalThis.__airStart=startAxeSwing();globalThis.__airRepeat=startAxeSwing();
+  updateLifeContentUi(100+FORESTRY_CHOP_TIMING.impactMs);
+  updateLifeContentUi(100+FORESTRY_CHOP_TIMING.impactMs+1);
+  updateLifeContentUi(100+FORESTRY_CHOP_TIMING.durationMs);
+  globalThis.__airSafe=JSON.stringify(GAME_STATE)===airBefore&&!isChoppingTree();
+  player.moving=true;globalThis.__movingAir=startAxeSwing();player.moving=false;
+  menuOpen=true;globalThis.__menuAir=startAxeSwing();menuOpen=false;
+  dialogOpen=true;globalThis.__dialogAir=startAxeSwing();dialogOpen=false;`,lifeContext);
+assert(lifeContext.__airStart&&!lifeContext.__airRepeat&&lifeContext.__airSafe&&chopSoundCount===1&&
+  !lifeContext.__movingAir&&!lifeContext.__menuAir&&!lifeContext.__dialogAir,
+  'Air swings must animate once without damage, rewards, save changes or tree impact sounds; overlays/movement block them');
 
 const farmDrawCalls=[];
 const farmIds=['carrot','turnip','potato','onion','cabbage','wheat','corn','tomato','strawberry','pumpkin'];
@@ -882,6 +894,9 @@ vm.runInContext(read('src/data/character-rig-data.js')+'\nglobalThis.rig=CHARACT
 const rig=rigContext.rig;
 assert(rig.cell===96&&rig.feet.join(',')==='48,88'&&rig.renderSize===100,
   'Character must use one cell, feet baseline and render scale across all actions');
+assert(rig.handedness==='right'&&rig.poses.walk.frames.down.every(f=>f.grip[0]<48)&&
+  rig.poses.walk.frames.up.every(f=>f.grip[0]>48),
+  'Both held tools must use anatomical right hand, not screen-right in every direction');
 for(const [pose,definition] of Object.entries(rig.poses)){
   const layers={};
   for(const name of ['body','head','hair','outfit','backpack','grip']){
@@ -903,9 +918,10 @@ for(const [pose,definition] of Object.entries(rig.poses)){
     assert(frames.length===definition.columns,`Missing action frames: ${pose}/${face}`);
     for(const frame of frames)assert(frame.grip.every(n=>Number.isInteger(n)&&n>=0&&n<96)&&Number.isFinite(frame.angle),
       `Invalid frame grip: ${pose}/${face}`);
-    if(face==='left')for(let i=0;i<frames.length;i++)assert(frames[i].grip[0]===95-definition.frames.right[i].grip[0]&&
-      frames[i].grip[1]===definition.frames.right[i].grip[1],
-      'Left animation and grips must be mirrored from the same canonical right frames');
+    if(face==='left')for(let i=0;i<frames.length;i++)assert(
+      frames[i].grip[0]===95-definition.frames.right[i].grip[0]-(pose==='walk'?8:0)&&
+      frames[i].grip[1]===definition.frames.right[i].grip[1]-(pose==='walk'?3:0)&&frames[i].toolBehind,
+      'Left-facing right hand must stay on the far side; shared two-hand action pivots stay aligned');
   }
 }
 for(const [key,tool] of Object.entries(rig.tools)){
@@ -948,7 +964,7 @@ for(const [pose,definition] of Object.entries(rig.poses)){
         Math.abs(transform.y-(120+(grip[1]-88)*unit))<1e-8,
         'Every equipped tool must attach its own pivot to the same frame-specific hand');
       assert(characterCalls.at(-1).id===pose+'Grip'&&
-        (face==='up'?characterCalls[0].id===key:characterCalls[3].id===key),
+        (definition.frames[face][frame].toolBehind?characterCalls[0].id===key:characterCalls[3].id===key),
         'Hands must cover the handle; back-facing tools must be behind the body');
     }
   }
@@ -981,6 +997,10 @@ characterContext.player.face='down';
 assert(vm.runInContext('forestryPlayerDrawDepth()',characterContext)===500,'South-facing tree must still naturally cover the character');
 characterContext.player.face='up';
 assert(vm.runInContext('forestryPlayerDrawDepth()',characterContext)===529,'North-facing chopping must preserve tree depth ordering');
+characterContext.lifeUi.chop={startedAt:0,regionId:'oldForest',tree:null};
+assert(vm.runInContext('forestryPlayerDrawDepth()',characterContext)===500&&
+  vm.runInContext('getCharacterPose().pose',characterContext)==='chop',
+  'Air swings must use chopping animation with normal player depth and no missing-tree error');
 
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],

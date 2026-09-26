@@ -1,6 +1,7 @@
 {
   "rig": {
     "version": 1,
+    "handedness": "right",
     "cell": 96,
     "feet": [
       48,
@@ -14,26 +15,26 @@
           "down": [
             {
               "grip": [
-                61,
+                34,
                 74
               ],
-              "angle": -0.9,
+              "angle": -2.241592653589793,
               "toolBehind": false
             },
             {
               "grip": [
-                59,
+                35,
                 70
               ],
-              "angle": -0.95,
+              "angle": -2.191592653589793,
               "toolBehind": false
             },
             {
               "grip": [
-                61,
-                70
+                37,
+                69
               ],
-              "angle": -0.9,
+              "angle": -2.241592653589793,
               "toolBehind": false
             }
           ],
@@ -66,52 +67,52 @@
           "left": [
             {
               "grip": [
-                50,
-                76
+                42,
+                73
               ],
               "angle": 3.741592653589793,
-              "toolBehind": false
+              "toolBehind": true
             },
             {
               "grip": [
-                46,
-                72
+                38,
+                69
               ],
               "angle": 3.691592653589793,
-              "toolBehind": false
+              "toolBehind": true
             },
             {
               "grip": [
-                55,
-                70
+                47,
+                67
               ],
               "angle": 3.741592653589793,
-              "toolBehind": false
+              "toolBehind": true
             }
           ],
           "up": [
             {
               "grip": [
-                34,
-                74
+                61,
+                75
               ],
-              "angle": -2.35,
+              "angle": -0.79,
               "toolBehind": true
             },
             {
               "grip": [
-                33,
+                63,
                 72
               ],
-              "angle": -2.35,
+              "angle": -0.79,
               "toolBehind": true
             },
             {
               "grip": [
-                36,
+                60,
                 72
               ],
-              "angle": -2.35,
+              "angle": -0.79,
               "toolBehind": true
             }
           ]
@@ -163,7 +164,7 @@
                 52
               ],
               "angle": 5.141592653589793,
-              "toolBehind": false
+              "toolBehind": true
             },
             {
               "grip": [
@@ -171,7 +172,7 @@
                 72
               ],
               "angle": 2.941592653589793,
-              "toolBehind": false
+              "toolBehind": true
             }
           ],
           "up": [
@@ -256,7 +257,7 @@
                 51
               ],
               "angle": 5.141592653589793,
-              "toolBehind": false
+              "toolBehind": true
             },
             {
               "grip": [
@@ -264,7 +265,7 @@
                 69
               ],
               "angle": 3.3415926535897933,
-              "toolBehind": false
+              "toolBehind": true
             },
             {
               "grip": [
@@ -272,7 +273,7 @@
                 67
               ],
               "angle": 4.241592653589793,
-              "toolBehind": false
+              "toolBehind": true
             }
           ],
           "up": [

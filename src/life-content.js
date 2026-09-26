@@ -164,6 +164,14 @@ function hitResourceTree(tree){
 
 function isChoppingTree(){return Boolean(lifeUi.chop);}
 
+function startAxeSwing(tree=null){
+  if(lifeUi.chop||player.moving||menuOpen||dialogOpen||
+    (typeof isFishingActive==='function'&&isFishingActive())) return false;
+  clearMovement();
+  lifeUi.chop={tree,regionId:GAME_STATE.regionId,startedAt:performance.now(),struck:false};
+  return true;
+}
+
 function startTreeChop(tree){
   if(!tree||lifeUi.chop||player.moving||menuOpen||dialogOpen) return false;
   const treeType=FORESTRY_TREES[tree.species];
@@ -173,9 +181,7 @@ function startTreeChop(tree){
     return false;
   }
   if(getTreeState(tree).hp<=0){showLifeToast('나무가 다시 자라고 있어요');return false;}
-  clearMovement();
-  lifeUi.chop={tree,regionId:GAME_STATE.regionId,startedAt:performance.now(),struck:false};
-  return true;
+  return startAxeSwing(tree);
 }
 
 function getFarmPlotState(plot){
@@ -305,11 +311,14 @@ function isFarmPlotOpen(){return lifeUi.open;}
 function updateLifeContentUi(now){
   const chop=lifeUi.chop;
   if(chop){
+    if(chop.regionId!==GAME_STATE.regionId){lifeUi.chop=null;return;}
     const elapsed=now-chop.startedAt;
     if(!chop.struck&&elapsed>=FORESTRY_CHOP_TIMING.impactMs){
       chop.struck=true;
-      const cut=getTreeState(chop.tree).hp<=getEquippedForestryAxe().damage;
-      if(hitResourceTree(chop.tree)) playForestryChopSound(cut);
+      if(chop.tree){
+        const cut=getTreeState(chop.tree).hp<=getEquippedForestryAxe().damage;
+        if(hitResourceTree(chop.tree)) playForestryChopSound(cut);
+      }
     }
     if(elapsed>=FORESTRY_CHOP_TIMING.durationMs) lifeUi.chop=null;
   }

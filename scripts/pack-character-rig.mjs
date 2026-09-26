@@ -16,10 +16,10 @@ const directions=['down','right','left','up'];
 const specs={
   walk:{file:'assets/player/player.png',body:`${source}/walk-body.png`,columns:3,
     hand:[
-      [[55,66,14,13],[54,64,12,12],[54,63,14,12]],
+      [[26,66,14,13],[30,64,12,12],[28,63,14,12]],
       [[37,67,15,14],[42,64,14,14],[32,62,16,14]],
-      [],[[29,67,11,13],[28,64,12,16],[30,65,12,15]]
-    ],angles:[[-.9,-.95,-.9],[-.6,-.55,-.6],[],[-2.35,-2.35,-2.35]]},
+      [],[[55,67,11,13],[55,64,12,16],[53,65,12,15]]
+    ],angles:[[-Math.PI+.9,-Math.PI+.95,-Math.PI+.9],[-.6,-.55,-.6],[],[-.79,-.79,-.79]]},
   chop:{file:'assets/forestry/chop/player-v2.png',body:`${source}/chop-body.png`,columns:2,
     hand:[
       [[26,45,11,15],[40,65,17,16]],[[28,46,12,13],[47,63,17,17]],
@@ -32,7 +32,7 @@ const specs={
       [],[[62,43,12,15],[58,61,10,12],[63,55,13,15]]
     ],angles:[[-2,1.1,-1.4],[-2,-.2,-1.1],[],[-1.8,-1.5,-1.9]]}
 };
-const rig={version:1,cell,feet,renderSize:100,poses:{},tools:{}};
+const rig={version:1,handedness:'right',cell,feet,renderSize:100,poses:{},tools:{}};
 const layerNames=['body','head','hair','outfit','backpack','grip'];
 const urls={};
 function normalize(frame,targetHeight=height,generated=false){
@@ -86,13 +86,17 @@ for(const [pose,spec] of Object.entries(specs)){
     frames[directions[row]]=[];
     for(let f=0;f<spec.columns;f++){
       if(row===2){
-        // Canonical side frames and all layers mirror together; no left/right drift.
+        // Mirror the body, not its handedness. Facing left puts the right arm
+        // on the far side. Two-handed actions keep their shared handle pivot.
         for(const image of [...Object.values(atlases),reference])for(let y=0;y<cell;y++)for(let x=0;x<cell;x++){
           const s=((cell+y)*image.width+f*cell+cell-1-x)*4,d=((row*cell+y)*image.width+f*cell+x)*4;
           image.data.copy(image.data,d,s,s+4);
         }
         const right=frames.right[f];
-        frames.left.push({...right,grip:[cell-1-right.grip[0],right.grip[1]],angle:Math.PI-right.angle});
+        const farHandOffset=pose==='walk'?[-8,-3]:[0,0];
+        frames.left.push({...right,
+          grip:[cell-1-right.grip[0]+farHandOffset[0],right.grip[1]+farHandOffset[1]],
+          angle:Math.PI-right.angle,toolBehind:true});
         continue;
       }
       const frame=normalize(sourceFrame(full,f,row,spec.columns),height,pose==='fish');

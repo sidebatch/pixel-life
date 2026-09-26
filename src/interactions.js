@@ -59,6 +59,7 @@ function interact(){
   if(typeof isFishingActive==='function'&&isFishingActive()) return handleFishingAction();
   const interaction=resolveWorldInteraction();
   if(interaction) return activateWorldInteraction(interaction);
+  if((GAME_STATE.appearance?.activeTool||'axe')==='axe') return startAxeSwing();
   showDialog('SYSTEM','조사할 것이 없다.');
 }
 function pressB(){

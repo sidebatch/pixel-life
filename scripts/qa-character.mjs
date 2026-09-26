@@ -118,9 +118,48 @@ logging.after=await mobile.evaluate(()=>{
 });
 if(logging.before-logging.after!==20)throw new Error('Chop damage/timing regression');
 await mobile.screenshot({path:path.join(output,'mobile-chop-impact.png')});
+await mobile.evaluate(()=>{
+  updateLifeContentUi(lifeUi.chop.startedAt+FORESTRY_CHOP_TIMING.durationMs);
+  GAME_STATE.appearance.activeTool='axe';
+});
+for(const [index,face] of ['down','right','left','up'].entries()){
+  await mobile.evaluate(face=>{
+    let found=false;
+    for(let y=5;y<MAP_H-5&&!found;y++)for(let x=5;x<MAP_W-5;x++){
+      if(blocked.has(key(x,y))||npcAt(x,y))continue;
+      Object.assign(player,{x,y,px:x*TILE+TILE/2,py:y*TILE+TILE/2,face,moving:false});
+      if(resolveWorldInteraction())continue;
+      camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));
+      camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));
+      window.__airState=JSON.stringify(GAME_STATE);found=true;break;
+    }
+    if(!found)throw new Error('No empty ground for '+face);
+  },face);
+  if(index<2)await mobile.keyboard.press(index===0?'Space':'KeyZ');
+  else await mobile.locator('#btnA').tap();
+  await mobile.evaluate(()=>{
+    if(!lifeUi.chop||lifeUi.chop.tree||dialogOpen)throw new Error('Air action failed');
+    const startedAt=lifeUi.chop.startedAt;
+    interact();
+    if(lifeUi.chop.startedAt!==startedAt)throw new Error('Repeat resets swing');
+    tNow=startedAt;drawWorld();
+  });
+  await mobile.screenshot({path:path.join(output,'air-'+face+'-ready.png')});
+  await mobile.evaluate(()=>{
+    tNow=lifeUi.chop.startedAt+FORESTRY_CHOP_TIMING.impactMs;
+    updateLifeContentUi(tNow);drawWorld();
+    if(getCharacterPose().frame!==1)throw new Error('Missing air impact pose');
+    if(JSON.stringify(GAME_STATE)!==window.__airState)throw new Error('Air swing changes game state');
+  });
+  await mobile.screenshot({path:path.join(output,'air-'+face+'-impact.png')});
+  await mobile.evaluate(()=>{
+    updateLifeContentUi(lifeUi.chop.startedAt+FORESTRY_CHOP_TIMING.durationMs);
+    if(isChoppingTree())throw new Error('Air swing never ends');
+  });
+}
 if(errors.length)throw new Error(errors.join('\n'));
 fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,browserErrors:errors,mobileViewport:'393x780',
-  actualFishingCatchAndXp:true,actualChopHp:logging},null,2));
+  actualFishingCatchAndXp:true,actualChopHp:logging,airSwingKeyboardAndTouch:true},null,2));
 console.log('Browser QA passed: '+JSON.stringify(report)+'. Screenshots: '+output);
 }finally{
   await browser.close();

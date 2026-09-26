@@ -369,7 +369,7 @@ function forestryPlayerDrawDepth(){
   const playerDepth=player.py+20;
   const chop=lifeUi.chop?.regionId===GAME_STATE.regionId?lifeUi.chop:null;
   // The target tree should cover a player standing north of it.
-  return chop&&player.face!=='down'?
+  return chop?.tree&&player.face!=='down'?
     Math.max(playerDepth,chop.tree.y*TILE+TILE+1):playerDepth;
 }
 

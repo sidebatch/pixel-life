@@ -85,13 +85,19 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   const outfit=GAME_STATE.appearance?.outfitId||DEFAULT_OUTFIT_ID;
   const appearance=GAME_STATE.appearance||{};
   const drawLayer=name=>{
+    // Chop source art has wider heads on some impact frames despite equal
+    // cell/feet dimensions. Keep the same facing idle head and hair through
+    // the swing; arms, outfit, backpack and grip still animate independently.
+    const stableChopHead=pose.pose==='chop'&&(name==='Head'||name==='Hair');
+    const layerPose=stableChopHead?'walk':pose.pose;
+    const layerFrame=stableChopHead?0:pose.frame;
     const part=['Body','Head','Grip'].includes(name)?'body':name==='Hair'?'hair':name==='Backpack'?'backpack':null;
     const partId=part&&appearance[part==='backpack'?'backpackId':part+'Id'];
     const partLayers=part&&CHARACTER_PARTS[part].get(partId);
-    const key=partLayers?.[pose.pose+name]||pose.pose+name;
+    const key=partLayers?.[layerPose+name]||layerPose+name;
     const image=name==='Outfit'&&characterOutfitImgs[outfit]?.[pose.pose]||
       characterLayerImgs[key];
-    if(image)ctx.drawImage(image,pose.frame*cell,row*cell,cell,cell,x,y,size,size);
+    if(image)ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,x,y,size,size);
   };
   if(transform?.behind)drawCharacterTool(transform);
   drawLayer('Body');drawLayer('Outfit');drawLayer('Backpack');

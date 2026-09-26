@@ -983,6 +983,16 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       assert(characterCalls.at(-1).id===pose+'Grip'&&
         (definition.frames[face][frame].toolBehind?characterCalls[0].id===key:characterCalls[3].id===key),
         'Hands must cover the handle; back-facing tools must be behind the body');
+      if(pose==='chop'){
+        for(const name of ['Head','Hair']){
+          const call=characterCalls.find(item=>item.id==='walk'+name);
+          assert(call&&call.args[0]===0&&call.args[1]===['down','right','left','up'].indexOf(face)*96&&
+            call.args[4]===100-48*unit&&call.args[5]===120-88*unit&&call.args[6]===100&&call.args[7]===100,
+            'Every swing must retain the exact idle head/hair source, placement and scale');
+        }
+        assert(!characterCalls.some(item=>item.id==='chopHead'||item.id==='chopHair'),
+          'Wider authored impact heads must not replace the canonical idle head');
+      }
     }
   }
 }

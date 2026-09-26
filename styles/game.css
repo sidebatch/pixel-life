@@ -151,9 +151,34 @@
   .marketEquipmentCosts .missing{background:rgba(212,127,85,.18);color:#f0c1a4}
   .marketEquipmentDetail .marketEquipmentNote{color:#ffe0a1;font-weight:750}
 
-  .inventoryHandPicker{display:grid;grid-template-columns:1fr 1fr;gap:7px;margin:0 0 11px;padding:10px;border:1px solid rgba(169,231,200,.3);border-radius:14px;background:rgba(112,193,155,.1)}
-  .inventoryHandPicker>span{grid-column:1/-1;color:#d9f4e3;font-size:11px;font-weight:850}
-  .inventoryHandPicker button{min-height:42px;border:1px solid rgba(218,241,225,.27);border-radius:10px;background:rgba(255,255,255,.07);color:#eafbf0;font:800 12px system-ui}
-  .inventoryHandPicker button.active{border-color:#a1ecca;background:#bcecd4;color:#194b3d}
-  .inventoryHandPicker button:focus-visible{outline:2px solid #e3ffd5;outline-offset:2px}
-  .inventoryOutfitPreview{display:block;width:72px;height:72px;background-repeat:no-repeat;background-size:216px 288px;background-position:-72px 0;image-rendering:pixelated}
+  .inventoryTabs{grid-template-columns:repeat(4,minmax(0,1fr));gap:6px}
+  .inventorySummary{min-height:16px}
+  .inventoryWearableSlot{position:relative;min-width:0}
+  .inventoryWearableSlot .inventoryItemCard{width:100%;aspect-ratio:1;min-height:102px}
+  .inventoryWearableSlot .inventoryItemCard.equipped{border:2px solid #c4ffe0;background:linear-gradient(145deg,rgba(100,201,154,.28),rgba(104,185,147,.09));box-shadow:0 0 12px rgba(145,242,197,.12),inset 0 0 0 1px rgba(218,255,235,.13)}
+  .inventoryWearableSlot .inventoryItemName{opacity:0;transform:translateY(3px)}
+  .inventoryWearableSlot .inventoryItemCard.showName .inventoryItemName,.inventoryWearableSlot .inventoryItemCard:focus-visible .inventoryItemName{opacity:1;transform:translateY(0)}
+  @media (hover:hover){.inventoryWearableSlot .inventoryItemCard:hover .inventoryItemName{opacity:1;transform:translateY(0)}}
+  .inventorySelectedMark{position:absolute;top:7px;left:7px;display:grid;place-items:center;width:21px;height:21px;border-radius:50%;background:#c4ffe0;color:#174d38;font-size:13px;font-weight:950}
+  .inventoryInfoButton{position:absolute;top:0;right:0;z-index:2;display:grid;place-items:center;width:44px;height:44px;padding:0;border:0;background:transparent;cursor:pointer;touch-action:manipulation;color:#dbf6ec}
+  .inventoryInfoButton span{display:grid;place-items:center;width:23px;height:23px;border:1px solid rgba(222,255,242,.32);border-radius:50%;background:#24473e;font:bold 14px Georgia,serif}
+  .inventoryInfoButton:focus-visible{outline:2px solid #c4ffe0;outline-offset:-4px;border-radius:12px}
+  .inventoryAppearanceSection{margin-bottom:22px}
+  .inventoryAppearanceSection h3{margin:0 0 9px;color:#cee9df;font-size:12px;font-weight:850}
+  .inventoryAppearanceSection .inventoryItemArt img{width:64px;height:64px}
+  .inventoryDetailModal{position:absolute;z-index:29;inset:0;display:none;align-items:center;justify-content:center;pointer-events:auto}
+  .inventoryDetailModal.show{display:flex}
+  .inventoryDetailBackdrop{position:absolute;inset:0;background:rgba(3,18,20,.72);backdrop-filter:blur(4px)}
+  .inventoryDetailSheet{position:relative;display:flex;flex-direction:column;width:calc(100% - 36px);max-width:420px;max-height:calc(100% - 40px);border:1px solid rgba(193,246,222,.6);border-radius:23px;background:linear-gradient(155deg,#254e43,#102e31);box-shadow:0 22px 60px rgba(0,0,0,.55);overflow:hidden}
+  .inventoryDetailSheet>button{flex:none;align-self:flex-end;width:44px;height:44px;margin:8px 8px 0;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-size:25px;cursor:pointer}
+  .inventoryDetailContent{padding:0 20px 22px;overflow-y:auto;overscroll-behavior:contain;touch-action:pan-y}
+  .inventoryDetailHero{display:flex;align-items:center;gap:13px}
+  .inventoryDetailHero>span{flex:none;display:grid;place-items:center;width:84px;height:84px;border-radius:19px;background:rgba(233,255,241,.07)}
+  .inventoryDetailHero img{width:72px;height:72px;object-fit:contain;image-rendering:pixelated}
+  .inventoryDetailHero>div{min-width:0}
+  .inventoryDetailHero small{color:#afd5c5;font-size:10px}
+  .inventoryDetailHero h3{margin:5px 0;color:#effff5;font-size:21px;overflow-wrap:anywhere}
+  .inventoryDetailContent>p{margin:17px 0 12px;color:#c6ded5;font-size:12px;line-height:1.7}
+  .inventoryDetailContent ul{display:grid;gap:7px;margin:0;padding:0;list-style:none}
+  .inventoryDetailContent li{padding:10px 12px;border-radius:11px;background:rgba(130,215,176,.09);color:#dcf8e9;font-size:12px;line-height:1.6}
+  .inventoryDetailContent footer{margin-top:16px;color:#afdbbf;font-size:11px}

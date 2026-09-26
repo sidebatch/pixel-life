@@ -120,10 +120,18 @@
         <div class="inventoryTabs" role="tablist" aria-label="가방 분류">
           <button type="button" role="tab" aria-selected="true" aria-controls="inventoryScroll" data-inventory-tab="fish" class="active">물고기</button>
           <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="equipment">장비</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="appearance">외형</button>
           <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="supplies">재료</button>
         </div>
-        <div class="inventorySummary" id="inventorySummary"></div>
+        <div class="inventorySummary" id="inventorySummary" role="status" aria-live="polite"></div>
         <div class="inventoryScroll" id="inventoryScroll" role="tabpanel" aria-label="가방 내용"></div>
+      </div>
+      <div id="inventoryDetailModal" class="inventoryDetailModal" role="dialog" aria-modal="true" aria-labelledby="inventoryDetailTitle" aria-hidden="true">
+        <div class="inventoryDetailBackdrop"></div>
+        <div class="inventoryDetailSheet">
+          <button id="inventoryDetailClose" type="button" aria-label="아이템 정보 닫기">×</button>
+          <section id="inventoryDetailContent" class="inventoryDetailContent"></section>
+        </div>
       </div>
       <div id="marketPanel" class="marketPanel" role="dialog" aria-modal="true" aria-label="엘리의 상점" aria-hidden="true">
         <div class="marketHeader"><div><span id="marketShopName">엘리의 상점</span><h2 id="marketTitle">물고기 판매</h2></div><div class="marketHeaderRight"><div class="marketWallet" aria-label="보유 코인"><span class="marketWalletCoin" aria-hidden="true">●</span><strong id="marketCoinCount">0</strong><span id="marketCoinGain" class="marketCoinGain" aria-hidden="true"></span></div><button id="marketClose" type="button" aria-label="상점 닫기">×</button></div></div>

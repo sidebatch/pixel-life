@@ -84,7 +84,7 @@ assert(trialContext.__trialValid&&!trialContext.__trialInvalid&&trialContext.__t
   'Trial parts must switch independently through appearance IDs without changing saved game state');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 13, 'Fish dex, inventory, and market tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 14, 'Fish dex, inventory, appearance, and market tabs must be accessible');
 assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
 assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab panel semantics are missing');
 assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
@@ -751,30 +751,49 @@ inventoryContext.normalizeSavedAppearance=value=>value;
 inventoryContext.CHARACTER_OUTFIT_BY_ID=new Map([['outfit.traveler',{id:'outfit.traveler',name:'여행자의 옷',walkSheet:'/player.png'}]]);
 vm.runInContext('renderInventoryEquipment();',inventoryContext);
 assert(inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
-  inventoryScrollNode.innerHTML.includes('aria-label="여행자의 옷, 1개, 장착 중"')&&
-  inventoryScrollNode.innerHTML.includes('data-held-tool="axe" aria-pressed="true"')&&
-  inventoryScrollNode.innerHTML.includes('data-held-tool="rod" aria-pressed="false"')&&
-  inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착 중"')&&
-  inventoryScrollNode.innerHTML.includes('data-equip-type="axe" data-equip-id="axe.iron" aria-label="철 도끼, 1개, 장착하기"')&&
-  inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착하기"')&&
-  !inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착 중"')&&
+  !inventoryScrollNode.innerHTML.includes('여행자의 옷')&&!inventoryScrollNode.innerHTML.includes('data-held-tool')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 장착 중"')&&
+  inventoryScrollNode.innerHTML.includes('data-equip-type="axe" data-equip-id="axe.iron" aria-pressed="false" aria-label="철 도끼, 장착하기"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 장착하기"')&&
+  !inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('fishing/rods/basic.png')&&
-  (inventoryScrollNode.innerHTML.match(/class="inventoryItemCount"/g)||[]).length===4,
-  'Starter outfit and owned tools must show item art, hand selection, counts, and equipped state');
+  (inventoryScrollNode.innerHTML.match(/class="inventoryInfoButton"/g)||[]).length===3&&
+  !inventoryScrollNode.innerHTML.includes('inventoryItemCount'),
+  'Owned tools must use image cards, one selection mark and separate info buttons without counts, clothes or duplicate hand picker');
 inventoryContext.saveGame=()=>true;
 vm.runInContext("globalThis.__selectedHeldRod=selectHeldTool('rod');",inventoryContext);
 assert(inventoryContext.__selectedHeldRod&&inventoryContext.GAME_STATE.appearance.activeTool==='rod',
   'Hand tool selection must update the active visual tool');
 vm.runInContext('renderInventoryEquipment();',inventoryContext);
 assert(inventorySummaryNode.textContent==='장착 기본 낚싯대'&&
-  inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착 중"')&&
-  inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착하기"')&&
-  !inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착 중"'),
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 장착 중"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 장착하기"')&&
+  !inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 장착 중"'),
   'Only the held weapon may display equipped; inactive remembered variants stay unequipped');
 inventoryContext.saveGame=()=>false;
 vm.runInContext("globalThis.__failedHeldAxe=selectHeldTool('axe');",inventoryContext);
 assert(!inventoryContext.__failedHeldAxe&&inventoryContext.GAME_STATE.appearance.activeTool==='rod',
   'A failed hand tool save must restore the previous selection');
+inventoryContext.GAME_STATE.appearance={...inventoryContext.GAME_STATE.appearance,backpackId:'pack.traveler',ownedBackpackIds:['pack.traveler']};
+inventoryContext.CHARACTER_PARTS={backpack:new Map([['pack.traveler',{name:'여행자의 가방',walkBackpack:'walkBackpack'}]])};
+inventoryContext.characterLayerImgs={};inventoryContext.characterOutfitImgs={};
+vm.runInContext('renderInventoryAppearance();',inventoryContext);
+assert(inventoryScrollNode.innerHTML.includes('aria-label="옷"')&&inventoryScrollNode.innerHTML.includes('aria-label="가방"')&&
+  inventoryScrollNode.innerHTML.includes('data-equip-type="outfit"')&&inventoryScrollNode.innerHTML.includes('data-equip-type="backpack"')&&
+  !inventoryScrollNode.innerHTML.includes('모자')&&!inventoryScrollNode.innerHTML.includes('헤어'),
+  'Appearance must group only owned clothes and backpacks into separate image grids');
+vm.runInContext(`const appearanceBeforeFailure=GAME_STATE.appearance;
+  globalThis.__outfitSaveFailed=equipInventoryAppearance('outfit','outfit.traveler');
+  globalThis.__appearanceRollback=GAME_STATE.appearance===appearanceBeforeFailure;
+  globalThis.__unknownAppearance=equipInventoryAppearance('backpack','pack.unknown');
+  globalThis.__hairEquip=equipInventoryAppearance('hair','hair.brown');`,inventoryContext);
+assert(!inventoryContext.__outfitSaveFailed&&inventoryContext.__appearanceRollback&&
+  !inventoryContext.__unknownAppearance&&!inventoryContext.__hairEquip,
+  'Appearance equips must restore failed saves and reject unowned parts and hair changes');
+inventoryContext.saveGame=()=>true;
+vm.runInContext("globalThis.__appearanceEquip=equipInventoryAppearance('backpack','pack.traveler');",inventoryContext);
+assert(inventoryContext.__appearanceEquip&&inventoryContext.GAME_STATE.appearance.activeTool==='rod',
+  'Backpack equip must preserve the sole held weapon');
 
 const lifeContext={
   GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},appearance:{activeTool:'rod'},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic',ownedAxeIds:['axe.basic']}}},

@@ -199,12 +199,15 @@ function normalizeSavedAppearance(rawAppearance){
   const source=rawAppearance&&typeof rawAppearance==='object'?rawAppearance:{};
   const ownedOutfitIds=[DEFAULT_OUTFIT_ID,...(Array.isArray(source.ownedOutfitIds)?source.ownedOutfitIds:[])]
     .filter((id,index,ids)=>CHARACTER_OUTFIT_BY_ID.has(id)&&!CHARACTER_OUTFIT_BY_ID.get(id).testOnly&&ids.indexOf(id)===index);
+  const ownedBackpackIds=['pack.traveler',...(Array.isArray(source.ownedBackpackIds)?source.ownedBackpackIds:[])]
+    .filter((id,index,ids)=>CHARACTER_PARTS.backpack.has(id)&&!CHARACTER_PARTS.backpack.get(id).testOnly&&ids.indexOf(id)===index);
   return {
     bodyId:CHARACTER_PARTS.body.has(source.bodyId)?source.bodyId:'body.starter',
     hairId:CHARACTER_PARTS.hair.has(source.hairId)&&!CHARACTER_PARTS.hair.get(source.hairId).testOnly?source.hairId:'hair.brown',
-    backpackId:CHARACTER_PARTS.backpack.has(source.backpackId)&&!CHARACTER_PARTS.backpack.get(source.backpackId).testOnly?source.backpackId:'pack.traveler',
+    backpackId:ownedBackpackIds.includes(source.backpackId)?source.backpackId:'pack.traveler',
     outfitId:ownedOutfitIds.includes(source.outfitId)?source.outfitId:DEFAULT_OUTFIT_ID,
     ownedOutfitIds,
+    ownedBackpackIds,
     activeTool:source.activeTool==='rod'?'rod':'axe'
   };
 }

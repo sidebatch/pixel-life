@@ -66,6 +66,7 @@ function interact(){
 function pressB(){
   if(typeof isSkillLevelUpVisible==='function'&&isSkillLevelUpVisible()) dismissSkillLevelUp();
   else if(dialogOpen) closeDialog();
+  else if(typeof isInventoryDetailOpen==='function'&&isInventoryDetailOpen()) closeInventoryDetail();
   else if(typeof isFishDexDetailOpen==='function'&&isFishDexDetailOpen()) closeFishDexDetail();
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
   else if(typeof isInventoryOpen==='function'&&isInventoryOpen()) closeInventory();
@@ -97,6 +98,13 @@ window.addEventListener('popstate',()=>{
   const layer=window.history.state?.pixelLifeOverlay;
   if(isSkillLevelUpVisible()) dismissSkillLevelUp({fromHistory:true});
   if(layer==='skill-level-up') return;
+  if(layer==='inventory-detail'){
+    if(!isInventoryOpen())openInventory({fromHistory:true});
+    const [type,id]=(window.history.state.fishId||'').split(':');
+    inventoryState.tab=['outfit','backpack'].includes(type)?'appearance':'equipment';
+    renderInventory();openInventoryDetail(type,id,{fromHistory:true});return;
+  }
+  if(isInventoryDetailOpen())closeInventoryDetail({fromHistory:true});
   if(layer==='fish-detail'){
     if(!isFishDexOpen()) openFishDex({fromHistory:true});
     if(!isFishDexDetailOpen()) openFishDexDetail(window.history.state.fishId,{fromHistory:true});
@@ -250,6 +258,8 @@ window.addEventListener('keydown',e=>{
   if(e.code==='F3'&&!e.repeat){e.preventDefault();toggleWorldDebug();return;}
   if(worldDebugEnabled&&e.code==='BracketLeft'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(-30);return;}
   if(worldDebugEnabled&&e.code==='BracketRight'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(30);return;}
+  // Inventory buttons retain native Space/Enter activation and arrow scrolling.
+  if(e.target?.closest?.('#inventoryPanel,#inventoryDetailModal')&&!['KeyX','Escape'].includes(e.code))return;
   if(keyMap[e.code]){e.preventDefault();const d=keyMap[e.code];inputs[d]=true;activeDir=d;lastDir=d;if(!e.repeat) bufferPlayerDirection(d);}
   if((e.code==='Space'||e.code==='KeyZ')&&!e.repeat){e.preventDefault();interact();}
   if((e.code==='KeyX'||e.code==='Escape')&&!e.repeat){e.preventDefault();pressB();}

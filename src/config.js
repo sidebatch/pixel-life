@@ -33,7 +33,7 @@ const CHARACTER_PARTS=Object.freeze({
   body:new Map([['body.starter',{walkBody:'walkBody',walkHead:'walkHead',walkGrip:'walkGrip',chopBody:'chopBody',chopHead:'chopHead',chopGrip:'chopGrip',fishBody:'fishBody',fishHead:'fishHead',fishGrip:'fishGrip'}]]),
   hair:new Map([['hair.brown',{walkHair:'walkHair',chopHair:'chopHair',fishHair:'fishHair'}],
     ...(CHARACTER_TRIAL_ENABLED?[[CHARACTER_TRIAL_SET.hairId,{walkHair:'trialWalkHair',chopHair:'trialChopHair',fishHair:'trialFishHair',testOnly:true}]]:[])]),
-  backpack:new Map([['pack.traveler',{walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}],
+  backpack:new Map([['pack.traveler',{name:'여행자의 가방',description:'여행자의 기본 가방. 외형만 바뀌며 아이템 보관 수에는 영향을 주지 않아요.',iconCrop:{x:37,y:63,width:21,height:21},walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}],
     ...(CHARACTER_TRIAL_ENABLED?[[CHARACTER_TRIAL_SET.backpackId,{walkBackpack:'trialWalkBackpack',chopBackpack:'trialChopBackpack',fishBackpack:'trialFishBackpack',testOnly:true}]]:[])])
 });
 
@@ -62,7 +62,7 @@ const GAME_STATE = {
   world:{trees:{},plots:{}},
   collections:{fish:{}},
   appearance:{bodyId:'body.starter',hairId:'hair.brown',backpackId:'pack.traveler',
-    outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],activeTool:'axe'},
+    outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],ownedBackpackIds:['pack.traveler'],activeTool:'axe'},
   progression:{
     coins:0,
     flags:{},

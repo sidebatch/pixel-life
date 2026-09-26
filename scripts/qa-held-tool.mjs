@@ -32,7 +32,7 @@ try{
   await page.locator('[data-equip-id="axe.basic"]').tap();
   await checkEquipment('axe');
   await page.screenshot({path:path.join(output,'inventory-axe.png')});
-  await page.locator('[data-held-tool="rod"]').tap();
+  await page.locator('[data-equip-id="rod.basic"]').tap();
   await checkEquipment('rod');
   await page.evaluate(()=>closeInventory({fromHistory:true}));
   await page.reload();
@@ -131,7 +131,7 @@ try{
       throw new Error('Held slot/catch/XP not restored');
   });
   if(errors.length)throw new Error(errors.join('\n'));
-  const report={singleEquippedWeapon:true,inventoryCardsAndHandPicker:true,reloadHeldSlot:true,
+  const report={singleEquippedWeapon:true,inventoryCardEquips:true,reloadHeldSlot:true,
     axeAtWater:['touch','Space','KeyZ'],rodAtWaterCatchAndXp:true,rodCannotChop:true,
     busyEquipmentBlocked:true,axeTreeDamage:20,rememberedVariants:true,browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));

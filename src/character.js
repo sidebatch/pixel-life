@@ -48,15 +48,15 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const x=actorX+(frame.grip[0]-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
   const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):pose.pose==='chop'?34:26)*unit;
-  // Front/back carry shows the axe almost edge-on, not its broad side face.
+  // Front/back carry shows a narrow three-quarter edge, not the broad side.
   // Keep the right-hand pivot and shaft length; side views/swings stay intact.
   const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&
     (pose.face==='down'||pose.face==='up');
   const mirror=pose.face==='left'||frontBackCarry;
   const nativeAngle=mirror?Math.PI-tool.nativeAngle:tool.nativeAngle;
-  const axisAngle=frontBackCarry?(pose.face==='down'?-1.85:-1.29):frame.angle;
+  const axisAngle=frontBackCarry?(pose.face==='down'?-1.95:-1.19):frame.angle;
   return {key,x,y,rotation:axisAngle-nativeAngle,axisAngle,
-    edgeScale:frontBackCarry?0.3:1,scale:length/tool.nativeLength,mirror,
+    edgeScale:frontBackCarry?0.55:1,scale:length/tool.nativeLength,mirror,
     behind:frame.toolBehind,tip:{x:x+Math.cos(axisAngle)*length,y:y+Math.sin(axisAngle)*length}};
 }
 

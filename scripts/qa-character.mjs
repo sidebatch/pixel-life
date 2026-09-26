@@ -18,19 +18,22 @@ page.on('pageerror',e=>errors.push(e.message));
 await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
 await page.goto(base+'?debug&time=12:00&weather=clear'+trialQuery);
 await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler'],{timeout:30000});
+await page.setViewportSize({width:await page.evaluate(()=>Object.values(CHARACTER_RIG.poses).reduce((n,p)=>n+p.columns*105+35,25)),height:900});
 const report=await page.evaluate(()=>{
   const before=JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression});
-  canvas.width=1100;canvas.height=900;
-  canvas.style.cssText='position:relative;width:1100px;height:900px;max-width:none;max-height:none;';
+  const width=Object.values(CHARACTER_RIG.poses).reduce((n,p)=>n+p.columns*105+35,25);
+  canvas.width=width;canvas.height=900;
+  canvas.style.cssText=`position:relative;width:${width}px;height:900px;max-width:none;max-height:none;`;
   document.body.style.cssText='margin:0;background:#172f30;display:block;overflow:auto;';
   document.body.appendChild(canvas);
   for(const el of document.body.children)if(el!==canvas)el.style.display='none';
-  ctx.fillStyle='#73a07a';ctx.fillRect(0,0,1100,900);
+  ctx.imageSmoothingEnabled=false;ctx.fillStyle='#73a07a';ctx.fillRect(0,0,width,900);
   ctx.font='16px sans-serif';ctx.textAlign='left';ctx.fillStyle='#102b2c';
   const faces=['down','right','left','up'];
   const poses=['walk','chop','fish'];
+  let groupX=25;
   for(let p=0;p<poses.length;p++){
-    const pose=poses[p],def=CHARACTER_RIG.poses[pose],groupX=25+p*350;
+    const pose=poses[p],def=CHARACTER_RIG.poses[pose];
     ctx.fillText(pose+' / default layers + held tool',groupX,24);
     for(let row=0;row<4;row++)for(let frame=0;frame<def.columns;frame++){
       const x=groupX+40+frame*105,y=125+row*140;
@@ -38,6 +41,7 @@ const report=await page.evaluate(()=>{
       drawCharacterActor(x,y,{pose,face:faces[row],frame,tool:pose==='fish'?'rod':'axe'});
       ctx.fillStyle='#102b2c';ctx.font='12px sans-serif';ctx.fillText(faces[row]+' '+frame,x-38,y+37);
     }
+    groupX+=def.columns*105+35;
   }
   // All weapon tiers must fit the same waiting hand without changing the body.
   const originalAxe=getEquippedForestryAxe,originalRod=getEquippedFishingRod;
@@ -51,9 +55,30 @@ const report=await page.evaluate(()=>{
   }
   getEquippedForestryAxe=originalAxe;getEquippedFishingRod=originalRod;
   if(before!==JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression}))throw new Error('Rendering changed progression');
-  return {poses:32,layers:18,tools:10,progressionUnchanged:true};
+  return {poses:Object.values(CHARACTER_RIG.poses).reduce((n,p)=>n+p.columns*4,0),layers:18,tools:10,progressionUnchanged:true};
 });
 await page.locator('#game').screenshot({path:path.join(output,'rig-contact-sheet.png')});
+await page.setViewportSize({width:1100,height:420});
+report.sideTimeline=await page.evaluate(()=>{
+  canvas.width=1100;canvas.height=420;canvas.style.cssText='position:relative;width:1100px;height:420px;';
+  ctx.imageSmoothingEnabled=false;ctx.fillStyle='#73a07a';ctx.fillRect(0,0,1100,420);
+  const times=[-1,...CHARACTER_RIG.poses.chop.sideFrameTimes,700],result={};
+  for(const [row,face] of ['right','left'].entries()){
+    player.face=face;player.moving=false;fishingState.phase='idle';
+    result[face]=[];
+    for(const [i,time] of times.entries()){
+      lifeUi.chop=time<0||time===700?null:{regionId:GAME_STATE.regionId,startedAt:0,tree:null};
+      tNow=Math.max(0,time);
+      const pose=getCharacterPose();result[face].push({time,pose:pose.pose,frame:pose.frame});
+      drawCharacterActor(65+i*105,145+row*190,pose);
+      ctx.fillStyle='#102b2c';ctx.font='12px sans-serif';ctx.textAlign='center';
+      ctx.fillText(face+' / '+(time<0?'idle':time+'ms'),65+i*105,190+row*190);
+    }
+    if(result[face].map(p=>p.frame).join(',')!=='0,0,1,2,3,4,5,6,7,0')throw new Error('Rendered timeline skips intermediate poses');
+  }
+  lifeUi.chop=null;return result;
+});
+await page.locator('#game').screenshot({path:path.join(output,'side-swing-timeline.png')});
 await page.close();
 const phone=await browser.newContext({viewport:{width:393,height:780},isMobile:true,hasTouch:true,deviceScaleFactor:1});
 const mobile=await phone.newPage();
@@ -113,8 +138,18 @@ const logging=await mobile.evaluate(()=>{
 });
 await mobile.screenshot({path:path.join(output,'mobile-chop-ready.png')});
 logging.after=await mobile.evaluate(()=>{
+  const startedAt=lifeUi.chop.startedAt,before=getTreeState(lifeUi.chop.tree).hp;
+  for(const offset of [70,140,210,269]){
+    tNow=startedAt+offset;updateLifeContentUi(tNow);
+    if(getTreeState(lifeUi.chop.tree).hp!==before)throw new Error('In-between frame hit early');
+  }
   tNow=lifeUi.chop.startedAt+FORESTRY_CHOP_TIMING.impactMs;
   updateLifeContentUi(tNow);drawWorld();
+  const after=getTreeState(lifeUi.chop.tree).hp;
+  for(const offset of [345,470,600]){
+    updateLifeContentUi(startedAt+offset);
+    if(getTreeState(lifeUi.chop.tree).hp!==after)throw new Error('Recovery caused an extra hit');
+  }
   return getTreeState(lifeUi.chop.tree).hp;
 });
 if(logging.before-logging.after!==20)throw new Error('Chop damage/timing regression');
@@ -149,7 +184,7 @@ for(const [index,face] of ['down','right','left','up'].entries()){
   await mobile.evaluate(()=>{
     tNow=lifeUi.chop.startedAt+FORESTRY_CHOP_TIMING.impactMs;
     updateLifeContentUi(tNow);drawWorld();
-    if(getCharacterPose().frame!==1)throw new Error('Missing air impact pose');
+    if(getCharacterPose().frame!==4)throw new Error('Missing air impact pose');
     if(JSON.stringify(GAME_STATE)!==window.__airState)throw new Error('Air swing changes game state');
   });
   await mobile.screenshot({path:path.join(output,'air-'+face+'-impact.png')});

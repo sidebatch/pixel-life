@@ -4,6 +4,7 @@ import path from 'node:path';
 const root = process.cwd();
 const scriptFiles = [
   'src/assets.js',
+  'src/data/character-rig-data.js',
   'src/data/world-map.js',
   'src/data/region-maps.js',
   'src/data/fish-data.js',
@@ -21,6 +22,7 @@ const scriptFiles = [
   'src/life-content.js',
   'src/debug.js',
   'src/rendering.js',
+  'src/character.js',
   'src/interactions.js',
   'src/fishing-effects.js',
   'src/fishing.js',

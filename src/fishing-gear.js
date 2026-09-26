@@ -43,8 +43,6 @@ function purchaseFishingRod(rodId){
     GAME_STATE.progression.fishing=beforeFishing;
     return false;
   }
-  if(typeof ensureFishingRodImage==='function')
-    ensureFishingRodImage(rod.asset).catch(error=>console.warn('Equipped rod art unavailable:',error));
   return true;
 }
 
@@ -69,7 +67,5 @@ function equipFishingRod(rodId){
     if(GAME_STATE.appearance) GAME_STATE.appearance.activeTool=previousTool;
     return false;
   }
-  if(typeof ensureFishingRodImage==='function')
-    ensureFishingRodImage(rod.asset).catch(error=>console.warn('Equipped rod art unavailable:',error));
   return true;
 }

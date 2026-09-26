@@ -19,7 +19,7 @@
 
 ### `src/config.js`
 
-Canvas, 프로젝트 메타데이터, 지역 및 Activity Module 목록, 공용 게임 상태와 에셋 로딩을 담당한다. 필수 월드 에셋은 병렬로 로드하고, 플레이어 정규화 시트가 실패했을 때만 레거시 프레임을 불러온다.
+Canvas, 프로젝트 메타데이터, 지역 및 Activity Module 목록, 공용 게임 상태와 에셋 로딩을 담당한다. 필수 월드 에셋과 캐릭터 규격 PNG는 병렬로 로드한다. 의상은 걷기/벌목/낚시 대응 시트가 모두 있어야 하며 누락·크기 오류는 로딩 실패로 알린다. 고해상도 도구 아이콘을 월드 표시용으로 추가 디코딩하지 않는다.
 
 ### `src/data/world-map.js`
 
@@ -51,7 +51,11 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 지형, 길, 물, 식생, 건물과 캐릭터를 그린다. 숲·농장 출입구, 벌목 상태의 나무/그루터기, 밭의 잠금·성장 단계를 추가한다. 통과 가능한 식생은 actor 아래에 두고, 가림이 필요한 오브젝트는 공용 Y-depth 큐에 넣는다. 시간대 그라데이션·조명·밤 비네팅과 화면 전체 비·폭풍, 낚싯줄·찌·입질 `!`도 이 렌더링 계층에서 처리한다.
 
-현재 플레이어의 걷기·벌목 원본 그림은 로딩 시 몸·기본 의상 캔버스 레이어로 분리하고 같은 좌표에 재합성한다. 손에 든 도구는 별도 이미지로 방향별 손 좌표에 그리며, 위쪽은 캐릭터 뒤에 그린다. 외형 저장값과 기본 의상 정의는 `src/config.js`/`src/save.js`, 도구 선택은 `src/inventory.js`에 둔다. 새 의상 시트 규격과 아직 분리하지 않은 머리·가방은 `docs/CHARACTER_APPEARANCE.md` 참조.
+플레이어 그리기는 `src/character.js`에 위임한다.
+
+### `src/character.js` / `src/data/character-rig-data.js`
+
+플레이어 그림은 걷기·벌목·낚시 모두 96×96 셀/같은 발 기준을 사용한다. body/head/hair/outfit/backpack/grip PNG를 합성하고 각 무기의 실제 손잡이 피벗을 프레임별 손에 연결한다. 위쪽 도구는 몸 뒤에, 그립 손은 도구 위에 그린다. 낚싯줄은 같은 변환으로 구한 낚싯대 끝을 사용한다. 데이터는 `scripts/pack-character-rig.mjs`가 제작 원본에서 생성하며 런타임 색상 마스크 분리는 제거했다. 외형 저장·등록은 `src/config.js`/`src/save.js`, 도구 선택은 `src/inventory.js`에 있다. 규격은 `docs/CHARACTER_APPEARANCE.md` 참조.
 
 ### `src/interactions.js`
 

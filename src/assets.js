@@ -54,6 +54,38 @@ const FISHING_ROD_URLS = Object.freeze({
   master_angler:'assets/fishing/rods/master_angler.png'
 });
 const FORESTRY_CHOP_PLAYER_URL='assets/forestry/chop/player-v2.png';
+const CHARACTER_LAYER_URLS=Object.freeze({
+  walkBody:'assets/player/rig-v1/walk-body.png',
+  walkHead:'assets/player/rig-v1/walk-head.png',
+  walkHair:'assets/player/rig-v1/walk-hair.png',
+  walkOutfit:'assets/player/rig-v1/walk-outfit.png',
+  walkBackpack:'assets/player/rig-v1/walk-backpack.png',
+  walkGrip:'assets/player/rig-v1/walk-grip.png',
+  chopBody:'assets/player/rig-v1/chop-body.png',
+  chopHead:'assets/player/rig-v1/chop-head.png',
+  chopHair:'assets/player/rig-v1/chop-hair.png',
+  chopOutfit:'assets/player/rig-v1/chop-outfit.png',
+  chopBackpack:'assets/player/rig-v1/chop-backpack.png',
+  chopGrip:'assets/player/rig-v1/chop-grip.png',
+  fishBody:'assets/player/rig-v1/fish-body.png',
+  fishHead:'assets/player/rig-v1/fish-head.png',
+  fishHair:'assets/player/rig-v1/fish-hair.png',
+  fishOutfit:'assets/player/rig-v1/fish-outfit.png',
+  fishBackpack:'assets/player/rig-v1/fish-backpack.png',
+  fishGrip:'assets/player/rig-v1/fish-grip.png'
+});
+const CHARACTER_TOOL_URLS=Object.freeze({
+  'axe.basic':'assets/player/rig-v1/tools/axe-basic.png',
+  'axe.iron':'assets/player/rig-v1/tools/axe-iron.png',
+  'axe.steel':'assets/player/rig-v1/tools/axe-steel.png',
+  'axe.master':'assets/player/rig-v1/tools/axe-master.png',
+  'rod.basic':'assets/player/rig-v1/tools/rod-basic.png',
+  'rod.sturdy':'assets/player/rig-v1/tools/rod-sturdy.png',
+  'rod.steel':'assets/player/rig-v1/tools/rod-steel.png',
+  'rod.expert':'assets/player/rig-v1/tools/rod-expert.png',
+  'rod.master_angler':'assets/player/rig-v1/tools/rod-master_angler.png',
+  'rod.deepwater':'assets/player/rig-v1/tools/rod-deepwater.png'
+});
 const LIFE_ITEM_URLS = Object.freeze({
   log:'assets/forestry/items/log.png',
   oakLog:'assets/forestry/items/oak.png',

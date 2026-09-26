@@ -1,5 +1,6 @@
 dist/
 node_modules/
+output/character-qa/
 *.log
 .DS_Store
 Thumbs.db

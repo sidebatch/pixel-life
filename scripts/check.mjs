@@ -1,10 +1,12 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import {decodePNG} from './lib/png.mjs';
 
 const root = process.cwd();
 const scriptFiles = [
   'src/assets.js',
+  'src/data/character-rig-data.js',
   'src/data/world-map.js',
   'src/data/region-maps.js',
   'src/data/fish-data.js',
@@ -22,6 +24,7 @@ const scriptFiles = [
   'src/life-content.js',
   'src/debug.js',
   'src/rendering.js',
+  'src/character.js',
   'src/interactions.js',
   'src/fishing-effects.js',
   'src/fishing.js',
@@ -56,6 +59,9 @@ assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progress
   freshContext.__fresh.progression.forestry.axeId==='axe.basic'&&
   freshContext.__fresh.progression.forestry.ownedAxeIds.join(',')==='axe.basic'&&
   freshContext.__fresh.appearance.outfitId==='outfit.traveler'&&
+  freshContext.__fresh.appearance.bodyId==='body.starter'&&
+  freshContext.__fresh.appearance.hairId==='hair.brown'&&
+  freshContext.__fresh.appearance.backpackId==='pack.traveler'&&
   freshContext.__fresh.appearance.activeTool==='axe',
   'A new browser session must start at zero coins, skill Lv.1, and starter gear');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
@@ -75,7 +81,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 133, `Expected 133 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 161, `Expected 161 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -484,6 +490,7 @@ const saveContext={
 vm.createContext(saveContext);
 vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n`+
   `const DEFAULT_OUTFIT_ID='outfit.traveler';const CHARACTER_OUTFIT_BY_ID=new Map([[DEFAULT_OUTFIT_ID,{id:DEFAULT_OUTFIT_ID}]]);\n`+
+  `const CHARACTER_PARTS={body:new Map([['body.starter',{}]]),hair:new Map([['hair.brown',{}]]),backpack:new Map([['pack.traveler',{}]])};\n`+
   `${read('src/save.js')}\n`+
   `GAME_STATE.inventory.push({type:'fish',id:'fish.crucian_carp',name:'붕어',rarity:'common',sizeCm:22.5,price:26,quantity:1});`+
   `GAME_STATE.collections.fish['fish.crucian_carp']={fishId:'fish.crucian_carp',name:'붕어',rarity:'common',count:2,minSizeCm:20,maxSizeCm:25,totalSizeCm:45,averageSizeCm:22.5};`+
@@ -496,12 +503,18 @@ vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.
   `globalThis.__lockedRod=normalizeSavedFishingProgress({level:2,xp:0,totalXp:0,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__oldCap=normalizeSavedFishingProgress({level:20,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',20)+900,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__savedMastery=normalizeSavedFishingProgress({level:100,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17,equippedRodId:'rod.expert'},{},[]);`+
-  `globalThis.__invalidAppearance=normalizeSavedAppearance({outfitId:'outfit.unknown',ownedOutfitIds:['outfit.unknown'],activeTool:'bad'});`,saveContext);
+  `globalThis.__invalidAppearance=normalizeSavedAppearance({bodyId:'bad',hairId:'bad',backpackId:'bad',outfitId:'outfit.unknown',ownedOutfitIds:['outfit.unknown'],activeTool:'bad'});`,saveContext);
 assert(saveContext.__loaded,'Versioned save did not load');
 assert(saveContext.__restored.appearance.outfitId==='outfit.traveler'&&
   saveContext.__restored.appearance.activeTool==='rod'&&
+  saveContext.__restored.appearance.bodyId==='body.starter'&&
+  saveContext.__restored.appearance.hairId==='hair.brown'&&
+  saveContext.__restored.appearance.backpackId==='pack.traveler'&&
   saveContext.__invalidAppearance.outfitId==='outfit.traveler'&&
-  saveContext.__invalidAppearance.activeTool==='axe',
+  saveContext.__invalidAppearance.activeTool==='axe'&&
+  saveContext.__invalidAppearance.bodyId==='body.starter'&&
+  saveContext.__invalidAppearance.hairId==='hair.brown'&&
+  saveContext.__invalidAppearance.backpackId==='pack.traveler',
   'Appearance and held tool must save safely and invalid legacy values must fall back to defaults');
 assert(saveContext.__restored.inventory.length===2&&saveContext.__restored.inventory[0].id==='fish.crucian_carp'&&
   saveContext.__restored.inventory[1].id==='rod.master_angler',
@@ -862,57 +875,112 @@ assert(farmDrawCalls.length===farmIds.length*2&&farmIds.every((id,index)=>
   farmDrawCalls[index*2+1].id===id&&farmDrawCalls[index*2+1].stage==='mature'&&farmDrawCalls[index*2+1].width===58),
   'Covered seeds and shared sprouts must not show mature art; only later stages use distinct crop-specific sprites');
 
-const chopSpriteCalls=[],chopAxeCalls=[],heldRodCalls=[],chopAxeRotations=[],chopAxeTranslations=[],chopAxeMirrors=[];
-const chopDrawContext={
-  forestryChopImg:{id:'chop'},forestryAxeImgs:{basic:{id:'axe'}},
-  DEFAULT_OUTFIT_ID:'outfit.traveler',characterLayerSheets:{},
-  getEquippedForestryAxe:()=>({asset:'basic'}),
-  FORESTRY_CHOP_TIMING:{impactMs:270},
-  GAME_STATE:{regionId:'oldForest'},lifeUi:{chop:{startedAt:0,regionId:'oldForest',tree:{y:10}}},
-  player:{py:480,face:'down'},TILE:48,tNow:100,
-  ctx:{save(){},restore(){},translate(x,y){chopAxeTranslations.push([x,y]);},
-    scale(x,y){chopAxeMirrors.push([x,y]);},rotate(angle){chopAxeRotations.push(angle);},
-    drawImage(sprite,...args){if(sprite.id==='chop') chopSpriteCalls.push(args);else if(sprite.id==='axe') chopAxeCalls.push(args);else if(sprite.id==='rod') heldRodCalls.push(args);}}
+// Sprite contracts are verified using the actual packed PNGs, not just string checks.
+const rigContext={};
+vm.createContext(rigContext);
+vm.runInContext(read('src/data/character-rig-data.js')+'\nglobalThis.rig=CHARACTER_RIG;',rigContext);
+const rig=rigContext.rig;
+assert(rig.cell===96&&rig.feet.join(',')==='48,88'&&rig.renderSize===100,
+  'Character must use one cell, feet baseline and render scale across all actions');
+for(const [pose,definition] of Object.entries(rig.poses)){
+  const layers={};
+  for(const name of ['body','head','hair','outfit','backpack','grip']){
+    const image=decodePNG(fs.readFileSync(path.join(root,`assets/player/rig-v1/${pose}-${name}.png`)));
+    assert(image.width===definition.columns*96&&image.height===384,`Bad layer grid: ${pose}-${name}`);
+    layers[name]=image;
+  }
+  const reference=decodePNG(fs.readFileSync(path.join(root,`assets/player/source/rig-v1/${pose}-reference.png`)));
+  const composed=Buffer.alloc(reference.data.length);
+  for(const name of ['body','outfit','backpack','head','hair','grip']){
+    const pixels=layers[name].data;
+    for(let i=0;i<pixels.length;i+=4)if(pixels[i+3])pixels.copy(composed,i,i,i+4);
+  }
+  assert(composed.equals(reference.data),`Default layers must reproduce normalized original exactly: ${pose}`);
+  let coveredBody=0;
+  for(let i=0;i<layers.body.data.length;i+=4)if(layers.body.data[i+3]&&layers.outfit.data[i+3])coveredBody++;
+  assert(coveredBody>60,`Body must exist underneath clothing, not only as cut-out exposed pixels: ${pose}`);
+  for(const [face,frames] of Object.entries(definition.frames)){
+    assert(frames.length===definition.columns,`Missing action frames: ${pose}/${face}`);
+    for(const frame of frames)assert(frame.grip.every(n=>Number.isInteger(n)&&n>=0&&n<96)&&Number.isFinite(frame.angle),
+      `Invalid frame grip: ${pose}/${face}`);
+    if(face==='left')for(let i=0;i<frames.length;i++)assert(frames[i].grip[0]===95-definition.frames.right[i].grip[0]&&
+      frames[i].grip[1]===definition.frames.right[i].grip[1],
+      'Left animation and grips must be mirrored from the same canonical right frames');
+  }
+}
+for(const [key,tool] of Object.entries(rig.tools)){
+  const image=decodePNG(fs.readFileSync(path.join(root,`assets/player/rig-v1/tools/${key.replace('.','-')}.png`)));
+  let opaqueGrip=false;
+  for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
+    const x=tool.grip[0]+dx,y=tool.grip[1]+dy;
+    if(x>=0&&x<96&&y>=0&&y<96&&image.data[(y*96+x)*4+3])opaqueGrip=true;
+  }
+  assert(image.width===96&&image.height===96&&opaqueGrip&&tool.nativeLength>0,`Bad normalized tool grip: ${key}`);
+}
+const characterCalls=[];
+const characterContext={
+  GAME_STATE:{regionId:'oldForest',appearance:{activeTool:'axe',outfitId:'outfit.traveler'}},
+  CHARACTER_PARTS:{body:new Map(),hair:new Map(),backpack:new Map()},
+  characterLayerImgs:{},characterToolImgs:{},characterOutfitImgs:{},DEFAULT_OUTFIT_ID:'outfit.traveler',
+  player:{py:480,px:100,face:'down',moving:false},lifeUi:{chop:null},tNow:100,
+  FORESTRY_CHOP_TIMING:{impactMs:270},FISHING_CONFIG:{castMs:320},fishingState:{phase:'idle',timer:0},
+  isFishingActive:()=>false,getEquippedForestryAxe:()=>({asset:'basic'}),getEquippedFishingRod:()=>({asset:'basic'}),
+  DESKTOP_SMOOTH_RENDER:false,camX:0,camY:0,TILE:48,
+  ctx:{save(){},restore(){},translate(){},rotate(){},scale(){},
+    drawImage(image,...args){characterCalls.push({id:image.id,args});}}
 };
-vm.createContext(chopDrawContext);
-vm.runInContext(`${read('src/rendering.js')}\n`+
-  `for(const face of ['down','right','left','up']){`+
-  `tNow=100;drawForestryChopPlayer(100,100,face);`+
-  `tNow=300;drawForestryChopPlayer(100,100,face);}`+
-  `globalThis.__downDepth=forestryPlayerDrawDepth();`+
-  `player.face='right';globalThis.__sideDepth=forestryPlayerDrawDepth();`+
-  `player.face='up';globalThis.__upDepth=forestryPlayerDrawDepth();`,chopDrawContext);
-assert(chopSpriteCalls.length===8&&chopSpriteCalls.every((args,index)=>
-  args[0]===(index%2)*320&&args[1]===Math.floor(index/2)*320&&
-  args[2]===320&&args[3]===320&&args[6]===68&&args[7]===68)&&
-  chopAxeCalls.length===8&&chopAxeCalls.every(args=>args.join(',')==='280,310,730,650,-8,-42,44,44')&&
-  chopAxeTranslations.map(pair=>pair.join(',')).join('|')===
-    '88,83|100,103|88,85|110,101|112,85|90,102|118,77|110,80'&&
-  chopAxeMirrors.map(pair=>pair.join(',')).join('|')==='-1,1|-1,1'&&
-  chopAxeRotations.length===8&&chopAxeRotations[7]===-1.2&&
-  chopDrawContext.__downDepth===500&&chopDrawContext.__sideDepth===529&&chopDrawContext.__upDepth===529,
-  'Side grips must meet both hands without changing sprite cells, axe size, or front/back depth');
-chopDrawContext.forestryAxeImgs.master={id:'axe'};
-chopDrawContext.getEquippedForestryAxe=()=>({asset:'master'});
-vm.runInContext(`for(const face of ['right','left']){
-  drawForestryChopAxe(100,100,face,0);drawForestryChopAxe(100,100,face,1);
-}`,chopDrawContext);
-assert(chopAxeCalls.length===12&&chopAxeCalls.slice(8).every(args=>
-  args.join(',')==='0,60,1254,1140,-5,-44,44,44'),
-  'The master axe must render its full handle at the same size as the other axe tiers');
-chopDrawContext.forestryAxeImgs.basic={id:'axe'};
-chopDrawContext.getEquippedForestryAxe=()=>({asset:'basic'});
-chopDrawContext.fishingRodImgs={basic:{id:'rod',width:1254,height:1254}};
-chopDrawContext.getEquippedFishingRod=()=>({asset:'basic'});
-chopDrawContext.GAME_STATE.appearance={activeTool:'axe'};
-chopDrawContext.isFishingActive=()=>false;
-vm.runInContext(`drawPlayerHeldTool(100,100,'right',1);
-  GAME_STATE.appearance.activeTool='rod';drawPlayerHeldTool(100,100,'down',1);
-  GAME_STATE.appearance.activeTool='axe';isFishingActive=()=>true;drawPlayerHeldTool(100,100,'up',1);`,chopDrawContext);
-assert(chopAxeCalls.at(-1).join(',')==='280,310,730,650,-3,-29,30,30'&&
-  heldRodCalls.length===2&&heldRodCalls.every(args=>args.join(',')==='0,0,1254,1254,-4,-41,44,44')&&
-  chopAxeTranslations.slice(-3).map(pair=>pair.join(',')).join('|')==='112,102|114,104|117,99',
-  'Walking must show the selected hand tool and fishing must temporarily show the rod at the hand');
+for(const [pose,definition] of Object.entries(rig.poses))for(const name of ['Body','Head','Hair','Outfit','Backpack','Grip'])
+  characterContext.characterLayerImgs[pose+name]={id:pose+name,width:definition.columns*96,height:384};
+for(const key of Object.keys(rig.tools))characterContext.characterToolImgs[key]={id:key,width:96,height:96};
+vm.createContext(characterContext);
+vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/character.js')+'\n'+read('src/rendering.js'),characterContext);
+vm.runInContext('validateCharacterRigAssets();',characterContext);
+for(const [pose,definition] of Object.entries(rig.poses)){
+  for(const face of ['down','right','left','up'])for(let frame=0;frame<definition.columns;frame++){
+    for(const key of Object.keys(rig.tools)){
+      const tool=key.startsWith('rod.')?'rod':'axe',asset=key.slice(4);
+      characterContext.getEquippedForestryAxe=()=>({asset});
+      characterContext.getEquippedFishingRod=()=>({asset});
+      characterCalls.length=0;
+      const transform=vm.runInContext(`drawCharacterActor(100,100,{pose:'${pose}',face:'${face}',frame:${frame},tool:'${tool}'})`,characterContext);
+      const grip=definition.frames[face][frame].grip,unit=100/96;
+      assert(Math.abs(transform.x-(100+(grip[0]-48)*unit))<1e-8&&
+        Math.abs(transform.y-(120+(grip[1]-88)*unit))<1e-8,
+        'Every equipped tool must attach its own pivot to the same frame-specific hand');
+      assert(characterCalls.at(-1).id===pose+'Grip'&&
+        (face==='up'?characterCalls[0].id===key:characterCalls[3].id===key),
+        'Hands must cover the handle; back-facing tools must be behind the body');
+    }
+  }
+}
+characterContext.getEquippedFishingRod=()=>({asset:'basic'});
+characterContext.getEquippedForestryAxe=()=>({asset:'basic'});
+characterContext.isFishingActive=()=>true;
+characterContext.fishingState={phase:'casting',timer:0};
+assert(vm.runInContext('getCharacterPose().pose===\'fish\'&&getCharacterPose().frame===0&&getCharacterPose().tool===\'rod\'',characterContext),
+  'Casting must use dedicated raised-hands pose and temporarily select the rod');
+characterContext.fishingState.phase='waiting';
+assert(vm.runInContext('getCharacterPose().frame===1',characterContext),'Waiting must use dedicated holding pose');
+characterContext.fishingState.phase='result';
+assert(vm.runInContext('getCharacterPose().frame===2',characterContext),'Catching must use dedicated pull pose');
+characterContext.lifeUi.chop={startedAt:0,regionId:'oldForest',tree:{y:10}};
+characterContext.tNow=100;
+assert(vm.runInContext('getCharacterPose().pose===\'chop\'&&getCharacterPose().frame===0',characterContext),'Chop preparation must use the ready pose');
+characterContext.tNow=300;
+assert(vm.runInContext('getCharacterPose().frame===1',characterContext),'Chop impact must match the existing damage timing');
+characterContext.lifeUi.chop=null;
+characterContext.isFishingActive=()=>false;
+characterContext.player.face='right';characterContext.player.moving=true;
+characterContext.tNow=0;
+const firstHand=vm.runInContext('getCharacterToolTransform(100,100)',characterContext);
+characterContext.tNow=210;
+const nextHand=vm.runInContext('getCharacterToolTransform(100,100)',characterContext);
+assert(firstHand.x!==nextHand.x||firstHand.y!==nextHand.y,'Held tool must follow walking hands instead of a fixed-offset bob');
+characterContext.lifeUi.chop={startedAt:0,regionId:'oldForest',tree:{y:10}};
+characterContext.player.face='down';
+assert(vm.runInContext('forestryPlayerDrawDepth()',characterContext)===500,'South-facing tree must still naturally cover the character');
+characterContext.player.face='up';
+assert(vm.runInContext('forestryPlayerDrawDepth()',characterContext)===529,'North-facing chopping must preserve tree depth ordering');
 
 const marketContext={
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],

@@ -365,97 +365,6 @@ function drawNPC(npc){
   ctx.restore();
 }
 
-function splitStarterOutfitSheet(image,cell){
-  if(!image) return null;
-  const source=document.createElement('canvas');
-  source.width=image.width;source.height=image.height;
-  const sourceCtx=source.getContext('2d',{willReadFrequently:true});
-  sourceCtx.drawImage(image,0,0);
-  const sourcePixels=sourceCtx.getImageData(0,0,image.width,image.height).data;
-  const base=document.createElement('canvas'),outfit=document.createElement('canvas');
-  base.width=outfit.width=image.width;base.height=outfit.height=image.height;
-  const baseCtx=base.getContext('2d'),outfitCtx=outfit.getContext('2d');
-  const baseData=baseCtx.createImageData(image.width,image.height);
-  const outfitData=outfitCtx.createImageData(image.width,image.height);
-  for(let pixel=0;pixel<image.width*image.height;pixel++){
-    const index=pixel*4,alpha=sourcePixels[index+3];
-    if(!alpha) continue;
-    const red=sourcePixels[index],green=sourcePixels[index+1],blue=sourcePixels[index+2];
-    const frameY=Math.floor(pixel/image.width)%cell;
-    const skin=red>145&&red>green+25&&green>blue+12&&green>75&&blue>50;
-    const hair=red>green+12&&green>blue+5&&red<175&&frameY<cell*.7;
-    const coat=blue>red+8&&blue>=green&&frameY>cell*.34;
-    const isOutfit=coat||(frameY>cell*.62&&!skin&&!hair);
-    const target=isOutfit?outfitData.data:baseData.data;
-    target[index]=red;target[index+1]=green;target[index+2]=blue;target[index+3]=alpha;
-  }
-  baseCtx.putImageData(baseData,0,0);
-  outfitCtx.putImageData(outfitData,0,0);
-  return {base,outfit};
-}
-
-async function prepareCharacterOutfitLayers(){
-  try{
-    characterLayerSheets[DEFAULT_OUTFIT_ID]={
-      walk:splitStarterOutfitSheet(playerSheet,96),
-      chop:splitStarterOutfitSheet(forestryChopImg,320)
-    };
-    for(const outfit of CHARACTER_OUTFITS){
-      if(outfit.id===DEFAULT_OUTFIT_ID||outfit.renderMode!=='layered') continue;
-      const [walk,chop]=await Promise.all([loadImage(outfit.walkSheet),loadImage(outfit.chopSheet)]);
-      if(!playerSheet||!forestryChopImg||walk.width!==playerSheet.width||walk.height!==playerSheet.height||
-        chop.width!==forestryChopImg.width||chop.height!==forestryChopImg.height)
-        throw new Error(`Wrong frame dimensions for ${outfit.id}`);
-      characterLayerSheets[outfit.id]={
-        walk:{base:characterLayerSheets[DEFAULT_OUTFIT_ID].walk.base,outfit:walk},
-        chop:{base:characterLayerSheets[DEFAULT_OUTFIT_ID].chop.base,outfit:chop}
-      };
-    }
-  }catch(error){
-    console.warn('Starter outfit layers unavailable; using original character art.',error);
-  }
-}
-
-function drawCharacterFrame(pose,image,...drawArgs){
-  const outfitId=GAME_STATE.appearance?.outfitId||DEFAULT_OUTFIT_ID;
-  const layers=characterLayerSheets[outfitId]?.[pose];
-  if(!layers){ctx.drawImage(image,...drawArgs);return;}
-  ctx.drawImage(layers.base,...drawArgs);
-  ctx.drawImage(layers.outfit,...drawArgs);
-}
-
-function drawForestryChopAxe(actorX,actorY,face,phase){
-  const axeAsset=getEquippedForestryAxe().asset;
-  const image=forestryAxeImgs[axeAsset];
-  if(!image) return;
-  const anchors={
-    down:[[-12,-17],[0,3]],right:[[-12,-15],[10,1]],
-    left:[[12,-15],[-10,2]],up:[[18,-23],[10,-20]]
-  };
-  const [offsetX,offsetY]=(anchors[face]||anchors.down)[phase];
-  ctx.save();
-  ctx.translate(Math.round(actorX+offsetX),Math.round(actorY+offsetY));
-  if(face==='left') ctx.scale(-1,1);
-  ctx.rotate(face==='up'?(phase===0?-.35:-1.2):(phase===0?-.35:1.15));
-  // The master axe has a longer decorated handle; include its grip end.
-  // Both crops keep the same 44px destination size and pivot at the hands.
-  if(axeAsset==='master') ctx.drawImage(image,0,60,1254,1140,-5,-44,44,44);
-  else ctx.drawImage(image,280,310,730,650,-8,-42,44,44);
-  ctx.restore();
-}
-
-function drawForestryChopPlayer(actorX,actorY,face){
-  const row={down:0,right:1,left:2,up:3}[face]??0;
-  const phase=tNow-lifeUi.chop.startedAt<FORESTRY_CHOP_TIMING.impactMs?0:1;
-  // Every pose occupies one isolated 320px cell. Fixed scale keeps the left,
-  // right, front and back characters the same size and avoids border bleed.
-  const cell=320,size=68;
-  if(face==='up') drawForestryChopAxe(actorX,actorY,face,phase);
-  drawCharacterFrame('chop',forestryChopImg,phase*cell,row*cell,cell,cell,
-    Math.round(actorX-size/2),Math.round(actorY+15-size),size,size);
-  if(face!=='up') drawForestryChopAxe(actorX,actorY,face,phase);
-}
-
 function forestryPlayerDrawDepth(){
   const playerDepth=player.py+20;
   const chop=lifeUi.chop?.regionId===GAME_STATE.regionId?lifeUi.chop:null;
@@ -464,89 +373,20 @@ function forestryPlayerDrawDepth(){
     Math.max(playerDepth,chop.tree.y*TILE+TILE+1):playerDepth;
 }
 
-function drawPlayerHeldTool(actorX,actorY,face,frame){
-  const tool=typeof isFishingActive==='function'&&isFishingActive()?'rod':
-    GAME_STATE.appearance?.activeTool||'axe';
-  const image=tool==='rod'?fishingRodImgs[getEquippedFishingRod().asset]:
-    forestryAxeImgs[getEquippedForestryAxe().asset];
-  if(!image) return;
-  const [handX,handY]={down:[14,4],right:[12,2],up:[17,-1]}[face]||[14,4];
-  const bob=player.moving&&frame===2?1:0;
-  ctx.save();
-  ctx.translate(Math.round(actorX+handX),Math.round(actorY+handY+bob));
-  if(tool==='rod'){
-    ctx.drawImage(image,0,0,image.width,image.height,-4,-41,44,44);
-  }else if(getEquippedForestryAxe().asset==='master'){
-    ctx.drawImage(image,0,60,1254,1140,-2,-30,30,30);
-  }else{
-    ctx.drawImage(image,280,310,730,650,-3,-29,30,30);
-  }
-  ctx.restore();
-}
-
 function drawPlayer(){
-  // Player side-animation safety rule:
-  // row 1 (right) is the canonical side animation. Left ALWAYS mirrors row 1.
-  // This prevents a generated left-row frame from ever facing the wrong way.
-  const wx=player.px-camX, wy=player.py-camY;
-  const face=player.face||'down';
-  const mirrorLeft=face==='left';
-  const row=face==='down'?0:face==='up'?3:1;
-  const walkCycle=player.moving ? Math.floor(tNow/105)%4 : 0;
-  const frame=player.moving ? [0,1,2,1][walkCycle] : 1;
-  const CELL=96;
-  const size=100; // same render cell size as NPCs
-  const actorX=DESKTOP_SMOOTH_RENDER?wx:Math.round(wx), actorY=DESKTOP_SMOOTH_RENDER?wy:Math.round(wy);
-  const dx=actorX-size/2, dy=actorY-size+26;
-
+  const wx=player.px-camX,wy=player.py-camY;
+  const actorX=DESKTOP_SMOOTH_RENDER?wx:Math.round(wx),actorY=DESKTOP_SMOOTH_RENDER?wy:Math.round(wy);
   ctx.fillStyle='rgba(10,25,26,.22)';
   ctx.beginPath();ctx.ellipse(actorX,actorY+13,18,7,0,0,Math.PI*2);ctx.fill();
-
-  if(forestryChopImg&&lifeUi.chop?.regionId===GAME_STATE.regionId){
-    drawForestryChopPlayer(actorX,actorY,face);
-    return;
-  }
-
-  if(playerSheet){
-    if(mirrorLeft){
-      ctx.save();
-      ctx.translate(actorX,0);
-      ctx.scale(-1,1);
-      drawCharacterFrame('walk',playerSheet,frame*CELL,row*CELL,CELL,CELL,-size/2,dy,size,size);
-      drawPlayerHeldTool(0,actorY,'right',frame);
-      ctx.restore();
-    }else{
-      if(face==='up') drawPlayerHeldTool(actorX,actorY,face,frame);
-      drawCharacterFrame('walk',playerSheet,frame*CELL,row*CELL,CELL,CELL,dx,dy,size,size);
-      if(face!=='up') drawPlayerHeldTool(actorX,actorY,face,frame);
-    }
-    return;
-  }
-
-  // Fallback follows the same canonical-right rule.
-  const legacyFace=mirrorLeft?'right':face;
-  const legacy=playerImgs[`${legacyFace}_${frame===2?2:frame===1?1:0}`] || playerImgs[`${legacyFace}_0`] || playerImgs['down_0'];
-  if(legacy){
-    const h=71,w=legacy.width*h/legacy.height;
-    const lx=actorX-w/2, ly=actorY-h+24;
-    if(mirrorLeft){
-      ctx.save();ctx.translate(actorX,0);ctx.scale(-1,1);
-      ctx.drawImage(legacy,-w/2,ly,w,h);
-      drawPlayerHeldTool(0,actorY,'right',frame);
-      ctx.restore();
-    }else{
-      if(face==='up') drawPlayerHeldTool(actorX,actorY,face,frame);
-      ctx.drawImage(legacy,lx,ly,w,h);
-      if(face!=='up') drawPlayerHeldTool(actorX,actorY,face,frame);
-    }
-  }
+  drawCharacterActor(actorX,actorY);
 }
 
 function drawFishingEffects(){
   if(typeof isFishingActive!=='function'||!isFishingActive()||!fishingState.spot) return;
   const spotX=(fishingState.spot.x+.5)*TILE-camX;
   const spotY=(fishingState.spot.y+.5)*TILE-camY;
-  const playerX=player.px-camX, playerY=player.py-camY-24;
+  const rodTip=getFishingRodTipPosition();
+  const playerX=rodTip.x,playerY=rodTip.y;
   if(spotX<-30||spotY<-30||spotX>VIEW_W+30||spotY>VIEW_H+30) return;
 
   ctx.save();

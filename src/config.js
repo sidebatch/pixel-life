@@ -19,9 +19,14 @@ const PROJECT = Object.freeze({
 const DEFAULT_OUTFIT_ID='outfit.traveler';
 const CHARACTER_OUTFITS=Object.freeze([
   Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
-    chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'layered'})
+    chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1'})
 ]);
 const CHARACTER_OUTFIT_BY_ID=new Map(CHARACTER_OUTFITS.map(outfit=>[outfit.id,outfit]));
+const CHARACTER_PARTS=Object.freeze({
+  body:new Map([['body.starter',{walkBody:'walkBody',walkHead:'walkHead',walkGrip:'walkGrip',chopBody:'chopBody',chopHead:'chopHead',chopGrip:'chopGrip',fishBody:'fishBody',fishHead:'fishHead',fishGrip:'fishGrip'}]]),
+  hair:new Map([['hair.brown',{walkHair:'walkHair',chopHair:'chopHair',fishHair:'fishHair'}]]),
+  backpack:new Map([['pack.traveler',{walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}]])
+});
 
 const WORLD_REGIONS = Object.freeze({
   lilacVillage:{id:'lilacVillage',name:'라일락 연못 마을',status:'playable'},
@@ -47,7 +52,8 @@ const GAME_STATE = {
   inventory:[],
   world:{trees:{},plots:{}},
   collections:{fish:{}},
-  appearance:{outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],activeTool:'axe'},
+  appearance:{bodyId:'body.starter',hairId:'hair.brown',backpackId:'pack.traveler',
+    outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],activeTool:'axe'},
   progression:{
     coins:0,
     flags:{},
@@ -67,22 +73,9 @@ const MOVEMENT_CONFIG=Object.freeze({
 });
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
-const imgs={}, playerImgs={}, npcImgs={}, fishImgs={}, forestTreeImgs={}, forestStumpImgs={}, forestryAxeImgs={}, fishingRodImgs={}, lifeItemImgs={}, matureCropImgs={}, youngCropImgs={};
-let playerSheet=null,forestryChopImg=null;
-const characterLayerSheets={};
-const fishingRodImageLoads=new Map();
+const imgs={},npcImgs={},fishImgs={},forestTreeImgs={},forestStumpImgs={},lifeItemImgs={},matureCropImgs={},youngCropImgs={};
+const characterLayerImgs={},characterToolImgs={},characterOutfitImgs={};
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
-function ensureFishingRodImage(asset){
-  if(fishingRodImgs[asset]) return Promise.resolve(fishingRodImgs[asset]);
-  if(!FISHING_ROD_URLS[asset]) return Promise.reject(new Error(`Unknown fishing rod art: ${asset}`));
-  if(!fishingRodImageLoads.has(asset)){
-    fishingRodImageLoads.set(asset,loadImage(FISHING_ROD_URLS[asset]).then(image=>{
-      fishingRodImgs[asset]=image;
-      return image;
-    }).catch(error=>{fishingRodImageLoads.delete(asset);throw error;}));
-  }
-  return fishingRodImageLoads.get(asset);
-}
 async function loadImageMap(target, urls, optional=false){
   await Promise.all(Object.entries(urls).map(async ([key,url])=>{
     try{ target[key]=await loadImage(url); }
@@ -99,20 +92,27 @@ async function loadAll(){
     loadImageMap(fishImgs,FISH_URLS),
     loadImageMap(forestTreeImgs,FOREST_TREE_URLS),
     loadImageMap(forestStumpImgs,FOREST_STUMP_URLS),
-    loadImageMap(forestryAxeImgs,FORESTRY_AXE_URLS),
-    ensureFishingRodImage(getEquippedFishingRod().asset),
+    loadImageMap(characterLayerImgs,CHARACTER_LAYER_URLS),
+    loadImageMap(characterToolImgs,CHARACTER_TOOL_URLS),
     loadImageMap(lifeItemImgs,LIFE_ITEM_URLS),
     loadImageMap(matureCropImgs,MATURE_CROP_URLS),
     loadImageMap(youngCropImgs,YOUNG_CROP_URLS),
-    loadImageMap(npcImgs,NPC_SHEET_URLS,true),
-    loadImage(FORESTRY_CHOP_PLAYER_URL).then(image=>{forestryChopImg=image;})
+    loadImageMap(npcImgs,NPC_SHEET_URLS,true)
   ]);
-
-  // The normalized sheet is preferred. Legacy frames are loaded only if it fails.
-  try{ playerSheet=await loadImage(PLAYER_SHEET_URL); }
-  catch(err){
-    console.warn('Player sheet failed; loading legacy fallback frames.',err);
-    await loadImageMap(playerImgs,PLAYER_URLS);
+  validateCharacterRigAssets();
+  characterOutfitImgs[DEFAULT_OUTFIT_ID]={
+    walk:characterLayerImgs.walkOutfit,chop:characterLayerImgs.chopOutfit,fish:characterLayerImgs.fishOutfit
+  };
+  // Every future outfit must provide all three pose atlases, not one static icon.
+  for(const outfit of CHARACTER_OUTFITS){
+    if(outfit.id===DEFAULT_OUTFIT_ID)continue;
+    const images={};
+    for(const pose of ['walk','chop','fish']){
+      if(!outfit.layers?.[pose])throw new Error(`Missing ${pose} art for ${outfit.id}`);
+      const image=await loadImage(outfit.layers[pose]),expected=CHARACTER_RIG.poses[pose].columns*CHARACTER_RIG.cell;
+      if(image.width!==expected||image.height!==384)throw new Error(`Wrong outfit atlas for ${outfit.id}: ${pose}`);
+      images[pose]=image;
+    }
+    characterOutfitImgs[outfit.id]=images;
   }
-  await prepareCharacterOutfitLayers();
 }

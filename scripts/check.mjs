@@ -934,6 +934,7 @@ for(const [key,tool] of Object.entries(rig.tools)){
   assert(image.width===96&&image.height===96&&opaqueGrip&&tool.nativeLength>0,`Bad normalized tool grip: ${key}`);
 }
 const characterCalls=[];
+const characterRotations=[],characterTranslations=[];
 const characterContext={
   GAME_STATE:{regionId:'oldForest',appearance:{activeTool:'axe',outfitId:'outfit.traveler'}},
   CHARACTER_PARTS:{body:new Map(),hair:new Map(),backpack:new Map()},
@@ -942,7 +943,8 @@ const characterContext={
   FORESTRY_CHOP_TIMING:{impactMs:270},FISHING_CONFIG:{castMs:320},fishingState:{phase:'idle',timer:0},
   isFishingActive:()=>false,getEquippedForestryAxe:()=>({asset:'basic'}),getEquippedFishingRod:()=>({asset:'basic'}),
   DESKTOP_SMOOTH_RENDER:false,camX:0,camY:0,TILE:48,
-  ctx:{save(){},restore(){},translate(){},rotate(){},scale(){},
+  ctx:{save(){},restore(){},translate(x,y){characterTranslations.push([x,y]);},
+    rotate(angle){characterRotations.push(angle);},scale(){},
     drawImage(image,...args){characterCalls.push({id:image.id,args});}}
 };
 for(const [pose,definition] of Object.entries(rig.poses))for(const name of ['Body','Head','Hair','Outfit','Backpack','Grip'])
@@ -958,6 +960,7 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       characterContext.getEquippedForestryAxe=()=>({asset});
       characterContext.getEquippedFishingRod=()=>({asset});
       characterCalls.length=0;
+      characterRotations.length=0;characterTranslations.length=0;
       const transform=vm.runInContext(`drawCharacterActor(100,100,{pose:'${pose}',face:'${face}',frame:${frame},tool:'${tool}'})`,characterContext);
       const grip=definition.frames[face][frame].grip,unit=100/96;
       const expectedMirror=face==='left'||tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
@@ -984,17 +987,34 @@ for(const [pose,definition] of Object.entries(rig.poses)){
         (definition.frames[face][frame].toolBehind?characterCalls[0].id===key:characterCalls[3].id===key),
         'Hands must cover the handle; back-facing tools must be behind the body');
       if(pose==='chop'){
+        const motion=definition.frames[face][frame].headMotion;
+        const expectedNeck=[100+motion.offset[0]*unit,120+(63-88+motion.offset[1])*unit];
+        assert(characterRotations.slice(-2).every(angle=>angle===motion.rotation)&&
+          characterTranslations.slice(-2).every(([x,y])=>Math.abs(x-expectedNeck[0])<1e-8&&Math.abs(y-expectedNeck[1])<1e-8),
+          'Head and hair must share the actual moving neck transform, not merely motion metadata');
         for(const name of ['Head','Hair']){
           const call=characterCalls.find(item=>item.id==='walk'+name);
           assert(call&&call.args[0]===0&&call.args[1]===['down','right','left','up'].indexOf(face)*96&&
-            call.args[4]===100-48*unit&&call.args[5]===120-88*unit&&call.args[6]===100&&call.args[7]===100,
-            'Every swing must retain the exact idle head/hair source, placement and scale');
+            call.args[4]===-48*unit&&call.args[5]===-63*unit&&call.args[6]===100&&call.args[7]===100,
+            'Every swing must retain idle head/hair dimensions while pivoting at the neck');
         }
         assert(!characterCalls.some(item=>item.id==='chopHead'||item.id==='chopHair'),
           'Wider authored impact heads must not replace the canonical idle head');
       }
     }
   }
+}
+for(const face of ['down','right','left','up']){
+  const [ready,impact]=rig.poses.chop.frames[face].map(frame=>frame.headMotion);
+  assert(ready&&impact&&ready.pivot.join(',')==='48,63'&&impact.pivot.join(',')==='48,63'&&
+    ready.offset[1]!==impact.offset[1]&&ready.rotation!==impact.rotation&&
+    Math.abs(ready.rotation)<=.05&&Math.abs(impact.rotation)<=.05,
+    'Chopping heads must move with the body without scaling or exaggerated tilt');
+}
+for(let frame=0;frame<2;frame++){
+  const right=rig.poses.chop.frames.right[frame].headMotion,left=rig.poses.chop.frames.left[frame].headMotion;
+  assert(left.offset[0]===-right.offset[0]&&left.offset[1]===right.offset[1]&&left.rotation===-right.rotation,
+    'Left/right head follow-through must be symmetric');
 }
 characterContext.getEquippedFishingRod=()=>({asset:'basic'});
 characterContext.getEquippedForestryAxe=()=>({asset:'basic'});

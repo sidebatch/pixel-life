@@ -128,7 +128,18 @@ const CHARACTER_RIG=Object.freeze({
               54
             ],
             "angle": -2,
-            "toolBehind": false
+            "toolBehind": false,
+            "headMotion": {
+              "offset": [
+                0,
+                -1
+              ],
+              "rotation": -0.025,
+              "pivot": [
+                48,
+                63
+              ]
+            }
           },
           {
             "grip": [
@@ -136,7 +147,18 @@ const CHARACTER_RIG=Object.freeze({
               74
             ],
             "angle": 1.15,
-            "toolBehind": false
+            "toolBehind": false,
+            "headMotion": {
+              "offset": [
+                0,
+                1
+              ],
+              "rotation": 0.025,
+              "pivot": [
+                48,
+                63
+              ]
+            }
           }
         ],
         "right": [
@@ -146,7 +168,18 @@ const CHARACTER_RIG=Object.freeze({
               52
             ],
             "angle": -2,
-            "toolBehind": false
+            "toolBehind": false,
+            "headMotion": {
+              "offset": [
+                -1,
+                -1
+              ],
+              "rotation": -0.05,
+              "pivot": [
+                48,
+                63
+              ]
+            }
           },
           {
             "grip": [
@@ -154,7 +187,18 @@ const CHARACTER_RIG=Object.freeze({
               72
             ],
             "angle": 0.2,
-            "toolBehind": false
+            "toolBehind": false,
+            "headMotion": {
+              "offset": [
+                2,
+                1
+              ],
+              "rotation": 0.05,
+              "pivot": [
+                48,
+                63
+              ]
+            }
           }
         ],
         "left": [
@@ -164,7 +208,18 @@ const CHARACTER_RIG=Object.freeze({
               52
             ],
             "angle": 5.141592653589793,
-            "toolBehind": true
+            "toolBehind": true,
+            "headMotion": {
+              "offset": [
+                1,
+                -1
+              ],
+              "rotation": 0.05,
+              "pivot": [
+                48,
+                63
+              ]
+            }
           },
           {
             "grip": [
@@ -172,7 +227,18 @@ const CHARACTER_RIG=Object.freeze({
               72
             ],
             "angle": 2.941592653589793,
-            "toolBehind": true
+            "toolBehind": true,
+            "headMotion": {
+              "offset": [
+                -2,
+                1
+              ],
+              "rotation": -0.05,
+              "pivot": [
+                48,
+                63
+              ]
+            }
           }
         ],
         "up": [
@@ -182,7 +248,18 @@ const CHARACTER_RIG=Object.freeze({
               48
             ],
             "angle": -1.9,
-            "toolBehind": true
+            "toolBehind": true,
+            "headMotion": {
+              "offset": [
+                0,
+                -1
+              ],
+              "rotation": 0.025,
+              "pivot": [
+                48,
+                63
+              ]
+            }
           },
           {
             "grip": [
@@ -190,7 +267,18 @@ const CHARACTER_RIG=Object.freeze({
               53
             ],
             "angle": -1.6,
-            "toolBehind": true
+            "toolBehind": true,
+            "headMotion": {
+              "offset": [
+                0,
+                1
+              ],
+              "rotation": -0.025,
+              "pivot": [
+                48,
+                63
+              ]
+            }
           }
         ]
       }

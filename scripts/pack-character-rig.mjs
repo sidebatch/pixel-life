@@ -21,6 +21,12 @@ const specs={
       [],[[55,67,11,13],[55,64,12,16],[53,65,12,15]]
     ],angles:[[-Math.PI+.9,-Math.PI+.95,-Math.PI+.9],[-.6,-.55,-.6],[],[-.79,-.79,-.79]]},
   chop:{file:'assets/forestry/chop/player-v2.png',body:`${source}/chop-body.png`,columns:2,
+    // Keep head dimensions canonical, but follow the torso's wind-up/lean.
+    headMotion:[
+      [{offset:[0,-1],rotation:-.025},{offset:[0,1],rotation:.025}],
+      [{offset:[-1,-1],rotation:-.05},{offset:[2,1],rotation:.05}],
+      [],[{offset:[0,-1],rotation:.025},{offset:[0,1],rotation:-.025}]
+    ],
     hand:[
       [[26,45,11,15],[40,65,17,16]],[[28,46,12,13],[47,63,17,17]],
       [],[[61,44,13,15],[58,46,13,15]]
@@ -96,14 +102,18 @@ for(const [pose,spec] of Object.entries(specs)){
         const farHandOffset=pose==='walk'?[-8,-3]:[0,0];
         frames.left.push({...right,
           grip:[cell-1-right.grip[0]+farHandOffset[0],right.grip[1]+farHandOffset[1]],
-          angle:Math.PI-right.angle,toolBehind:true});
+          angle:Math.PI-right.angle,toolBehind:true,
+          ...(right.headMotion?{headMotion:{...right.headMotion,
+            offset:[-right.headMotion.offset[0],right.headMotion.offset[1]],
+            rotation:-right.headMotion.rotation}}:{})});
         continue;
       }
       const frame=normalize(sourceFrame(full,f,row,spec.columns),height,pose==='fish');
       const {layers,grip}=split(frame,sourceFrame(body,f,row,spec.columns),spec.hand[row][f],directions[row]);
       for(const name of layerNames)blitNearest(atlases[name],layers[name],f*cell,row*cell);
       blitNearest(reference,frame,f*cell,row*cell);
-      frames[directions[row]].push({grip,angle:spec.angles[row][f],toolBehind:row===3});
+      frames[directions[row]].push({grip,angle:spec.angles[row][f],toolBehind:row===3,
+        ...(spec.headMotion?{headMotion:{...spec.headMotion[row][f],pivot:[48,63]}}:{})});
     }
   }
   rig.poses[pose]={columns:spec.columns,frames};

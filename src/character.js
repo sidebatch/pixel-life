@@ -86,8 +86,8 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   const appearance=GAME_STATE.appearance||{};
   const drawLayer=name=>{
     // Chop source art has wider heads on some impact frames despite equal
-    // cell/feet dimensions. Keep the same facing idle head and hair through
-    // the swing; arms, outfit, backpack and grip still animate independently.
+    // cell/feet dimensions. Keep the same head dimensions, but translate/tilt
+    // it around the neck with the torso instead of freezing it in place.
     const stableChopHead=pose.pose==='chop'&&(name==='Head'||name==='Hair');
     const layerPose=stableChopHead?'walk':pose.pose;
     const layerFrame=stableChopHead?0:pose.frame;
@@ -97,7 +97,14 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
     const key=partLayers?.[layerPose+name]||layerPose+name;
     const image=name==='Outfit'&&characterOutfitImgs[outfit]?.[pose.pose]||
       characterLayerImgs[key];
-    if(image)ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,x,y,size,size);
+    if(!image)return;
+    const motion=stableChopHead&&definition.frames[pose.face][pose.frame].headMotion;
+    if(motion){
+      const unit=size/cell,[px,py]=motion.pivot,[dx,dy]=motion.offset;
+      ctx.save();ctx.translate(x+(px+dx)*unit,y+(py+dy)*unit);ctx.rotate(motion.rotation);
+      ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,-px*unit,-py*unit,size,size);
+      ctx.restore();
+    }else ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,x,y,size,size);
   };
   if(transform?.behind)drawCharacterTool(transform);
   drawLayer('Body');drawLayer('Outfit');drawLayer('Backpack');

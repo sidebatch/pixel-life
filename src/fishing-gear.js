@@ -56,6 +56,8 @@ function fishingRodEffectLabels(rod){
 }
 
 function equipFishingRod(rodId){
+  if((typeof isChoppingTree==='function'&&isChoppingTree())||
+    (typeof isFishingActive==='function'&&isFishingActive()))return false;
   const rod=FISHING_ROD_BY_ID.get(rodId);
   if(!rod||!isFishingRodUnlocked(rod)) return false;
   const before=GAME_STATE.progression.fishing.equippedRodId;

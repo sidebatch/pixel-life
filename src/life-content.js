@@ -34,6 +34,7 @@ function upgradeForestryAxe(axeId){
 }
 
 function equipForestryAxe(axeId){
+  if(isChoppingTree()||(typeof isFishingActive==='function'&&isFishingActive()))return false;
   if(!getOwnedForestryAxes().some(axe=>axe.id===axeId)) return false;
   const previous=GAME_STATE.progression.forestry.axeId;
   const previousTool=GAME_STATE.appearance?.activeTool;
@@ -165,7 +166,7 @@ function hitResourceTree(tree){
 function isChoppingTree(){return Boolean(lifeUi.chop);}
 
 function startAxeSwing(tree=null){
-  if(lifeUi.chop||player.moving||menuOpen||dialogOpen||
+  if((GAME_STATE.appearance?.activeTool||'axe')!=='axe'||lifeUi.chop||player.moving||menuOpen||dialogOpen||
     (typeof isFishingActive==='function'&&isFishingActive())) return false;
   clearMovement();
   lifeUi.chop={tree,regionId:GAME_STATE.regionId,startedAt:performance.now(),struck:false};
@@ -174,6 +175,9 @@ function startAxeSwing(tree=null){
 
 function startTreeChop(tree){
   if(!tree||lifeUi.chop||player.moving||menuOpen||dialogOpen) return false;
+  if((GAME_STATE.appearance?.activeTool||'axe')!=='axe'){
+    showLifeToast('도끼를 장착해야 벌목할 수 있어요');return false;
+  }
   const treeType=FORESTRY_TREES[tree.species];
   if(!treeType) return false;
   if(getEquippedForestryAxe().tier<treeType.tier){

@@ -27,13 +27,14 @@ function resolveWorldInteraction(tile=facingTile()){
   if(tree){
     const needed=FORESTRY_TREES[tree.species]?.tier||1;
     const name=FOREST_WOOD[tree.species];
-    const label=!getTreeState(tree).hp?`${name} · 재생 중`:
+    const label=(GAME_STATE.appearance?.activeTool||'axe')!=='axe'?`${name} · 도끼 장착 필요`:
+      !getTreeState(tree).hp?`${name} · 재생 중`:
       getEquippedForestryAxe().tier<needed?`${name} · ${FORESTRY_AXES[needed-1].name} 필요`:`${name} · 벌목`;
     return {kind:'tree',label,target:tree};
   }
   const plot=farmPlotAt(tile.x,tile.y);
   if(plot) return {kind:'farm',label:farmPlotActionLabel(plot),target:plot};
-  if(waterSet.has(key(tile.x,tile.y))) return {kind:'fishing',label:'낚시'};
+  if(waterSet.has(key(tile.x,tile.y))&&GAME_STATE.appearance?.activeTool==='rod') return {kind:'fishing',label:'낚시'};
   const building=buildingForPlayerInteraction();
   if(building) return {kind:'building',label:'들어가기',target:building};
   return null;
@@ -45,7 +46,7 @@ function activateWorldInteraction(interaction){
     case 'market':return openMarket();
     case 'workshopMarket':return openMarket({shop:'workshop'});
     case 'npc':return showDialog(interaction.target.name,interaction.target.dialog);
-    case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · 물가에서는 낚시할 수 있어요.');
+    case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
     case 'tree':return startTreeChop(interaction.target);
     case 'farm':return openFarmPlot(interaction.target);
     case 'fishing':return startFishing();

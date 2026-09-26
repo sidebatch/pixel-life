@@ -487,6 +487,15 @@ const biteDelays=vm.runInContext(
   fishingLogicContext);
 assert(biteDelays.join(',')==='3000,4500,6000,3825',
   'Bite delay must be random within 3–6 seconds before the equipped rod reduction');
+vm.runInContext(`fishingState.phase='idle';GAME_STATE.appearance={activeTool:'axe'};
+  const beforeRejectedFishing=JSON.stringify(GAME_STATE);
+  globalThis.__axeFishing=startFishing();
+  globalThis.__axeFishingSafe=JSON.stringify(GAME_STATE)===beforeRejectedFishing&&!isFishingActive();
+  GAME_STATE.appearance.activeTool='rod';globalThis.isChoppingTree=()=>true;
+  globalThis.__busyFishing=startFishing();delete globalThis.isChoppingTree;`,fishingLogicContext);
+assert(fishingLogicContext.__axeFishing===false&&fishingLogicContext.__axeFishingSafe&&
+  fishingLogicContext.__busyFishing===false,
+  'Fishing entry point must reject a held axe and an unfinished swing without changing progress');
 assert(fishingLogicContext.__villageReachable.length===fishData.length&&
   fishingLogicContext.__villageReachable.every(id=>fishData.some(fish=>fish.id===id)),
   'Every fish must be reachable at the village pond across time and weather conditions');
@@ -747,7 +756,8 @@ assert(inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
   inventoryScrollNode.innerHTML.includes('data-held-tool="rod" aria-pressed="false"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('data-equip-type="axe" data-equip-id="axe.iron" aria-label="철 도끼, 1개, 장착하기"')&&
-  inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착 중"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착하기"')&&
+  !inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('fishing/rods/basic.png')&&
   (inventoryScrollNode.innerHTML.match(/class="inventoryItemCount"/g)||[]).length===4,
   'Starter outfit and owned tools must show item art, hand selection, counts, and equipped state');
@@ -755,6 +765,12 @@ inventoryContext.saveGame=()=>true;
 vm.runInContext("globalThis.__selectedHeldRod=selectHeldTool('rod');",inventoryContext);
 assert(inventoryContext.__selectedHeldRod&&inventoryContext.GAME_STATE.appearance.activeTool==='rod',
   'Hand tool selection must update the active visual tool');
+vm.runInContext('renderInventoryEquipment();',inventoryContext);
+assert(inventorySummaryNode.textContent==='장착 기본 낚싯대'&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 1개, 장착 중"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착하기"')&&
+  !inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 1개, 장착 중"'),
+  'Only the held weapon may display equipped; inactive remembered variants stay unequipped');
 inventoryContext.saveGame=()=>false;
 vm.runInContext("globalThis.__failedHeldAxe=selectHeldTool('axe');",inventoryContext);
 assert(!inventoryContext.__failedHeldAxe&&inventoryContext.GAME_STATE.appearance.activeTool==='rod',
@@ -911,7 +927,7 @@ lifeContext.player={moving:false};lifeContext.menuOpen=false;lifeContext.dialogO
 lifeContext.clearMovement=()=>{};
 let chopSoundCount=0;
 lifeContext.playForestryChopSound=()=>{chopSoundCount+=1;};
-vm.runInContext(`GAME_STATE.regionId='deepForest';GAME_STATE.progression.forestry.axeId='axe.basic';`+
+vm.runInContext(`GAME_STATE.regionId='deepForest';GAME_STATE.appearance.activeTool='axe';GAME_STATE.progression.forestry.axeId='axe.basic';`+
   `const sharedSource=REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='oak');`+
   `const sharedTree={...sharedSource,id:forestTreeId(sharedSource.x,sharedSource.y,'deepForest'),interactable:true};`+
   `globalThis.__sharedStart=startTreeChop(sharedTree);globalThis.__repeatDuringChop=startTreeChop(sharedTree);`+
@@ -937,6 +953,16 @@ vm.runInContext(`const airBefore=JSON.stringify(GAME_STATE);
 assert(lifeContext.__airStart&&!lifeContext.__airRepeat&&lifeContext.__airSafe&&chopSoundCount===1&&
   !lifeContext.__movingAir&&!lifeContext.__menuAir&&!lifeContext.__dialogAir,
   'Air swings must animate once without damage, rewards, save changes or tree impact sounds; overlays/movement block them');
+vm.runInContext(`GAME_STATE.appearance.activeTool='rod';
+  const beforeRejectedChop=JSON.stringify(GAME_STATE);
+  globalThis.__rodAir=startAxeSwing();globalThis.__rodTree=startTreeChop(sharedTree);
+  globalThis.__rodChopSafe=JSON.stringify(GAME_STATE)===beforeRejectedChop&&!isChoppingTree();
+  GAME_STATE.appearance.activeTool='axe';startAxeSwing();
+  globalThis.__busyEquipAxe=equipForestryAxe('axe.basic');
+  updateLifeContentUi(100+FORESTRY_CHOP_TIMING.durationMs);`,lifeContext);
+assert(lifeContext.__rodAir===false&&lifeContext.__rodTree===false&&lifeContext.__rodChopSafe&&
+  lifeContext.__busyEquipAxe===false,
+  'Held rods must reject both axe entry points; equipment cannot change until a swing finishes');
 
 const farmDrawCalls=[];
 const farmIds=['carrot','turnip','potato','onion','cabbage','wheat','corn','tomato','strawberry','pumpkin'];

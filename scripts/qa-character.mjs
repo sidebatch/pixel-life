@@ -95,7 +95,7 @@ await mobile.evaluate(()=>{
   Object.assign(player,position,{px:position.x*TILE+TILE/2,py:position.y*TILE+TILE/2,moving:false});
   camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));
   camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));
-  if(!startFishing())throw new Error('Real fishing start failed');
+  if(!selectHeldTool('rod')||!startFishing())throw new Error('Real fishing start failed');
   updateFishing(FISHING_CONFIG.castMs);
   drawWorld();
   const pose=getCharacterPose(),tip=getFishingRodTipPosition();
@@ -118,7 +118,7 @@ const logging=await mobile.evaluate(()=>{
   camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));
   camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));
   const before=getTreeState(tree).hp;
-  if(!startTreeChop(tree))throw new Error('Real chopping start failed');
+  if(!selectHeldTool('axe')||!startTreeChop(tree))throw new Error('Real chopping start failed');
   tNow=lifeUi.chop.startedAt;drawWorld();
   return {before};
 });

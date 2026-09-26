@@ -214,7 +214,9 @@ function applyFishCollectionRewards(){
 }
 
 function startFishing(){
-  if(menuOpen || isFishingActive() || !fishingWaterInFront()) return false;
+  if(GAME_STATE.appearance?.activeTool!=='rod'||
+    (typeof isChoppingTree==='function'&&isChoppingTree())||
+    menuOpen || isFishingActive() || !fishingWaterInFront()) return false;
   fishingState.phase=fishingDebugFishId?'bite':'casting';
   fishingState.timer=0;
   fishingState.biteDelay=getFishingBiteDelay();

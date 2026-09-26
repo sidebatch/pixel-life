@@ -5,6 +5,8 @@ function isInventoryOpen(){return inventoryState.open;}
 
 function selectHeldTool(tool){
   if(!['axe','rod'].includes(tool)) return false;
+  if((typeof isChoppingTree==='function'&&isChoppingTree())||
+    (typeof isFishingActive==='function'&&isFishingActive()))return false;
   const previous=GAME_STATE.appearance;
   if(previous?.activeTool===tool) return true;
   GAME_STATE.appearance={...normalizeSavedAppearance(previous),activeTool:tool};
@@ -63,22 +65,22 @@ function renderInventoryEquipment(){
   const equippedAxe=getEquippedForestryAxe();
   const appearance=normalizeSavedAppearance(GAME_STATE.appearance);
   const outfit=CHARACTER_OUTFIT_BY_ID.get(appearance.outfitId);
-  document.getElementById('inventorySummary').textContent=`현재 ${equippedRod.name} · ${equippedAxe.name}`;
+  document.getElementById('inventorySummary').textContent=`장착 ${appearance.activeTool==='rod'?equippedRod.name:equippedAxe.name}`;
   const equipment=[
     inventoryItemCardMarkup({name:outfit.name,count:1,equipped:true,className:'inventoryEquipmentCard inventoryOutfitCard',
       art:`<span class="inventoryOutfitPreview" style="background-image:url('${outfit.walkSheet}')"></span>`}),
     ...getOwnedForestryAxes().map(axe=>inventoryItemCardMarkup({name:axe.name,count:1,
       art:`<img src="${FORESTRY_AXE_URLS[axe.asset]}" alt="">`,className:'inventoryEquipmentCard inventoryAxeCard',
-      equipped:axe.id===equippedAxe.id,equipType:'axe',equipId:axe.id})),
+      equipped:appearance.activeTool==='axe'&&axe.id===equippedAxe.id,equipType:'axe',equipId:axe.id})),
     ...rods.map(rod=>inventoryItemCardMarkup({name:rod.name,count:1,art:`<img src="${FISHING_ROD_URLS[rod.asset]}" alt="">`,
-      className:`inventoryEquipmentCard rod-${rod.id.slice(4)}`,equipped:rod.id===equippedRod.id,equipType:'rod',equipId:rod.id}))
+      className:`inventoryEquipmentCard rod-${rod.id.slice(4)}`,equipped:appearance.activeTool==='rod'&&rod.id===equippedRod.id,equipType:'rod',equipId:rod.id}))
   ];
   document.getElementById('inventoryScroll').innerHTML=`<div class="inventoryHandPicker" role="group" aria-label="손에 들 도구">
     <span>손에 들 도구</span>
     <button type="button" data-held-tool="axe" aria-pressed="${appearance.activeTool==='axe'}" class="${appearance.activeTool==='axe'?'active':''}">🪓 도끼</button>
     <button type="button" data-held-tool="rod" aria-pressed="${appearance.activeTool==='rod'}" class="${appearance.activeTool==='rod'?'active':''}">🎣 낚싯대</button>
   </div><div class="inventoryItemGrid">${equipment.join('')}</div>
-    <p class="inventoryHint">여행자의 옷은 기본 의상입니다. 도구를 바꾸거나 장비 카드를 눌러 장착할 수 있어요.</p>`;
+    <p class="inventoryHint">손에는 도구 하나만 장착할 수 있어요. 낚시는 낚싯대, 벌목은 도끼를 장착해 주세요.</p>`;
 }
 
 function renderInventorySupplies(){

@@ -1,0 +1,47 @@
+{
+  "status": "design-review-only",
+  "cell": 96,
+  "feet": [
+    48,
+    88
+  ],
+  "targetHeight": 68,
+  "directions": [
+    "down",
+    "right",
+    "left",
+    "up"
+  ],
+  "measurements": [
+    {
+      "face": "down",
+      "x": 28,
+      "y": 21,
+      "width": 40,
+      "height": 68
+    },
+    {
+      "face": "right",
+      "x": 29,
+      "y": 21,
+      "width": 39,
+      "height": 68
+    },
+    {
+      "face": "left",
+      "x": 28,
+      "y": 21,
+      "width": 40,
+      "height": 68
+    },
+    {
+      "face": "up",
+      "x": 28,
+      "y": 21,
+      "width": 40,
+      "height": 68
+    }
+  ],
+  "runtimeChanged": false,
+  "animationValidated": false
+}

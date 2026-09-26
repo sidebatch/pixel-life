@@ -111,7 +111,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 177, `Expected 177 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 179, `Expected 179 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -1040,6 +1040,18 @@ assert(farmDrawCalls.length===farmIds.length*2&&farmIds.every((id,index)=>
   'Covered seeds and shared sprouts must not show mature art; only later stages use distinct crop-specific sprites');
 
 // Sprite contracts are verified using the actual packed PNGs, not just string checks.
+const polishedManifest=JSON.parse(read('assets/player/polish-v1/manifest.json'));
+assert(polishedManifest.cell===96&&polishedManifest.feet.join(',')==='48,88'&&polishedManifest.frames===32&&polishedManifest.files.length===14,
+  'Polished appearance must retain the existing rig and all 32 poses');
+for(const pose of ['walk','chop','fish']){
+  const columns=pose==='chop'?2:3,grips=decodePNG(fs.readFileSync(`assets/player/rig-v1/${pose}-grip.png`));
+  for(const part of ['head','hair','outfit','backpack']){
+    const image=decodePNG(fs.readFileSync(`assets/player/polish-v1/${pose}-${part}.png`));
+    assert(image.width===columns*96&&image.height===384,`Polished atlas dimensions: ${pose}/${part}`);
+    if(part==='outfit'||part==='backpack')for(let p=0;p<image.data.length;p+=4)
+      assert(!grips.data[p+3]||!image.data[p+3],`Polished ${part} must not cover gripping hands`);
+  }
+}
 const rigContext={};
 vm.createContext(rigContext);
 vm.runInContext(read('src/data/character-rig-data.js')+'\nglobalThis.rig=CHARACTER_RIG;',rigContext);

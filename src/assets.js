@@ -54,6 +54,9 @@ const FISHING_ROD_URLS = Object.freeze({
   master_angler:'assets/fishing/rods/master_angler.png'
 });
 const FORESTRY_CHOP_PLAYER_URL='assets/forestry/chop/player-v2.png';
+const CHARACTER_POLISH_ICON_URLS=Object.freeze({
+  outfit:'assets/player/polish-v1/outfit-icon.png',backpack:'assets/player/polish-v1/backpack-icon.png'
+});
 const CHARACTER_TEMP_APPEARANCE_URLS=Object.freeze({
   ember:{walk:'assets/player/temporary-appearance/ember-walk.png',chop:'assets/player/temporary-appearance/ember-chop.png',fish:'assets/player/temporary-appearance/ember-fish.png',icon:'assets/player/temporary-appearance/ember-icon.png'},
   meadow:{walk:'assets/player/temporary-appearance/meadow-walk.png',chop:'assets/player/temporary-appearance/meadow-chop.png',fish:'assets/player/temporary-appearance/meadow-fish.png',icon:'assets/player/temporary-appearance/meadow-icon.png'},
@@ -62,22 +65,22 @@ const CHARACTER_TEMP_APPEARANCE_URLS=Object.freeze({
 });
 const CHARACTER_LAYER_URLS=Object.freeze({
   walkBody:'assets/player/rig-v1/walk-body.png',
-  walkHead:'assets/player/rig-v1/walk-head.png',
-  walkHair:'assets/player/rig-v1/walk-hair.png',
-  walkOutfit:'assets/player/rig-v1/walk-outfit.png',
-  walkBackpack:'assets/player/rig-v1/walk-backpack.png',
+  walkHead:'assets/player/polish-v1/walk-head.png',
+  walkHair:'assets/player/polish-v1/walk-hair.png',
+  walkOutfit:'assets/player/polish-v1/walk-outfit.png',
+  walkBackpack:'assets/player/polish-v1/walk-backpack.png',
   walkGrip:'assets/player/rig-v1/walk-grip.png',
   chopBody:'assets/player/rig-v1/chop-body.png',
-  chopHead:'assets/player/rig-v1/chop-head.png',
-  chopHair:'assets/player/rig-v1/chop-hair.png',
-  chopOutfit:'assets/player/rig-v1/chop-outfit.png',
-  chopBackpack:'assets/player/rig-v1/chop-backpack.png',
+  chopHead:'assets/player/polish-v1/chop-head.png',
+  chopHair:'assets/player/polish-v1/chop-hair.png',
+  chopOutfit:'assets/player/polish-v1/chop-outfit.png',
+  chopBackpack:'assets/player/polish-v1/chop-backpack.png',
   chopGrip:'assets/player/rig-v1/chop-grip.png',
   fishBody:'assets/player/rig-v1/fish-body.png',
-  fishHead:'assets/player/rig-v1/fish-head.png',
-  fishHair:'assets/player/rig-v1/fish-hair.png',
-  fishOutfit:'assets/player/rig-v1/fish-outfit.png',
-  fishBackpack:'assets/player/rig-v1/fish-backpack.png',
+  fishHead:'assets/player/polish-v1/fish-head.png',
+  fishHair:'assets/player/polish-v1/fish-hair.png',
+  fishOutfit:'assets/player/polish-v1/fish-outfit.png',
+  fishBackpack:'assets/player/polish-v1/fish-backpack.png',
   fishGrip:'assets/player/rig-v1/fish-grip.png',
   rangerWalkBackpack:'assets/player/temporary-appearance/ranger-walk.png',
   rangerChopBackpack:'assets/player/temporary-appearance/ranger-chop.png',

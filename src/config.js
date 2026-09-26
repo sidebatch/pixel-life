@@ -27,7 +27,7 @@ const CHARACTER_TRIAL_SET=Object.freeze({
 let characterAppearancePreview=null;
 const CHARACTER_OUTFITS=Object.freeze([
   Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
-    chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1'}),
+    chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1',iconUrl:CHARACTER_POLISH_ICON_URLS.outfit}),
   Object.freeze({id:'outfit.ember',name:'불꽃 탐험복',description:'붉은 재킷과 금빛 잠금 장식, 검은 바지의 탐험복. 임시로 자유롭게 착용할 수 있어요.',
     renderMode:'rig-v1',layers:CHARACTER_TEMP_APPEARANCE_URLS.ember,iconUrl:CHARACTER_TEMP_APPEARANCE_URLS.ember.icon,temporary:true}),
   Object.freeze({id:'outfit.meadow',name:'햇살 정원복',description:'크림색 셔츠에 노란 앞치마와 초록 바지를 갖춘 정원복. 임시로 자유롭게 착용할 수 있어요.',
@@ -40,7 +40,7 @@ const CHARACTER_PARTS=Object.freeze({
   body:new Map([['body.starter',{walkBody:'walkBody',walkHead:'walkHead',walkGrip:'walkGrip',chopBody:'chopBody',chopHead:'chopHead',chopGrip:'chopGrip',fishBody:'fishBody',fishHead:'fishHead',fishGrip:'fishGrip'}]]),
   hair:new Map([['hair.brown',{walkHair:'walkHair',chopHair:'chopHair',fishHair:'fishHair'}],
     ...(CHARACTER_TRIAL_ENABLED?[[CHARACTER_TRIAL_SET.hairId,{walkHair:'trialWalkHair',chopHair:'trialChopHair',fishHair:'trialFishHair',testOnly:true}]]:[])]),
-  backpack:new Map([['pack.traveler',{name:'여행자의 가방',description:'여행자의 기본 가방. 외형만 바뀌며 아이템 보관 수에는 영향을 주지 않아요.',iconCrop:{x:37,y:63,width:21,height:21},walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}],
+  backpack:new Map([['pack.traveler',{name:'여행자의 가방',description:'여행자의 기본 가방. 외형만 바뀌며 아이템 보관 수에는 영향을 주지 않아요.',iconUrl:CHARACTER_POLISH_ICON_URLS.backpack,walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}],
     ['pack.ranger',{name:'숲길 등산가방',description:'초록색 등산가방에 둥글게 만 침낭과 튼튼한 끈을 달았어요. 임시 체험용이며 보관 수는 바뀌지 않아요.',
       walkBackpack:'rangerWalkBackpack',chopBackpack:'rangerChopBackpack',fishBackpack:'rangerFishBackpack',iconUrl:CHARACTER_TEMP_APPEARANCE_URLS.ranger.icon,temporary:true}],
     ['pack.berry',{name:'딸기 소풍가방',description:'둥근 딸기 모양에 초록 잎과 작은 씨앗 무늬가 있는 소풍가방. 임시 체험용이며 보관 수는 바뀌지 않아요.',

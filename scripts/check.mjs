@@ -65,9 +65,21 @@ assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progress
   freshContext.__fresh.appearance.backpackId==='pack.traveler'&&
   freshContext.__fresh.appearance.activeTool==='axe',
   'A new browser session must start at zero coins, skill Lv.1, and starter gear');
-assert(vm.runInContext("!CHARACTER_TRIAL_ENABLED&&CHARACTER_OUTFITS.length===1&&setCharacterAppearancePreview(['hairId'])===false",freshContext),
+assert(vm.runInContext("!CHARACTER_TRIAL_ENABLED&&CHARACTER_OUTFITS.length===3&&setCharacterAppearancePreview(['hairId'])===false",freshContext),
   'Ordinary game sessions must not expose or apply trial appearances');
 const trialContext={...freshContext,window:{location:{search:'?appearance-preview'}},URLSearchParams};
+assert(freshContext.__fresh.appearance.ownedOutfitIds.join(',')==='outfit.traveler,outfit.ember,outfit.meadow'&&
+  freshContext.__fresh.appearance.ownedBackpackIds.join(',')==='pack.traveler,pack.ranger,pack.berry',
+  'Temporary wardrobe must grant two distinct samples per slot without changing starter equipment');
+vm.runInContext(read('src/save.js').match(/function normalizeSavedAppearance\([\s\S]*?(?=\nfunction createSaveData)/)[0]+`\n
+  globalThis.__legacyWardrobe=normalizeSavedAppearance({outfitId:'outfit.traveler',backpackId:'pack.traveler',activeTool:'rod'});
+  globalThis.__chosenWardrobe=normalizeSavedAppearance({outfitId:'outfit.meadow',backpackId:'pack.berry',activeTool:'rod'});
+  globalThis.__wardrobeTrial=normalizeSavedAppearance({outfitId:'outfit.trial.green',backpackId:'pack.trial.red'});`,freshContext);
+assert(freshContext.__legacyWardrobe.ownedOutfitIds.length===3&&freshContext.__legacyWardrobe.ownedBackpackIds.length===3&&
+  freshContext.__legacyWardrobe.activeTool==='rod'&&freshContext.__legacyWardrobe.outfitId==='outfit.traveler'&&
+  freshContext.__chosenWardrobe.outfitId==='outfit.meadow'&&freshContext.__chosenWardrobe.backpackId==='pack.berry'&&
+  freshContext.__wardrobeTrial.outfitId==='outfit.traveler'&&freshContext.__wardrobeTrial.backpackId==='pack.traveler',
+  'Legacy and selected temporary appearances must restore independently while trial IDs stay excluded');
 vm.createContext(trialContext);
 vm.runInContext(`${read('src/assets.js')}\n${read('src/config.js')}\n
   const trialBefore=JSON.stringify(GAME_STATE);
@@ -99,9 +111,27 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 161, `Expected 161 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 177, `Expected 177 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
+}
+const temporaryManifest=JSON.parse(read('assets/player/temporary-appearance/manifest.json'));
+assert(temporaryManifest.cell===96&&Object.keys(temporaryManifest.designs).length===4,'Temporary appearance manifest must register four designs');
+for(const [design,{type,frames,files}] of Object.entries(temporaryManifest.designs)){
+  assert(frames===32&&files.length===4,'Each temporary design must have 32 poses and its own icon');
+  for(const pose of ['walk','chop','fish']){
+    const image=decodePNG(fs.readFileSync(`assets/player/temporary-appearance/${design}-${pose}.png`));
+    const original=decodePNG(fs.readFileSync(`assets/player/rig-v1/${pose}-${type}.png`));
+    assert(image.width===original.width&&image.height===original.height,`${design} ${pose} must preserve rig dimensions`);
+    let visible=0,changed=0;
+    for(let at=0;at<image.data.length;at+=4){
+      if(type==='outfit')assert(image.data[at+3]===original.data[at+3],`${design} ${pose} changed garment coverage`);
+      if(image.data[at+3]){visible++;if(image.data[at]!==original.data[at]||image.data[at+1]!==original.data[at+1]||image.data[at+2]!==original.data[at+2])changed++;}
+    }
+    assert(visible>100&&changed>visible*.25,`${design} ${pose} must have distinct visible artwork`);
+  }
+  const icon=decodePNG(fs.readFileSync(`assets/player/temporary-appearance/${design}-icon.png`));
+  assert(icon.width===96&&icon.height===96&&icon.data.some((value,index)=>index%4===3&&value===0),`${design} must have its own transparent 96px icon`);
 }
 assert(assetPaths.includes('assets/buildings/elli_market.png')&&
   read('src/interactions.js').includes("case 'workshopMarket':return openMarket({shop:'workshop'})"),

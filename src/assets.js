@@ -54,6 +54,12 @@ const FISHING_ROD_URLS = Object.freeze({
   master_angler:'assets/fishing/rods/master_angler.png'
 });
 const FORESTRY_CHOP_PLAYER_URL='assets/forestry/chop/player-v2.png';
+const CHARACTER_TEMP_APPEARANCE_URLS=Object.freeze({
+  ember:{walk:'assets/player/temporary-appearance/ember-walk.png',chop:'assets/player/temporary-appearance/ember-chop.png',fish:'assets/player/temporary-appearance/ember-fish.png',icon:'assets/player/temporary-appearance/ember-icon.png'},
+  meadow:{walk:'assets/player/temporary-appearance/meadow-walk.png',chop:'assets/player/temporary-appearance/meadow-chop.png',fish:'assets/player/temporary-appearance/meadow-fish.png',icon:'assets/player/temporary-appearance/meadow-icon.png'},
+  ranger:{icon:'assets/player/temporary-appearance/ranger-icon.png'},
+  berry:{icon:'assets/player/temporary-appearance/berry-icon.png'}
+});
 const CHARACTER_LAYER_URLS=Object.freeze({
   walkBody:'assets/player/rig-v1/walk-body.png',
   walkHead:'assets/player/rig-v1/walk-head.png',
@@ -72,7 +78,13 @@ const CHARACTER_LAYER_URLS=Object.freeze({
   fishHair:'assets/player/rig-v1/fish-hair.png',
   fishOutfit:'assets/player/rig-v1/fish-outfit.png',
   fishBackpack:'assets/player/rig-v1/fish-backpack.png',
-  fishGrip:'assets/player/rig-v1/fish-grip.png'
+  fishGrip:'assets/player/rig-v1/fish-grip.png',
+  rangerWalkBackpack:'assets/player/temporary-appearance/ranger-walk.png',
+  rangerChopBackpack:'assets/player/temporary-appearance/ranger-chop.png',
+  rangerFishBackpack:'assets/player/temporary-appearance/ranger-fish.png',
+  berryWalkBackpack:'assets/player/temporary-appearance/berry-walk.png',
+  berryChopBackpack:'assets/player/temporary-appearance/berry-chop.png',
+  berryFishBackpack:'assets/player/temporary-appearance/berry-fish.png'
 });
 const CHARACTER_TOOL_URLS=Object.freeze({
   'axe.basic':'assets/player/rig-v1/tools/axe-basic.png',

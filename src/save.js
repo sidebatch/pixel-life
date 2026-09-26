@@ -197,9 +197,9 @@ function normalizeSavedProgressionFlags(rawFlags){
 
 function normalizeSavedAppearance(rawAppearance){
   const source=rawAppearance&&typeof rawAppearance==='object'?rawAppearance:{};
-  const ownedOutfitIds=[DEFAULT_OUTFIT_ID,...(Array.isArray(source.ownedOutfitIds)?source.ownedOutfitIds:[])]
+  const ownedOutfitIds=[DEFAULT_OUTFIT_ID,...(typeof TEMPORARY_OUTFIT_IDS!=='undefined'?TEMPORARY_OUTFIT_IDS:[]),...(Array.isArray(source.ownedOutfitIds)?source.ownedOutfitIds:[])]
     .filter((id,index,ids)=>CHARACTER_OUTFIT_BY_ID.has(id)&&!CHARACTER_OUTFIT_BY_ID.get(id).testOnly&&ids.indexOf(id)===index);
-  const ownedBackpackIds=['pack.traveler',...(Array.isArray(source.ownedBackpackIds)?source.ownedBackpackIds:[])]
+  const ownedBackpackIds=['pack.traveler',...(typeof TEMPORARY_BACKPACK_IDS!=='undefined'?TEMPORARY_BACKPACK_IDS:[]),...(Array.isArray(source.ownedBackpackIds)?source.ownedBackpackIds:[])]
     .filter((id,index,ids)=>CHARACTER_PARTS.backpack.has(id)&&!CHARACTER_PARTS.backpack.get(id).testOnly&&ids.indexOf(id)===index);
   return {
     bodyId:CHARACTER_PARTS.body.has(source.bodyId)?source.bodyId:'body.starter',

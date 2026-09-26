@@ -8,6 +8,16 @@ const {chromium}=require(process.env.PIXEL_LIFE_PLAYWRIGHT||'playwright');
 const output=path.resolve(process.argv[2]||'output/character-qa');
 const base=process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/';
 const trialQuery=process.env.PIXEL_LIFE_QA_APPEARANCE==='trial'?'&appearance-preview':'';
+const wardrobe={outfit:process.env.PIXEL_LIFE_QA_OUTFIT||null,backpack:process.env.PIXEL_LIFE_QA_BACKPACK||null};
+async function applyWardrobe(page){
+  if(!wardrobe.outfit&&!wardrobe.backpack)return;
+  await page.waitForFunction(ids=>(!ids.outfit||characterOutfitImgs[ids.outfit]?.fish)&&
+    (!ids.backpack||characterLayerImgs[CHARACTER_PARTS.backpack.get(ids.backpack)?.fishBackpack]),wardrobe,{polling:50});
+  await page.evaluate(ids=>{
+    if(ids.outfit&&!equipInventoryAppearance('outfit',ids.outfit))throw new Error('QA outfit equip failed');
+    if(ids.backpack&&!equipInventoryAppearance('backpack',ids.backpack))throw new Error('QA backpack equip failed');
+  },wardrobe);
+}
 fs.mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.PIXEL_LIFE_CHROME||undefined});
 try{
@@ -18,6 +28,7 @@ page.on('pageerror',e=>errors.push(e.message));
 await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
 await page.goto(base+'?debug&time=12:00&weather=clear'+trialQuery);
 await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler'],{timeout:30000});
+await applyWardrobe(page);
 const report=await page.evaluate(()=>{
   const before=JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression});
   canvas.width=1100;canvas.height=900;
@@ -72,6 +83,7 @@ mobile.on('pageerror',e=>errors.push(e.message));
 await mobile.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
 await mobile.goto(base+'?time=12:00&weather=clear'+trialQuery);
 await mobile.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler'],{timeout:30000});
+await applyWardrobe(mobile);
 for(const face of ['down','right','left','up']){
   await mobile.evaluate(face=>{
     player.face=face;player.moving=false;lifeUi.chop=null;fishingState.phase='idle';

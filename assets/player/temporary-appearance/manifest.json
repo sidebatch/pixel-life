@@ -1,0 +1,45 @@
+{
+  "cell": 96,
+  "designs": {
+    "ember": {
+      "type": "outfit",
+      "frames": 32,
+      "files": [
+        "assets/player/temporary-appearance/ember-walk.png",
+        "assets/player/temporary-appearance/ember-icon.png",
+        "assets/player/temporary-appearance/ember-chop.png",
+        "assets/player/temporary-appearance/ember-fish.png"
+      ]
+    },
+    "meadow": {
+      "type": "outfit",
+      "frames": 32,
+      "files": [
+        "assets/player/temporary-appearance/meadow-walk.png",
+        "assets/player/temporary-appearance/meadow-icon.png",
+        "assets/player/temporary-appearance/meadow-chop.png",
+        "assets/player/temporary-appearance/meadow-fish.png"
+      ]
+    },
+    "ranger": {
+      "type": "backpack",
+      "frames": 32,
+      "files": [
+        "assets/player/temporary-appearance/ranger-walk.png",
+        "assets/player/temporary-appearance/ranger-icon.png",
+        "assets/player/temporary-appearance/ranger-chop.png",
+        "assets/player/temporary-appearance/ranger-fish.png"
+      ]
+    },
+    "berry": {
+      "type": "backpack",
+      "frames": 32,
+      "files": [
+        "assets/player/temporary-appearance/berry-walk.png",
+        "assets/player/temporary-appearance/berry-icon.png",
+        "assets/player/temporary-appearance/berry-chop.png",
+        "assets/player/temporary-appearance/berry-fish.png"
+      ]
+    }
+  }
+}

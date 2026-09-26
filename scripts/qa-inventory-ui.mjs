@@ -62,13 +62,13 @@ try{
   await gridCheck();
   await page.evaluate(()=>{
     if(document.querySelectorAll('.inventoryAppearanceSection').length!==2||
-      document.querySelectorAll('[data-equip-type="outfit"]').length!==1||
-      document.querySelectorAll('[data-equip-type="backpack"]').length!==1||
+      document.querySelectorAll('[data-equip-type="outfit"]').length!==3||
+      document.querySelectorAll('[data-equip-type="backpack"]').length!==3||
       document.querySelector('#inventoryScroll').textContent.includes('헤어')||
       document.querySelector('#inventoryScroll').textContent.includes('모자'))
       throw new Error('Appearance groups include unexpected parts');
     for(const image of document.querySelectorAll('#inventoryScroll img')){
-      if(!image.src.startsWith('data:image/png'))throw new Error('Appearance is not an actual part thumbnail');
+      if(!image.src.startsWith('data:image/png')&&!image.src.includes('-icon.png'))throw new Error('Appearance is not an actual part thumbnail');
     }
   });
   await page.screenshot({path:path.join(output,'mobile-appearance.png')});

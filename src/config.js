@@ -17,6 +17,9 @@ const PROJECT = Object.freeze({
 
 // Appearance data is independent of the equipped axe and fishing rod.
 const DEFAULT_OUTFIT_ID='outfit.traveler';
+// Free, temporary wardrobe samples. Do not auto-equip or reset progress.
+const TEMPORARY_OUTFIT_IDS=Object.freeze(['outfit.ember','outfit.meadow']);
+const TEMPORARY_BACKPACK_IDS=Object.freeze(['pack.ranger','pack.berry']);
 const CHARACTER_TRIAL_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('appearance-preview');
 const CHARACTER_TRIAL_SET=Object.freeze({
   outfitId:'outfit.trial.green',hairId:'hair.trial.blond',backpackId:'pack.trial.red'
@@ -25,6 +28,10 @@ let characterAppearancePreview=null;
 const CHARACTER_OUTFITS=Object.freeze([
   Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
     chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1'}),
+  Object.freeze({id:'outfit.ember',name:'불꽃 탐험복',description:'붉은 재킷과 금빛 잠금 장식, 검은 바지의 탐험복. 임시로 자유롭게 착용할 수 있어요.',
+    renderMode:'rig-v1',layers:CHARACTER_TEMP_APPEARANCE_URLS.ember,iconUrl:CHARACTER_TEMP_APPEARANCE_URLS.ember.icon,temporary:true}),
+  Object.freeze({id:'outfit.meadow',name:'햇살 정원복',description:'크림색 셔츠에 노란 앞치마와 초록 바지를 갖춘 정원복. 임시로 자유롭게 착용할 수 있어요.',
+    renderMode:'rig-v1',layers:CHARACTER_TEMP_APPEARANCE_URLS.meadow,iconUrl:CHARACTER_TEMP_APPEARANCE_URLS.meadow.icon,temporary:true}),
   ...(CHARACTER_TRIAL_ENABLED?[Object.freeze({id:CHARACTER_TRIAL_SET.outfitId,name:'시험용 녹색 옷',
     renderMode:'palette-test',testOnly:true})]:[])
 ]);
@@ -34,6 +41,10 @@ const CHARACTER_PARTS=Object.freeze({
   hair:new Map([['hair.brown',{walkHair:'walkHair',chopHair:'chopHair',fishHair:'fishHair'}],
     ...(CHARACTER_TRIAL_ENABLED?[[CHARACTER_TRIAL_SET.hairId,{walkHair:'trialWalkHair',chopHair:'trialChopHair',fishHair:'trialFishHair',testOnly:true}]]:[])]),
   backpack:new Map([['pack.traveler',{name:'여행자의 가방',description:'여행자의 기본 가방. 외형만 바뀌며 아이템 보관 수에는 영향을 주지 않아요.',iconCrop:{x:37,y:63,width:21,height:21},walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}],
+    ['pack.ranger',{name:'숲길 등산가방',description:'초록색 등산가방에 둥글게 만 침낭과 튼튼한 끈을 달았어요. 임시 체험용이며 보관 수는 바뀌지 않아요.',
+      walkBackpack:'rangerWalkBackpack',chopBackpack:'rangerChopBackpack',fishBackpack:'rangerFishBackpack',iconUrl:CHARACTER_TEMP_APPEARANCE_URLS.ranger.icon,temporary:true}],
+    ['pack.berry',{name:'딸기 소풍가방',description:'둥근 딸기 모양에 초록 잎과 작은 씨앗 무늬가 있는 소풍가방. 임시 체험용이며 보관 수는 바뀌지 않아요.',
+      walkBackpack:'berryWalkBackpack',chopBackpack:'berryChopBackpack',fishBackpack:'berryFishBackpack',iconUrl:CHARACTER_TEMP_APPEARANCE_URLS.berry.icon,temporary:true}],
     ...(CHARACTER_TRIAL_ENABLED?[[CHARACTER_TRIAL_SET.backpackId,{walkBackpack:'trialWalkBackpack',chopBackpack:'trialChopBackpack',fishBackpack:'trialFishBackpack',testOnly:true}]]:[])])
 });
 
@@ -62,7 +73,7 @@ const GAME_STATE = {
   world:{trees:{},plots:{}},
   collections:{fish:{}},
   appearance:{bodyId:'body.starter',hairId:'hair.brown',backpackId:'pack.traveler',
-    outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],ownedBackpackIds:['pack.traveler'],activeTool:'axe'},
+    outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID,...TEMPORARY_OUTFIT_IDS],ownedBackpackIds:['pack.traveler',...TEMPORARY_BACKPACK_IDS],activeTool:'axe'},
   progression:{
     coins:0,
     flags:{},

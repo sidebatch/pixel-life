@@ -6,9 +6,11 @@ function isInventoryOpen(){return inventoryState.open;}
 function isInventoryDetailOpen(){return Boolean(inventoryState.detail);}
 
 function inventoryAppearanceIcon(type,id){
-  const cacheKey=type+':'+id;
+  const preview=typeof CHARACTER_WALK_PREVIEW_ENABLED!=='undefined'&&CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced';
+  const cacheKey=type+':'+id+(preview?':preview':':original');
   if(inventoryAppearanceIcons.has(cacheKey))return inventoryAppearanceIcons.get(cacheKey);
-  const image=type==='outfit'?characterOutfitImgs[id]?.walk:
+  const outfitImages=typeof getCharacterOutfitImages==='function'?getCharacterOutfitImages(id):characterOutfitImgs[id];
+  const image=type==='outfit'?outfitImages?.walk:
     characterLayerImgs[CHARACTER_PARTS.backpack.get(id)?.walkBackpack];
   if(!image||typeof document.createElement!=='function')return '';
   const cell=CHARACTER_RIG.cell,icon=document.createElement('canvas');
@@ -244,6 +246,7 @@ function openInventory(options={}){
   panel.setAttribute('aria-hidden','false');
   document.getElementById('inventoryScroll').scrollTop=0;
   document.getElementById('inventoryClose').focus();
+  if(typeof refreshCharacterPreviewVisibility==='function')refreshCharacterPreviewVisibility();
   if(!options.fromHistory) pushGameOverlayHistory('inventory');
 }
 
@@ -258,6 +261,7 @@ function closeInventory(options={}){
   const panel=document.getElementById('inventoryPanel');
   panel.classList.remove('show');
   panel.setAttribute('aria-hidden','true');
+  if(typeof refreshCharacterPreviewVisibility==='function')refreshCharacterPreviewVisibility();
   if(!options.fromHistory) leaveGameOverlayHistory('inventory');
 }
 

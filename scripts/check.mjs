@@ -111,7 +111,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 185, `Expected 185 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 191, `Expected 191 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }

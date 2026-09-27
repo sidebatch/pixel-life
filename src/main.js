@@ -1,15 +1,20 @@
 let last=performance.now();
+function refreshCharacterPreviewVisibility(){
+  const hidden=typeof isInventoryOpen==='function'&&isInventoryOpen();
+  for(const panel of document.querySelectorAll('[data-character-preview-panel]'))panel.hidden=hidden;
+}
 function loop(now){
   tNow=now;const dt=Math.min(40,now-last);last=now;
   updateWorldTime(dt);updateWeather();updateWorldClockUI();
-  update(dt);updateLifeContentUi(now);drawWorld();refreshContext();requestAnimationFrame(loop);
+  update(dt);updateLifeContentUi(now);drawWorld();refreshContext();refreshCharacterPreviewVisibility();requestAnimationFrame(loop);
 }
 loadAll().then(()=>{
   if(CHARACTER_WALK_PREVIEW_ENABLED){
     const panel=document.createElement('div');
+    panel.dataset.characterPreviewPanel='true';
     panel.style.cssText='position:fixed;top:112px;left:8px;z-index:15;padding:8px;border-radius:12px;background:#102e2ee8;color:#fff;font:12px sans-serif;max-width:calc(100vw - 16px);';
     panel.setAttribute('aria-label','아래 걷기 순서 비교');
-    const label=document.createElement('div');label.textContent='걷기·도끼 비교 · 시험 선택 저장 안 됨';panel.appendChild(label);
+    const label=document.createElement('div');label.textContent='걷기·도끼·의상 비교 · 시험 선택 저장 안 됨';panel.appendChild(label);
     const buttons=[];
     const refresh=()=>{for(const [mode,button] of buttons){
       const selected=characterWalkPreview===mode;
@@ -26,6 +31,7 @@ loadAll().then(()=>{
   }
   if(CHARACTER_BODY_PREVIEW_ENABLED){
     const panel=document.createElement('div');
+    panel.dataset.characterPreviewPanel='true';
     panel.style.cssText='position:fixed;top:112px;left:8px;z-index:15;padding:8px;border-radius:12px;background:#102e2ee8;color:#fff;font:12px sans-serif;max-width:calc(100vw - 16px);';
     panel.setAttribute('aria-label','남녀 캐릭터 동작 비교');
     if(CHARACTER_WALK_PREVIEW_ENABLED)panel.style.top='210px';

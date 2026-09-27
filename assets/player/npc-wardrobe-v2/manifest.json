@@ -1,0 +1,913 @@
+{
+  "version": 2,
+  "anatomy": "npc-v1",
+  "mode": "built-in-imagegen",
+  "registration": "native pose-mask, no old short-body textures",
+  "protectedFiles": {
+    "assets/player/npc-v1/chop-backpack.png": "911948f80962880e0e7e54265ba9fefba768c0423f09a6137fbf8f40083d448a",
+    "assets/player/npc-v1/chop-berry.png": "b408f743c3f78439a5c33e5ae6ee740f8bbb97d21fe8abc027fba2590e8f4db7",
+    "assets/player/npc-v1/chop-body.png": "cee9dd861a8696068f6a3636eb63315346a9ce819c274f9611f35c13e2d7cedb",
+    "assets/player/npc-v1/chop-ember.png": "3cb6c971075c29e55984f7be773bb43c6a9f56423d25128e879eeee53a3e22c8",
+    "assets/player/npc-v1/chop-female-hair.png": "42e2a346c34814aafa86f5063d0049357aa9df8a50cee6d75fb9584d20b6a539",
+    "assets/player/npc-v1/chop-female-head.png": "c7568509c0a1a2ce177dcebbe1025aef70aec30ea70ff6d912c714482cc7993d",
+    "assets/player/npc-v1/chop-grip.png": "c6ce76f5a906a224b20eb7488cfac99d90c3e2b9554994ea7fd16724a44e9161",
+    "assets/player/npc-v1/chop-hair.png": "51ed2a63dc6a299c271f5a6fe10a3204fc0245cbf1cfe5eb5bb2c77af09dfc1b",
+    "assets/player/npc-v1/chop-head.png": "ae64ec45ce5e27a6b9a3edfc00480e2a69cb825c38e7fafeafbc74f234535a78",
+    "assets/player/npc-v1/chop-meadow.png": "5d390c92cf554972d41091d86450aa181c8b7d10f1ddcf8201fdb16377734221",
+    "assets/player/npc-v1/chop-outfit.png": "e5be8466fe2ea91627ee3f6aa3732f2b58692fd169189644ea765c0c98edb37f",
+    "assets/player/npc-v1/chop-ranger.png": "f40197dea49f14b543b84ba449634360f421d160c8b5dbdc680f71bc1cdc75b9",
+    "assets/player/npc-v1/fish-backpack.png": "78578c583e0e1a7520e39df2ca99e373d57d3ec8c8ed72659b2d30e2bf238d38",
+    "assets/player/npc-v1/fish-berry.png": "ca04f8c2c28a44bc602c529ed0c27fc0df3e989bdfc9390bc2a32ccf76a4b53b",
+    "assets/player/npc-v1/fish-body.png": "2a5221b14afbba2b7ce01e5ce2a4c50a156fa7f9847d19c3de1445e098ad6958",
+    "assets/player/npc-v1/fish-ember.png": "4f99da91723ef2c5233fc5d665bde17b927b29ccfe10446f1776d8892441b5fa",
+    "assets/player/npc-v1/fish-female-hair.png": "aea529ea64b12ec8b5f907d8931fc31112507a79d4efc8fd614f6edde92b49b1",
+    "assets/player/npc-v1/fish-female-head.png": "eec7121131b3e901ef2510f3d8b230559576729d1fdf14b0a1c65d04377daada",
+    "assets/player/npc-v1/fish-grip.png": "a31b1d4b4c748ad83c51fff183201d8e2f2d4ab4e97792d3158ac994897dd994",
+    "assets/player/npc-v1/fish-hair.png": "9b734ef2b43287e4d77896d50641a4787aacf0a8d114588b9c07ea4e58ac670f",
+    "assets/player/npc-v1/fish-head.png": "4560e7def98b3d73a1853a33d2d5caba851e74c83c1de0f582dccdc1b8f71c82",
+    "assets/player/npc-v1/fish-meadow.png": "733b2a37a63162e2ae718ae92ba90420dbef4d8ff2afd52c6d7c3cc9c110d285",
+    "assets/player/npc-v1/fish-outfit.png": "22b13128530c66999b53e2ffaa86f5bf1e1e5ad17ac86d29982018998c6061ce",
+    "assets/player/npc-v1/fish-ranger.png": "f059bcd051685968c85952245585a7ee3075e62488e31c087b2abb349009d630",
+    "assets/player/npc-v1/manifest.json": "c5f7b001e189212282eface38be777a0c5a8f86fb9c48a1a2348850bc4d0b65c",
+    "assets/player/npc-v1/rig.json": "8d090569e656813264dfb2731145567cded725954dbdef56345b1f531dd39b99",
+    "assets/player/npc-v1/walk-backpack.png": "1cd4a3db0ab1738fe919e9989e31c36a2a281fc8e508088b4914c6f83637b59e",
+    "assets/player/npc-v1/walk-berry.png": "b28b18dac22f32bf7644ed7b7f6673ec0ee0c648e7baaa3ca38a3c3084e91f50",
+    "assets/player/npc-v1/walk-body.png": "3cd6102b007639644c5441040ba10aba03597d557411e3a5dfd731d7b1b98173",
+    "assets/player/npc-v1/walk-ember.png": "e000b398cc7933f7530c9e9a46d1965d83d146eab3239ed60272f56ef11027c1",
+    "assets/player/npc-v1/walk-female-hair.png": "aea529ea64b12ec8b5f907d8931fc31112507a79d4efc8fd614f6edde92b49b1",
+    "assets/player/npc-v1/walk-female-head.png": "eec7121131b3e901ef2510f3d8b230559576729d1fdf14b0a1c65d04377daada",
+    "assets/player/npc-v1/walk-grip.png": "9e2ccc789712afb51a0ea820c3498d2c82cbc7fb15f2bb1711abb4b09ed3d3b2",
+    "assets/player/npc-v1/walk-hair.png": "9b734ef2b43287e4d77896d50641a4787aacf0a8d114588b9c07ea4e58ac670f",
+    "assets/player/npc-v1/walk-head.png": "4560e7def98b3d73a1853a33d2d5caba851e74c83c1de0f582dccdc1b8f71c82",
+    "assets/player/npc-v1/walk-meadow.png": "d7da4b3545491d6a70f376bf06823b8be77fba75839eaefb0d2b53fcd22c7f07",
+    "assets/player/npc-v1/walk-outfit.png": "df20709b450fdd16dbef1b2ab190585ddd777d01f95a7f9d150423d25e842082",
+    "assets/player/npc-v1/walk-ranger.png": "cfc10d9df421b8345e22f8ceacd43fcd8353040eaf2fa936a3293786ab08878d",
+    "src/data/character-rig-data.js": "33fc59c9d89a1745f4174afa3a0adcddffaf5118f984eb3bca815ff8dbad7710"
+  },
+  "frames": [
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 124,
+        "y": 109,
+        "width": 201,
+        "height": 237,
+        "pixels": 34251
+      },
+      "neckOffset": 0,
+      "scale": 0.15254237288135594,
+      "collarDx": 0,
+      "repaired": 19,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 464,
+        "y": 109,
+        "width": 186,
+        "height": 237,
+        "pixels": 29575
+      },
+      "neckOffset": 0,
+      "scale": 0.15254237288135594,
+      "collarDx": 0,
+      "repaired": 17,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "down",
+      "frame": 2,
+      "source": {
+        "x": 766,
+        "y": 109,
+        "width": 196,
+        "height": 237,
+        "pixels": 32659
+      },
+      "neckOffset": 0,
+      "scale": 0.15254237288135594,
+      "collarDx": 0,
+      "repaired": 23,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 164,
+        "y": 427,
+        "width": 118,
+        "height": 238,
+        "pixels": 22675
+      },
+      "neckOffset": 0,
+      "scale": 0.1518987341772152,
+      "collarDx": -2,
+      "repaired": 43,
+      "maxDistance": 2
+    },
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 489,
+        "y": 427,
+        "width": 140,
+        "height": 238,
+        "pixels": 23927
+      },
+      "neckOffset": 0,
+      "scale": 0.1518987341772152,
+      "collarDx": 0,
+      "repaired": 10,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "right",
+      "frame": 2,
+      "source": {
+        "x": 778,
+        "y": 427,
+        "width": 181,
+        "height": 239,
+        "pixels": 25876
+      },
+      "neckOffset": 0,
+      "scale": 0.15126050420168066,
+      "collarDx": -1,
+      "repaired": 73,
+      "maxDistance": 2
+    },
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 123,
+        "y": 1109,
+        "width": 202,
+        "height": 245,
+        "pixels": 35196
+      },
+      "neckOffset": 0,
+      "scale": 0.14754098360655737,
+      "collarDx": 0,
+      "repaired": 15,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 456,
+        "y": 1109,
+        "width": 194,
+        "height": 245,
+        "pixels": 32942
+      },
+      "neckOffset": 0,
+      "scale": 0.14754098360655737,
+      "collarDx": -1,
+      "repaired": 12,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "walk",
+      "face": "up",
+      "frame": 2,
+      "source": {
+        "x": 761,
+        "y": 1109,
+        "width": 203,
+        "height": 245,
+        "pixels": 34510
+      },
+      "neckOffset": 0,
+      "scale": 0.14754098360655737,
+      "collarDx": 1,
+      "repaired": 33,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "chop",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 257,
+        "y": 105,
+        "width": 190,
+        "height": 256,
+        "pixels": 28497
+      },
+      "neckOffset": 27.648,
+      "scale": 0.15834476934445266,
+      "collarDx": 0,
+      "repaired": 19,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "chop",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 672,
+        "y": 132,
+        "width": 178,
+        "height": 229,
+        "pixels": 25453
+      },
+      "neckOffset": 0,
+      "scale": 0.15789473684210525,
+      "collarDx": 0,
+      "repaired": 18,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "chop",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 272,
+        "y": 446,
+        "width": 192,
+        "height": 261,
+        "pixels": 28316
+      },
+      "neckOffset": 37.06199999999999,
+      "scale": 0.16147987332801048,
+      "collarDx": -1,
+      "repaired": 31,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "chop",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 657,
+        "y": 478,
+        "width": 193,
+        "height": 228,
+        "pixels": 25866
+      },
+      "neckOffset": 0,
+      "scale": 0.15859030837004406,
+      "collarDx": -1,
+      "repaired": 6,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "chop",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 267,
+        "y": 1142,
+        "width": 187,
+        "height": 259,
+        "pixels": 28482
+      },
+      "neckOffset": 36.001000000000005,
+      "scale": 0.16216289262564246,
+      "collarDx": -1,
+      "repaired": 30,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "ember",
+      "pose": "chop",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 671,
+        "y": 1174,
+        "width": 179,
+        "height": 227,
+        "pixels": 24586
+      },
+      "neckOffset": 0,
+      "scale": 0.1592920353982301,
+      "collarDx": 0,
+      "repaired": 1,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 113,
+        "y": 123,
+        "width": 161,
+        "height": 231,
+        "pixels": 25521
+      },
+      "neckOffset": 0,
+      "scale": 0.1565217391304348,
+      "collarDx": 1,
+      "repaired": 66,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 464,
+        "y": 123,
+        "width": 155,
+        "height": 231,
+        "pixels": 25077
+      },
+      "neckOffset": 0,
+      "scale": 0.1565217391304348,
+      "collarDx": 0,
+      "repaired": 25,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "down",
+      "frame": 2,
+      "source": {
+        "x": 803,
+        "y": 123,
+        "width": 176,
+        "height": 231,
+        "pixels": 26908
+      },
+      "neckOffset": 0,
+      "scale": 0.1565217391304348,
+      "collarDx": 0,
+      "repaired": 19,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 130,
+        "y": 476,
+        "width": 133,
+        "height": 232,
+        "pixels": 20663
+      },
+      "neckOffset": 0,
+      "scale": 0.15584415584415584,
+      "collarDx": 0,
+      "repaired": 15,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 483,
+        "y": 476,
+        "width": 144,
+        "height": 232,
+        "pixels": 21341
+      },
+      "neckOffset": 0,
+      "scale": 0.15584415584415584,
+      "collarDx": 0,
+      "repaired": 16,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "right",
+      "frame": 2,
+      "source": {
+        "x": 841,
+        "y": 476,
+        "width": 121,
+        "height": 232,
+        "pixels": 19922
+      },
+      "neckOffset": 0,
+      "scale": 0.15584415584415584,
+      "collarDx": -1,
+      "repaired": 23,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 121,
+        "y": 1138,
+        "width": 168,
+        "height": 231,
+        "pixels": 25590
+      },
+      "neckOffset": 0,
+      "scale": 0.1565217391304348,
+      "collarDx": 1,
+      "repaired": 28,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 463,
+        "y": 1137,
+        "width": 160,
+        "height": 232,
+        "pixels": 24708
+      },
+      "neckOffset": 0,
+      "scale": 0.15584415584415584,
+      "collarDx": 0,
+      "repaired": 14,
+      "maxDistance": 1
+    },
+    {
+      "name": "ember",
+      "pose": "fish",
+      "face": "up",
+      "frame": 2,
+      "source": {
+        "x": 802,
+        "y": 1137,
+        "width": 171,
+        "height": 232,
+        "pixels": 26722
+      },
+      "neckOffset": 0,
+      "scale": 0.15584415584415584,
+      "collarDx": 0,
+      "repaired": 17,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 125,
+        "y": 105,
+        "width": 194,
+        "height": 236,
+        "pixels": 32292
+      },
+      "neckOffset": 0,
+      "scale": 0.15319148936170213,
+      "collarDx": 0,
+      "repaired": 40,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 454,
+        "y": 106,
+        "width": 183,
+        "height": 240,
+        "pixels": 29377
+      },
+      "neckOffset": 0,
+      "scale": 0.1506276150627615,
+      "collarDx": -1,
+      "repaired": 39,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "down",
+      "frame": 2,
+      "source": {
+        "x": 772,
+        "y": 106,
+        "width": 188,
+        "height": 240,
+        "pixels": 31277
+      },
+      "neckOffset": 0,
+      "scale": 0.1506276150627615,
+      "collarDx": 0,
+      "repaired": 54,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 162,
+        "y": 424,
+        "width": 111,
+        "height": 240,
+        "pixels": 21252
+      },
+      "neckOffset": 0,
+      "scale": 0.1506276150627615,
+      "collarDx": -2,
+      "repaired": 90,
+      "maxDistance": 3
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 482,
+        "y": 424,
+        "width": 136,
+        "height": 243,
+        "pixels": 23406
+      },
+      "neckOffset": 0,
+      "scale": 0.1487603305785124,
+      "collarDx": -1,
+      "repaired": 55,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "right",
+      "frame": 2,
+      "source": {
+        "x": 783,
+        "y": 426,
+        "width": 180,
+        "height": 242,
+        "pixels": 25111
+      },
+      "neckOffset": 0,
+      "scale": 0.14937759336099585,
+      "collarDx": -1,
+      "repaired": 79,
+      "maxDistance": 2
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 125,
+        "y": 1107,
+        "width": 197,
+        "height": 242,
+        "pixels": 33642
+      },
+      "neckOffset": 0,
+      "scale": 0.14937759336099585,
+      "collarDx": 1,
+      "repaired": 75,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 448,
+        "y": 1105,
+        "width": 193,
+        "height": 246,
+        "pixels": 32509
+      },
+      "neckOffset": 0,
+      "scale": 0.1469387755102041,
+      "collarDx": 0,
+      "repaired": 57,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "walk",
+      "face": "up",
+      "frame": 2,
+      "source": {
+        "x": 766,
+        "y": 1105,
+        "width": 195,
+        "height": 246,
+        "pixels": 32733
+      },
+      "neckOffset": 0,
+      "scale": 0.1469387755102041,
+      "collarDx": 1,
+      "repaired": 56,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "chop",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 259,
+        "y": 103,
+        "width": 190,
+        "height": 262,
+        "pixels": 28692
+      },
+      "neckOffset": 28.296,
+      "scale": 0.1547029702970297,
+      "collarDx": -1,
+      "repaired": 154,
+      "maxDistance": 3
+    },
+    {
+      "name": "meadow",
+      "pose": "chop",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 646,
+        "y": 130,
+        "width": 184,
+        "height": 235,
+        "pixels": 26160
+      },
+      "neckOffset": 0,
+      "scale": 0.15384615384615385,
+      "collarDx": -1,
+      "repaired": 39,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "chop",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 275,
+        "y": 449,
+        "width": 194,
+        "height": 264,
+        "pixels": 29326
+      },
+      "neckOffset": 37.488,
+      "scale": 0.15963673773457732,
+      "collarDx": -1,
+      "repaired": 63,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "meadow",
+      "pose": "chop",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 632,
+        "y": 482,
+        "width": 199,
+        "height": 231,
+        "pixels": 25789
+      },
+      "neckOffset": 0,
+      "scale": 0.1565217391304348,
+      "collarDx": -1,
+      "repaired": 87,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "meadow",
+      "pose": "chop",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 269,
+        "y": 1131,
+        "width": 186,
+        "height": 253,
+        "pixels": 27582
+      },
+      "neckOffset": 35.16700000000001,
+      "scale": 0.1660263889721583,
+      "collarDx": -1,
+      "repaired": 64,
+      "maxDistance": 2
+    },
+    {
+      "name": "meadow",
+      "pose": "chop",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 648,
+        "y": 1159,
+        "width": 182,
+        "height": 225,
+        "pixels": 24239
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "collarDx": 1,
+      "repaired": 21,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 116,
+        "y": 123,
+        "width": 159,
+        "height": 230,
+        "pixels": 25106
+      },
+      "neckOffset": 0,
+      "scale": 0.1572052401746725,
+      "collarDx": 1,
+      "repaired": 76,
+      "maxDistance": 2
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 479,
+        "y": 123,
+        "width": 151,
+        "height": 230,
+        "pixels": 24017
+      },
+      "neckOffset": 0,
+      "scale": 0.1572052401746725,
+      "collarDx": 0,
+      "repaired": 30,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "down",
+      "frame": 2,
+      "source": {
+        "x": 802,
+        "y": 123,
+        "width": 172,
+        "height": 229,
+        "pixels": 26140
+      },
+      "neckOffset": 0,
+      "scale": 0.15789473684210525,
+      "collarDx": 0,
+      "repaired": 32,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 132,
+        "y": 470,
+        "width": 128,
+        "height": 241,
+        "pixels": 20676
+      },
+      "neckOffset": 0,
+      "scale": 0.15,
+      "collarDx": 0,
+      "repaired": 23,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 500,
+        "y": 470,
+        "width": 144,
+        "height": 241,
+        "pixels": 21891
+      },
+      "neckOffset": 0,
+      "scale": 0.15,
+      "collarDx": 0,
+      "repaired": 44,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "right",
+      "frame": 2,
+      "source": {
+        "x": 846,
+        "y": 470,
+        "width": 118,
+        "height": 241,
+        "pixels": 20376
+      },
+      "neckOffset": 0,
+      "scale": 0.15,
+      "collarDx": 0,
+      "repaired": 39,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 122,
+        "y": 1147,
+        "width": 162,
+        "height": 228,
+        "pixels": 24635
+      },
+      "neckOffset": 0,
+      "scale": 0.15859030837004406,
+      "collarDx": 1,
+      "repaired": 24,
+      "maxDistance": 1.4142135623730951
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 478,
+        "y": 1147,
+        "width": 152,
+        "height": 228,
+        "pixels": 23710
+      },
+      "neckOffset": 0,
+      "scale": 0.15859030837004406,
+      "collarDx": 0,
+      "repaired": 17,
+      "maxDistance": 1
+    },
+    {
+      "name": "meadow",
+      "pose": "fish",
+      "face": "up",
+      "frame": 2,
+      "source": {
+        "x": 803,
+        "y": 1146,
+        "width": 173,
+        "height": 229,
+        "pixels": 25829
+      },
+      "neckOffset": 0,
+      "scale": 0.15789473684210525,
+      "collarDx": 1,
+      "repaired": 27,
+      "maxDistance": 1
+    }
+  ]
+}

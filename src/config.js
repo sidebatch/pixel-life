@@ -106,7 +106,10 @@ const MOVEMENT_CONFIG=Object.freeze({
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
 const imgs={},npcImgs={},fishImgs={},forestTreeImgs={},forestStumpImgs={},lifeItemImgs={},matureCropImgs={},youngCropImgs={};
-const characterLayerImgs={},characterToolImgs={},characterOutfitImgs={};
+const characterLayerImgs={},characterToolImgs={},characterOutfitImgs={},characterOutfitPreviewImgs={};
+function getCharacterOutfitImages(id){
+  return CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced'&&characterOutfitPreviewImgs[id]||characterOutfitImgs[id];
+}
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
 async function loadImageMap(target, urls, optional=false){
   await Promise.all(Object.entries(urls).map(async ([key,url])=>{
@@ -192,5 +195,14 @@ async function loadAll(){
       images[pose]=image;
     }
     characterOutfitImgs[outfit.id]=images;
+  }
+  if(CHARACTER_WALK_PREVIEW_ENABLED){
+    for(const [id,urls] of Object.entries(CHARACTER_WARDROBE_PREVIEW_URLS)){
+      const images={};
+      await loadImageMap(images,urls);
+      for(const [pose,image] of Object.entries(images))if(image.width!==CHARACTER_RIG.poses[pose].columns*96||image.height!==384)
+        throw new Error(`Wrong preview wardrobe atlas: ${id}/${pose}`);
+      characterOutfitPreviewImgs[id]=images;
+    }
   }
 }

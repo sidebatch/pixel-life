@@ -63,6 +63,11 @@ const CHARACTER_TEMP_APPEARANCE_URLS=Object.freeze({
   ranger:{icon:'assets/player/temporary-appearance/ranger-icon.png'},
   berry:{icon:'assets/player/temporary-appearance/berry-icon.png'}
 });
+// Review art is loaded only in the opt-in comparison; normal wardrobe stays intact.
+const CHARACTER_WARDROBE_PREVIEW_URLS=Object.freeze({
+  'outfit.ember':{walk:'assets/player/npc-wardrobe-v2/walk-ember.png',chop:'assets/player/npc-wardrobe-v2/chop-ember.png',fish:'assets/player/npc-wardrobe-v2/fish-ember.png'},
+  'outfit.meadow':{walk:'assets/player/npc-wardrobe-v2/walk-meadow.png',chop:'assets/player/npc-wardrobe-v2/chop-meadow.png',fish:'assets/player/npc-wardrobe-v2/fish-meadow.png'}
+});
 const CHARACTER_LAYER_URLS=Object.freeze({
   walkBody:'assets/player/npc-v1/walk-body.png',
   walkHead:'assets/player/npc-v1/walk-head.png',

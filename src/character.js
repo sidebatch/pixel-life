@@ -106,7 +106,8 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
     const partId=part&&appearance[part==='backpack'?'backpackId':part+'Id'];
     const partLayers=part&&CHARACTER_PARTS[part].get(partId);
     const key=partLayers?.[layerPose+name]||layerPose+name;
-    const image=name==='Outfit'&&characterOutfitImgs[outfit]?.[pose.pose]||
+    const outfitImages=typeof getCharacterOutfitImages==='function'?getCharacterOutfitImages(outfit):characterOutfitImgs[outfit];
+    const image=name==='Outfit'&&outfitImages?.[pose.pose]||
       characterLayerImgs[key];
     if(!image)return;
     const motion=stableChopHead&&definition.frames[pose.face][pose.frame].headMotion;

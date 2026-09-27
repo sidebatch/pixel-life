@@ -35,7 +35,9 @@ function getCharacterPose(){
     const frame=phase==='casting'&&fishingState.timer<FISHING_CONFIG.castMs*.55?0:phase==='result'?2:1;
     return {pose:'fish',face,frame,tool:'rod'};
   }
-  const frame=player.moving?[0,1,2,1][Math.floor(tNow/105)%4]:0;
+  const sequence=CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced'&&face==='down'
+    ?[1,0,2,0]:[0,1,2,1];
+  const frame=player.moving?sequence[Math.floor(tNow/105)%4]:0;
   return {pose:'walk',face,frame,tool:GAME_STATE.appearance?.activeTool||'axe'};
 }
 

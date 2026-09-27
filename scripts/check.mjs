@@ -1136,6 +1136,7 @@ const characterContext={
   FORESTRY_CHOP_TIMING:{impactMs:270},FISHING_CONFIG:{castMs:320},fishingState:{phase:'idle',timer:0},
   isFishingActive:()=>false,getEquippedForestryAxe:()=>({asset:'basic'}),getEquippedFishingRod:()=>({asset:'basic'}),
   DESKTOP_SMOOTH_RENDER:false,camX:0,camY:0,TILE:48,
+  CHARACTER_WALK_PREVIEW_ENABLED:false,characterWalkPreview:'balanced',
   ctx:{save(){},restore(){},translate(x,y){characterTranslations.push([x,y]);},
     rotate(angle){characterRotations.push(angle);},scale(){},
     drawImage(image,...args){characterCalls.push({id:image.id,args});}}

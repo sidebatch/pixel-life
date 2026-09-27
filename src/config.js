@@ -28,6 +28,13 @@ let characterAppearancePreview=null;
 // Non-saving body comparison. New-game gender selection is a later UI step.
 const CHARACTER_BODY_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('character-preview');
 let characterBodyPreview=CHARACTER_BODY_PREVIEW_ENABLED&&new URLSearchParams(window.location.search).get('character')==='female'?'female':null;
+// Opt-in comparison only: never persist a gait choice or change normal play.
+const CHARACTER_WALK_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('walk-preview');
+let characterWalkPreview='balanced';
+function setCharacterWalkPreview(mode){
+  if(!CHARACTER_WALK_PREVIEW_ENABLED||!['original','balanced'].includes(mode))return false;
+  characterWalkPreview=mode;return true;
+}
 const CHARACTER_OUTFITS=Object.freeze([
   Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
     chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1',iconUrl:CHARACTER_POLISH_ICON_URLS.outfit}),

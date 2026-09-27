@@ -9,7 +9,7 @@ loadAll().then(()=>{
     const panel=document.createElement('div');
     panel.style.cssText='position:fixed;top:112px;left:8px;z-index:15;padding:8px;border-radius:12px;background:#102e2ee8;color:#fff;font:12px sans-serif;max-width:calc(100vw - 16px);';
     panel.setAttribute('aria-label','아래 걷기 순서 비교');
-    const label=document.createElement('div');label.textContent='아래 걷기 · 몸 정렬 비교 · 시험 선택 저장 안 됨';panel.appendChild(label);
+    const label=document.createElement('div');label.textContent='걷기·도끼 비교 · 시험 선택 저장 안 됨';panel.appendChild(label);
     const buttons=[];
     const refresh=()=>{for(const [mode,button] of buttons){
       const selected=characterWalkPreview===mode;

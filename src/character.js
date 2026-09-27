@@ -59,11 +59,15 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   // Keep the right-hand pivot and shaft length; side views/swings stay intact.
   const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&
     (pose.face==='down'||pose.face==='up');
-  const mirror=pose.face==='left'||frontBackCarry;
+  const frontBackSwing=CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced'&&
+    pose.tool==='axe'&&pose.pose==='chop'&&(pose.face==='down'||pose.face==='up');
+  // In front-view preparation the cutting edge must face forward, not back
+  // over the shoulder. Impact and rear-view art already have the correct side.
+  const mirror=pose.face==='left'||frontBackCarry||frontBackSwing&&pose.face==='down'&&pose.frame===0;
   const nativeAngle=mirror?Math.PI-tool.nativeAngle:tool.nativeAngle;
   const axisAngle=frontBackCarry?(pose.face==='down'?-1.95:-1.19):frame.angle;
   return {key,x,y,rotation:axisAngle-nativeAngle,axisAngle,
-    edgeScale:frontBackCarry?0.55:1,scale:length/tool.nativeLength,mirror,
+    edgeScale:frontBackCarry||frontBackSwing?0.55:1,scale:length/tool.nativeLength,mirror,
     behind:frame.toolBehind,tip:{x:x+Math.cos(axisAngle)*length,y:y+Math.sin(axisAngle)*length}};
 }
 

@@ -106,10 +106,44 @@ try{
   });
   fs.writeFileSync(path.join(output,'down-alignment-comparison.png'),Buffer.from(contact.split(',')[1],'base64'));
   await page.goto(base);
-  await page.waitForFunction(()=>characterLayerImgs.walkBody);
+  await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
   assert.equal(await page.locator('[aria-label="아래 걷기 순서 비교"]').count(),0);
-  assert(await page.evaluate(()=>{player.face='down';player.moving=true;lifeUi.chop=null;fishingState.phase='idle';return !setCharacterWalkPreview('balanced')&&getCharacterWalkAlignment({pose:'walk',face:'down',frame:1})===0&&Array.from({length:4},(_,i)=>{tNow=i*105;return getCharacterPose().frame;}).join(',')==='0,1,2,1';}));
+  report.normalPromotion=await page.evaluate(()=>{
+    const before=JSON.stringify(GAME_STATE),saved=JSON.stringify(createSaveData().state),store=JSON.stringify({...localStorage});
+    if(CHARACTER_WALK_PREVIEW_ENABLED||setCharacterWalkPreview('original'))throw Error('Normal link exposes trial controls');
+    if(Object.keys(characterOutfitPreviewImgs).length)throw Error('Wardrobe was promoted together with walking');
+    const appearance={...GAME_STATE.appearance},draw=ctx.drawImage,calls=[];
+    ctx.drawImage=function(...args){calls.push(args);return draw.apply(this,args);};
+    let combinations=0;
+    try{
+      for(const [bodyId,hairId] of [['body.starter','hair.brown'],['body.female','hair.female.brown']])
+        for(const outfit of ['outfit.traveler','outfit.ember','outfit.meadow'])for(const pack of ['pack.traveler','pack.ranger','pack.berry'])for(let frame=0;frame<3;frame++){
+          Object.assign(GAME_STATE.appearance,{bodyId,hairId,outfitId:outfit,backpackId:pack});
+          const pose={pose:'walk',face:'down',frame,tool:'axe'},offset=[0,3,-2][frame],unit=CHARACTER_RIG.renderSize/96;
+          if(getCharacterWalkAlignment(pose)!==offset)throw Error('Normal walk is not corrected');
+          calls.length=0;const transform=drawCharacterActor(100,120,pose);
+          const anchor=CHARACTER_RIG.poses.walk.frames.down[frame].grip;
+          if(Math.abs(transform.x-(100+(anchor[0]+offset-48)*unit))>1e-8)throw Error('Normal held tool did not follow body');
+          const part=CHARACTER_PARTS.body.get(bodyId),hair=CHARACTER_PARTS.hair.get(hairId);
+          for(const call of calls.filter(call=>call.length===9)){
+            const isHead=call[0]===characterLayerImgs[part.walkHead]||call[0]===characterLayerImgs[hair.walkHair];
+            if(Math.abs(call[5]-(100-48*unit+(isHead?0:offset*unit)))>1e-8||call[7]!==100||call[8]!==100)throw Error('Normal layer alignment/scale changed');
+          }
+          if(getCharacterOutfitImages(outfit)!==characterOutfitImgs[outfit])throw Error('Normal wardrobe changed');
+          combinations++;
+        }
+      for(const face of ['right','left','up'])for(let frame=0;frame<3;frame++)if(getCharacterWalkAlignment({pose:'walk',face,frame})!==0)throw Error('Other direction changed');
+      for(const pose of ['chop','fish'])for(const face of ['down','right','left','up'])if(getCharacterWalkAlignment({pose,face,frame:1})!==0)throw Error('Action changed');
+      const axe=getCharacterToolTransform(100,120,{pose:'chop',face:'down',frame:0,tool:'axe'});
+      if(axe.edgeScale!==1||axe.mirror)throw Error('Axe blade trial was promoted');
+      player.face='down';player.moving=true;lifeUi.chop=null;fishingState.phase='idle';
+      if(Array.from({length:4},(_,i)=>{tNow=i*105;return getCharacterPose().frame;}).join(',')!=='0,1,2,1')throw Error('Cadence changed');
+    }finally{Object.assign(GAME_STATE.appearance,appearance);ctx.drawImage=draw;}
+    if(JSON.stringify(GAME_STATE)!==before||JSON.stringify(createSaveData().state)!==saved||JSON.stringify({...localStorage})!==store)throw Error('Walk promotion changes save/progression');
+    return {combinations,defaultDownAlignment:true,headScaleAndRigPreserved:true,wardrobeAndBladeStillTrial:true,stateAndStorageUnchanged:true};
+  });
+  assert.equal(report.normalPromotion.combinations,54);
   assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,normalLinkUnchanged:true,mobileButtons:true,browserErrors:errors},null,2));
-  console.log('PASS: down body/tool registration only; original cadence, fixed head/scale, male/female, idle/chop/fish, save/storage, normal link and mobile buttons.');
+  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,normalLinkCorrected:true,mobileButtons:true,browserErrors:errors},null,2));
+  console.log('PASS: approved down body/tool registration in normal play, 54 normal wardrobe combinations, original comparison/cadence/head/scale/actions/save, other trial features unpromoted.');
 }finally{await browser.close();}

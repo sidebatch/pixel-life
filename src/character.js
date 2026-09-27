@@ -42,7 +42,9 @@ function getCharacterPose(){
 function getCharacterWalkAlignment(pose){
   // The authored boot-centred frames shift the collar under a stationary head.
   // Register the whole body/wardrobe/hand together; never change the head scale.
-  return CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced'&&
+  // Default play now uses the approved registration. Only the opt-in
+  // comparison's original mode restores the pre-correction alignment.
+  return (!CHARACTER_WALK_PREVIEW_ENABLED||characterWalkPreview==='balanced')&&
     pose.pose==='walk'&&pose.face==='down'?[0,3,-2][pose.frame]:0;
 }
 

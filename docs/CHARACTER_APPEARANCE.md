@@ -2,6 +2,8 @@
 
 > 앞으로의 제작/납품 기준은 [고정 에셋 규격](CHARACTER_ASSET_STANDARD.md)과 character-standard-v1.json을 우선한다. 이 문서의 날짜별 내용은 제작 이력이며 옛 목63/rig-v1/polish-v1 설명을 현재 템플릿으로 사용하지 않는다.
 
+현재 사용자 표시 이름은 **이안**(기존 body.starter/hair.brown)과 **리아**(기존 body.female/hair.female.brown)다. NPC 선택창·안내와 시험 버튼에 동일하게 표시하며 내부 ID/저장/이미지는 유지한다.
+
 2026-09-27 남녀 선택 방식: 시작 UI가 아니라 마을 광장 동쪽의 하나에게 대화해 무료 변경한다. src/character-style.js가 기존 body.starter/hair.brown ↔ body.female/hair.female.brown만 변경·저장하고 공통 Body/Grip/옷/가방/무기/모션은 유지한다. 미리보기 선택만으로 저장되지 않으며 확인 시 저장 실패는 롤백한다. 기존 돈·레벨·장비·외형 소유는 초기화하지 않는다. 현재 NPC 비교용 성별 오버라이드는 확인 후 해제하고 실제 선택한 ID를 표시한다. 헤어스타일 자유 선택/판매는 아직 아니다.
 
 ## 적용 범위 (2026-09-25)

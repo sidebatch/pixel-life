@@ -34,10 +34,10 @@ loadAll().then(()=>{
     const panel=document.createElement('div');
     panel.dataset.characterPreviewPanel='true';
     panel.style.cssText='position:fixed;top:112px;left:8px;z-index:15;padding:8px;border-radius:12px;background:#102e2ee8;color:#fff;font:12px sans-serif;max-width:calc(100vw - 16px);';
-    panel.setAttribute('aria-label','남녀 캐릭터 동작 비교');
+    panel.setAttribute('aria-label','캐릭터 동작 비교');
     if(CHARACTER_WALK_PREVIEW_ENABLED)panel.style.top='210px';
-    const label=document.createElement('div');label.textContent='체형 비교 · 성별 시험 선택은 저장 안 됨';panel.appendChild(label);
-    for(const [sex,text] of [['male','남자'],['female','여자']]){
+    const label=document.createElement('div');label.textContent='캐릭터 비교 · 시험 선택은 저장 안 됨';panel.appendChild(label);
+    for(const [sex,text] of [['male','이안'],['female','리아']]){
       const button=document.createElement('button');button.type='button';button.textContent=text;
       button.style.cssText='margin:6px 3px 0 0;min-height:44px;padding:7px 14px;border:1px solid #acd4bb;border-radius:8px;background:#dbece0;color:#14322b;';
       button.addEventListener('click',()=>{setCharacterBodyPreview(sex);drawWorld();});panel.appendChild(button);

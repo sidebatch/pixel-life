@@ -116,7 +116,7 @@ try{
   }
   await page.setViewportSize({width:393,height:780});
   await page.reload();await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
-  await page.getByRole('button',{name:'여자',exact:true}).click();
+  await page.getByRole('button',{name:'리아',exact:true}).click();
   assert.equal(await page.evaluate(()=>getCharacterRenderAppearance().bodyId),'body.female');
   assert.equal(await page.evaluate(()=>GAME_STATE.appearance.bodyId),'body.starter');
   await page.evaluate(()=>{
@@ -124,11 +124,11 @@ try{
     camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));drawWorld();
   });
   await page.screenshot({path:path.join(output,'female-mobile.png')});
-  await page.getByRole('button',{name:'남자',exact:true}).click();
+  await page.getByRole('button',{name:'이안',exact:true}).click();
   assert.equal(await page.evaluate(()=>getCharacterRenderAppearance().bodyId),'body.starter');
   await page.goto((process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/'));
   await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
-  assert.equal(await page.getByRole('button',{name:'여자',exact:true}).count(),0,'Normal link has no preview UI');
+  assert.equal(await page.getByRole('button',{name:'리아',exact:true}).count(),0,'Normal link has no preview UI');
   assert.equal(await page.evaluate(()=>setCharacterBodyPreview('female')),false);
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({frames,...result,browserErrors:errors},null,2));

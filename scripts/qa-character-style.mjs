@@ -42,6 +42,8 @@ try{
       outfit:GAME_STATE.appearance.outfitId,pack:GAME_STATE.appearance.backpackId,tool:GAME_STATE.appearance.activeTool,ownedOutfits:GAME_STATE.appearance.ownedOutfitIds,ownedPacks:GAME_STATE.appearance.ownedBackpackIds}));
     const preserved=await core();
     await approach();
+    assert.equal(await page.locator('[data-character-style="male"] strong').textContent(),'이안');
+    assert.equal(await page.locator('[data-character-style="female"] strong').textContent(),'리아');
     assert(await page.locator('.characterStyleChoices canvas').evaluateAll(canvases=>canvases.every(canvas=>{
       const r=canvas.getBoundingClientRect(),b=canvas.parentElement.getBoundingClientRect();
       return getComputedStyle(canvas).position==='static'&&r.left>=b.left&&r.right<=b.right&&r.top>=b.top&&r.bottom<=b.bottom&&

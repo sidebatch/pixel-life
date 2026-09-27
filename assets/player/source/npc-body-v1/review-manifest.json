@@ -1,0 +1,294 @@
+{
+  "status": "design-review-only",
+  "cell": 96,
+  "feet": [
+    48,
+    88
+  ],
+  "displaySize": 100,
+  "targetHeight": 68,
+  "directions": [
+    "down",
+    "right",
+    "left",
+    "up"
+  ],
+  "measurements": [
+    {
+      "name": "male",
+      "face": "down",
+      "source": {
+        "x": 247,
+        "y": 97,
+        "width": 182,
+        "height": 327,
+        "pixels": 39007
+      },
+      "packed": {
+        "x": 29,
+        "y": 21,
+        "width": 38,
+        "height": 68
+      }
+    },
+    {
+      "name": "female",
+      "face": "down",
+      "source": {
+        "x": 657,
+        "y": 107,
+        "width": 178,
+        "height": 317,
+        "pixels": 37735
+      },
+      "packed": {
+        "x": 29,
+        "y": 21,
+        "width": 38,
+        "height": 68
+      }
+    },
+    {
+      "name": "elli",
+      "face": "down",
+      "source": {
+        "x": 30,
+        "y": 26,
+        "width": 36,
+        "height": 68
+      },
+      "packed": {
+        "x": 30,
+        "y": 21,
+        "width": 36,
+        "height": 68
+      },
+      "baselineShift": -5
+    },
+    {
+      "name": "jun",
+      "face": "down",
+      "source": {
+        "x": 25,
+        "y": 26,
+        "width": 46,
+        "height": 68
+      },
+      "packed": {
+        "x": 25,
+        "y": 21,
+        "width": 46,
+        "height": 68
+      },
+      "baselineShift": -5
+    },
+    {
+      "name": "male",
+      "face": "right",
+      "source": {
+        "x": 254,
+        "y": 435,
+        "width": 183,
+        "height": 327,
+        "pixels": 34440
+      },
+      "packed": {
+        "x": 29,
+        "y": 21,
+        "width": 38,
+        "height": 68
+      }
+    },
+    {
+      "name": "female",
+      "face": "right",
+      "source": {
+        "x": 645,
+        "y": 451,
+        "width": 183,
+        "height": 311,
+        "pixels": 34318
+      },
+      "packed": {
+        "x": 28,
+        "y": 21,
+        "width": 40,
+        "height": 68
+      }
+    },
+    {
+      "name": "elli",
+      "face": "right",
+      "source": {
+        "x": 25,
+        "y": 26,
+        "width": 45,
+        "height": 68
+      },
+      "packed": {
+        "x": 25,
+        "y": 21,
+        "width": 45,
+        "height": 68
+      },
+      "baselineShift": -5
+    },
+    {
+      "name": "jun",
+      "face": "right",
+      "source": {
+        "x": 24,
+        "y": 26,
+        "width": 47,
+        "height": 68
+      },
+      "packed": {
+        "x": 24,
+        "y": 21,
+        "width": 47,
+        "height": 68
+      },
+      "baselineShift": -5
+    },
+    {
+      "name": "male",
+      "face": "left",
+      "source": {
+        "x": 245,
+        "y": 772,
+        "width": 183,
+        "height": 326,
+        "pixels": 33718
+      },
+      "packed": {
+        "x": 29,
+        "y": 21,
+        "width": 38,
+        "height": 68
+      }
+    },
+    {
+      "name": "female",
+      "face": "left",
+      "source": {
+        "x": 665,
+        "y": 792,
+        "width": 184,
+        "height": 306,
+        "pixels": 33611
+      },
+      "packed": {
+        "x": 28,
+        "y": 21,
+        "width": 41,
+        "height": 68
+      }
+    },
+    {
+      "name": "elli",
+      "face": "left",
+      "source": {
+        "x": 26,
+        "y": 26,
+        "width": 43,
+        "height": 68
+      },
+      "packed": {
+        "x": 26,
+        "y": 21,
+        "width": 43,
+        "height": 68
+      },
+      "baselineShift": -5
+    },
+    {
+      "name": "jun",
+      "face": "left",
+      "source": {
+        "x": 24,
+        "y": 26,
+        "width": 47,
+        "height": 68
+      },
+      "packed": {
+        "x": 24,
+        "y": 21,
+        "width": 47,
+        "height": 68
+      },
+      "baselineShift": -5
+    },
+    {
+      "name": "male",
+      "face": "up",
+      "source": {
+        "x": 252,
+        "y": 1106,
+        "width": 175,
+        "height": 312,
+        "pixels": 36529
+      },
+      "packed": {
+        "x": 29,
+        "y": 21,
+        "width": 38,
+        "height": 68
+      }
+    },
+    {
+      "name": "female",
+      "face": "up",
+      "source": {
+        "x": 659,
+        "y": 1119,
+        "width": 161,
+        "height": 299,
+        "pixels": 34381
+      },
+      "packed": {
+        "x": 30,
+        "y": 21,
+        "width": 37,
+        "height": 68
+      }
+    },
+    {
+      "name": "elli",
+      "face": "up",
+      "source": {
+        "x": 33,
+        "y": 26,
+        "width": 31,
+        "height": 68
+      },
+      "packed": {
+        "x": 33,
+        "y": 21,
+        "width": 31,
+        "height": 68
+      },
+      "baselineShift": -5
+    },
+    {
+      "name": "jun",
+      "face": "up",
+      "source": {
+        "x": 25,
+        "y": 26,
+        "width": 46,
+        "height": 68
+      },
+      "packed": {
+        "x": 25,
+        "y": 21,
+        "width": 46,
+        "height": 68
+      },
+      "baselineShift": -5
+    }
+  ],
+  "runtimeChanged": false,
+  "animationValidated": false,
+  "wardrobeCompatibilityValidated": false,
+  "npcBaselineAlignedWithoutRescaling": true
+}

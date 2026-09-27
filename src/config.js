@@ -25,6 +25,9 @@ const CHARACTER_TRIAL_SET=Object.freeze({
   outfitId:'outfit.trial.green',hairId:'hair.trial.blond',backpackId:'pack.trial.red'
 });
 let characterAppearancePreview=null;
+// Non-saving body comparison. New-game gender selection is a later UI step.
+const CHARACTER_BODY_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('character-preview');
+let characterBodyPreview=CHARACTER_BODY_PREVIEW_ENABLED&&new URLSearchParams(window.location.search).get('character')==='female'?'female':null;
 const CHARACTER_OUTFITS=Object.freeze([
   Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
     chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1',iconUrl:CHARACTER_POLISH_ICON_URLS.outfit}),
@@ -37,8 +40,10 @@ const CHARACTER_OUTFITS=Object.freeze([
 ]);
 const CHARACTER_OUTFIT_BY_ID=new Map(CHARACTER_OUTFITS.map(outfit=>[outfit.id,outfit]));
 const CHARACTER_PARTS=Object.freeze({
-  body:new Map([['body.starter',{walkBody:'walkBody',walkHead:'walkHead',walkGrip:'walkGrip',chopBody:'chopBody',chopHead:'chopHead',chopGrip:'chopGrip',fishBody:'fishBody',fishHead:'fishHead',fishGrip:'fishGrip'}]]),
+  body:new Map([['body.starter',{walkBody:'walkBody',walkHead:'walkHead',walkGrip:'walkGrip',chopBody:'chopBody',chopHead:'chopHead',chopGrip:'chopGrip',fishBody:'fishBody',fishHead:'fishHead',fishGrip:'fishGrip'}],
+    ['body.female',{walkBody:'walkBody',walkHead:'femaleWalkHead',walkGrip:'walkGrip',chopBody:'chopBody',chopHead:'femaleChopHead',chopGrip:'chopGrip',fishBody:'fishBody',fishHead:'femaleFishHead',fishGrip:'fishGrip'}]]),
   hair:new Map([['hair.brown',{walkHair:'walkHair',chopHair:'chopHair',fishHair:'fishHair'}],
+    ['hair.female.brown',{walkHair:'femaleWalkHair',chopHair:'femaleChopHair',fishHair:'femaleFishHair'}],
     ...(CHARACTER_TRIAL_ENABLED?[[CHARACTER_TRIAL_SET.hairId,{walkHair:'trialWalkHair',chopHair:'trialChopHair',fishHair:'trialFishHair',testOnly:true}]]:[])]),
   backpack:new Map([['pack.traveler',{name:'여행자의 가방',description:'여행자의 기본 가방. 외형만 바뀌며 아이템 보관 수에는 영향을 주지 않아요.',iconUrl:CHARACTER_POLISH_ICON_URLS.backpack,walkBackpack:'walkBackpack',chopBackpack:'chopBackpack',fishBackpack:'fishBackpack'}],
     ['pack.ranger',{name:'숲길 등산가방',description:'초록색 등산가방에 둥글게 만 침낭과 튼튼한 끈을 달았어요. 임시 체험용이며 보관 수는 바뀌지 않아요.',
@@ -142,7 +147,12 @@ function setCharacterAppearancePreview(parts=null){
   return true;
 }
 function getCharacterRenderAppearance(){
-  return characterAppearancePreview?{...GAME_STATE.appearance,...characterAppearancePreview}:GAME_STATE.appearance||{};
+  const body=characterBodyPreview?{bodyId:characterBodyPreview==='female'?'body.female':'body.starter',hairId:characterBodyPreview==='female'?'hair.female.brown':'hair.brown'}:{};
+  return {...GAME_STATE.appearance,...body,...characterAppearancePreview};
+}
+function setCharacterBodyPreview(sex){
+  if(!CHARACTER_BODY_PREVIEW_ENABLED||!['male','female'].includes(sex))return false;
+  characterBodyPreview=sex;return true;
 }
 async function loadAll(){
   await Promise.all([

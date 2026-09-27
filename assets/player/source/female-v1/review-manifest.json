@@ -1,0 +1,105 @@
+{
+  "status": "design-review-only",
+  "cell": 96,
+  "feet": [
+    48,
+    88
+  ],
+  "displaySize": 100,
+  "targetHeight": 61,
+  "directions": [
+    "down",
+    "right",
+    "left",
+    "up"
+  ],
+  "measurements": [
+    {
+      "face": "down",
+      "source": {
+        "x": 305,
+        "y": 152,
+        "width": 212,
+        "height": 393
+      },
+      "female": {
+        "x": 32,
+        "y": 28,
+        "width": 33,
+        "height": 61
+      },
+      "male": {
+        "x": 30,
+        "y": 28,
+        "width": 37,
+        "height": 61
+      }
+    },
+    {
+      "face": "right",
+      "source": {
+        "x": 115,
+        "y": 152,
+        "width": 227,
+        "height": 393
+      },
+      "female": {
+        "x": 31,
+        "y": 28,
+        "width": 35,
+        "height": 61
+      },
+      "male": {
+        "x": 27,
+        "y": 28,
+        "width": 41,
+        "height": 61
+      }
+    },
+    {
+      "face": "left",
+      "source": {
+        "x": 307,
+        "y": 62,
+        "width": 227,
+        "height": 389
+      },
+      "female": {
+        "x": 30,
+        "y": 28,
+        "width": 36,
+        "height": 61
+      },
+      "male": {
+        "x": 29,
+        "y": 30,
+        "width": 40,
+        "height": 59
+      }
+    },
+    {
+      "face": "up",
+      "source": {
+        "x": 143,
+        "y": 62,
+        "width": 197,
+        "height": 389
+      },
+      "female": {
+        "x": 33,
+        "y": 28,
+        "width": 31,
+        "height": 61
+      },
+      "male": {
+        "x": 29,
+        "y": 31,
+        "width": 39,
+        "height": 58
+      }
+    }
+  ],
+  "runtimeChanged": false,
+  "animationValidated": false,
+  "wardrobeCompatibilityValidated": false
+}

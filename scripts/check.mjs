@@ -111,7 +111,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 179, `Expected 179 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 185, `Expected 185 runtime asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -1068,6 +1068,8 @@ const rigContext={};
 vm.createContext(rigContext);
 vm.runInContext(read('src/data/character-rig-data.js')+'\nglobalThis.rig=CHARACTER_RIG;',rigContext);
 const rig=rigContext.rig;
+const rigNeck=rig.neck||[48,63];
+assert(rig.anatomy==='npc-v1'&&rigNeck.join(',')==='48,54','Approved NPC body must use its own neck anchor');
 assert(rig.cell===96&&rig.feet.join(',')==='48,88'&&rig.renderSize===100,
   'Character must use one cell, feet baseline and render scale across all actions');
 assert(rig.handedness==='right'&&rig.poses.walk.frames.down.every(f=>f.grip[0]<48)&&
@@ -1189,14 +1191,14 @@ for(const [pose,definition] of Object.entries(rig.poses)){
         'Hands must cover the handle, raised preparation hands go behind the head, back-facing tools stay behind the body');
       if(pose==='chop'){
         const motion=definition.frames[face][frame].headMotion;
-        const expectedNeck=[100+motion.offset[0]*unit,120+(63-88+motion.offset[1])*unit];
+        const expectedNeck=[100+motion.offset[0]*unit,120+(rigNeck[1]-88+motion.offset[1])*unit];
         assert(characterRotations.slice(-2).every(angle=>angle===motion.rotation)&&
           characterTranslations.slice(-2).every(([x,y])=>Math.abs(x-expectedNeck[0])<1e-8&&Math.abs(y-expectedNeck[1])<1e-8),
           'Head and hair must share the actual moving neck transform, not merely motion metadata');
         for(const name of ['Head','Hair']){
           const call=characterCalls.find(item=>item.id==='walk'+name);
           assert(call&&call.args[0]===0&&call.args[1]===['down','right','left','up'].indexOf(face)*96&&
-            call.args[4]===-48*unit&&call.args[5]===-63*unit&&call.args[6]===100&&call.args[7]===100,
+            call.args[4]===-rigNeck[0]*unit&&call.args[5]===-rigNeck[1]*unit&&call.args[6]===100&&call.args[7]===100,
             'Every swing must retain idle head/hair dimensions while pivoting at the neck');
         }
         assert(!characterCalls.some(item=>item.id==='chopHead'||item.id==='chopHair'),
@@ -1207,7 +1209,7 @@ for(const [pose,definition] of Object.entries(rig.poses)){
 }
 for(const face of ['down','right','left','up']){
   const [ready,impact]=rig.poses.chop.frames[face].map(frame=>frame.headMotion);
-  assert(ready&&impact&&ready.pivot.join(',')==='48,63'&&impact.pivot.join(',')==='48,63'&&
+  assert(ready&&impact&&ready.pivot.join(',')===rigNeck.join(',')&&impact.pivot.join(',')===rigNeck.join(',')&&
     ready.offset[1]!==impact.offset[1]&&ready.rotation!==impact.rotation&&
     Math.abs(ready.rotation)<=.05&&Math.abs(impact.rotation)<=.05,
     'Chopping heads must move with the body without scaling or exaggerated tilt');

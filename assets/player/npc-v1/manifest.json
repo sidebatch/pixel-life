@@ -1,0 +1,812 @@
+{
+  "version": 1,
+  "cell": 96,
+  "feet": [
+    48,
+    88
+  ],
+  "neck": [
+    48,
+    54
+  ],
+  "bodyNeckToFeet": 37,
+  "head": "approved-single-master",
+  "poses": [
+    {
+      "pose": "walk",
+      "columns": 3
+    },
+    {
+      "pose": "chop",
+      "columns": 2
+    },
+    {
+      "pose": "fish",
+      "columns": 3
+    }
+  ],
+  "files": [
+    "assets/player/npc-v1/walk-body.png",
+    "assets/player/npc-v1/walk-outfit.png",
+    "assets/player/npc-v1/walk-grip.png",
+    "assets/player/npc-v1/walk-head.png",
+    "assets/player/npc-v1/walk-hair.png",
+    "assets/player/npc-v1/walk-female-head.png",
+    "assets/player/npc-v1/walk-female-hair.png",
+    "assets/player/npc-v1/walk-backpack.png",
+    "assets/player/npc-v1/walk-ranger.png",
+    "assets/player/npc-v1/walk-berry.png",
+    "assets/player/npc-v1/walk-ember.png",
+    "assets/player/npc-v1/walk-meadow.png",
+    "assets/player/npc-v1/chop-body.png",
+    "assets/player/npc-v1/chop-outfit.png",
+    "assets/player/npc-v1/chop-grip.png",
+    "assets/player/npc-v1/chop-head.png",
+    "assets/player/npc-v1/chop-hair.png",
+    "assets/player/npc-v1/chop-female-head.png",
+    "assets/player/npc-v1/chop-female-hair.png",
+    "assets/player/npc-v1/chop-backpack.png",
+    "assets/player/npc-v1/chop-ranger.png",
+    "assets/player/npc-v1/chop-berry.png",
+    "assets/player/npc-v1/chop-ember.png",
+    "assets/player/npc-v1/chop-meadow.png",
+    "assets/player/npc-v1/fish-body.png",
+    "assets/player/npc-v1/fish-outfit.png",
+    "assets/player/npc-v1/fish-grip.png",
+    "assets/player/npc-v1/fish-head.png",
+    "assets/player/npc-v1/fish-hair.png",
+    "assets/player/npc-v1/fish-female-head.png",
+    "assets/player/npc-v1/fish-female-hair.png",
+    "assets/player/npc-v1/fish-backpack.png",
+    "assets/player/npc-v1/fish-ranger.png",
+    "assets/player/npc-v1/fish-berry.png",
+    "assets/player/npc-v1/fish-ember.png",
+    "assets/player/npc-v1/fish-meadow.png"
+  ],
+  "sourceFrames": [
+    {
+      "pose": "walk",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 130,
+        "y": 109,
+        "width": 184,
+        "height": 223,
+        "pixels": 28556
+      },
+      "neckOffset": 0,
+      "scale": 0.16216216216216217,
+      "placement": [
+        33,
+        53
+      ],
+      "hand": [
+        37,
+        71
+      ]
+    },
+    {
+      "pose": "walk",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 464,
+        "y": 109,
+        "width": 169,
+        "height": 223,
+        "pixels": 24564
+      },
+      "neckOffset": 0,
+      "scale": 0.16216216216216217,
+      "placement": [
+        32,
+        53
+      ],
+      "hand": [
+        36,
+        69
+      ]
+    },
+    {
+      "pose": "walk",
+      "face": "down",
+      "frame": 2,
+      "source": {
+        "x": 784,
+        "y": 109,
+        "width": 172,
+        "height": 223,
+        "pixels": 26592
+      },
+      "neckOffset": 0,
+      "scale": 0.16216216216216217,
+      "placement": [
+        36,
+        53
+      ],
+      "hand": [
+        39,
+        70
+      ]
+    },
+    {
+      "pose": "walk",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 168,
+        "y": 419,
+        "width": 104,
+        "height": 223,
+        "pixels": 18488
+      },
+      "neckOffset": 0,
+      "scale": 0.16216216216216217,
+      "placement": [
+        39,
+        53
+      ],
+      "hand": [
+        46,
+        70
+      ]
+    },
+    {
+      "pose": "walk",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 487,
+        "y": 419,
+        "width": 125,
+        "height": 223,
+        "pixels": 19319
+      },
+      "neckOffset": 0,
+      "scale": 0.16216216216216217,
+      "placement": [
+        37,
+        53
+      ],
+      "hand": [
+        48,
+        67
+      ]
+    },
+    {
+      "pose": "walk",
+      "face": "right",
+      "frame": 2,
+      "source": {
+        "x": 790,
+        "y": 419,
+        "width": 164,
+        "height": 223,
+        "pixels": 20524
+      },
+      "neckOffset": 0,
+      "scale": 0.16216216216216217,
+      "placement": [
+        33,
+        53
+      ],
+      "hand": [
+        43,
+        68
+      ]
+    },
+    {
+      "pose": "walk",
+      "face": "left",
+      "frame": 0,
+      "source": {
+        "x": 162,
+        "y": 745,
+        "width": 104,
+        "height": 223,
+        "pixels": 18622
+      },
+      "neckOffset": 0,
+      "scale": 0.16216216216216217,
+      "placement": [
+        40,
+        53
+      ],
+      "hand": [
+        41,
+        67
+      ],
+      "packedFrom": {
+        "face": "right",
+        "mirror": true
+      },
+      "leftSourceKeptForReferenceOnly": true
+    },
+    {
+      "pose": "walk",
+      "face": "left",
+      "frame": 1,
+      "source": {
+        "x": 464,
+        "y": 745,
+        "width": 144,
+        "height": 226,
+        "pixels": 21000
+      },
+      "neckOffset": 0,
+      "scale": 0.16,
+      "placement": [
+        39,
+        53
+      ],
+      "hand": [
+        39,
+        64
+      ],
+      "packedFrom": {
+        "face": "right",
+        "mirror": true
+      },
+      "leftSourceKeptForReferenceOnly": true
+    },
+    {
+      "pose": "walk",
+      "face": "left",
+      "frame": 2,
+      "source": {
+        "x": 776,
+        "y": 745,
+        "width": 175,
+        "height": 226,
+        "pixels": 23106
+      },
+      "neckOffset": 0,
+      "scale": 0.16,
+      "placement": [
+        36,
+        53
+      ],
+      "hand": [
+        44,
+        65
+      ],
+      "packedFrom": {
+        "face": "right",
+        "mirror": true
+      },
+      "leftSourceKeptForReferenceOnly": true
+    },
+    {
+      "pose": "walk",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 130,
+        "y": 1088,
+        "width": 184,
+        "height": 225,
+        "pixels": 28779
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        33,
+        53
+      ],
+      "hand": [
+        59,
+        71
+      ]
+    },
+    {
+      "pose": "walk",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 461,
+        "y": 1088,
+        "width": 172,
+        "height": 225,
+        "pixels": 26090
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        33,
+        53
+      ],
+      "hand": [
+        57,
+        71
+      ]
+    },
+    {
+      "pose": "walk",
+      "face": "up",
+      "frame": 2,
+      "source": {
+        "x": 776,
+        "y": 1088,
+        "width": 178,
+        "height": 225,
+        "pixels": 27348
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        33,
+        53
+      ],
+      "hand": [
+        58,
+        71
+      ]
+    },
+    {
+      "pose": "chop",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 251,
+        "y": 104,
+        "width": 182,
+        "height": 250,
+        "pixels": 26204
+      },
+      "neckOffset": 27,
+      "scale": 0.16216216216216217,
+      "placement": [
+        32,
+        48
+      ],
+      "hand": [
+        38,
+        52
+      ]
+    },
+    {
+      "pose": "chop",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 659,
+        "y": 129,
+        "width": 169,
+        "height": 225,
+        "pixels": 23346
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        34,
+        53
+      ],
+      "hand": [
+        48,
+        70
+      ]
+    },
+    {
+      "pose": "chop",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 267,
+        "y": 439,
+        "width": 181,
+        "height": 251,
+        "pixels": 25131
+      },
+      "neckOffset": 35.641999999999996,
+      "scale": 0.16794334711090791,
+      "placement": [
+        32,
+        47
+      ],
+      "hand": [
+        36,
+        51
+      ]
+    },
+    {
+      "pose": "chop",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 644,
+        "y": 469,
+        "width": 185,
+        "height": 221,
+        "pixels": 22979
+      },
+      "neckOffset": 0,
+      "scale": 0.16363636363636364,
+      "placement": [
+        33,
+        53
+      ],
+      "hand": [
+        57,
+        70
+      ]
+    },
+    {
+      "pose": "chop",
+      "face": "left",
+      "frame": 0,
+      "source": {
+        "x": 255,
+        "y": 783,
+        "width": 185,
+        "height": 250,
+        "pixels": 25527
+      },
+      "neckOffset": 27,
+      "scale": 0.16216216216216217,
+      "placement": [
+        34,
+        48
+      ],
+      "hand": [
+        59,
+        51
+      ],
+      "packedFrom": {
+        "face": "right",
+        "mirror": true
+      },
+      "leftSourceKeptForReferenceOnly": true
+    },
+    {
+      "pose": "chop",
+      "face": "left",
+      "frame": 1,
+      "source": {
+        "x": 640,
+        "y": 808,
+        "width": 187,
+        "height": 225,
+        "pixels": 23442
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        33,
+        53
+      ],
+      "hand": [
+        38,
+        70
+      ],
+      "packedFrom": {
+        "face": "right",
+        "mirror": true
+      },
+      "leftSourceKeptForReferenceOnly": true
+    },
+    {
+      "pose": "chop",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 263,
+        "y": 1118,
+        "width": 177,
+        "height": 254,
+        "pixels": 26003
+      },
+      "neckOffset": 35.306000000000004,
+      "scale": 0.1653697391751725,
+      "placement": [
+        34,
+        47
+      ],
+      "hand": [
+        58,
+        51
+      ]
+    },
+    {
+      "pose": "chop",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 659,
+        "y": 1147,
+        "width": 168,
+        "height": 225,
+        "pixels": 22532
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        35,
+        53
+      ],
+      "hand": [
+        57,
+        58
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "down",
+      "frame": 0,
+      "source": {
+        "x": 117,
+        "y": 124,
+        "width": 154,
+        "height": 221,
+        "pixels": 23076
+      },
+      "neckOffset": 0,
+      "scale": 0.16363636363636364,
+      "placement": [
+        34,
+        53
+      ],
+      "hand": [
+        43,
+        62
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "down",
+      "frame": 1,
+      "source": {
+        "x": 471,
+        "y": 124,
+        "width": 146,
+        "height": 221,
+        "pixels": 22210
+      },
+      "neckOffset": 0,
+      "scale": 0.16363636363636364,
+      "placement": [
+        36,
+        53
+      ],
+      "hand": [
+        48,
+        68
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "down",
+      "frame": 2,
+      "source": {
+        "x": 810,
+        "y": 124,
+        "width": 163,
+        "height": 221,
+        "pixels": 24160
+      },
+      "neckOffset": 0,
+      "scale": 0.16363636363636364,
+      "placement": [
+        35,
+        53
+      ],
+      "hand": [
+        48,
+        66
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "right",
+      "frame": 0,
+      "source": {
+        "x": 135,
+        "y": 466,
+        "width": 121,
+        "height": 225,
+        "pixels": 18117
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        37,
+        53
+      ],
+      "hand": [
+        48,
+        62
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "right",
+      "frame": 1,
+      "source": {
+        "x": 490,
+        "y": 470,
+        "width": 133,
+        "height": 222,
+        "pixels": 18867
+      },
+      "neckOffset": 0,
+      "scale": 0.16289592760180996,
+      "placement": [
+        40,
+        53
+      ],
+      "hand": [
+        55,
+        65
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "right",
+      "frame": 2,
+      "source": {
+        "x": 850,
+        "y": 470,
+        "width": 108,
+        "height": 222,
+        "pixels": 17454
+      },
+      "neckOffset": 0,
+      "scale": 0.16289592760180996,
+      "placement": [
+        40,
+        53
+      ],
+      "hand": [
+        52,
+        64
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "left",
+      "frame": 0,
+      "source": {
+        "x": 144,
+        "y": 802,
+        "width": 121,
+        "height": 227,
+        "pixels": 18183
+      },
+      "neckOffset": 0,
+      "scale": 0.1592920353982301,
+      "placement": [
+        40,
+        53
+      ],
+      "hand": [
+        47,
+        62
+      ],
+      "packedFrom": {
+        "face": "right",
+        "mirror": true
+      },
+      "leftSourceKeptForReferenceOnly": true
+    },
+    {
+      "pose": "fish",
+      "face": "left",
+      "frame": 1,
+      "source": {
+        "x": 465,
+        "y": 805,
+        "width": 135,
+        "height": 224,
+        "pixels": 19435
+      },
+      "neckOffset": 0,
+      "scale": 0.16143497757847533,
+      "placement": [
+        34,
+        53
+      ],
+      "hand": [
+        40,
+        65
+      ],
+      "packedFrom": {
+        "face": "right",
+        "mirror": true
+      },
+      "leftSourceKeptForReferenceOnly": true
+    },
+    {
+      "pose": "fish",
+      "face": "left",
+      "frame": 2,
+      "source": {
+        "x": 842,
+        "y": 805,
+        "width": 109,
+        "height": 225,
+        "pixels": 17425
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        38,
+        53
+      ],
+      "hand": [
+        43,
+        64
+      ],
+      "packedFrom": {
+        "face": "right",
+        "mirror": true
+      },
+      "leftSourceKeptForReferenceOnly": true
+    },
+    {
+      "pose": "fish",
+      "face": "up",
+      "frame": 0,
+      "source": {
+        "x": 125,
+        "y": 1140,
+        "width": 153,
+        "height": 225,
+        "pixels": 22776
+      },
+      "neckOffset": 0,
+      "scale": 0.16071428571428573,
+      "placement": [
+        37,
+        53
+      ],
+      "hand": [
+        58,
+        56
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "up",
+      "frame": 1,
+      "source": {
+        "x": 470,
+        "y": 1141,
+        "width": 146,
+        "height": 224,
+        "pixels": 21580
+      },
+      "neckOffset": 0,
+      "scale": 0.16143497757847533,
+      "placement": [
+        36,
+        53
+      ],
+      "hand": [
+        57,
+        58
+      ]
+    },
+    {
+      "pose": "fish",
+      "face": "up",
+      "frame": 2,
+      "source": {
+        "x": 812,
+        "y": 1141,
+        "width": 159,
+        "height": 224,
+        "pixels": 23525
+      },
+      "neckOffset": 0,
+      "scale": 0.16143497757847533,
+      "placement": [
+        35,
+        53
+      ],
+      "hand": [
+        38,
+        66
+      ]
+    }
+  ]
+}

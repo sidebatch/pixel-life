@@ -35,10 +35,15 @@ function getCharacterPose(){
     const frame=phase==='casting'&&fishingState.timer<FISHING_CONFIG.castMs*.55?0:phase==='result'?2:1;
     return {pose:'fish',face,frame,tool:'rod'};
   }
-  const sequence=CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced'&&face==='down'
-    ?[1,0,2,0]:[0,1,2,1];
-  const frame=player.moving?sequence[Math.floor(tNow/105)%4]:0;
+  const frame=player.moving?[0,1,2,1][Math.floor(tNow/105)%4]:0;
   return {pose:'walk',face,frame,tool:GAME_STATE.appearance?.activeTool||'axe'};
+}
+
+function getCharacterWalkAlignment(pose){
+  // The authored boot-centred frames shift the collar under a stationary head.
+  // Register the whole body/wardrobe/hand together; never change the head scale.
+  return CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced'&&
+    pose.pose==='walk'&&pose.face==='down'?[0,3,-2][pose.frame]:0;
 }
 
 function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
@@ -47,7 +52,7 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const key=`${pose.tool}.${asset}`,tool=CHARACTER_RIG.tools[key];
   if(!tool) return null;
   const unit=CHARACTER_RIG.renderSize/CHARACTER_RIG.cell;
-  const x=actorX+(frame.grip[0]-CHARACTER_RIG.feet[0])*unit;
+  const x=actorX+(frame.grip[0]+getCharacterWalkAlignment(pose)-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
   const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):pose.pose==='chop'?34:26)*unit;
   // Front/back carry shows a narrow three-quarter edge, not the broad side.
@@ -106,7 +111,10 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
       ctx.save();ctx.translate(x+(px+dx)*unit,y+(py+dy)*unit);ctx.rotate(motion.rotation);
       ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,-px*unit,-py*unit,size,size);
       ctx.restore();
-    }else ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,x,y,size,size);
+    }else{
+      const bodyOffset=name==='Head'||name==='Hair'?0:getCharacterWalkAlignment(pose)*size/cell;
+      ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,x+bodyOffset,y,size,size);
+    }
   };
   if(transform?.behind)drawCharacterTool(transform);
   // Side bags are complete silhouettes attached behind the torso. Let the

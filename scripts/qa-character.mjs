@@ -8,6 +8,7 @@ const {chromium}=require(process.env.PIXEL_LIFE_PLAYWRIGHT||'playwright');
 const output=path.resolve(process.argv[2]||'output/character-qa');
 const base=process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/';
 const trialQuery=(process.env.PIXEL_LIFE_QA_APPEARANCE==='trial'?'&appearance-preview':'')+
+  (process.env.PIXEL_LIFE_QA_WALK_PREVIEW==='1'?'&walk-preview':'')+
   (process.env.PIXEL_LIFE_QA_BODY==='female'?'&character-preview&character=female':'');
 const wardrobe={outfit:process.env.PIXEL_LIFE_QA_OUTFIT||null,backpack:process.env.PIXEL_LIFE_QA_BACKPACK||null};
 async function applyWardrobe(page){

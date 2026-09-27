@@ -3,7 +3,10 @@
   "created": "2026-09-27",
   "baselineCommit": "edb9c9d",
   "previewPromotionPending": true,
-  "approvedPromotions": [{"feature":"down-walk-registration","date":"2026-09-27","previousRendererSha256":"f0a4bd996839537be4482073f0ee3dd41684431e28ae31ce14afbcce0f22eb80","scope":"Default down walking offset only; original comparison retained; wardrobe and axe blade remain opt-in."}],
+  "approvedPromotions": [
+    {"feature":"down-walk-registration","date":"2026-09-27","previousRendererSha256":"f0a4bd996839537be4482073f0ee3dd41684431e28ae31ce14afbcce0f22eb80","scope":"Default down walking offset only; original comparison retained; wardrobe and axe blade remain opt-in at this step."},
+    {"feature":"corrected-wardrobe-and-matching-ui","date":"2026-09-27","scope":"User requested clothing correction. Normal play selects existing wardrobe-v2 art; bag/detail/NPC previews follow actual outfit art. No renderer, pose, tool, save ID or original PNG changes. Original comparison retained; axe blade remains opt-in."}
+  ],
   "geometryHash": "575bb8e51045cca4b5fe2507bde629cdab5f01fe116de19c2a1916e09c9c1ef2",
   "existingTools": {
     "axe.basic": {

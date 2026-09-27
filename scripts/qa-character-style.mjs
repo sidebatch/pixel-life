@@ -12,7 +12,7 @@ try{
   for(const [width,height] of [[393,780],[320,568],[1100,900]]){
     const context=await browser.newContext({viewport:{width,height},isMobile:width<500,hasTouch:true});
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
-    await page.goto(base);await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish&&typeof isCharacterStyleOpen==='function');
+    await page.goto(base);await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish&&typeof isCharacterStyleOpen==='function');
     await page.evaluate(()=>{
       const save=createSaveData();save.state.progression.coins=4321;
       Object.assign(save.state.appearance,{outfitId:'outfit.ember',backpackId:'pack.berry',activeTool:'rod'});
@@ -64,7 +64,7 @@ try{
     assert.deepEqual(await page.evaluate(()=>({body:GAME_STATE.appearance.bodyId,hair:GAME_STATE.appearance.hairId})),{body:'body.female',hair:'hair.female.brown'});
     assert.equal(await core(),preserved);
     await page.screenshot({path:path.join(output,`${width}-female-world.png`)});
-    await page.reload();await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
+    await page.reload();await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish);
     assert.equal(await page.evaluate(()=>GAME_STATE.appearance.bodyId),'body.female');assert.equal(await core(),preserved);
     await approach();await page.locator('[data-character-style="male"]').tap();
     await page.evaluate(()=>{window.__storageSet=Storage.prototype.setItem;Storage.prototype.setItem=()=>{throw Error('QA storage unavailable');};});
@@ -83,7 +83,7 @@ try{
     await page.locator('#characterStyleApply').focus();await page.keyboard.press('Enter');
     await page.waitForFunction(()=>!isCharacterStyleOpen()&&window.history.state?.pixelLifeOverlay!=='character-style');
     assert.equal(await page.evaluate(()=>GAME_STATE.appearance.bodyId),'body.starter');assert.equal(await core(),preserved);
-    await page.reload();await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
+    await page.reload();await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish);
     assert.equal(await page.evaluate(()=>GAME_STATE.appearance.bodyId),'body.starter');
     await page.evaluate(()=>{if(applyCharacterStyle())throw Error('NPC service applies outside modal');});
     results.push({viewport:`${width}x${height}`,npcReachable:true,touchAndKeyboard:true,cancelBackForward:true,savedBothWays:true,saveFailureRollback:true,progressEquipmentAndWardrobePreserved:true});

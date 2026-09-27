@@ -13,7 +13,7 @@ try{
   const page=await phone.newPage();page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await page.goto(base);
-  await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish&&typeof equipInventoryAppearance==='function',null,{polling:50});
+  await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish&&typeof equipInventoryAppearance==='function',null,{polling:50});
   const legacy=await page.evaluate(()=>{
     const data=JSON.parse(JSON.stringify(createSaveData()));
     data.state.appearance={bodyId:'body.starter',hairId:'hair.brown',outfitId:'outfit.traveler',backpackId:'pack.traveler',
@@ -28,7 +28,7 @@ try{
     return {coins:4321,level:progress.level,xp:progress.xp,totalXp:80,axeId:data.state.progression.forestry.axeId};
   });
   await page.reload();
-  await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish&&typeof equipInventoryAppearance==='function',null,{polling:50});
+  await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish&&typeof equipInventoryAppearance==='function',null,{polling:50});
   await page.evaluate(before=>{
     if(GAME_STATE.progression.coins!==before.coins||GAME_STATE.progression.fishing.level!==before.level||
       GAME_STATE.progression.fishing.xp!==before.xp||GAME_STATE.progression.fishing.totalXp!==before.totalXp||
@@ -39,6 +39,12 @@ try{
     openInventory();
   },legacy);
   await page.locator('[data-inventory-tab="appearance"]').tap();
+  await page.evaluate(()=>{
+    for(const card of document.querySelectorAll('[data-equip-type="outfit"],[data-equip-type="backpack"]')){
+      const {equipType:type,equipId:id}=card.dataset;
+      if(card.querySelector('img').getAttribute('src')!==inventoryAppearanceIcon(type,id))throw Error('Card uses a different outfit/bag than the equipped art');
+    }
+  });
   await page.screenshot({path:path.join(output,'mobile-three-options.png')});
   const outfits=['outfit.traveler','outfit.ember','outfit.meadow'],packs=['pack.traveler','pack.ranger','pack.berry'];
   for(const outfit of outfits)for(const pack of packs){
@@ -58,12 +64,14 @@ try{
     await page.evaluate(before=>{
       if(JSON.stringify(GAME_STATE)!==before||!document.getElementById('inventoryDetailContent').textContent.includes('임시'))
         throw new Error('Temporary detail changes state or omits sample notice');
+      const {type,id}=inventoryState.detail;
+      if(document.querySelector('#inventoryDetailContent img').getAttribute('src')!==inventoryAppearanceIcon(type,id))throw Error('Detail uses a different appearance image');
     },before);
     await page.locator('#inventoryDetailClose').tap();
     await page.waitForFunction(()=>!isInventoryDetailOpen(),null,{polling:50});
   }
   await page.reload();
-  await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish&&typeof equipInventoryAppearance==='function',null,{polling:50});
+  await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish&&typeof equipInventoryAppearance==='function',null,{polling:50});
   await page.evaluate(()=>{
     if(GAME_STATE.appearance.outfitId!=='outfit.meadow'||GAME_STATE.appearance.backpackId!=='pack.berry'||
       GAME_STATE.progression.coins!==4321||GAME_STATE.progression.fishing.totalXp!==80)
@@ -73,7 +81,7 @@ try{
   const pc=await context.newPage();pc.on('pageerror',error=>errors.push(error.message));
   await pc.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await pc.goto(base);
-  await pc.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish&&typeof equipInventoryAppearance==='function',null,{polling:50});
+  await pc.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish&&typeof equipInventoryAppearance==='function',null,{polling:50});
   const report=await pc.evaluate(()=>{
     const outfits=['outfit.traveler','outfit.ember','outfit.meadow'],packs=['pack.traveler','pack.ranger','pack.berry'];
     canvas.width=1920;canvas.height=1440;canvas.style.cssText='position:relative;width:1920px;height:1440px;max-width:none;max-height:none;';
@@ -98,7 +106,7 @@ try{
         const pose=poses[col],p={...pose,face:faces[row],tool:pose.pose==='fish'?'rod':'axe'};
         if(baseline.get(p.face+p.pose+p.frame)!==JSON.stringify(getCharacterToolTransform(100,100,p)))
           throw new Error('Appearance changed weapon grips or size');
-        const outfitImage=characterOutfitImgs[outfits[i]][pose.pose],packImage=characterLayerImgs[packLayers[pose.pose+'Backpack']];
+        const outfitImage=getCharacterOutfitImages(outfits[i])[pose.pose],packImage=characterLayerImgs[packLayers[pose.pose+'Backpack']];
         if(!outfitImage||!packImage)throw new Error('Missing motion layers');
         ctx.drawImage=function(image,...args){if(image===outfitImage)outfitSeen=true;if(image===packImage)packSeen=true;return draw.call(this,image,...args);};
         drawCharacterActor(gx+48+col*78,gy+125+row*110,p);ctx.drawImage=draw;

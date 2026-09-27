@@ -47,7 +47,7 @@ try{
   page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await page.goto((process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/')+'?character-preview');
-  await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish&&characterLayerImgs.femaleFishHair);
+  await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish&&characterLayerImgs.femaleFishHair);
   const result=await page.evaluate(()=>{
     const progress=JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression});
     const appearance=JSON.stringify(GAME_STATE.appearance);
@@ -115,7 +115,7 @@ try{
     await page.locator('#game').screenshot({path:path.join(output,sex+'-poses.png')});
   }
   await page.setViewportSize({width:393,height:780});
-  await page.reload();await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
+  await page.reload();await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish);
   await page.getByRole('button',{name:'리아',exact:true}).click();
   assert.equal(await page.evaluate(()=>getCharacterRenderAppearance().bodyId),'body.female');
   assert.equal(await page.evaluate(()=>GAME_STATE.appearance.bodyId),'body.starter');
@@ -127,7 +127,7 @@ try{
   await page.getByRole('button',{name:'이안',exact:true}).click();
   assert.equal(await page.evaluate(()=>getCharacterRenderAppearance().bodyId),'body.starter');
   await page.goto((process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/'));
-  await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
+  await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish);
   assert.equal(await page.getByRole('button',{name:'리아',exact:true}).count(),0,'Normal link has no preview UI');
   assert.equal(await page.evaluate(()=>setCharacterBodyPreview('female')),false);
   assert.deepEqual(errors,[]);

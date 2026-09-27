@@ -30,7 +30,7 @@ page.on('pageerror',e=>errors.push(e.message));
 await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
 await page.goto(base+'?debug&time=12:00&weather=clear'+trialQuery);
 await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler']&&
-  (!CHARACTER_WALK_PREVIEW_ENABLED||characterOutfitPreviewImgs['outfit.meadow']?.fish),{timeout:30000});
+  characterOutfitPreviewImgs['outfit.meadow']?.fish,{timeout:30000});
 await applyWardrobe(page);
 const report=await page.evaluate(()=>{
   const before=JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression});
@@ -86,7 +86,7 @@ mobile.on('pageerror',e=>errors.push(e.message));
 await mobile.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
 await mobile.goto(base+'?time=12:00&weather=clear'+trialQuery);
 await mobile.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler']&&
-  (!CHARACTER_WALK_PREVIEW_ENABLED||characterOutfitPreviewImgs['outfit.meadow']?.fish),{timeout:30000});
+  characterOutfitPreviewImgs['outfit.meadow']?.fish,{timeout:30000});
 await applyWardrobe(mobile);
 for(const face of ['down','right','left','up']){
   await mobile.evaluate(face=>{

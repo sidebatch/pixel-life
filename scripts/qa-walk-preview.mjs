@@ -106,12 +106,12 @@ try{
   });
   fs.writeFileSync(path.join(output,'down-alignment-comparison.png'),Buffer.from(contact.split(',')[1],'base64'));
   await page.goto(base);
-  await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
+  await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish);
   assert.equal(await page.locator('[aria-label="아래 걷기 순서 비교"]').count(),0);
   report.normalPromotion=await page.evaluate(()=>{
     const before=JSON.stringify(GAME_STATE),saved=JSON.stringify(createSaveData().state),store=JSON.stringify({...localStorage});
     if(CHARACTER_WALK_PREVIEW_ENABLED||setCharacterWalkPreview('original'))throw Error('Normal link exposes trial controls');
-    if(Object.keys(characterOutfitPreviewImgs).length)throw Error('Wardrobe was promoted together with walking');
+    if(!characterOutfitPreviewImgs['outfit.meadow']?.fish)throw Error('Corrected production wardrobe is missing');
     const appearance={...GAME_STATE.appearance},draw=ctx.drawImage,calls=[];
     ctx.drawImage=function(...args){calls.push(args);return draw.apply(this,args);};
     let combinations=0;
@@ -129,7 +129,7 @@ try{
             const isHead=call[0]===characterLayerImgs[part.walkHead]||call[0]===characterLayerImgs[hair.walkHair];
             if(Math.abs(call[5]-(100-48*unit+(isHead?0:offset*unit)))>1e-8||call[7]!==100||call[8]!==100)throw Error('Normal layer alignment/scale changed');
           }
-          if(getCharacterOutfitImages(outfit)!==characterOutfitImgs[outfit])throw Error('Normal wardrobe changed');
+          if(getCharacterOutfitImages(outfit)!==(characterOutfitPreviewImgs[outfit]||characterOutfitImgs[outfit]))throw Error('Normal wardrobe is not corrected');
           combinations++;
         }
       for(const face of ['right','left','up'])for(let frame=0;frame<3;frame++)if(getCharacterWalkAlignment({pose:'walk',face,frame})!==0)throw Error('Other direction changed');
@@ -140,10 +140,10 @@ try{
       if(Array.from({length:4},(_,i)=>{tNow=i*105;return getCharacterPose().frame;}).join(',')!=='0,1,2,1')throw Error('Cadence changed');
     }finally{Object.assign(GAME_STATE.appearance,appearance);ctx.drawImage=draw;}
     if(JSON.stringify(GAME_STATE)!==before||JSON.stringify(createSaveData().state)!==saved||JSON.stringify({...localStorage})!==store)throw Error('Walk promotion changes save/progression');
-    return {combinations,defaultDownAlignment:true,headScaleAndRigPreserved:true,wardrobeAndBladeStillTrial:true,stateAndStorageUnchanged:true};
+    return {combinations,defaultDownAlignment:true,headScaleAndRigPreserved:true,correctedWardrobe:true,bladeStillTrial:true,stateAndStorageUnchanged:true};
   });
   assert.equal(report.normalPromotion.combinations,54);
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,normalLinkCorrected:true,mobileButtons:true,browserErrors:errors},null,2));
-  console.log('PASS: approved down body/tool registration in normal play, 54 normal wardrobe combinations, original comparison/cadence/head/scale/actions/save, other trial features unpromoted.');
+  console.log('PASS: approved down body/tool registration and corrected clothes in normal play, 54 normal combinations, original comparison/cadence/head/scale/actions/save; axe blade trial unpromoted.');
 }finally{await browser.close();}

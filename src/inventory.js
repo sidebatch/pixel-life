@@ -6,13 +6,14 @@ function isInventoryOpen(){return inventoryState.open;}
 function isInventoryDetailOpen(){return Boolean(inventoryState.detail);}
 
 function inventoryAppearanceIcon(type,id){
-  const preview=typeof CHARACTER_WALK_PREVIEW_ENABLED!=='undefined'&&CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced';
-  const cacheKey=type+':'+id+(preview?':preview':':original');
-  if(inventoryAppearanceIcons.has(cacheKey))return inventoryAppearanceIcons.get(cacheKey);
   const outfitImages=typeof getCharacterOutfitImages==='function'?getCharacterOutfitImages(id):characterOutfitImgs[id];
   const image=type==='outfit'?outfitImages?.walk:
     characterLayerImgs[CHARACTER_PARTS.backpack.get(id)?.walkBackpack];
   if(!image||typeof document.createElement!=='function')return '';
+  // Cache the actual sheet, not merely the mode: late image loads and A/B
+  // changes cannot reuse a thumbnail of a different costume.
+  const cacheKey=type+':'+id+':'+(image.src||'registered');
+  if(inventoryAppearanceIcons.has(cacheKey))return inventoryAppearanceIcons.get(cacheKey);
   const cell=CHARACTER_RIG.cell,icon=document.createElement('canvas');
   icon.width=icon.height=cell;
   const context=icon.getContext('2d');
@@ -74,7 +75,7 @@ function equipInventoryAppearance(type,id){
 
 function inventoryWearableArt(type,item){
   const url=type==='axe'?FORESTRY_AXE_URLS[item.asset]:type==='rod'?FISHING_ROD_URLS[item.asset]:
-    item.iconUrl||inventoryAppearanceIcon(type,item.id||'pack.traveler');
+    inventoryAppearanceIcon(type,item.id||'pack.traveler')||item.iconUrl;
   return `<img src="${url}" alt="">`;
 }
 

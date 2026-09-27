@@ -104,10 +104,12 @@ try{
   await page.getByRole('button',{name:'보정 동작',exact:true}).tap();
   await page.reload();await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.ember']?.walk);
   assert.deepEqual(await page.evaluate(()=>({coins:GAME_STATE.progression.coins,outfit:GAME_STATE.appearance.outfitId,pack:GAME_STATE.appearance.backpackId})),legacy);
-  await page.goto(base);await page.waitForFunction(()=>characterOutfitImgs['outfit.meadow']?.fish);
-  assert(await page.evaluate(()=>Object.keys(characterOutfitPreviewImgs).length===0&&getCharacterOutfitImages('outfit.ember')===characterOutfitImgs['outfit.ember']));
+  const correctedSources=await page.evaluate(()=>['outfit.ember','outfit.meadow'].flatMap(id=>['walk','chop','fish'].map(pose=>getCharacterOutfitImages(id)[pose].src)));
+  await page.goto(base);await page.waitForFunction(()=>characterOutfitPreviewImgs['outfit.meadow']?.fish);
+  assert(await page.evaluate(()=>getCharacterOutfitImages('outfit.ember')===characterOutfitPreviewImgs['outfit.ember']));
+  assert.deepEqual(await page.evaluate(()=>['outfit.ember','outfit.meadow'].flatMap(id=>['walk','chop','fish'].map(pose=>getCharacterOutfitImages(id)[pose].src))),correctedSources,'Normal and corrected comparison must use identical outfit images');
   assert.deepEqual(await page.evaluate(()=>({coins:GAME_STATE.progression.coins,outfit:GAME_STATE.appearance.outfitId,pack:GAME_STATE.appearance.backpackId})),legacy);
   assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({cells,...result,normalAssetsAndLegacySavePreserved:true,mobileViewport:'393x780',browserErrors:errors},null,2));
+  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({cells,...result,normalCorrectedWardrobeAndLegacySavePreserved:true,mobileViewport:'393x780',browserErrors:errors},null,2));
   console.log('PASS: 64 redrawn garment cells, exact body alpha/no blue residue, original part hashes, 576 real renders, grips/compare/save/mobile/normal preserved.');
 }finally{await browser.close();}

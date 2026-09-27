@@ -2,6 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
 import {decodePNG} from './lib/png.mjs';
+import {checkCharacterStandard} from './check-character-standard.mjs';
 
 const root = process.cwd();
 const scriptFiles = [
@@ -34,6 +35,7 @@ const scriptFiles = [
   'src/fishing-gear.js',
   'src/inventory.js',
   'src/market.js',
+  'src/character-style.js',
   'src/main.js'
 ];
 
@@ -1502,4 +1504,5 @@ const accessibility=vm.runInContext(`Object.values(REGION_WORLDS).map(def=>{
 assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&region.plots),
   `Each region must have reachable exits, fishing shore, resource trees, and plots: ${JSON.stringify(accessibility)}`);
 
-console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}`);
+checkCharacterStandard();
+console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character standard`);

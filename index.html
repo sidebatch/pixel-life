@@ -149,6 +149,18 @@
           </div>
         </div>
       </div>
+      <div id="characterStylePanel" class="characterStylePanel" role="dialog" aria-modal="true" aria-labelledby="characterStyleTitle" aria-hidden="true">
+        <div class="characterStyleSheet">
+          <div class="characterStyleHeader"><div><small>하나의 외형 변경</small><h2 id="characterStyleTitle">어떤 모습으로 바꿀까요?</h2></div><button id="characterStyleClose" type="button" aria-label="외형 변경 닫기">×</button></div>
+          <p class="characterStyleHint">남녀 기본 모습과 헤어만 바뀌어요.<br>옷·가방·장비·성장 기록은 그대로예요.</p>
+          <div class="characterStyleChoices" role="group" aria-label="캐릭터 모습 선택">
+            <button type="button" data-character-style="male" aria-pressed="false"><canvas width="120" height="110" aria-hidden="true"></canvas><strong>남자</strong><small data-style-current></small></button>
+            <button type="button" data-character-style="female" aria-pressed="false"><canvas width="120" height="110" aria-hidden="true"></canvas><strong>여자</strong><small data-style-current></small></button>
+          </div>
+          <p class="characterStyleMessage" id="characterStyleMessage" role="status" aria-live="polite"></p>
+          <div class="characterStyleActions"><button id="characterStyleCancel" type="button">취소</button><button id="characterStyleApply" type="button">변경하기 · 무료</button></div>
+        </div>
+      </div>
       <div id="lifePanel" class="lifePanel" role="dialog" aria-modal="true" aria-label="밭 관리" aria-hidden="true">
         <div class="lifePanelHeader"><div><span>햇살 농장</span><h2 id="lifeTitle">밭 관리</h2></div><button id="lifeClose" type="button" aria-label="밭 관리 닫기">×</button></div>
         <p id="lifeInfo" class="lifeInfo"></p>
@@ -189,6 +201,7 @@
   <script src="src/fishing-gear.js"></script>
   <script src="src/inventory.js"></script>
   <script src="src/market.js"></script>
+  <script src="src/character-style.js"></script>
   <script src="src/main.js"></script>
   <!-- /build:scripts -->
 </body>

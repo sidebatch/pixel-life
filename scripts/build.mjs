@@ -32,6 +32,7 @@ const scriptFiles = [
   'src/fishing-gear.js',
   'src/inventory.js',
   'src/market.js',
+  'src/character-style.js',
   'src/main.js'
 ];
 

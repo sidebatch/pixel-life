@@ -181,4 +181,24 @@
   .inventoryDetailContent>p{margin:17px 0 12px;color:#c6ded5;font-size:12px;line-height:1.7}
   .inventoryDetailContent ul{display:grid;gap:7px;margin:0;padding:0;list-style:none}
   .inventoryDetailContent li{padding:10px 12px;border-radius:11px;background:rgba(130,215,176,.09);color:#dcf8e9;font-size:12px;line-height:1.6}
+
+  .characterStylePanel{position:absolute;z-index:30;inset:0;display:none;align-items:center;justify-content:center;padding:14px;background:rgba(4,20,23,.62);pointer-events:auto}
+  .characterStylePanel.show{display:flex}
+  .characterStyleSheet{width:100%;max-width:420px;max-height:calc(100% - 16px);overflow-y:auto;overscroll-behavior:contain;padding:18px;border:1px solid #a9d5bf;border-radius:24px;background:linear-gradient(145deg,#254c40,#102e31);box-shadow:0 20px 60px #0007}
+  .characterStyleHeader{display:flex;align-items:center;justify-content:space-between;gap:8px}
+  .characterStyleHeader small{color:#b9d7c7;font-size:11px}
+  .characterStyleHeader h2{margin:4px 0;font-size:20px;line-height:1.3}
+  .characterStyleHeader button{flex:none;width:44px;height:44px;border:0;border-radius:50%;background:#ffffff15;color:#fff;font-size:26px}
+  .characterStyleHint{margin:12px 0;color:#c4dcd1;font-size:12px;line-height:1.7}
+  .characterStyleChoices{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+  .characterStyleChoices button{display:flex;align-items:center;flex-direction:column;min-height:170px;min-width:0;padding:10px 4px;border:2px solid #ffffff25;border-radius:18px;background:#ffffff08;color:#edf9f2;font:700 15px system-ui}
+  .characterStyleChoices button.selected{border-color:#b2f0c6;background:#a4dab31c;box-shadow:0 0 0 2px #b2f0c619}
+  .characterStyleChoices canvas{position:static;inset:auto;display:block;flex:none;width:120px;max-width:100%;height:auto;image-rendering:pixelated}
+  .characterStyleChoices small{min-height:16px;margin-top:5px;color:#b5e5c4;font-size:11px}
+  .characterStyleMessage{min-height:36px;margin:12px 0;color:#f4dc9a;font-size:12px;line-height:1.5}
+  .characterStyleActions{display:grid;grid-template-columns:1fr 1.6fr;gap:10px}
+  .characterStyleActions button{min-height:46px;padding:8px;border:1px solid #b5d8c5;border-radius:12px;background:#ffffff0d;color:#effcf4;font:800 13px system-ui}
+  #characterStyleApply{background:#d8efdf;color:#193b30}
+  #characterStyleApply:disabled{opacity:.45}
+  .characterStyleSheet button:focus-visible{outline:3px solid #ffdc83;outline-offset:3px}
   .inventoryDetailContent footer{margin-top:16px;color:#afdbbf;font-size:11px}

@@ -1,6 +1,7 @@
 let last=performance.now();
 function refreshCharacterPreviewVisibility(){
-  const hidden=typeof isInventoryOpen==='function'&&isInventoryOpen();
+  const hidden=(typeof isInventoryOpen==='function'&&isInventoryOpen())||
+    (typeof isCharacterStyleOpen==='function'&&isCharacterStyleOpen());
   for(const panel of document.querySelectorAll('[data-character-preview-panel]'))panel.hidden=hidden;
 }
 function loop(now){

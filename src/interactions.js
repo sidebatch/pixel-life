@@ -21,7 +21,7 @@ function resolveWorldInteraction(tile=facingTile()){
   const exit=regionExitAt(tile.x,tile.y);
   if(exit) return {kind:'exit',label:exit.label,target:exit};
   const npc=npcs.find(n=>n.x===tile.x&&n.y===tile.y);
-  if(npc) return {kind:npc.id==='elli'?'market':npc.id==='jun'?'workshopMarket':'npc',label:['elli','jun'].includes(npc.id)?'상점':'대화',target:npc};
+  if(npc) return {kind:npc.id==='elli'?'market':npc.id==='jun'?'workshopMarket':npc.role==='stylist'?'characterStyle':'npc',label:npc.role==='stylist'?'외형 변경':['elli','jun'].includes(npc.id)?'상점':'대화',target:npc};
   if(tile.x===sign.x&&tile.y===sign.y) return {kind:'sign',label:'표지판'};
   const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
   if(tree){
@@ -45,6 +45,7 @@ function activateWorldInteraction(interaction){
     case 'exit':return enterWorldRegion(interaction.target);
     case 'market':return openMarket();
     case 'workshopMarket':return openMarket({shop:'workshop'});
+    case 'characterStyle':return openCharacterStyle();
     case 'npc':return showDialog(interaction.target.name,interaction.target.dialog);
     case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
     case 'tree':return startTreeChop(interaction.target);
@@ -65,6 +66,7 @@ function interact(){
 }
 function pressB(){
   if(typeof isSkillLevelUpVisible==='function'&&isSkillLevelUpVisible()) dismissSkillLevelUp();
+  else if(typeof isCharacterStyleOpen==='function'&&isCharacterStyleOpen()) closeCharacterStyle();
   else if(dialogOpen) closeDialog();
   else if(typeof isInventoryDetailOpen==='function'&&isInventoryDetailOpen()) closeInventoryDetail();
   else if(typeof isFishDexDetailOpen==='function'&&isFishDexDetailOpen()) closeFishDexDetail();
@@ -98,6 +100,11 @@ window.addEventListener('popstate',()=>{
   const layer=window.history.state?.pixelLifeOverlay;
   if(isSkillLevelUpVisible()) dismissSkillLevelUp({fromHistory:true});
   if(layer==='skill-level-up') return;
+  if(layer==='character-style'){
+    if(!isCharacterStyleOpen())openCharacterStyle({fromHistory:true});
+    return;
+  }
+  if(isCharacterStyleOpen())closeCharacterStyle({fromHistory:true});
   if(layer==='inventory-detail'){
     if(!isInventoryOpen())openInventory({fromHistory:true});
     const [type,id]=(window.history.state.fishId||'').split(':');
@@ -259,7 +266,7 @@ window.addEventListener('keydown',e=>{
   if(worldDebugEnabled&&e.code==='BracketLeft'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(-30);return;}
   if(worldDebugEnabled&&e.code==='BracketRight'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(30);return;}
   // Inventory buttons retain native Space/Enter activation and arrow scrolling.
-  if(e.target?.closest?.('#inventoryPanel,#inventoryDetailModal')&&!['KeyX','Escape'].includes(e.code))return;
+  if(e.target?.closest?.('#inventoryPanel,#inventoryDetailModal,#characterStylePanel')&&!['KeyX','Escape'].includes(e.code))return;
   if(keyMap[e.code]){e.preventDefault();const d=keyMap[e.code];inputs[d]=true;activeDir=d;lastDir=d;if(!e.repeat) bufferPlayerDirection(d);}
   if((e.code==='Space'||e.code==='KeyZ')&&!e.repeat){e.preventDefault();interact();}
   if((e.code==='KeyX'||e.code==='Escape')&&!e.repeat){e.preventDefault();pressB();}

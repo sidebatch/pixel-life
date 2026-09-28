@@ -52,6 +52,13 @@ function getCharacterWalkAlignment(pose){
     [0,2,-1][pose.frame]:[0,3,-2][pose.frame];
 }
 
+function getCharacterWalkHeadAlignment(pose){
+  // Preserve the approved head-to-collar registration while the soft trial
+  // reduces the torso's horizontal travel. Shared by both character bodies.
+  return CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='soft'&&
+    pose.pose==='walk'&&pose.face==='down'?[0,-1,1][pose.frame]:0;
+}
+
 function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const frame=CHARACTER_RIG.poses[pose.pose].frames[pose.face][pose.frame];
   const asset=pose.tool==='rod'?getEquippedFishingRod().asset:getEquippedForestryAxe().asset;
@@ -123,7 +130,8 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
       ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,-px*unit,-py*unit,size,size);
       ctx.restore();
     }else{
-      const bodyOffset=name==='Head'||name==='Hair'?0:getCharacterWalkAlignment(pose)*size/cell;
+      const bodyOffset=(name==='Head'||name==='Hair'?
+        getCharacterWalkHeadAlignment(pose):getCharacterWalkAlignment(pose))*size/cell;
       ctx.drawImage(image,layerFrame*cell,row*cell,cell,cell,x+bodyOffset,y,size,size);
     }
   };

@@ -43,10 +43,17 @@ try{
           const aligned=drawCalls.slice();
           drawCalls.length=0;setCharacterWalkPreview('soft');const c=drawCharacterActor(100,120,pose);
           const softShift=face==='down'?[0,2,-1][frame]*CHARACTER_RIG.renderSize/CHARACTER_RIG.cell:0;
+          const headShift=face==='down'?[0,-1,1][frame]*CHARACTER_RIG.renderSize/CHARACTER_RIG.cell:0;
           if(Math.abs(c.x-a.x-softShift)>1e-8||Math.abs(c.tip.x-a.tip.x-softShift)>1e-8||
             c.y!==a.y||c.tip.y!==a.tip.y||calls.length!==drawCalls.length)throw Error('Soft tool registration changed');
           if(!calls.every((call,i)=>call.every((value,j)=>
-            j===5&&call.length===9&&!heads.has(call[0])?Math.abs(value+softShift-drawCalls[i][j])<1e-8:value===drawCalls[i][j])))throw Error('Soft preview changed head, foot height or unrelated drawing');
+            j===5&&call.length===9?Math.abs(value+(heads.has(call[0])?headShift:softShift)-drawCalls[i][j])<1e-8:value===drawCalls[i][j])))throw Error('Soft preview changed foot height or unrelated drawing');
+          if(face==='down')for(let i=0;i<calls.length;i++)if(calls[i].length===9&&heads.has(calls[i][0])){
+            const originalHead=calls[i][5],balancedHead=aligned[i][5],softHead=drawCalls[i][5];
+            if(Math.abs((aligned.find(call=>call.length===9&&!heads.has(call[0]))[5]-balancedHead)-
+              (drawCalls.find(call=>call.length===9&&!heads.has(call[0]))[5]-softHead))>1e-8||
+              Math.abs(softHead-originalHead-headShift)>1e-8)throw Error('Soft head-to-collar registration changed');
+          }
           if(face==='down'&&frame>0&&Math.abs(aligned.find(call=>call.length===9&&!heads.has(call[0]))[5]-
             drawCalls.find(call=>call.length===9&&!heads.has(call[0]))[5])<=0)throw Error('Soft preview is indistinguishable');
         }
@@ -66,10 +73,11 @@ try{
   });
   report.alignedWardrobeCombinations=await page.evaluate(()=>{
     const appearance={...GAME_STATE.appearance},tool=drawCharacterTool,dimensions=[canvas.width,canvas.height];
-    drawCharacterTool=()=>{};setCharacterWalkPreview('balanced');canvas.width=160;canvas.height=160;
+    drawCharacterTool=()=>{};canvas.width=160;canvas.height=160;
     let count=0;
     try{
-      for(const sex of ['male','female'])for(const outfit of ['outfit.traveler','outfit.ember','outfit.meadow'])for(const pack of ['pack.traveler','pack.ranger','pack.berry'])for(let frame=0;frame<3;frame++){
+      for(const mode of ['balanced','soft'])for(const sex of ['male','female'])for(const outfit of ['outfit.traveler','outfit.ember','outfit.meadow'])for(const pack of ['pack.traveler','pack.ranger','pack.berry'])for(let frame=0;frame<3;frame++){
+        setCharacterWalkPreview(mode);
         setCharacterBodyPreview(sex);GAME_STATE.appearance.outfitId=outfit;GAME_STATE.appearance.backpackId=pack;
         ctx.clearRect(0,0,160,160);drawCharacterActor(80,110,{pose:'walk',face:'down',frame,tool:'axe'});
         const pixels=ctx.getImageData(0,0,160,160).data,seen=new Uint8Array(25600),parts=[];
@@ -85,13 +93,13 @@ try{
           }
           parts.push(queue.length);
         }
-        if(Math.max(...parts)/parts.reduce((a,b)=>a+b,0)<.97)throw Error('Head/body separated: '+[sex,outfit,pack,frame].join('/'));
+        if(Math.max(...parts)/parts.reduce((a,b)=>a+b,0)<.97)throw Error('Head/body separated: '+[mode,sex,outfit,pack,frame].join('/'));
         count++;
       }
     }finally{Object.assign(GAME_STATE.appearance,appearance);drawCharacterTool=tool;canvas.width=dimensions[0];canvas.height=dimensions[1];ctx.imageSmoothingEnabled=false;}
     return count;
   });
-  assert.equal(report.alignedWardrobeCombinations,54);
+  assert.equal(report.alignedWardrobeCombinations,108);
   const panel=page.locator('[aria-label="아래 걷기 순서 비교"]');
   await panel.getByRole('button',{name:'기존 동작'}).tap();
   assert.equal(await panel.getByRole('button',{name:'기존 동작'}).getAttribute('aria-pressed'),'true');
@@ -102,13 +110,14 @@ try{
   await page.evaluate(()=>{setCharacterBodyPreview('male');camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));drawWorld();});
   await page.screenshot({path:path.join(output,'mobile-comparison.png')});
   const contact=await page.evaluate(()=>{
-    canvas.width=900;canvas.height=640;canvas.style.cssText='position:relative;width:900px;height:640px;max-width:none;max-height:none;';
+    canvas.width=900;canvas.height=930;canvas.style.cssText='position:relative;width:900px;height:930px;max-width:none;max-height:none;';
     document.body.style.cssText='margin:0;display:block;overflow:auto;';document.body.appendChild(canvas);
     for(const el of document.body.children)if(el!==canvas)el.style.display='none';
-    ctx.fillStyle='#73a07a';ctx.fillRect(0,0,900,640);ctx.imageSmoothingEnabled=false;
-    for(let sex=0;sex<2;sex++)for(let mode=0;mode<2;mode++){
-      setCharacterBodyPreview(sex?'female':'male');setCharacterWalkPreview(mode?'balanced':'original');
-      const y=55+(sex*2+mode)*145;ctx.fillStyle='#102b2c';ctx.font='15px sans-serif';ctx.fillText((sex?'female':'male')+' / '+(mode?'aligned':'original'),10,y);
+    ctx.fillStyle='#73a07a';ctx.fillRect(0,0,900,930);ctx.imageSmoothingEnabled=false;
+    for(let sex=0;sex<2;sex++)for(let mode=0;mode<3;mode++){
+      const name=['original','balanced','soft'][mode];
+      setCharacterBodyPreview(sex?'female':'male');setCharacterWalkPreview(name);
+      const y=55+(sex*3+mode)*145;ctx.fillStyle='#102b2c';ctx.font='15px sans-serif';ctx.fillText((sex?'female':'male')+' / '+name,10,y);
       for(let frame=0;frame<3;frame++){
         const x=240+frame*200;ctx.save();ctx.translate(x,y+65);ctx.scale(2,2);
         drawCharacterActor(0,0,{pose:'walk',face:'down',frame,tool:'axe'});ctx.restore();

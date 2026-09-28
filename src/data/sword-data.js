@@ -9,10 +9,9 @@ const SWORD_ACTION=Object.freeze({
       grip:base.grip,
       toolBehind:base.toolBehind,
       headMotion:base.headMotion,
-      // Front impact points down toward the viewer. Rear impact points up
-      // into the world; keep both rear frames visible beside the right hand.
-      // Chopping retains its independent overhand angles in the fixed rig.
-      angle:{down:[-2.1,.72],right:[-1.95,.12],left:[Math.PI+1.95,Math.PI-.12],up:[.72,-.72]}[face][index]
+      // Rear slash crosses right to left behind the head; only the blade
+      // outside the hair silhouette is visible. Axe retains its own angles.
+      angle:{down:[-2.1,.72],right:[-1.95,.12],left:[Math.PI+1.95,Math.PI-.12],up:[-.55,-2.8]}[face][index]
     })))
   ])))
 });

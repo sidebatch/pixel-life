@@ -24,6 +24,7 @@ export function validateNeckOverlap(body,head,label,face){
     if(body.data[p]>=128&&head.data[p]>=128)overlap++;
   }
   assert(overlap>=(face==='down'?10:5),`${label}: detached head/neck at the common collar`);
+  return overlap;
 }
 export function validateTool(image,tool,label){
   assert.equal(image.width,96,`${label}: tool width`);assert.equal(image.height,96,`${label}: tool height`);

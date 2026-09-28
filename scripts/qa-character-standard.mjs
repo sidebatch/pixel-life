@@ -11,8 +11,13 @@ let rejected=0;
 function fails(fn,pattern){assert.throws(fn,pattern);rejected++;}
 validateAtlas(outfit,3,'valid outfit');validateOutfit(outfit,outfit,'valid mask');validateTool(tool,meta,'valid tool');
 const body=decodePNG(fs.readFileSync('assets/player/npc-v1/walk-body.png'));
-const head=decodePNG(fs.readFileSync('assets/player/npc-ria-v2/walk-head.png'));
-validateNeckOverlap(crop(body,0,0,96,96),crop(head,0,0,96,96),'ria','down');
+const head=decodePNG(fs.readFileSync('assets/player/npc-ria-v3/walk-head.png'));
+const commonFront=crop(body,0,0,96,96);
+assert(validateNeckOverlap(commonFront,crop(head,0,0,96,96),'ria','down')>=30,
+  'Ria v3 chin must sit into the fixed collar, not reuse the thin v2 bridge');
+const oldRia=decodePNG(fs.readFileSync('assets/player/npc-ria-v2/walk-head.png'));
+assert(validateNeckOverlap(commonFront,crop(oldRia,0,0,96,96),'ria v2 reference','down')<30,
+  'the historical detached-neck art must remain a meaningful regression fixture');
 fails(()=>validateNeckOverlap(crop(body,0,0,96,96),blank(96,96),'fixture','down'),/detached head/);
 fails(()=>validateAtlas(blank(287,384),3,'fixture'),/width/);
 fails(()=>validateAtlas(blank(288,383),3,'fixture'),/height/);

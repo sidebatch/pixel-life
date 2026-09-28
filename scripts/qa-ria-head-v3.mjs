@@ -5,7 +5,7 @@ import path from 'node:path';
 import assert from 'node:assert/strict';
 import {createRequire} from 'node:module';
 const require=createRequire(import.meta.url),{chromium}=require(process.env.PIXEL_LIFE_PLAYWRIGHT||'playwright');
-const output=path.resolve('output/character-qa/ria-head-v2');fs.mkdirSync(output,{recursive:true});
+const output=path.resolve('output/character-qa/ria-head-v3');fs.mkdirSync(output,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.PIXEL_LIFE_CHROME});
 try{
   const page=await browser.newPage({viewport:{width:393,height:780},isMobile:true,hasTouch:true}),errors=[];
@@ -20,7 +20,7 @@ try{
     const paths={};for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
       const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
       paths[key]=characterLayerImgs[key];
-      if(compareOld&&!paths[key].src.includes('/npc-ria-v2/'))throw Error(`Ria ${key} not registered`);
+      if(compareOld&&!paths[key].src.includes('/npc-ria-v3/'))throw Error(`Ria ${key} not registered`);
     }
     const old={};if(compareOld)for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
       const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
@@ -59,5 +59,5 @@ try{
   assert.equal(result.count,compareOld?10:5);assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(output,compareOld?'old-vs-new-soft-walk.png':'new-public-soft-walk.png'),Buffer.from(result.png.split(',')[1],'base64'));
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({count:result.count,sourcePaths:result.sourcePaths,stateUnchanged:result.stateUnchanged,browserErrors:errors},null,2));
-  console.log(`PASS: Ria v2 head/hair on the same body in ${result.count} actual-render poses; save unchanged.`);
+  console.log(`PASS: Ria v3 head/hair on the same body in ${result.count} actual-render poses; save unchanged.`);
 }finally{await browser.close();}

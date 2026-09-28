@@ -44,7 +44,7 @@ loadAll().then(()=>{
     }
     document.body.appendChild(panel);
   }
-  if(CHARACTER_RIA_NECK_PREVIEW_ENABLED){
+  if(CHARACTER_RIA_NECK_PREVIEW_ENABLED&&!CHARACTER_MASTER_PREVIEW_ENABLED){
     const panel=document.createElement('div');
     panel.dataset.characterPreviewPanel='true';
     panel.style.cssText='position:fixed;top:112px;left:8px;z-index:15;padding:8px;border-radius:12px;background:#102e2ee8;color:#fff;font:12px sans-serif;max-width:calc(100vw - 16px);';
@@ -65,6 +65,52 @@ loadAll().then(()=>{
       buttons.push([mode,button]);panel.appendChild(button);
     }
     refresh();document.body.appendChild(panel);
+  }
+  if(CHARACTER_MASTER_PREVIEW_ENABLED){
+    characterMasterOutfitPreview=getCharacterRenderAppearance().outfitId;
+    const panel=document.createElement('div');panel.dataset.characterPreviewPanel='true';
+    panel.style.cssText='position:fixed;top:112px;left:8px;z-index:15;padding:8px;border-radius:12px;background:#102e2ee8;color:#fff;font:12px sans-serif;max-width:calc(100vw - 16px);';
+    if(CHARACTER_WALK_PREVIEW_ENABLED)panel.style.top='308px';
+    else if(CHARACTER_BODY_PREVIEW_ENABLED)panel.style.top='210px';
+    panel.setAttribute('aria-label','캐릭터 제작 기준 시험');
+    let expanded=window.innerWidth>350;
+    const toggle=document.createElement('button');toggle.type='button';
+    toggle.style.cssText='min-height:44px;padding:7px 12px;border:1px solid #acd4bb;border-radius:8px;background:#dbece0;color:#14322b;';
+    const content=document.createElement('div');
+    const updateExpanded=()=>{
+      content.hidden=!expanded;toggle.textContent=expanded?'기준 비교 접기 ▲':'기준 비교 열기 ▼';
+      toggle.setAttribute('aria-expanded',String(expanded));
+    };
+    toggle.addEventListener('click',()=>{expanded=!expanded;updateExpanded();});
+    panel.appendChild(toggle);panel.appendChild(content);
+    const title=document.createElement('div');title.textContent='4방향·목·옷깃 · 선택 저장 안 됨';content.appendChild(title);
+    const rows=[
+      [['original','현재'],['candidate','새 기준']],
+      [['outfit.traveler','기본복'],['outfit.ember','불꽃'],['outfit.meadow','정원']]
+    ];
+    const buttons=[];
+    const refresh=()=>{for(const [kind,id,button] of buttons){
+      const selected=kind==='art'?characterMasterPreview===id:characterMasterOutfitPreview===id;
+      button.setAttribute('aria-pressed',String(selected));
+      button.style.background=selected?'#dbece0':'#224644';button.style.color=selected?'#14322b':'#fff';
+    }};
+    for(let row=0;row<rows.length;row++){
+      const line=document.createElement('div');
+      for(const [id,label] of rows[row]){
+        const button=document.createElement('button');button.type='button';button.textContent=label;
+        button.style.cssText='margin:6px 3px 0 0;min-height:44px;padding:7px 12px;border:1px solid #acd4bb;border-radius:8px;';
+        button.addEventListener('click',()=>{
+          if(row===0)setCharacterMasterPreview(id);else setCharacterMasterOutfitPreview(id);
+          refresh();drawWorld();
+          if(window.innerWidth<=350){expanded=false;updateExpanded();}
+        });
+        buttons.push([row===0?'art':'outfit',id,button]);line.appendChild(button);
+      }
+      content.appendChild(line);
+    }
+    const hint=document.createElement('div');hint.style.marginTop='6px';
+    hint.textContent='방향은 이동으로, 도끼·낚싯대는 평소처럼 확인';content.appendChild(hint);
+    refresh();updateExpanded();document.body.appendChild(panel);
   }
   if(CHARACTER_TRIAL_ENABLED){
     setCharacterAppearancePreview(['outfitId','hairId','backpackId']);

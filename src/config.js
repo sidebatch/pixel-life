@@ -39,6 +39,11 @@ function setCharacterWalkPreview(mode){
 // collar. Keep this exact registration experiment off normal play and saves.
 const CHARACTER_RIA_NECK_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('ria-neck-preview');
 let characterRiaNeckPreview='centered';
+// Separate, non-saving full-character reference trial. Do not promote these
+// candidate pixels into the protected atlas or normal render path implicitly.
+const CHARACTER_MASTER_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('character-master-preview');
+let characterMasterPreview='candidate';
+let characterMasterOutfitPreview=null;
 const CHARACTER_OUTFITS=Object.freeze([
   Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
     chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1',iconUrl:CHARACTER_POLISH_ICON_URLS.outfit}),
@@ -111,9 +116,55 @@ const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
 const imgs={},npcImgs={},fishImgs={},forestTreeImgs={},forestStumpImgs={},lifeItemImgs={},matureCropImgs={},youngCropImgs={};
 const characterLayerImgs={},characterToolImgs={},characterOutfitImgs={},characterOutfitPreviewImgs={};
+const characterMasterOriginals={};
+function prepareCharacterMasterPreview(){
+  if(!CHARACTER_MASTER_PREVIEW_ENABLED)return;
+  const cell=CHARACTER_RIG.cell;
+  const moveRiaHead=image=>{
+    const shifted=document.createElement('canvas');shifted.width=image.width;shifted.height=image.height;
+    const painter=shifted.getContext('2d');painter.imageSmoothingEnabled=false;
+    const offsets=[2,-2,2,0];
+    for(let row=0;row<4;row++)for(let frame=0;frame<image.width/cell;frame++)
+      painter.drawImage(image,frame*cell,row*cell,cell,cell,
+        frame*cell+offsets[row],row*cell,cell,cell);
+    return shifted;
+  };
+  const shortenSharedNeck=image=>{
+    const fitted=document.createElement('canvas');fitted.width=image.width;fitted.height=image.height;
+    const painter=fitted.getContext('2d',{willReadFrequently:true});painter.drawImage(image,0,0);
+    const pixels=painter.getImageData(0,0,image.width,image.height),data=pixels.data;
+    for(let frame=0;frame<image.width/cell;frame++)for(let y=57;y<=59;y++)for(let x=45;x<=51;x++){
+      const p=(y*image.width+frame*cell+x)*4,shirt=(62*image.width+frame*cell+x)*4;
+      const [r,g,b,a]=data.subarray(p,p+4);
+      if(a>=128&&r>150&&r>g*1.1&&g>b*1.05&&data[shirt+3]>=128)
+        for(let channel=0;channel<3;channel++)data[p+channel]=data[shirt+channel];
+    }
+    painter.putImageData(pixels,0,0);return fitted;
+  };
+  for(const pose of ['walk','chop','fish']){
+    const bodyKey=pose+'Body',originalBody=characterLayerImgs[bodyKey];
+    characterMasterOriginals[bodyKey]={original:originalBody,candidate:shortenSharedNeck(originalBody)};
+    for(const part of ['Head','Hair']){
+      const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
+      const original=characterLayerImgs[key];
+      characterMasterOriginals[key]={original,candidate:moveRiaHead(original)};
+    }
+  }
+  setCharacterMasterPreview('candidate');
+}
+function setCharacterMasterPreview(mode){
+  if(!CHARACTER_MASTER_PREVIEW_ENABLED||!['original','candidate'].includes(mode)||
+    !characterMasterOriginals.walkBody)return false;
+  for(const [key,versions] of Object.entries(characterMasterOriginals))characterLayerImgs[key]=versions[mode];
+  characterMasterPreview=mode;return true;
+}
+function setCharacterMasterOutfitPreview(id){
+  if(!CHARACTER_MASTER_PREVIEW_ENABLED||!CHARACTER_OUTFIT_BY_ID.has(id))return false;
+  characterAppearancePreview={outfitId:id};characterMasterOutfitPreview=id;return true;
+}
 const characterRiaNeckHeads={};
 function prepareCharacterRiaNeckPreview(){
-  if(!CHARACTER_RIA_NECK_PREVIEW_ENABLED)return;
+  if(!CHARACTER_RIA_NECK_PREVIEW_ENABLED||CHARACTER_MASTER_PREVIEW_ENABLED)return;
   for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
     const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
     const original=characterLayerImgs[key];
@@ -212,6 +263,7 @@ async function loadAll(){
     walk:characterLayerImgs.walkOutfit,chop:characterLayerImgs.chopOutfit,fish:characterLayerImgs.fishOutfit
   };
   prepareCharacterRiaNeckPreview();
+  prepareCharacterMasterPreview();
   prepareCharacterTrialSet();
   validateCharacterRigAssets();
   // Every future outfit must provide all three pose atlases, not one static icon.

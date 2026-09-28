@@ -1,5 +1,8 @@
 {
   "id": "sword-action-v1",
+  "approvedCorrections": [
+    {"date":"2026-09-28","feature":"rear-facing-sword-slash","scope":"User-requested rear swing correction. Front and side sword frames, shared hand grip, size, axe/rod angles, art and save remain unchanged. Rear ready blade points down-right, then strikes up-right into the world."}
+  ],
   "baseStandard": "npc-compatible-v3-sword",
   "artPose": "chop",
   "columns": 2,
@@ -8,7 +11,7 @@
     "down": [-2.1, 0.72],
     "right": [-1.95, 0.12],
     "left": [5.091592653589793, 3.021592653589793],
-    "up": [-1.95, -0.82]
+    "up": [0.72, -0.72]
   },
   "grip": [25, 69],
   "tip": [81, 15],

@@ -44,6 +44,10 @@ try{
             Math.abs(transform.y-(20+(grip[1]-88)*unit))>1e-8||
             Math.abs(Math.hypot(transform.tip.x-transform.x,transform.tip.y-transform.y)-38*unit)>1e-8)
             throw Error(`Sword disconnected from common right hand: ${JSON.stringify({face,frame,transform,grip,unit})}`);
+          if(face==='down'&&frame===1&&transform.tip.y<=transform.y||
+            face==='up'&&frame===0&&transform.tip.y<=transform.y||
+            face==='up'&&frame===1&&transform.tip.y>=transform.y)
+            throw Error('Front/rear sword slash points in the wrong direction');
           ctx.save();ctx.translate(100+frame*180+sexIndex*370,105+faceIndex*150);ctx.scale(2,2);
           drawCharacterActor(0,0,pose);ctx.restore();poses++;
         }

@@ -31,6 +31,8 @@ export function checkSwordStandard(){
       assert(Math.abs(frame.angle-contract.angles[face][frameIndex])<1e-12,`${face}/${frameIndex}: sword angle changed`);
     }
   }
+  assert(contract.angles.down[1]>0&&contract.angles.up[0]>0&&contract.angles.up[1]<0,
+    'The front hit must sweep south and rear hit must sweep north');
   assert.deepEqual(tools['sword.basic'].grip,contract.grip);
   assert.deepEqual(tools['sword.basic'].tip,contract.tip);
   validateTool(decodePNG(fs.readFileSync(contract.basicImage)),tools['sword.basic'],'basic sword');

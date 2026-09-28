@@ -22,8 +22,19 @@ try{
   });
   const initial=await page.evaluate(()=>{
     const state=JSON.stringify(createSaveData().state),storage=JSON.stringify({...localStorage});
-    if(!CHARACTER_MASTER_PREVIEW_ENABLED||characterMasterPreview!=='candidate'||characterBodyPreview!=='female')
+    if(!CHARACTER_MASTER_PREVIEW_ENABLED||!CHARACTER_WALK_PREVIEW_ENABLED||
+      characterMasterPreview!=='candidate'||characterWalkPreview!=='soft'||characterBodyPreview!=='female')
       throw Error('Trial must start with Ria and candidate art');
+    for(const [frame,body,head] of [[0,0,0],[1,2,-1],[2,-1,1]]){
+      if(getCharacterWalkAlignment({pose:'walk',face:'down',frame})!==body||
+        getCharacterWalkHeadAlignment({pose:'walk',face:'down',frame})!==head)
+        throw Error('Earlier soft down-walk was not restored');
+      for(const face of ['right','left','up'])if(getCharacterWalkAlignment({pose:'walk',face,frame})!==0)
+        throw Error('Soft down-walk leaked into another direction');
+    }
+    for(const face of ['down','up'])for(const frame of [0,1])
+      if(getCharacterToolTransform(0,0,{pose:'chop',face,frame,tool:'axe'}).edgeScale!==1)
+        throw Error('Soft gait unexpectedly changed the approved axe swing');
     const pixels=image=>{
       const c=document.createElement('canvas');c.width=image.width;c.height=image.height;
       const painter=c.getContext('2d',{willReadFrequently:true});painter.drawImage(image,0,0);
@@ -65,17 +76,29 @@ try{
     return {checked,changed,state,storage};
   });
   await page.screenshot({path:path.join(output,'candidate-mobile.png')});
+  const openMaster=()=>page.getByRole('button',{name:'기준·걸음 비교 열기 ▼'}).click();
+  await openMaster();
+  await page.getByRole('button',{name:'현재 걸음',exact:true}).click();
+  assert.equal(await page.evaluate(()=>characterWalkPreview),'balanced');
+  await openMaster();
+  await page.getByRole('button',{name:'흔들림 완화',exact:true}).click();
+  assert.equal(await page.evaluate(()=>characterWalkPreview),'soft');
+  await openMaster();
   await page.getByRole('button',{name:'현재',exact:true}).click();
-  assert.equal(await page.getByRole('button',{name:'현재',exact:true}).getAttribute('aria-pressed'),'true');
+  assert.equal(await page.evaluate(()=>characterMasterPreview),'original');
   assert(await page.evaluate(()=>Object.entries(characterMasterOriginals).every(([key,v])=>characterLayerImgs[key]===v.original)));
   await page.screenshot({path:path.join(output,'original-mobile.png')});
+  await openMaster();
   await page.getByRole('button',{name:'새 기준',exact:true}).click();
   for(const [button,id] of [['불꽃','outfit.ember'],['정원','outfit.meadow'],['기본복','outfit.traveler']]){
+    await openMaster();
     await page.getByRole('button',{name:button,exact:true}).click();
     assert.equal(await page.evaluate(()=>getCharacterRenderAppearance().outfitId),id);
   }
+  await openMaster();
   await page.getByRole('button',{name:'이안',exact:true}).click();
   assert.equal(await page.evaluate(()=>getCharacterRenderAppearance().bodyId),'body.starter');
+  await openMaster();
   await page.getByRole('button',{name:'리아',exact:true}).click();
   assert.equal(await page.evaluate(()=>getCharacterRenderAppearance().bodyId),'body.female');
   const result=await page.evaluate(()=>{
@@ -146,26 +169,35 @@ try{
     return {panel:panel.getBoundingClientRect().toJSON(),buttons:[...panel.querySelectorAll('button')].map(button=>button.getBoundingClientRect().toJSON()),width:innerWidth};
   });
   assert(narrowBounds.panel.right<=narrowBounds.width&&narrowBounds.buttons.every(button=>button.right<=narrowBounds.width));
-  assert.equal(await narrow.getByRole('button',{name:'기준 비교 열기 ▼'}).getAttribute('aria-expanded'),'false');
+  assert.equal(await narrow.getByRole('button',{name:'기준·걸음 비교 열기 ▼'}).getAttribute('aria-expanded'),'false');
   await narrow.screenshot({path:path.join(output,'candidate-mobile-320.png')});
-  await narrow.getByRole('button',{name:'기준 비교 열기 ▼'}).click();
+  await narrow.getByRole('button',{name:'기준·걸음 비교 열기 ▼'}).click();
   await narrow.getByRole('button',{name:'현재',exact:true}).click();
-  assert.equal(await narrow.getByRole('button',{name:'기준 비교 열기 ▼'}).getAttribute('aria-expanded'),'false');
-  await narrow.getByRole('button',{name:'기준 비교 열기 ▼'}).click();
+  assert.equal(await narrow.getByRole('button',{name:'기준·걸음 비교 열기 ▼'}).getAttribute('aria-expanded'),'false');
+  await narrow.getByRole('button',{name:'기준·걸음 비교 열기 ▼'}).click();
   await narrow.getByRole('button',{name:'새 기준',exact:true}).click();
-  await narrow.getByRole('button',{name:'기준 비교 열기 ▼'}).click();
+  await narrow.getByRole('button',{name:'기준·걸음 비교 열기 ▼'}).click();
   await narrow.getByRole('button',{name:'불꽃',exact:true}).click();
   assert.equal(await narrow.evaluate(()=>getCharacterRenderAppearance().outfitId),'outfit.ember');
+  const standalone=await browser.newPage({viewport:{width:393,height:780},isMobile:true,hasTouch:true});
+  standalone.on('pageerror',error=>errors.push(error.message));
+  await standalone.goto(base+'?character-master-preview&time=12:00&weather=clear');
+  await standalone.waitForFunction(()=>document.querySelector('[aria-label="캐릭터 제작 기준 시험"]'));
+  assert(await standalone.evaluate(()=>CHARACTER_BODY_PREVIEW_ENABLED&&characterBodyPreview==='female'&&
+    characterWalkPreview==='soft'&&!document.querySelector('[aria-label="캐릭터 동작 비교"]')&&
+    !document.querySelector('[aria-label="아래 걷기 순서 비교"]')));
   const normal=await browser.newPage({viewport:{width:393,height:780},isMobile:true,hasTouch:true});
   normal.on('pageerror',error=>errors.push(error.message));
   await normal.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await normal.goto(base+'?character-preview&character=female&time=12:00&weather=clear');
   await normal.waitForFunction(()=>characterLayerImgs.femaleFishHair&&document.querySelector('[aria-label="캐릭터 동작 비교"]'));
   assert(await normal.evaluate(()=>!CHARACTER_MASTER_PREVIEW_ENABLED&&
+    !CHARACTER_WALK_PREVIEW_ENABLED&&
     !document.querySelector('[aria-label="캐릭터 제작 기준 시험"]')&&
     Object.keys(characterMasterOriginals).length===0&&
     characterLayerImgs.femaleWalkHead instanceof HTMLImageElement&&
-    characterLayerImgs.walkBody instanceof HTMLImageElement));
+    characterLayerImgs.walkBody instanceof HTMLImageElement&&
+    [0,3,-2].every((offset,frame)=>getCharacterWalkAlignment({pose:'walk',face:'down',frame})===offset)));
   assert.deepEqual(errors,[]);
   console.log(`PASS: ${initial.checked} trial atlases, ${result.renders} live renders, 393/320 mobile switching, save and normal isolation.`);
 }finally{await browser.close();}

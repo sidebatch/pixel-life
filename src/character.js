@@ -72,7 +72,9 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   // Keep the right-hand pivot and shaft length; side views/swings stay intact.
   const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&
     (pose.face==='down'||pose.face==='up');
-  const frontBackSwing=CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview!=='original'&&
+  const frontBackSwing=CHARACTER_WALK_PREVIEW_ENABLED&&
+    (typeof CHARACTER_MASTER_PREVIEW_ENABLED==='undefined'||!CHARACTER_MASTER_PREVIEW_ENABLED)&&
+    characterWalkPreview!=='original'&&
     pose.tool==='axe'&&pose.pose==='chop'&&(pose.face==='down'||pose.face==='up');
   // In front-view preparation the cutting edge must face forward, not back
   // over the shoulder. Impact and rear-view art already have the correct side.

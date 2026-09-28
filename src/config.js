@@ -25,12 +25,23 @@ const CHARACTER_TRIAL_SET=Object.freeze({
   outfitId:'outfit.trial.green',hairId:'hair.trial.blond',backpackId:'pack.trial.red'
 });
 let characterAppearancePreview=null;
+// Full, non-saving reference trial also enables gender and the earlier gait.
+const CHARACTER_MASTER_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('character-master-preview');
 // Non-saving body comparison. New-game gender selection is a later UI step.
-const CHARACTER_BODY_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('character-preview');
-let characterBodyPreview=CHARACTER_BODY_PREVIEW_ENABLED&&new URLSearchParams(window.location.search).get('character')==='female'?'female':null;
+const CHARACTER_BODY_PREVIEW_ENABLED=CHARACTER_MASTER_PREVIEW_ENABLED||
+  typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('character-preview');
+let characterBodyPreview=null;
+if(CHARACTER_BODY_PREVIEW_ENABLED){
+  const requestedCharacter=new URLSearchParams(window.location.search).get('character');
+  if(requestedCharacter==='female')characterBodyPreview='female';
+  else if(CHARACTER_MASTER_PREVIEW_ENABLED)characterBodyPreview=requestedCharacter==='male'?'male':'female';
+}
+// The full in-game character reference also carries the earlier, preferred
+// down-walk comparison. No gait choice is saved or enabled on the normal URL.
 // Opt-in comparison only: never persist a gait choice or change normal play.
-const CHARACTER_WALK_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('walk-preview');
-let characterWalkPreview='balanced';
+const CHARACTER_WALK_PREVIEW_ENABLED=CHARACTER_MASTER_PREVIEW_ENABLED||
+  typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('walk-preview');
+let characterWalkPreview=CHARACTER_MASTER_PREVIEW_ENABLED?'soft':'balanced';
 function setCharacterWalkPreview(mode){
   if(!CHARACTER_WALK_PREVIEW_ENABLED||!['original','balanced','soft'].includes(mode))return false;
   characterWalkPreview=mode;return true;
@@ -41,7 +52,6 @@ const CHARACTER_RIA_NECK_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSea
 let characterRiaNeckPreview='centered';
 // Separate, non-saving full-character reference trial. Do not promote these
 // candidate pixels into the protected atlas or normal render path implicitly.
-const CHARACTER_MASTER_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('character-master-preview');
 let characterMasterPreview='candidate';
 let characterMasterOutfitPreview=null;
 const CHARACTER_OUTFITS=Object.freeze([

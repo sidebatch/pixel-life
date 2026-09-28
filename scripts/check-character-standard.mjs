@@ -17,6 +17,14 @@ export function validateOutfit(image,mask,label){
   assert.equal(image.data.length,mask.data.length,`${label}: wrong pixel count`);
   for(let p=3;p<image.data.length;p+=4)assert.equal(image.data[p],mask.data[p],`${label}: changed common clothing silhouette/skin exposure`);
 }
+export function validateNeckOverlap(body,head,label,face){
+  let overlap=0;
+  for(let y=50;y<=60;y++)for(let x=39;x<=57;x++){
+    const p=(y*96+x)*4+3;
+    if(body.data[p]>=128&&head.data[p]>=128)overlap++;
+  }
+  assert(overlap>=(face==='down'?10:5),`${label}: detached head/neck at the common collar`);
+}
 export function validateTool(image,tool,label){
   assert.equal(image.width,96,`${label}: tool width`);assert.equal(image.height,96,`${label}: tool height`);
   for(const field of ['grip','tip'])assert(Array.isArray(tool[field])&&tool[field].length===2&&
@@ -71,6 +79,11 @@ export function checkCharacterStandard(contract=JSON.parse(read('docs/character-
         }
       }
     }
+  }
+  for(const [id,keys] of data.parts.body){
+    const body=layer(keys.walkBody),head=layer(keys.walkHead);
+    for(let row=0;row<3;row++)validateNeckOverlap(
+      crop(body,0,row*96,96,96),crop(head,0,row*96,96,96),id,faces[row]);
   }
   for(const [id,tool] of Object.entries(tools)){
     assert(/^(axe|rod)\./.test(id),`New action family requires a versioned extension: ${id}`);

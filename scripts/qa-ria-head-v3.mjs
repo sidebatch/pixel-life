@@ -1,4 +1,4 @@
-// Compare the previous Ria art to the new registered head/hair in the actual
+// Compare the archived Ria v3 art to the production v2 head/hair in the actual
 // renderer while confirming that the common body, outfits and save IDs stay put.
 import fs from 'node:fs';
 import path from 'node:path';
@@ -20,11 +20,11 @@ try{
     const paths={};for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
       const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
       paths[key]=characterLayerImgs[key];
-      if(compareOld&&!paths[key].src.includes('/npc-ria-v3/'))throw Error(`Ria ${key} not registered`);
+      if(compareOld&&!paths[key].src.includes('/character-baseline-v2/'))throw Error(`Ria ${key} not registered`);
     }
     const old={};if(compareOld)for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
       const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
-      old[key]=await loadImage(`assets/player/npc-v1/${pose}-female-${part.toLowerCase()}.png`);
+      old[key]=await loadImage(`assets/player/npc-ria-v3/${pose}-${part.toLowerCase()}.png`);
     }
     const rows=compareOld?[['old',old],['new',paths]]:[['new',paths]],poses=[
       ...[0,1,2].map(frame=>({pose:'walk',face:'down',frame,tool:'axe'})),
@@ -57,7 +57,7 @@ try{
     return {png,count,sourcePaths:Object.values(paths).map(image=>image.src.startsWith('data:')?'inlined':image.src),stateUnchanged:true};
   },compareOld);
   assert.equal(result.count,compareOld?10:5);assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(output,compareOld?'old-vs-new-soft-walk.png':'new-public-soft-walk.png'),Buffer.from(result.png.split(',')[1],'base64'));
+  fs.writeFileSync(path.join(output,compareOld?'ria-v3-vs-baseline-v2-soft-walk.png':'baseline-v2-public-soft-walk.png'),Buffer.from(result.png.split(',')[1],'base64'));
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({count:result.count,sourcePaths:result.sourcePaths,stateUnchanged:result.stateUnchanged,browserErrors:errors},null,2));
-  console.log(`PASS: Ria v3 head/hair on the same body in ${result.count} actual-render poses; save unchanged.`);
+  console.log(`PASS: archived Ria v3 vs baseline v2 head/hair in ${result.count} actual-render poses; save unchanged.`);
 }finally{await browser.close();}

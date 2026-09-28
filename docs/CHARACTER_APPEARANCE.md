@@ -1,6 +1,6 @@
 # 캐릭터·옷·도구 공통 규격 v1
 
-> 앞으로의 제작/납품 기준은 [고정 에셋 규격](CHARACTER_ASSET_STANDARD.md)과 character-standard-v1.json을 우선한다. 이 문서의 날짜별 내용은 제작 이력이며 옛 목63/rig-v1/polish-v1 설명을 현재 템플릿으로 사용하지 않는다.
+> 앞으로의 제작/납품 기준은 [고정 에셋 규격](CHARACTER_ASSET_STANDARD.md)과 character-standard-v2.json을 우선한다. 이 문서의 날짜별 내용은 제작 이력이며 옛 목63/rig-v1/polish-v1 설명을 현재 템플릿으로 사용하지 않는다.
 
 현재 사용자 표시 이름은 **이안**(기존 body.starter/hair.brown)과 **리아**(기존 body.female/hair.female.brown)다. NPC 선택창·안내와 시험 버튼에 동일하게 표시하며 내부 ID/저장/이미지는 유지한다.
 

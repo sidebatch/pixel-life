@@ -140,7 +140,7 @@ try{
       for(const [bodyId,hairId] of [['body.starter','hair.brown'],['body.female','hair.female.brown']])
         for(const outfit of ['outfit.traveler','outfit.ember','outfit.meadow'])for(const pack of ['pack.traveler','pack.ranger','pack.berry'])for(let frame=0;frame<3;frame++){
           Object.assign(GAME_STATE.appearance,{bodyId,hairId,outfitId:outfit,backpackId:pack});
-          const pose={pose:'walk',face:'down',frame,tool:'axe'},offset=[0,3,-2][frame],unit=CHARACTER_RIG.renderSize/96;
+          const pose={pose:'walk',face:'down',frame,tool:'axe'},offset=[0,2,-1][frame],headOffset=[0,-1,1][frame],unit=CHARACTER_RIG.renderSize/96;
           if(getCharacterWalkAlignment(pose)!==offset)throw Error('Normal walk is not corrected');
           calls.length=0;const transform=drawCharacterActor(100,120,pose);
           const anchor=CHARACTER_RIG.poses.walk.frames.down[frame].grip;
@@ -148,7 +148,7 @@ try{
           const part=CHARACTER_PARTS.body.get(bodyId),hair=CHARACTER_PARTS.hair.get(hairId);
           for(const call of calls.filter(call=>call.length===9)){
             const isHead=call[0]===characterLayerImgs[part.walkHead]||call[0]===characterLayerImgs[hair.walkHair];
-            if(Math.abs(call[5]-(100-48*unit+(isHead?0:offset*unit)))>1e-8||call[7]!==100||call[8]!==100)throw Error('Normal layer alignment/scale changed');
+            if(Math.abs(call[5]-(100-48*unit+(isHead?headOffset:offset)*unit))>1e-8||call[7]!==100||call[8]!==100)throw Error('Normal layer alignment/scale changed');
           }
           if(getCharacterOutfitImages(outfit)!==(characterOutfitPreviewImgs[outfit]||characterOutfitImgs[outfit]))throw Error('Normal wardrobe is not corrected');
           combinations++;
@@ -166,5 +166,5 @@ try{
   assert.equal(report.normalPromotion.combinations,54);
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,normalLinkCorrected:true,mobileButtons:true,browserErrors:errors},null,2));
-  console.log('PASS: approved down body/tool registration and corrected clothes in normal play, 54 normal combinations, original comparison/cadence/head/scale/actions/save; axe blade trial unpromoted.');
+  console.log('PASS: promoted soft down body/head/tool registration and corrected clothes in normal play, 54 normal combinations, original comparison/cadence/scale/actions/save; axe blade trial unpromoted.');
 }finally{await browser.close();}

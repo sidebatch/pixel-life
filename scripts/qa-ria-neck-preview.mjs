@@ -65,8 +65,8 @@ try{
   const unaltered=await normal.evaluate(()=>!CHARACTER_RIA_NECK_PREVIEW_ENABLED&&
     !document.querySelector('[aria-label="리아 목 위치 비교"]')&&
     Object.keys(characterRiaNeckHeads).length===0&&
-    (characterLayerImgs.femaleWalkHead.src.includes('/npc-ria-v3/')||
+    (characterLayerImgs.femaleWalkHead.src.includes('/character-baseline-v2/')||
       characterLayerImgs.femaleWalkHead.src.startsWith('data:image/png')));
   assert.equal(unaltered,true);assert.deepEqual(errors,[]);
-  console.log(`PASS: Ria trial shifted ${first.atlases} atlases front-only, mobile buttons/save and normal game unchanged.`);
+  console.log(`PASS: archived Ria neck comparison shifted ${first.atlases} atlases front-only, mobile buttons/save and promoted normal art unchanged.`);
 }finally{await browser.close();}

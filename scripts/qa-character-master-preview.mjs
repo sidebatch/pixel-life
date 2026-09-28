@@ -197,7 +197,22 @@ try{
     Object.keys(characterMasterOriginals).length===0&&
     characterLayerImgs.femaleWalkHead instanceof HTMLImageElement&&
     characterLayerImgs.walkBody instanceof HTMLImageElement&&
-    [0,3,-2].every((offset,frame)=>getCharacterWalkAlignment({pose:'walk',face:'down',frame})===offset)));
+    (characterLayerImgs.femaleWalkHead.src.includes('/character-baseline-v2/')||
+      characterLayerImgs.femaleWalkHead.src.startsWith('data:image/png'))&&
+    [0,2,-1].every((offset,frame)=>getCharacterWalkAlignment({pose:'walk',face:'down',frame})===offset)&&
+    [0,-1,1].every((offset,frame)=>getCharacterWalkHeadAlignment({pose:'walk',face:'down',frame})===offset)));
+  assert.deepEqual(await normal.evaluate(()=>{
+    const original=ctx.drawImage,order=[];
+    try{
+      ctx.drawImage=function(image,...args){
+        if(image===characterLayerImgs.femaleWalkHair)order.push('hair');
+        if(image===characterToolImgs['axe.basic'])order.push('axe');
+        return original.call(this,image,...args);
+      };
+      drawCharacterActor(100,100,{pose:'walk',face:'right',frame:0,tool:'axe'});
+      return order;
+    }finally{ctx.drawImage=original;drawWorld();}
+  }),['hair','axe']);
   assert.deepEqual(errors,[]);
-  console.log(`PASS: ${initial.checked} trial atlases, ${result.renders} live renders, 393/320 mobile switching, save and normal isolation.`);
+  console.log(`PASS: ${initial.checked} versioned baseline atlases, ${result.renders} live renders, 393/320 mobile switching, saves and promoted normal gait/depth.`);
 }finally{await browser.close();}

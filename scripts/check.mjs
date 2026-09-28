@@ -113,7 +113,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 191, `Expected 191 runtime asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 200, `Expected 200 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -1159,7 +1159,8 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       characterRotations.length=0;characterTranslations.length=0;
       const transform=vm.runInContext(`drawCharacterActor(100,100,{pose:'${pose}',face:'${face}',frame:${frame},tool:'${tool}'})`,characterContext);
       const grip=definition.frames[face][frame].grip,unit=100/96;
-      const walkOffset=pose==='walk'&&face==='down'?[0,3,-2][frame]:0;
+      const walkOffset=pose==='walk'&&face==='down'?[0,2,-1][frame]:0;
+      const headOffset=pose==='walk'&&face==='down'?[0,-1,1][frame]:0;
       const expectedMirror=face==='left'||tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
       assert(transform.mirror===expectedMirror,'Only carried front/back axes change blade side; rods and swings retain orientation');
       const edgeOn=tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
@@ -1182,9 +1183,9 @@ for(const [pose,definition] of Object.entries(rig.poses)){
         'Every equipped tool must attach its own pivot to the same frame-specific hand');
       if(pose==='walk')for(const name of ['Body','Outfit','Backpack','Grip','Head','Hair']){
         const call=characterCalls.find(item=>item.id==='walk'+name);
-        const offset=['Head','Hair'].includes(name)?0:walkOffset;
+        const offset=['Head','Hair'].includes(name)?headOffset:walkOffset;
         assert(call&&Math.abs(call.args[4]-(100+(offset-48)*unit))<1e-8&&call.args[6]===100&&call.args[7]===100,
-          'Default walking must register the body, wardrobe and hands together without moving/scaling the head');
+          'Default walking must preserve the approved soft body/head registration without changing scale');
       }
       const raisedHand=(pose==='chop'||pose==='fish')&&frame===0;
       const handIndex=characterCalls.findIndex(call=>call.id===pose+'Grip');

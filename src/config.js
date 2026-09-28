@@ -125,55 +125,12 @@ const MOVEMENT_CONFIG=Object.freeze({
 const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
 const imgs={},npcImgs={},fishImgs={},forestTreeImgs={},forestStumpImgs={},lifeItemImgs={},matureCropImgs={},youngCropImgs={};
-const characterLayerImgs={},characterToolImgs={},characterOutfitImgs={},characterOutfitPreviewImgs={};
+const characterLayerImgs={},characterToolImgs={},characterOutfitImgs={},characterOutfitPreviewImgs={},characterBaselineLegacyImgs={};
 const characterMasterOriginals={};
 function prepareCharacterMasterPreview(){
   if(!CHARACTER_MASTER_PREVIEW_ENABLED)return;
-  const cell=CHARACTER_RIG.cell;
-  const moveRiaHead=(image,part)=>{
-    const shifted=document.createElement('canvas');shifted.width=image.width;shifted.height=image.height;
-    const painter=shifted.getContext('2d',{willReadFrequently:true});painter.imageSmoothingEnabled=false;
-    const offsets=[2,-2,2,0];
-    for(let row=0;row<4;row++)for(let frame=0;frame<image.width/cell;frame++)
-      painter.drawImage(image,frame*cell,row*cell,cell,cell,
-        frame*cell+offsets[row],row*cell,cell,cell);
-    if(part==='Hair'){
-      // Ria's source has a straight, eight-pixel cap at the side-view crown.
-      // Round only that tiny cap; never crop the ponytail or alter the atlas cell.
-      const pixels=painter.getImageData(0,0,shifted.width,shifted.height),data=pixels.data;
-      for(let frame=0;frame<image.width/cell;frame++)for(const [row,left,right,peaks] of [
-        [1,45,52,[48,49]],[2,47,53,[50,51]]
-      ]){
-        const at=(x,y)=>((row*cell+y)*shifted.width+frame*cell+x)*4;
-        for(const x of [left,right])data.fill(0,at(x,27),at(x,27)+4);
-        const sample=at(peaks[0],27);
-        for(const x of peaks)data.set(data.subarray(sample,sample+4),at(x,26));
-      }
-      painter.putImageData(pixels,0,0);
-    }
-    return shifted;
-  };
-  const shortenSharedNeck=image=>{
-    const fitted=document.createElement('canvas');fitted.width=image.width;fitted.height=image.height;
-    const painter=fitted.getContext('2d',{willReadFrequently:true});painter.drawImage(image,0,0);
-    const pixels=painter.getImageData(0,0,image.width,image.height),data=pixels.data;
-    for(let frame=0;frame<image.width/cell;frame++)for(let y=57;y<=59;y++)for(let x=45;x<=51;x++){
-      const p=(y*image.width+frame*cell+x)*4,shirt=(62*image.width+frame*cell+x)*4;
-      const [r,g,b,a]=data.subarray(p,p+4);
-      if(a>=128&&r>150&&r>g*1.1&&g>b*1.05&&data[shirt+3]>=128)
-        for(let channel=0;channel<3;channel++)data[p+channel]=data[shirt+channel];
-    }
-    painter.putImageData(pixels,0,0);return fitted;
-  };
-  for(const pose of ['walk','chop','fish']){
-    const bodyKey=pose+'Body',originalBody=characterLayerImgs[bodyKey];
-    characterMasterOriginals[bodyKey]={original:originalBody,candidate:shortenSharedNeck(originalBody)};
-    for(const part of ['Head','Hair']){
-      const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
-      const original=characterLayerImgs[key];
-      characterMasterOriginals[key]={original,candidate:moveRiaHead(original,part)};
-    }
-  }
+  for(const key of Object.keys(CHARACTER_BASELINE_LEGACY_URLS))
+    characterMasterOriginals[key]={original:characterBaselineLegacyImgs[key],candidate:characterLayerImgs[key]};
   setCharacterMasterPreview('candidate');
 }
 function setCharacterMasterPreview(mode){
@@ -191,7 +148,7 @@ function prepareCharacterRiaNeckPreview(){
   if(!CHARACTER_RIA_NECK_PREVIEW_ENABLED||CHARACTER_MASTER_PREVIEW_ENABLED)return;
   for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
     const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
-    const original=characterLayerImgs[key];
+    const original=characterBaselineLegacyImgs[key];
     const centered=document.createElement('canvas');centered.width=original.width;centered.height=original.height;
     const painter=centered.getContext('2d');painter.imageSmoothingEnabled=false;
     const cell=CHARACTER_RIG.cell;
@@ -277,6 +234,8 @@ async function loadAll(){
     loadImageMap(forestTreeImgs,FOREST_TREE_URLS),
     loadImageMap(forestStumpImgs,FOREST_STUMP_URLS),
     loadImageMap(characterLayerImgs,CHARACTER_LAYER_URLS),
+    ...(CHARACTER_MASTER_PREVIEW_ENABLED||CHARACTER_RIA_NECK_PREVIEW_ENABLED?
+      [loadImageMap(characterBaselineLegacyImgs,CHARACTER_BASELINE_LEGACY_URLS)]:[]),
     loadImageMap(characterToolImgs,CHARACTER_TOOL_URLS),
     loadImageMap(lifeItemImgs,LIFE_ITEM_URLS),
     loadImageMap(matureCropImgs,MATURE_CROP_URLS),

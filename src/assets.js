@@ -70,36 +70,48 @@ const CHARACTER_WARDROBE_PREVIEW_URLS=Object.freeze({
   'outfit.meadow':{walk:'assets/player/npc-wardrobe-v2/walk-meadow.png',chop:'assets/player/npc-wardrobe-v2/chop-meadow.png',fish:'assets/player/npc-wardrobe-v2/fish-meadow.png'}
 });
 const CHARACTER_LAYER_URLS=Object.freeze({
-  walkBody:'assets/player/npc-v1/walk-body.png',
+  walkBody:'assets/player/character-baseline-v2/walk-body.png',
   walkHead:'assets/player/npc-v1/walk-head.png',
   walkHair:'assets/player/npc-v1/walk-hair.png',
   walkOutfit:'assets/player/npc-v1/walk-outfit.png',
   walkBackpack:'assets/player/npc-v1/walk-backpack.png',
   walkGrip:'assets/player/npc-v1/walk-grip.png',
-  chopBody:'assets/player/npc-v1/chop-body.png',
+  chopBody:'assets/player/character-baseline-v2/chop-body.png',
   chopHead:'assets/player/npc-v1/chop-head.png',
   chopHair:'assets/player/npc-v1/chop-hair.png',
   chopOutfit:'assets/player/npc-v1/chop-outfit.png',
   chopBackpack:'assets/player/npc-v1/chop-backpack.png',
   chopGrip:'assets/player/npc-v1/chop-grip.png',
-  fishBody:'assets/player/npc-v1/fish-body.png',
+  fishBody:'assets/player/character-baseline-v2/fish-body.png',
   fishHead:'assets/player/npc-v1/fish-head.png',
   fishHair:'assets/player/npc-v1/fish-hair.png',
   fishOutfit:'assets/player/npc-v1/fish-outfit.png',
   fishBackpack:'assets/player/npc-v1/fish-backpack.png',
   fishGrip:'assets/player/npc-v1/fish-grip.png',
-  femaleWalkHead:'assets/player/npc-ria-v3/walk-head.png',
-  femaleChopHead:'assets/player/npc-ria-v3/chop-head.png',
-  femaleFishHead:'assets/player/npc-ria-v3/fish-head.png',
-  femaleWalkHair:'assets/player/npc-ria-v3/walk-hair.png',
-  femaleChopHair:'assets/player/npc-ria-v3/chop-hair.png',
-  femaleFishHair:'assets/player/npc-ria-v3/fish-hair.png',
+  femaleWalkHead:'assets/player/character-baseline-v2/walk-head.png',
+  femaleChopHead:'assets/player/character-baseline-v2/chop-head.png',
+  femaleFishHead:'assets/player/character-baseline-v2/fish-head.png',
+  femaleWalkHair:'assets/player/character-baseline-v2/walk-hair.png',
+  femaleChopHair:'assets/player/character-baseline-v2/chop-hair.png',
+  femaleFishHair:'assets/player/character-baseline-v2/fish-hair.png',
   rangerWalkBackpack:'assets/player/npc-v1/walk-ranger.png',
   rangerChopBackpack:'assets/player/npc-v1/chop-ranger.png',
   rangerFishBackpack:'assets/player/npc-v1/fish-ranger.png',
   berryWalkBackpack:'assets/player/npc-v1/walk-berry.png',
   berryChopBackpack:'assets/player/npc-v1/chop-berry.png',
   berryFishBackpack:'assets/player/npc-v1/fish-berry.png'
+});
+// Loaded only by comparison links; never by ordinary play.
+const CHARACTER_BASELINE_LEGACY_URLS=Object.freeze({
+  walkBody:'assets/player/npc-v1/walk-body.png',
+  chopBody:'assets/player/npc-v1/chop-body.png',
+  fishBody:'assets/player/npc-v1/fish-body.png',
+  femaleWalkHead:'assets/player/npc-ria-v3/walk-head.png',
+  femaleChopHead:'assets/player/npc-ria-v3/chop-head.png',
+  femaleFishHead:'assets/player/npc-ria-v3/fish-head.png',
+  femaleWalkHair:'assets/player/npc-ria-v3/walk-hair.png',
+  femaleChopHair:'assets/player/npc-ria-v3/chop-hair.png',
+  femaleFishHair:'assets/player/npc-ria-v3/fish-hair.png'
 });
 const CHARACTER_TOOL_URLS=Object.freeze({
   'axe.basic':'assets/player/rig-v1/tools/axe-basic.png',

@@ -42,20 +42,18 @@ function getCharacterPose(){
 function getCharacterWalkAlignment(pose){
   // The authored boot-centred frames shift the collar under a stationary head.
   // Register the whole body/wardrobe/hand together; never change the head scale.
-  // Default play now uses the approved registration. Only the opt-in
-  // comparison's original mode restores the pre-correction alignment.
+  // The approved soft registration is now normal play. Comparison modes
+  // retain both the pre-correction and former balanced offsets.
   if(pose.pose!=='walk'||pose.face!=='down')return 0;
   if(CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='original')return 0;
-  // Trial only: reduce the horizontal body/wardrobe/grip swing by one pixel
-  // on each moving pose. The normal game keeps its approved registration.
-  return CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='soft'?
-    [0,2,-1][pose.frame]:[0,3,-2][pose.frame];
+  if(CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='balanced')return [0,3,-2][pose.frame];
+  return [0,2,-1][pose.frame];
 }
 
 function getCharacterWalkHeadAlignment(pose){
   // Preserve the approved head-to-collar registration while the soft trial
   // reduces the torso's horizontal travel. Shared by both character bodies.
-  return CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='soft'&&
+  return (!CHARACTER_WALK_PREVIEW_ENABLED||characterWalkPreview==='soft')&&
     pose.pose==='walk'&&pose.face==='down'?[0,-1,1][pose.frame]:0;
 }
 
@@ -109,11 +107,12 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   const y=actorY+20-CHARACTER_RIG.feet[1]*size/cell;
   const transform=getCharacterToolTransform(actorX,actorY,pose);
   const appearance=typeof getCharacterRenderAppearance==='function'?getCharacterRenderAppearance():GAME_STATE.appearance||{};
-  // Reference trial only: for front/right-facing axe poses, the axe is clearly
-  // in front of Ria's hair. Left/back retain the rig's behind-body depth.
-  const axeInFrontOfRiaHair=typeof CHARACTER_MASTER_PREVIEW_ENABLED!=='undefined'&&
-    CHARACTER_MASTER_PREVIEW_ENABLED&&characterMasterPreview==='candidate'&&
-    appearance.bodyId==='body.female'&&pose.tool==='axe'&&!transform?.behind;
+  // Ria's front/right axe passes in front of her hair. The archived comparison
+  // alone keeps the old depth; left/back still follow the rig's behind-tool flag.
+  const oldRiaDepth=typeof CHARACTER_MASTER_PREVIEW_ENABLED!=='undefined'&&
+    CHARACTER_MASTER_PREVIEW_ENABLED&&characterMasterPreview==='original';
+  const axeInFrontOfRiaHair=!oldRiaDepth&&appearance.bodyId==='body.female'&&
+    pose.tool==='axe'&&!transform?.behind;
   const outfit=appearance.outfitId||DEFAULT_OUTFIT_ID;
   const drawLayer=name=>{
     // Chop source art has wider heads on some impact frames despite equal

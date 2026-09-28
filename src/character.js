@@ -107,6 +107,11 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   const y=actorY+20-CHARACTER_RIG.feet[1]*size/cell;
   const transform=getCharacterToolTransform(actorX,actorY,pose);
   const appearance=typeof getCharacterRenderAppearance==='function'?getCharacterRenderAppearance():GAME_STATE.appearance||{};
+  // Reference trial only: for front/right-facing axe poses, the axe is clearly
+  // in front of Ria's hair. Left/back retain the rig's behind-body depth.
+  const axeInFrontOfRiaHair=typeof CHARACTER_MASTER_PREVIEW_ENABLED!=='undefined'&&
+    CHARACTER_MASTER_PREVIEW_ENABLED&&characterMasterPreview==='candidate'&&
+    appearance.bodyId==='body.female'&&pose.tool==='axe'&&!transform?.behind;
   const outfit=appearance.outfitId||DEFAULT_OUTFIT_ID;
   const drawLayer=name=>{
     // Chop source art has wider heads on some impact frames despite equal
@@ -142,12 +147,13 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   if(sidePack)drawLayer('Backpack');
   drawLayer('Body');drawLayer('Outfit');
   if(!sidePack)drawLayer('Backpack');
-  if(!transform?.behind)drawCharacterTool(transform);
+  if(!transform?.behind&&!axeInFrontOfRiaHair)drawCharacterTool(transform);
   // A raised preparation hand passes behind the head. Drawing all gripping
   // hands last made this skin patch look like an exposed bald rear skull.
   const handBehindHead=(pose.pose==='chop'||pose.pose==='fish')&&pose.frame===0;
   if(handBehindHead)drawLayer('Grip');
   drawLayer('Head');drawLayer('Hair');
+  if(axeInFrontOfRiaHair)drawCharacterTool(transform);
   if(!handBehindHead)drawLayer('Grip');
   return transform;
 }

@@ -120,13 +120,27 @@ const characterMasterOriginals={};
 function prepareCharacterMasterPreview(){
   if(!CHARACTER_MASTER_PREVIEW_ENABLED)return;
   const cell=CHARACTER_RIG.cell;
-  const moveRiaHead=image=>{
+  const moveRiaHead=(image,part)=>{
     const shifted=document.createElement('canvas');shifted.width=image.width;shifted.height=image.height;
-    const painter=shifted.getContext('2d');painter.imageSmoothingEnabled=false;
+    const painter=shifted.getContext('2d',{willReadFrequently:true});painter.imageSmoothingEnabled=false;
     const offsets=[2,-2,2,0];
     for(let row=0;row<4;row++)for(let frame=0;frame<image.width/cell;frame++)
       painter.drawImage(image,frame*cell,row*cell,cell,cell,
         frame*cell+offsets[row],row*cell,cell,cell);
+    if(part==='Hair'){
+      // Ria's source has a straight, eight-pixel cap at the side-view crown.
+      // Round only that tiny cap; never crop the ponytail or alter the atlas cell.
+      const pixels=painter.getImageData(0,0,shifted.width,shifted.height),data=pixels.data;
+      for(let frame=0;frame<image.width/cell;frame++)for(const [row,left,right,peaks] of [
+        [1,45,52,[48,49]],[2,47,53,[50,51]]
+      ]){
+        const at=(x,y)=>((row*cell+y)*shifted.width+frame*cell+x)*4;
+        for(const x of [left,right])data.fill(0,at(x,27),at(x,27)+4);
+        const sample=at(peaks[0],27);
+        for(const x of peaks)data.set(data.subarray(sample,sample+4),at(x,26));
+      }
+      painter.putImageData(pixels,0,0);
+    }
     return shifted;
   };
   const shortenSharedNeck=image=>{
@@ -147,7 +161,7 @@ function prepareCharacterMasterPreview(){
     for(const part of ['Head','Hair']){
       const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
       const original=characterLayerImgs[key];
-      characterMasterOriginals[key]={original,candidate:moveRiaHead(original)};
+      characterMasterOriginals[key]={original,candidate:moveRiaHead(original,part)};
     }
   }
   setCharacterMasterPreview('candidate');

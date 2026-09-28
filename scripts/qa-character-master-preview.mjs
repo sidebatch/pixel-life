@@ -45,7 +45,13 @@ try{
           const dx=[2,-2,2,0][row],sx=local-dx;
           const from=(y*width+frame*96+sx)*4;
           for(let c=0;c<4;c++){
-            const expected=sx<0||sx>=96?0:a[from+c];
+            let expected=sx<0||sx>=96?0:a[from+c];
+            if(key.endsWith('Hair')&&(row===1||row===2)){
+              const [left,right,peaks]=row===1?[45,52,[48,49]]:[47,53,[50,51]];
+              if(y%96===27&&(local===left||local===right))expected=0;
+              if(y%96===26&&peaks.includes(local))
+                expected=a[((row*96+27)*width+frame*96+peaks[0]-dx)*4+c];
+            }
             if(b[p+c]!==expected)throw Error(`${key}: wrong face/hair translation at ${x},${y}`);
           }
         }
@@ -74,7 +80,8 @@ try{
   assert.equal(await page.evaluate(()=>getCharacterRenderAppearance().bodyId),'body.female');
   const result=await page.evaluate(()=>{
     const outfits=['outfit.traveler','outfit.ember','outfit.meadow'],faces=['down','right','left','up'];
-    const sheets=[['walk',0,'axe'],['chop',0,'axe'],['chop',1,'axe'],['fish',0,'rod'],['fish',1,'rod']];
+    const sheets=[['walk',0,'axe'],['walk',1,'axe'],['walk',2,'axe'],
+      ['chop',0,'axe'],['chop',1,'axe'],['fish',0,'rod'],['fish',1,'rod'],['fish',2,'rod']];
     const dimensions=[canvas.width,canvas.height],images=[];
     let renders=0;
     try{
@@ -97,8 +104,34 @@ try{
       candidate:Object.entries(characterMasterOriginals).every(([key,v])=>characterLayerImgs[key]===v.candidate)};
   });
   for(const {name,png} of result.images)fs.writeFileSync(path.join(output,`${name}-all-characters-outfits-directions.png`),Buffer.from(png.split(',')[1],'base64'));
-  assert.equal(result.renders,120);assert.equal(result.candidate,true);
+  assert.equal(result.renders,192);assert.equal(result.candidate,true);
   assert.equal(result.state,initial.state);assert.equal(result.storage,initial.storage);
+  const layering=await page.evaluate(()=>{
+    const appearance=getCharacterRenderAppearance(),tool=characterToolImgs[appearance.activeToolId||'axe.basic']||characterToolImgs['axe.basic'];
+    const original=ctx.drawImage,orders={};
+    try{
+      ctx.drawImage=function(image,...args){
+        if(image===tool)orders.current.push('axe');
+        if(image===characterLayerImgs.femaleWalkHair)orders.current.push('hair');
+        return original.call(this,image,...args);
+      };
+      for(const mode of ['candidate','original'])for(const face of ['down','right','left','up'])
+        for(const [pose,frame] of [['walk',0],['chop',0],['chop',1]]){
+        setCharacterMasterPreview(mode);orders.current=[];
+        drawCharacterActor(100,100,{pose,face,frame,tool:'axe'});
+        orders[`${mode}-${pose}-${frame}-${face}`]=orders.current;
+      }
+    }finally{ctx.drawImage=original;setCharacterMasterPreview('candidate');drawWorld();delete orders.current;}
+    return orders;
+  });
+  for(const [pose,frame] of [['walk',0],['chop',0],['chop',1]]){
+    for(const face of ['down','right']){
+      assert.deepEqual(layering[`candidate-${pose}-${frame}-${face}`],['hair','axe']);
+      assert.deepEqual(layering[`original-${pose}-${frame}-${face}`],['axe','hair']);
+    }
+    for(const face of ['left','up'])
+      assert.deepEqual(layering[`candidate-${pose}-${frame}-${face}`],['axe','hair']);
+  }
   const narrow=await browser.newPage({viewport:{width:320,height:568},isMobile:true,hasTouch:true});
   narrow.on('pageerror',error=>errors.push(error.message));
   await narrow.addInitScript(()=>{window.requestAnimationFrame=()=>0;});

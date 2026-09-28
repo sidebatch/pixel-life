@@ -22,7 +22,7 @@ loadAll().then(()=>{
       button.setAttribute('aria-pressed',String(selected));
       button.style.background=selected?'#dbece0':'#224644';button.style.color=selected?'#14322b':'#fff';
     }};
-    for(const [mode,text] of [['original','기존 동작'],['balanced','보정 동작']]){
+    for(const [mode,text] of [['original','기존 동작'],['balanced','보정 동작'],['soft','흔들림 완화']]){
       const button=document.createElement('button');button.type='button';button.textContent=text;
       button.style.cssText='margin:6px 3px 0 0;min-height:44px;padding:7px 14px;border:1px solid #acd4bb;border-radius:8px;';
       button.addEventListener('click',()=>{setCharacterWalkPreview(mode);refresh();drawWorld();});

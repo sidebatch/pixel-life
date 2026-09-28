@@ -32,7 +32,7 @@ let characterBodyPreview=CHARACTER_BODY_PREVIEW_ENABLED&&new URLSearchParams(win
 const CHARACTER_WALK_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('walk-preview');
 let characterWalkPreview='balanced';
 function setCharacterWalkPreview(mode){
-  if(!CHARACTER_WALK_PREVIEW_ENABLED||!['original','balanced'].includes(mode))return false;
+  if(!CHARACTER_WALK_PREVIEW_ENABLED||!['original','balanced','soft'].includes(mode))return false;
   characterWalkPreview=mode;return true;
 }
 const CHARACTER_OUTFITS=Object.freeze([
@@ -110,7 +110,7 @@ const characterLayerImgs={},characterToolImgs={},characterOutfitImgs={},characte
 function getCharacterOutfitImages(id){
   // Use the same corrected clothes in normal play and the corrected preview.
   // The opt-in original comparison alone keeps the archived costume art.
-  return (!CHARACTER_WALK_PREVIEW_ENABLED||characterWalkPreview==='balanced')&&characterOutfitPreviewImgs[id]||characterOutfitImgs[id];
+  return (!CHARACTER_WALK_PREVIEW_ENABLED||characterWalkPreview!=='original')&&characterOutfitPreviewImgs[id]||characterOutfitImgs[id];
 }
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
 async function loadImageMap(target, urls, optional=false){

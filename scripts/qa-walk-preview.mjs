@@ -25,8 +25,9 @@ try{
       for(const face of ['down','right','left','up']){
         setCharacterWalkPreview('original');const original=frames(face);
         setCharacterWalkPreview('balanced');const balanced=frames(face);
+        setCharacterWalkPreview('soft');const soft=frames(face);
         const expected=original;
-        if(JSON.stringify(balanced)!==JSON.stringify(expected))throw Error('Unexpected sequence '+face);
+        if(JSON.stringify(balanced)!==JSON.stringify(expected)||JSON.stringify(soft)!==JSON.stringify(expected))throw Error('Unexpected sequence '+face);
         if(JSON.stringify(original)!=='[0,1,2,1,0,1,2,1]')throw Error('Baseline changed');
         // Canonical head stays fixed; body, wardrobe and tool move as one unit.
         for(const frame of [0,1,2]){
@@ -39,8 +40,17 @@ try{
           const heads=new Set(Object.entries(characterLayerImgs).filter(([key])=>key.endsWith('Head')||key.endsWith('Hair')).map(([,image])=>image));
           if(!calls.every((call,i)=>call.every((value,j)=>
             j===5&&call.length===9&&!heads.has(call[0])?Math.abs(value+shift-drawCalls[i][j])<1e-8:value===drawCalls[i][j])))throw Error('Unexpected drawing change');
+          const aligned=drawCalls.slice();
+          drawCalls.length=0;setCharacterWalkPreview('soft');const c=drawCharacterActor(100,120,pose);
+          const softShift=face==='down'?[0,2,-1][frame]*CHARACTER_RIG.renderSize/CHARACTER_RIG.cell:0;
+          if(Math.abs(c.x-a.x-softShift)>1e-8||Math.abs(c.tip.x-a.tip.x-softShift)>1e-8||
+            c.y!==a.y||c.tip.y!==a.tip.y||calls.length!==drawCalls.length)throw Error('Soft tool registration changed');
+          if(!calls.every((call,i)=>call.every((value,j)=>
+            j===5&&call.length===9&&!heads.has(call[0])?Math.abs(value+softShift-drawCalls[i][j])<1e-8:value===drawCalls[i][j])))throw Error('Soft preview changed head, foot height or unrelated drawing');
+          if(face==='down'&&frame>0&&Math.abs(aligned.find(call=>call.length===9&&!heads.has(call[0]))[5]-
+            drawCalls.find(call=>call.length===9&&!heads.has(call[0]))[5])<=0)throw Error('Soft preview is indistinguishable');
         }
-        compare.push({sex,face,original,balanced});
+        compare.push({sex,face,original,balanced,soft});
       }
     }
     ctx.drawImage=draw;player.moving=false;player.face='down';
@@ -87,6 +97,8 @@ try{
   assert.equal(await panel.getByRole('button',{name:'기존 동작'}).getAttribute('aria-pressed'),'true');
   await panel.getByRole('button',{name:'보정 동작'}).tap();
   assert.equal(await panel.getByRole('button',{name:'보정 동작'}).getAttribute('aria-pressed'),'true');
+  await panel.getByRole('button',{name:'흔들림 완화'}).tap();
+  assert.equal(await panel.getByRole('button',{name:'흔들림 완화'}).getAttribute('aria-pressed'),'true');
   await page.evaluate(()=>{setCharacterBodyPreview('male');camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));drawWorld();});
   await page.screenshot({path:path.join(output,'mobile-comparison.png')});
   const contact=await page.evaluate(()=>{

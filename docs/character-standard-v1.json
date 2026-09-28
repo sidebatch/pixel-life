@@ -3,6 +3,9 @@
   "created": "2026-09-27",
   "baselineCommit": "edb9c9d",
   "previewPromotionPending": true,
+  "trialChanges": [
+    {"feature":"soft-down-walk-comparison","date":"2026-09-27","previousRendererSha256":"7b7c41e9045ea18ecced33d8e239c77687cc4970477982d98b415ce0ce41f383","scope":"User-requested opt-in comparison only. Soft down-walk common horizontal offsets [0,2,-1] versus normal approved [0,3,-2]. No atlas, rig geometry, other direction, cadence, save or normal-game change. Axe trial remains opt-in."}
+  ],
   "approvedPromotions": [
     {"feature":"down-walk-registration","date":"2026-09-27","previousRendererSha256":"f0a4bd996839537be4482073f0ee3dd41684431e28ae31ce14afbcce0f22eb80","scope":"Default down walking offset only; original comparison retained; wardrobe and axe blade remain opt-in at this step."},
     {"feature":"corrected-wardrobe-and-matching-ui","date":"2026-09-27","scope":"User requested clothing correction. Normal play selects existing wardrobe-v2 art; bag/detail/NPC previews follow actual outfit art. No renderer, pose, tool, save ID or original PNG changes. Original comparison retained; axe blade remains opt-in."}
@@ -131,7 +134,7 @@
     }
   },
   "protectedFiles": {
-    "src/character.js": "7b7c41e9045ea18ecced33d8e239c77687cc4970477982d98b415ce0ce41f383",
+    "src/character.js": "ae54bcd76ee8870cc0f1b7b333891147d634e0d8d0143d60bf67f3bd5cb02201",
     "scripts/lib/character-attachments.mjs": "cbf9c1930f505708aee88c4667cd2caa53d53c493f072f39134b8fa32e27cdce",
     "assets/player/npc-v1/chop-backpack.png": "911948f80962880e0e7e54265ba9fefba768c0423f09a6137fbf8f40083d448a",
     "assets/player/npc-v1/chop-berry.png": "b408f743c3f78439a5c33e5ae6ee740f8bbb97d21fe8abc027fba2590e8f4db7",

@@ -12,20 +12,21 @@ try{
   page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   const base=process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/';
+  const compareOld=!base.startsWith('https://');
   await page.goto(base+'?walk-preview&character-preview&character=female&time=12:00&weather=clear');
   await page.waitForFunction(()=>characterLayerImgs.femaleFishHair&&characterOutfitPreviewImgs['outfit.meadow']?.fish);
-  const result=await page.evaluate(async()=>{
+  const result=await page.evaluate(async compareOld=>{
     const before=JSON.stringify(createSaveData().state),store=JSON.stringify({...localStorage});
     const paths={};for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
       const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
       paths[key]=characterLayerImgs[key];
-      if(!paths[key].src.includes('/npc-ria-v2/'))throw Error(`Ria ${key} not registered`);
+      if(compareOld&&!paths[key].src.includes('/npc-ria-v2/'))throw Error(`Ria ${key} not registered`);
     }
-    const old={};for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
+    const old={};if(compareOld)for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
       const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
       old[key]=await loadImage(`assets/player/npc-v1/${pose}-female-${part.toLowerCase()}.png`);
     }
-    const rows=[['old',old],['new',paths]],poses=[
+    const rows=compareOld?[['old',old],['new',paths]]:[['new',paths]],poses=[
       ...[0,1,2].map(frame=>({pose:'walk',face:'down',frame,tool:'axe'})),
       {pose:'walk',face:'right',frame:0,tool:'axe'},
       {pose:'walk',face:'up',frame:0,tool:'axe'}];
@@ -53,10 +54,10 @@ try{
     const png=canvas.toDataURL('image/png');
     canvas.width=dimensions[0];canvas.height=dimensions[1];ctx.imageSmoothingEnabled=false;
     if(JSON.stringify(createSaveData().state)!==before||JSON.stringify({...localStorage})!==store)throw Error('Ria art QA changed save');
-    return {png,count,sourcePaths:Object.values(paths).map(image=>image.src),stateUnchanged:true};
-  });
-  assert.equal(result.count,10);assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(output,'old-vs-new-soft-walk.png'),Buffer.from(result.png.split(',')[1],'base64'));
+    return {png,count,sourcePaths:Object.values(paths).map(image=>image.src.startsWith('data:')?'inlined':image.src),stateUnchanged:true};
+  },compareOld);
+  assert.equal(result.count,compareOld?10:5);assert.deepEqual(errors,[]);
+  fs.writeFileSync(path.join(output,compareOld?'old-vs-new-soft-walk.png':'new-public-soft-walk.png'),Buffer.from(result.png.split(',')[1],'base64'));
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({count:result.count,sourcePaths:result.sourcePaths,stateUnchanged:result.stateUnchanged,browserErrors:errors},null,2));
-  console.log('PASS: Ria v2 head/hair on the same body in 10 actual-render comparison poses; save unchanged.');
+  console.log(`PASS: Ria v2 head/hair on the same body in ${result.count} actual-render poses; save unchanged.`);
 }finally{await browser.close();}

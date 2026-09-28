@@ -156,7 +156,7 @@ try{
       for(const face of ['right','left','up'])for(let frame=0;frame<3;frame++)if(getCharacterWalkAlignment({pose:'walk',face,frame})!==0)throw Error('Other direction changed');
       for(const pose of ['chop','fish'])for(const face of ['down','right','left','up'])if(getCharacterWalkAlignment({pose,face,frame:1})!==0)throw Error('Action changed');
       const axe=getCharacterToolTransform(100,120,{pose:'chop',face:'down',frame:0,tool:'axe'});
-      if(axe.edgeScale!==1||axe.mirror)throw Error('Axe blade trial was promoted');
+      if(axe.edgeScale!==.55||!axe.mirror)throw Error('Approved front-ready axe blade was not promoted');
       player.face='down';player.moving=true;lifeUi.chop=null;fishingState.phase='idle';
       if(Array.from({length:4},(_,i)=>{tNow=i*105;return getCharacterPose().frame;}).join(',')!=='0,1,2,1')throw Error('Cadence changed');
     }finally{Object.assign(GAME_STATE.appearance,appearance);ctx.drawImage=draw;}
@@ -166,5 +166,5 @@ try{
   assert.equal(report.normalPromotion.combinations,54);
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,normalLinkCorrected:true,mobileButtons:true,browserErrors:errors},null,2));
-  console.log('PASS: promoted soft down body/head/tool registration and corrected clothes in normal play, 54 normal combinations, original comparison/cadence/scale/actions/save; axe blade trial unpromoted.');
+  console.log('PASS: promoted soft down body/head/tool registration, corrected clothes and front/back swing blade in normal play; 54 normal combinations, original comparison/cadence/scale/actions/save.');
 }finally{await browser.close();}

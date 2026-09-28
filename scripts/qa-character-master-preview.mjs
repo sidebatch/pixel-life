@@ -33,8 +33,8 @@ try{
         throw Error('Soft down-walk leaked into another direction');
     }
     for(const face of ['down','up'])for(const frame of [0,1])
-      if(getCharacterToolTransform(0,0,{pose:'chop',face,frame,tool:'axe'}).edgeScale!==1)
-        throw Error('Soft gait unexpectedly changed the approved axe swing');
+      if(getCharacterToolTransform(0,0,{pose:'chop',face,frame,tool:'axe'}).edgeScale!==.55)
+        throw Error('Production front/back axe swing blade was not connected');
     const pixels=image=>{
       const c=document.createElement('canvas');c.width=image.width;c.height=image.height;
       const painter=c.getContext('2d',{willReadFrequently:true});painter.drawImage(image,0,0);

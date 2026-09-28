@@ -1161,22 +1161,28 @@ for(const [pose,definition] of Object.entries(rig.poses)){
       const grip=definition.frames[face][frame].grip,unit=100/96;
       const walkOffset=pose==='walk'&&face==='down'?[0,2,-1][frame]:0;
       const headOffset=pose==='walk'&&face==='down'?[0,-1,1][frame]:0;
-      const expectedMirror=face==='left'||tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
-      assert(transform.mirror===expectedMirror,'Only carried front/back axes change blade side; rods and swings retain orientation');
-      const edgeOn=tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
-      assert(transform.edgeScale===(edgeOn?0.55:1),'Only front/back carried axes use a partially visible edge projection');
-      const expectedAxis=edgeOn?(face==='down'?-1.95:-1.19):definition.frames[face][frame].angle;
+      const frontBackCarry=tool==='axe'&&pose==='walk'&&(face==='down'||face==='up');
+      const frontBackSwing=tool==='axe'&&pose==='chop'&&(face==='down'||face==='up');
+      const expectedMirror=face==='left'||frontBackCarry||frontBackSwing&&face==='down'&&frame===0;
+      assert(transform.mirror===expectedMirror,'Front-ready blade and carried front/back axes must face forward; side swings and rods retain orientation');
+      const edgeOn=frontBackCarry||frontBackSwing;
+      assert(transform.edgeScale===(edgeOn?0.55:1),'Front/back carried and swinging axes use a partially visible edge projection');
+      const expectedAxis=frontBackCarry?(face==='down'?-1.95:-1.19):definition.frames[face][frame].angle;
       assert(transform.axisAngle===expectedAxis,'Side views, rods and swing angles must remain unchanged');
       const expectedLength=(tool==='rod'?(pose==='fish'?48:36):pose==='chop'?34:26)*unit;
       assert(Math.abs(Math.hypot(transform.tip.x-transform.x,transform.tip.y-transform.y)-expectedLength)<1e-8,
         'Edge-on projection must preserve handle attachment and shaft length');
       // A source point on the blade side of the shaft must point forward in
       // both front/back carry views, without changing the handle or shaft tip.
-      if(tool==='axe'&&pose==='walk'&&(face==='down'||face==='up')){
+      if(frontBackCarry){
         const native=rig.tools[key].nativeAngle;
         const bx=-Math.sin(native)*(transform.mirror?-1:1),by=Math.cos(native);
         const bladeY=Math.sin(transform.rotation)*bx+Math.cos(transform.rotation)*by;
         assert(face==='down'?bladeY>0:bladeY<0,'Carried axe cutting edge must face forward');
+      }
+      if(frontBackSwing){
+        const bladeY=Math.cos(transform.axisAngle)*(transform.mirror?-1:1);
+        assert(face==='down'?bladeY>0:bladeY<0,'Swinging axe cutting edge must face the character direction');
       }
       assert(Math.abs(transform.x-(100+(grip[0]+walkOffset-48)*unit))<1e-8&&
         Math.abs(transform.y-(120+(grip[1]-88)*unit))<1e-8,

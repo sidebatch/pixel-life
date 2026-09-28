@@ -79,9 +79,9 @@ try{
   assert(await page.evaluate(()=>{
     const front=getCharacterToolTransform(100,120,{pose:'chop',face:'down',frame:0,tool:'axe'});
     const back=getCharacterToolTransform(100,120,{pose:'chop',face:'up',frame:0,tool:'axe'});
-    return !front.mirror&&!back.mirror&&front.edgeScale===1&&back.edgeScale===1;
+    return front.mirror&&!back.mirror&&front.edgeScale===.55&&back.edgeScale===.55;
   }));
   assert.deepEqual(errors,[]);
-  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,normalLinkUnchanged:true,mobileButtons:true,browserErrors:errors},null,2));
-  console.log('PASS: 64 sex/axe/direction/phase combinations; front/rear blade projection, actual shaft/grip, unchanged character/side/fishing/save and normal game.');
+  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,normalLinkPromoted:true,mobileButtons:true,browserErrors:errors},null,2));
+  console.log('PASS: 64 sex/axe/direction/phase combinations; front/rear blade projection in normal play, actual shaft/grip, unchanged character/side/fishing/save.');
 }finally{await browser.close();}

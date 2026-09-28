@@ -12,7 +12,8 @@
   "approvedPromotions": [
     {"feature":"down-walk-registration","date":"2026-09-27","previousRendererSha256":"f0a4bd996839537be4482073f0ee3dd41684431e28ae31ce14afbcce0f22eb80","scope":"Default down walking offset only; original comparison retained; wardrobe and axe blade remain opt-in at this step."},
     {"feature":"corrected-wardrobe-and-matching-ui","date":"2026-09-27","scope":"User requested clothing correction. Normal play selects existing wardrobe-v2 art; bag/detail/NPC previews follow actual outfit art. No renderer, pose, tool, save ID or original PNG changes. Original comparison retained; axe blade remains opt-in."},
-    {"feature":"character-baseline-v2","date":"2026-09-28","previousRendererSha256":"aee5ee924ee1ff6a00be00308ff8d791f0a06b6741523e94a053b39da7703202","scope":"User-approved full character trial promoted into nine versioned production atlases, normal soft down-walk and Ria front/right axe-over-hair depth. Historical v1/v3 PNGs and save IDs remain intact; unrelated axe-blade projection still trial-only."}
+    {"feature":"character-baseline-v2","date":"2026-09-28","previousRendererSha256":"aee5ee924ee1ff6a00be00308ff8d791f0a06b6741523e94a053b39da7703202","scope":"User-approved full character trial promoted into nine versioned production atlases, normal soft down-walk and Ria front/right axe-over-hair depth. Historical v1/v3 PNGs and save IDs remain intact; unrelated axe-blade projection still trial-only."},
+    {"feature":"front-back-axe-swing-blade","date":"2026-09-28","previousRendererSha256":"a48fabb2d34795ba68017f562b685bd3547bafb5d1e2e56ff11deb10335c1ea0","scope":"User-requested front/back axe swing blade correction: 0.55 cross-shaft projection and front-ready cutting-edge mirror in normal play. Four axe tiers share the same transform; grip, shaft tip, side swings, rods, timing, save IDs and protected art/rig are unchanged. Original comparison remains available."}
   ],
   "geometryHash": "575bb8e51045cca4b5fe2507bde629cdab5f01fe116de19c2a1916e09c9c1ef2",
   "existingTools": {
@@ -138,7 +139,7 @@
     }
   },
   "protectedFiles": {
-    "src/character.js": "a48fabb2d34795ba68017f562b685bd3547bafb5d1e2e56ff11deb10335c1ea0",
+    "src/character.js": "5781a8a9955fdf8a1398c721b99e1cdadaf75a943abb8fe6efbcdbd58ba4e814",
     "assets/player/character-baseline-v2/chop-body.png": "ab117f64bf7c30c323a633ee98e13c2dc8b5b42ff01cc1797dbaffbe5604d290",
     "assets/player/character-baseline-v2/chop-hair.png": "ec9d7ea490acc39f88879608bcbe7846a72bd2fbb950f9a414c0000d56361063",
     "assets/player/character-baseline-v2/chop-head.png": "19ecdf9429f3a160798e622c5ca280244559546d49b5c3be18ae3d3a21186cb2",

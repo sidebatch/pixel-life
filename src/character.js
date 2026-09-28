@@ -66,14 +66,15 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const x=actorX+(frame.grip[0]+getCharacterWalkAlignment(pose)-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
   const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):pose.pose==='chop'?34:26)*unit;
-  // Front/back carry shows a narrow three-quarter edge, not the broad side.
-  // Keep the right-hand pivot and shaft length; side views/swings stay intact.
+  // Front/back carry and swings show a narrow three-quarter edge, not the broad
+  // side. Keep the right-hand pivot and shaft length; side views stay intact.
   const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&
     (pose.face==='down'||pose.face==='up');
-  const frontBackSwing=CHARACTER_WALK_PREVIEW_ENABLED&&
-    (typeof CHARACTER_MASTER_PREVIEW_ENABLED==='undefined'||!CHARACTER_MASTER_PREVIEW_ENABLED)&&
-    characterWalkPreview!=='original'&&
-    pose.tool==='axe'&&pose.pose==='chop'&&(pose.face==='down'||pose.face==='up');
+  const oldBladeComparison=CHARACTER_WALK_PREVIEW_ENABLED&&characterWalkPreview==='original'||
+    typeof CHARACTER_MASTER_PREVIEW_ENABLED!=='undefined'&&CHARACTER_MASTER_PREVIEW_ENABLED&&
+    characterMasterPreview==='original';
+  const frontBackSwing=!oldBladeComparison&&pose.tool==='axe'&&pose.pose==='chop'&&
+    (pose.face==='down'||pose.face==='up');
   // In front-view preparation the cutting edge must face forward, not back
   // over the shoulder. Impact and rear-view art already have the correct side.
   const mirror=pose.face==='left'||frontBackCarry||frontBackSwing&&pose.face==='down'&&pose.frame===0;

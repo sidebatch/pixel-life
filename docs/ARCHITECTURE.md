@@ -59,7 +59,7 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 ### `src/character.js` / `src/data/character-rig-data.js`
 
-플레이어 그림은 걷기·벌목·낚시 모두 96×96 셀/같은 발 기준을 사용한다. body/head/hair/outfit/backpack/grip PNG를 합성하고 각 무기의 실제 손잡이 피벗을 프레임별 손에 연결한다. 위쪽 도구는 몸 뒤에, 그립 손은 도구 위에 그린다. 낚싯줄은 같은 변환으로 구한 낚싯대 끝을 사용한다. 데이터는 `scripts/pack-character-rig.mjs`가 제작 원본에서 생성하며 런타임 색상 마스크 분리는 제거했다. 외형 저장·등록은 `src/config.js`/`src/save.js`, 도구 선택은 `src/inventory.js`에 있다. 규격은 `docs/CHARACTER_APPEARANCE.md` 참조.
+플레이어 그림은 걷기·벌목·낚시 모두 96×96 셀/같은 발 기준을 사용한다. body/head/hair/outfit/backpack/grip PNG를 합성하고 각 무기의 실제 손잡이 피벗을 프레임별 손에 연결한다. 위쪽 도구는 몸 뒤에, 그립 손은 도구 위에 그린다. 낚싯줄은 같은 변환으로 구한 낚싯대 끝을 사용한다. 최초 rig 생성은 `scripts/pack-character-rig.mjs`, 현행 승인 기준 PNG의 재현은 `scripts/pack-character-baseline-v2.mjs`가 맡는다. 런타임 색상 마스크 분리는 사용하지 않는다. 외형 저장·등록은 `src/config.js`/`src/save.js`, 도구 선택은 `src/inventory.js`에 있다. 새 제작물의 규격은 `docs/CHARACTER_ASSET_STANDARD.md`와 `docs/character-standard-v2.json`을 따른다. `docs/CHARACTER_APPEARANCE.md`는 과거 제작 이력이다.
 
 ### `src/interactions.js`
 

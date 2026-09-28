@@ -1,6 +1,6 @@
-# 캐릭터·옷·도구 공통 규격 v1
+# 캐릭터·옷·도구 제작 이력 (구 규격)
 
-> 앞으로의 제작/납품 기준은 [고정 에셋 규격](CHARACTER_ASSET_STANDARD.md)과 character-standard-v2.json을 우선한다. 이 문서의 날짜별 내용은 제작 이력이며 옛 목63/rig-v1/polish-v1 설명을 현재 템플릿으로 사용하지 않는다.
+> 이 문서는 과거 작업 순서와 당시 판단을 보존한 기록이다. 아래의 “현재”, “최신”, “시험 전용”, “미승격”은 해당 날짜의 상태를 뜻하며 지금의 일반 게임 기준이 아니다. 새 캐릭터·옷·가방·무기의 제작/납품은 [현행 v2 고정 규격](CHARACTER_ASSET_STANDARD.md)과 [v2 보호 계약](character-standard-v2.json)만 기준으로 삼는다. 옛 rig-v1/polish-v1/리아 v3 그림을 새 에셋 템플릿으로 사용하지 않는다.
 
 현재 사용자 표시 이름은 **이안**(기존 body.starter/hair.brown)과 **리아**(기존 body.female/hair.female.brown)다. NPC 선택창·안내와 시험 버튼에 동일하게 표시하며 내부 ID/저장/이미지는 유지한다.
 

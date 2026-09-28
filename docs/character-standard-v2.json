@@ -2,7 +2,7 @@
   "id": "npc-compatible-v2",
   "created": "2026-09-28",
   "baselineCommit": "af5b9c6",
-  "previewPromotionPending": true,
+  "previewPromotionPending": false,
   "trialChanges": [
     {"feature":"soft-down-walk-comparison","date":"2026-09-27","previousRendererSha256":"7b7c41e9045ea18ecced33d8e239c77687cc4970477982d98b415ce0ce41f383","scope":"User-requested opt-in comparison only. Soft down-walk common horizontal offsets [0,2,-1] versus normal approved [0,3,-2]. No atlas, rig geometry, other direction, cadence, save or normal-game change. Axe trial remains opt-in."},
     {"feature":"soft-walk-neck-registration","date":"2026-09-27","previousRendererSha256":"ae54bcd76ee8870cc0f1b7b333891147d634e0d8d0143d60bf67f3bd5cb02201","scope":"Trial-only shared head/hair counter-offset [0,-1,+1] on south walk to retain the approved relative head-to-collar registration in soft mode. Both characters, all outfits; normal play, atlas, other directions/actions and saves unchanged."},

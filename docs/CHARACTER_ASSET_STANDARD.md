@@ -1,12 +1,12 @@
 # 캐릭터·외형·무기 제작 고정 기준
 
-현행 규격 ID: `npc-compatible-v3-sword` · 적용일: 2026-09-28 · 기준 계약: `docs/character-standard-v3.json` · 검 동작 확장: `docs/sword-action-v1.json`
+현행 규격 ID: `npc-compatible-v4-sword-lengths` · 적용일: 2026-09-28 · 기준 계약: `docs/character-standard-v4.json` · 검 동작 확장: `docs/sword-action-v1.json`
 
 ## 1. 가장 중요한 원칙
 
 **새 에셋을 공통 틀에 맞춘다. 새 에셋 때문에 기존 캐릭터·옷·가방·무기·모션을 다시 맞추지 않는다.**
 
-이 문서가 앞으로의 캐릭터·외형·도끼·낚싯대 제작 기준이다. 검은 `docs/SWORD_ACTION_STANDARD.md`의 독립된 동작 규격을 추가로 따른다. 좌표의 원본은 `src/data/character-rig-data.js`이고 기존 그림·렌더러·도구는 `docs/character-standard-v3.json`으로 보호한다. v1/v2 계약과 `CHARACTER_APPEARANCE.md`는 제작 이력이지 새 에셋의 템플릿이 아니다.
+이 문서가 앞으로의 캐릭터·외형·도끼·낚싯대 제작 기준이다. 검은 `docs/SWORD_ACTION_STANDARD.md`의 독립된 동작 규격을 추가로 따른다. 좌표의 원본은 `src/data/character-rig-data.js`이고 기존 그림·렌더러·도구는 `docs/character-standard-v4.json`으로 보호한다. v1/v2/v3 계약과 `CHARACTER_APPEARANCE.md`는 제작 이력이지 새 에셋의 템플릿이 아니다.
 
 현재 일반 게임은 승인된 9개 `assets/player/character-baseline-v2/` PNG, 두 보정 의상(`npc-wardrobe-v2`), 아래 걷기 흔들림 완화, 리아 앞/오른쪽 도끼 전경, 앞/뒤 휘두르기 날의 0.55폭 투영을 사용한다. 과거 v1/v3 그림과 저장 ID는 보존한다. `walk-preview`·`character-master-preview`의 원본 버튼은 이전 모습을 비교하기 위한 것이며 신규 제작 기준이 아니다. 승격 과정과 이전 시험 상태는 `docs/HANDOFF.md`와 계약의 `approvedPromotions`에 기록돼 있다.
 
@@ -65,7 +65,7 @@
 - 무기 자체의 실제 grip/tip을 측정해 nativeLength=두 점의 거리, nativeAngle=grip→tip의 각도로 등록한다. 다른 무기의 metadata를 무조건 복사하지 않는다.
 - 공통 손 좌표·길이·회전·반전·날 폭 투영·가림을 사용한다. 새 무기 때문에 손 위치/캐릭터 크기/기존 무기 각도를 바꾸거나 무기 ID별 예외를 렌더러에 추가하지 않는다.
 - 낚싯줄은 공통 tip→찌 렌더러가 그린다. 원화에 고정된 긴 낚싯줄을 남기지 않는다.
-- 현재 지원 동작군은 axe/rod/sword다. 검은 `src/data/sword-data.js`와 `docs/SWORD_ACTION_STANDARD.md`의 독립 동작군이며 현재 기본 검만 있다. 상위 검은 같은 손/모션/크기에 새 PNG와 grip/tip metadata를 등록한다. 창·활 등의 다른 동작은 이름/PNG 추가만으로 지원되지 않는다.
+- 현재 지원 동작군은 axe/rod/sword다. 검은 `src/data/sword-data.js`와 `docs/SWORD_ACTION_STANDARD.md`의 독립 동작군이며 현재 기본 검만 있다. 상위 검은 같은 손/모션·가림 규칙에 새 PNG와 실제 grip/tip, 검별 휴대/휘두름 표시 길이를 등록한다. 길이가 늘어도 캐릭터 몸과 손을 늘리거나 옮기지 않는다. 창·활 등의 다른 동작은 이름/PNG 추가만으로 지원되지 않는다.
 
 ## 4. 제작물 납품·등록 순서
 
@@ -79,7 +79,7 @@
 
 ## 5. 자동 보호와 검증
 
-docs/character-standard-v3.json은 현행 공통 pose 좌표와 기존 도구 metadata, 기준 PNG·렌더러·부착 도구 해시를 보호한다. 검 동작/기본 검 원화는 `docs/sword-action-v1.json`과 `scripts/check-sword-standard.mjs`가 검사한다. v1/v2는 변경하지 않은 역사 계약이다. 텍스트 해시는 LF로 정규화해 Windows/Linux 양쪽에서 일치한다.
+docs/character-standard-v4.json은 현행 공통 pose 좌표와 기존 도구 metadata, 기준 PNG·렌더러·부착 도구 해시를 보호한다. 검 동작/검별 길이/기본 검 원화는 `docs/sword-action-v1.json`과 `scripts/check-sword-standard.mjs`가 검사한다. v1/v2/v3는 변경하지 않은 역사 계약이다. 텍스트 해시는 LF로 정규화해 Windows/Linux 양쪽에서 일치한다.
 
 scripts/check-character-standard.mjs는 등록된 일반/시험 의상과 body/head/hair/bag, 모든 axe/rod를 읽어 검사한다. 새로운 tools 항목과 새로운 경로/ID 등록은 허용하되 기존 좌표/도구/원본 변경은 실패시킨다. scripts/check.mjs에 연결했으므로 기존 Pages의 Validate source 단계에서도 실행된다.
 

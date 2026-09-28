@@ -35,7 +35,7 @@ export function validateTool(image,tool,label){
   assert(Number.isFinite(tool.nativeAngle)&&Math.abs(Math.atan2(Math.sin(tool.nativeAngle-Math.atan2(dy,dx)),Math.cos(tool.nativeAngle-Math.atan2(dy,dx))))<1e-6,`${label}: wrong handle axis`);
   assert(image.data.some((v,p)=>p%4===3&&v>0),`${label}: empty tool`);
 }
-export function checkCharacterStandard(contract=JSON.parse(read('docs/character-standard-v3.json'))){
+export function checkCharacterStandard(contract=JSON.parse(read('docs/character-standard-v4.json'))){
   for(const [file,expected] of Object.entries(contract.protectedFiles)){
     const data=file.endsWith('.png')?fs.readFileSync(file):read(file).replace(/\r\n/g,'\n');
     assert.equal(hash(data),expected,`Frozen reference changed: ${file}. Fix new art, or request an explicit standard version change.`);

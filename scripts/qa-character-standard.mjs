@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import assert from 'node:assert/strict';
 import {blank,crop,decodePNG} from './lib/png.mjs';
 import {checkCharacterStandard,validateAtlas,validateNeckOverlap,validateOutfit,validateTool} from './check-character-standard.mjs';
-const contract=JSON.parse(fs.readFileSync('docs/character-standard-v3.json','utf8'));
+const contract=JSON.parse(fs.readFileSync('docs/character-standard-v4.json','utf8'));
 const outfit=decodePNG(fs.readFileSync('assets/player/npc-v1/walk-outfit.png'));
 const tool=decodePNG(fs.readFileSync('assets/player/rig-v1/tools/axe-basic.png'));
 const meta=contract.existingTools['axe.basic'];

@@ -3,7 +3,7 @@
   "approvedCorrections": [
     {"date":"2026-09-28","feature":"rear-facing-sword-slash","scope":"User-requested rear swing correction. Front and side sword frames, shared hand grip, size, axe/rod angles, art and save remain unchanged. Rear slash crosses right to left behind the head, with visible blade beyond the hair silhouette."}
   ],
-  "baseStandard": "npc-compatible-v3-sword",
+  "baseStandard": "npc-compatible-v4-sword-lengths",
   "artPose": "chop",
   "columns": 2,
   "faces": ["down", "right", "left", "up"],

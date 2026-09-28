@@ -75,7 +75,7 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const x=actorX+(frame.grip[0]+getCharacterWalkAlignment(pose)-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
   const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):
-    pose.tool==='sword'?(pose.pose==='sword'?38:30):pose.pose==='chop'?34:26)*unit;
+    pose.tool==='sword'?swordTargetLength(tool,pose.pose):pose.pose==='chop'?34:26)*unit;
   // Front/back carry and swings show a narrow three-quarter edge, not the broad
   // side. Keep the right-hand pivot and shaft length; side views stay intact.
   const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&

@@ -16,8 +16,12 @@ const SWORD_ACTION=Object.freeze({
   ])))
 });
 const SWORD_TOOLS=Object.freeze({
-  'sword.basic':Object.freeze({grip:[25,69],tip:[81,15],nativeAngle:Math.atan2(-54,56),nativeLength:Math.hypot(56,54)})
+  'sword.basic':Object.freeze({grip:[25,69],tip:[81,15],nativeAngle:Math.atan2(-54,56),nativeLength:Math.hypot(56,54),
+    carryLength:30,swingLength:38})
 });
+// New sword tiers change only their own artwork, true grip/tip, and target
+// lengths. The shared hand pivot, arc and head occlusion remain unchanged.
+function swordTargetLength(tool,pose){return pose==='sword'?tool.swingLength:tool.carryLength;}
 const SWORDS=Object.freeze([
   Object.freeze({id:'sword.basic',name:'기본 검',tier:1,asset:'basic',
     description:'처음부터 가지고 있는 검. 허공에서 휘두를 수 있어요. 전투와 상위 검은 이후 업데이트에서 추가돼요.'})

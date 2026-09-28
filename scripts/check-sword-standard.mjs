@@ -10,14 +10,16 @@ const contract=JSON.parse(fs.readFileSync('docs/sword-action-v1.json','utf8'));
 const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const plain=value=>JSON.parse(JSON.stringify(value));
 export function checkSwordStandard(){
-  assert.equal(contract.baseStandard,JSON.parse(fs.readFileSync('docs/character-standard-v3.json','utf8')).id);
+  assert.equal(contract.baseStandard,JSON.parse(fs.readFileSync('docs/character-standard-v4.json','utf8')).id);
   assert.equal(digest(contract.basicImage),contract.basicImageSha256,'Basic sword artwork changed');
   assert.equal(digest(contract.sourceImage),contract.sourceImageSha256,'Basic sword source changed');
   const context={};vm.createContext(context);
   vm.runInContext(fs.readFileSync('src/data/character-rig-data.js','utf8')+'\n'+
     fs.readFileSync('src/data/sword-data.js','utf8')+'\n'+
-    'globalThis.sword={action:SWORD_ACTION,tools:SWORD_TOOLS,items:SWORDS,timing:SWORD_SWING_TIMING,rig:CHARACTER_RIG};',context);
-  const {action,tools,items,timing,rig}=plain(context.sword);
+    fs.readFileSync('src/assets.js','utf8')+'\n'+
+    'globalThis.sword={action:SWORD_ACTION,tools:SWORD_TOOLS,items:SWORDS,timing:SWORD_SWING_TIMING,rig:CHARACTER_RIG,urls:SWORD_TOOL_URLS,'+
+    'longer:{carry:swordTargetLength({carryLength:36,swingLength:48},"walk"),swing:swordTargetLength({carryLength:36,swingLength:48},"sword")}};',context);
+  const {action,tools,items,timing,rig,urls,longer}=plain(context.sword);
   assert.equal(action.artPose,contract.artPose);
   assert.equal(action.columns,contract.columns);
   assert.deepEqual(Object.keys(action.frames),contract.faces);
@@ -35,7 +37,19 @@ export function checkSwordStandard(){
     'The front hit must sweep south and rear hit must cross right to left');
   assert.deepEqual(tools['sword.basic'].grip,contract.grip);
   assert.deepEqual(tools['sword.basic'].tip,contract.tip);
-  validateTool(decodePNG(fs.readFileSync(contract.basicImage)),tools['sword.basic'],'basic sword');
+  assert.equal(tools['sword.basic'].carryLength,contract.carryLength);
+  assert.equal(tools['sword.basic'].swingLength,contract.swingLength);
+  assert.deepEqual(longer,{carry:36,swing:48},'A longer sword must keep its own display lengths');
+  assert.deepEqual(Object.keys(tools).sort(),items.map(item=>item.id).sort(),'Every sword needs tool metadata');
+  assert.deepEqual(Object.keys(urls).sort(),items.map(item=>item.id).sort(),'Every sword needs artwork');
+  for(const item of items){
+    const tool=tools[item.id],url=urls[item.id];
+    assert(Number.isFinite(tool.carryLength)&&tool.carryLength>=24&&tool.carryLength<=64&&
+      Number.isFinite(tool.swingLength)&&tool.swingLength>=tool.carryLength&&tool.swingLength<=64,
+      `${item.id}: invalid display lengths`);
+    validateTool(decodePNG(fs.readFileSync(url)),tool,item.id);
+  }
+  assert.equal(urls['sword.basic'],contract.basicImage);
   assert.deepEqual(timing,{impactMs:contract.impactMs,durationMs:contract.durationMs});
   assert(items.some(item=>item.id==='sword.basic'&&item.tier===1&&item.asset==='basic'));
   return {poses:contract.faces.length*2,tools:Object.keys(tools).length};

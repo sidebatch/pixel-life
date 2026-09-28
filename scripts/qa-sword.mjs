@@ -42,7 +42,8 @@ try{
           if(transform.key!=='sword.basic'||transform.edgeScale!==1||
             Math.abs(transform.x-(grip[0]-48)*unit)>1e-8||
             Math.abs(transform.y-(20+(grip[1]-88)*unit))>1e-8||
-            Math.abs(Math.hypot(transform.tip.x-transform.x,transform.tip.y-transform.y)-38*unit)>1e-8)
+            Math.abs(Math.hypot(transform.tip.x-transform.x,transform.tip.y-transform.y)-
+              SWORD_TOOLS['sword.basic'].swingLength*unit)>1e-8)
             throw Error(`Sword disconnected from common right hand: ${JSON.stringify({face,frame,transform,grip,unit})}`);
           if(face==='down'&&frame===1&&transform.tip.y<=transform.y||
             face==='up'&&frame===0&&(transform.tip.x<=transform.x||!transform.behind)||
@@ -53,6 +54,9 @@ try{
         }
       }
     }finally{GAME_STATE.appearance=appearance;characterBodyPreview=oldPreview;}
+    const future={carryLength:36,swingLength:48};
+    if(swordTargetLength(future,'walk')!==36||swordTargetLength(future,'sword')!==48)
+      throw Error('Longer sword would be shrunk to basic-sword size');
     if(JSON.stringify(createSaveData().state)!==before||localStorage.getItem(SAVE_CONFIG.key)!==stored)
       throw Error('Sword render changed progress or save');
     const png=canvas.toDataURL('image/png');
@@ -72,6 +76,28 @@ try{
   });
   fs.writeFileSync(path.join(output,'sword-contact-sheet.png'),Buffer.from(report.png.split(',')[1],'base64'));
   delete report.png;
+  const longerPreview=await page.evaluate(()=>{
+    const originalLength=swordTargetLength,appearance=GAME_STATE.appearance;
+    canvas.width=750;canvas.height=210;ctx.imageSmoothingEnabled=false;
+    ctx.fillStyle='#6d987c';ctx.fillRect(0,0,750,210);
+    try{
+      swordTargetLength=(tool,pose)=>pose==='sword'?48:36;
+      for(const [sexIndex,bodyId] of ['body.starter','body.female'].entries()){
+        GAME_STATE.appearance={...appearance,bodyId,hairId:sexIndex?'hair.female.brown':'hair.brown'};
+        for(const frame of [0,1]){
+          const pose={pose:'sword',face:'up',frame,tool:'sword'};
+          const transform=getCharacterToolTransform(0,0,pose),unit=CHARACTER_RIG.renderSize/96;
+          if(Math.abs(Math.hypot(transform.tip.x-transform.x,transform.tip.y-transform.y)-48*unit)>1e-8||
+            !transform.behind||frame===0&&transform.tip.x<=transform.x||frame===1&&transform.tip.x>=transform.x)
+            throw Error('Long sword lost its shared pivot, length, arc or head occlusion');
+          ctx.save();ctx.translate(100+frame*180+sexIndex*370,105);ctx.scale(2,2);
+          drawCharacterActor(0,0,pose);ctx.restore();
+        }
+      }
+      return canvas.toDataURL('image/png');
+    }finally{swordTargetLength=originalLength;GAME_STATE.appearance=appearance;canvas.width=576;canvas.height=1024;}
+  });
+  fs.writeFileSync(path.join(output,'longer-sword-preview.png'),Buffer.from(longerPreview.split(',')[1],'base64'));
   const legacy=await page.evaluate(()=>{
     const swords=normalizeSavedSwordProgress(undefined);
     const appearance=normalizeSavedAppearance({activeTool:'sword'});

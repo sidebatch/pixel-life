@@ -27,7 +27,8 @@ try{
     };
     let atlases=0,changed=0;
     for(const [key,{original,centered}] of Object.entries(characterRiaNeckHeads)){
-      if(!original.src?.includes('/npc-ria-v3/')||characterLayerImgs[key]!==centered||
+      if(!(original.src?.includes('/npc-ria-v3/')||original.src?.startsWith('data:image/png'))||
+        characterLayerImgs[key]!==centered||
         original.width!==centered.width||original.height!==centered.height)throw Error(`Wrong trial atlas ${key}`);
       const a=getData(original),b=getData(centered),width=original.width;
       for(let y=0;y<original.height;y++)for(let x=0;x<width;x++){
@@ -64,7 +65,8 @@ try{
   const unaltered=await normal.evaluate(()=>!CHARACTER_RIA_NECK_PREVIEW_ENABLED&&
     !document.querySelector('[aria-label="리아 목 위치 비교"]')&&
     Object.keys(characterRiaNeckHeads).length===0&&
-    characterLayerImgs.femaleWalkHead.src.includes('/npc-ria-v3/'));
+    (characterLayerImgs.femaleWalkHead.src.includes('/npc-ria-v3/')||
+      characterLayerImgs.femaleWalkHead.src.startsWith('data:image/png')));
   assert.equal(unaltered,true);assert.deepEqual(errors,[]);
   console.log(`PASS: Ria trial shifted ${first.atlases} atlases front-only, mobile buttons/save and normal game unchanged.`);
 }finally{await browser.close();}

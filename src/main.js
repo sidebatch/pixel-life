@@ -44,6 +44,28 @@ loadAll().then(()=>{
     }
     document.body.appendChild(panel);
   }
+  if(CHARACTER_RIA_NECK_PREVIEW_ENABLED){
+    const panel=document.createElement('div');
+    panel.dataset.characterPreviewPanel='true';
+    panel.style.cssText='position:fixed;top:112px;left:8px;z-index:15;padding:8px;border-radius:12px;background:#102e2ee8;color:#fff;font:12px sans-serif;max-width:calc(100vw - 16px);';
+    if(CHARACTER_WALK_PREVIEW_ENABLED)panel.style.top='308px';
+    else if(CHARACTER_BODY_PREVIEW_ENABLED)panel.style.top='210px';
+    panel.setAttribute('aria-label','리아 목 위치 비교');
+    const label=document.createElement('div');label.textContent='리아 목 위치 비교 · 시험 선택 저장 안 됨';panel.appendChild(label);
+    const buttons=[];
+    const refresh=()=>{for(const [mode,button] of buttons){
+      const selected=characterRiaNeckPreview===mode;
+      button.setAttribute('aria-pressed',String(selected));
+      button.style.background=selected?'#dbece0':'#224644';button.style.color=selected?'#14322b':'#fff';
+    }};
+    for(const [mode,text] of [['original','현재'],['centered','목 중앙 보정']]){
+      const button=document.createElement('button');button.type='button';button.textContent=text;
+      button.style.cssText='margin:6px 3px 0 0;min-height:44px;padding:7px 14px;border:1px solid #acd4bb;border-radius:8px;';
+      button.addEventListener('click',()=>{setCharacterRiaNeckPreview(mode);refresh();drawWorld();});
+      buttons.push([mode,button]);panel.appendChild(button);
+    }
+    refresh();document.body.appendChild(panel);
+  }
   if(CHARACTER_TRIAL_ENABLED){
     setCharacterAppearancePreview(['outfitId','hairId','backpackId']);
     const panel=document.createElement('div');

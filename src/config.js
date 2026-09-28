@@ -35,6 +35,10 @@ function setCharacterWalkPreview(mode){
   if(!CHARACTER_WALK_PREVIEW_ENABLED||!['original','balanced','soft'].includes(mode))return false;
   characterWalkPreview=mode;return true;
 }
+// Ria's frontal face/neck axis is 2 source pixels left of the common x=48
+// collar. Keep this exact registration experiment off normal play and saves.
+const CHARACTER_RIA_NECK_PREVIEW_ENABLED=typeof window!=='undefined'&&new URLSearchParams(window.location.search).has('ria-neck-preview');
+let characterRiaNeckPreview='centered';
 const CHARACTER_OUTFITS=Object.freeze([
   Object.freeze({id:DEFAULT_OUTFIT_ID,name:'여행자의 옷',walkSheet:PLAYER_SHEET_URL,
     chopSheet:FORESTRY_CHOP_PLAYER_URL,renderMode:'rig-v1',iconUrl:CHARACTER_POLISH_ICON_URLS.outfit}),
@@ -107,6 +111,30 @@ const VIEW_W=canvas.width, VIEW_H=canvas.height;
 
 const imgs={},npcImgs={},fishImgs={},forestTreeImgs={},forestStumpImgs={},lifeItemImgs={},matureCropImgs={},youngCropImgs={};
 const characterLayerImgs={},characterToolImgs={},characterOutfitImgs={},characterOutfitPreviewImgs={};
+const characterRiaNeckHeads={};
+function prepareCharacterRiaNeckPreview(){
+  if(!CHARACTER_RIA_NECK_PREVIEW_ENABLED)return;
+  for(const pose of ['walk','chop','fish'])for(const part of ['Head','Hair']){
+    const key='female'+pose[0].toUpperCase()+pose.slice(1)+part;
+    const original=characterLayerImgs[key];
+    const centered=document.createElement('canvas');centered.width=original.width;centered.height=original.height;
+    const painter=centered.getContext('2d');painter.imageSmoothingEnabled=false;
+    const cell=CHARACTER_RIG.cell;
+    // Shift only the front-facing row, preserving the other directions,
+    // frame cadence, size and foot/collar contract.
+    for(let frame=0;frame<original.width/cell;frame++)
+      painter.drawImage(original,frame*cell,0,cell,cell,frame*cell+2,0,cell,cell);
+    painter.drawImage(original,0,cell,original.width,cell*3,0,cell,original.width,cell*3);
+    characterRiaNeckHeads[key]={original,centered};
+    characterLayerImgs[key]=centered;
+  }
+}
+function setCharacterRiaNeckPreview(mode){
+  if(!CHARACTER_RIA_NECK_PREVIEW_ENABLED||!['original','centered'].includes(mode)||
+    !characterRiaNeckHeads.femaleWalkHead)return false;
+  for(const [key,versions] of Object.entries(characterRiaNeckHeads))characterLayerImgs[key]=versions[mode];
+  characterRiaNeckPreview=mode;return true;
+}
 function getCharacterOutfitImages(id){
   // Use the same corrected clothes in normal play and the corrected preview.
   // The opt-in original comparison alone keeps the archived costume art.
@@ -183,6 +211,7 @@ async function loadAll(){
   characterOutfitImgs[DEFAULT_OUTFIT_ID]={
     walk:characterLayerImgs.walkOutfit,chop:characterLayerImgs.chopOutfit,fish:characterLayerImgs.fishOutfit
   };
+  prepareCharacterRiaNeckPreview();
   prepareCharacterTrialSet();
   validateCharacterRigAssets();
   // Every future outfit must provide all three pose atlases, not one static icon.

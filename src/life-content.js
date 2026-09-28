@@ -317,14 +317,15 @@ function updateLifeContentUi(now){
   if(chop){
     if(chop.regionId!==GAME_STATE.regionId){lifeUi.chop=null;return;}
     const elapsed=now-chop.startedAt;
-    if(!chop.struck&&elapsed>=FORESTRY_CHOP_TIMING.impactMs){
+    const timing=chop.mode==='sword'?SWORD_SWING_TIMING:FORESTRY_CHOP_TIMING;
+    if(!chop.struck&&elapsed>=timing.impactMs){
       chop.struck=true;
       if(chop.tree){
         const cut=getTreeState(chop.tree).hp<=getEquippedForestryAxe().damage;
         if(hitResourceTree(chop.tree)) playForestryChopSound(cut);
       }
     }
-    if(elapsed>=FORESTRY_CHOP_TIMING.durationMs) lifeUi.chop=null;
+    if(elapsed>=timing.durationMs) lifeUi.chop=null;
   }
   if(!lifeUi.open||now-lifeUi.lastRefresh<1000) return;
   if(lifeUi.phase!=='GROWING') return;

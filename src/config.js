@@ -110,7 +110,8 @@ const GAME_STATE = {
     flags:{},
     fishing:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:DEFAULT_FISHING_ROD_ID,purchasedRodIds:[DEFAULT_FISHING_ROD_ID]},
     logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},
-    forestry:{axeId:DEFAULT_FORESTRY_AXE_ID,ownedAxeIds:[DEFAULT_FORESTRY_AXE_ID]}
+    forestry:{axeId:DEFAULT_FORESTRY_AXE_ID,ownedAxeIds:[DEFAULT_FORESTRY_AXE_ID]},
+    swords:{swordId:DEFAULT_SWORD_ID,ownedSwordIds:[DEFAULT_SWORD_ID]}
   },
   activity:{active:null}
 };
@@ -237,6 +238,7 @@ async function loadAll(){
     ...(CHARACTER_MASTER_PREVIEW_ENABLED||CHARACTER_RIA_NECK_PREVIEW_ENABLED?
       [loadImageMap(characterBaselineLegacyImgs,CHARACTER_BASELINE_LEGACY_URLS)]:[]),
     loadImageMap(characterToolImgs,CHARACTER_TOOL_URLS),
+    loadImageMap(characterToolImgs,SWORD_TOOL_URLS),
     loadImageMap(lifeItemImgs,LIFE_ITEM_URLS),
     loadImageMap(matureCropImgs,MATURE_CROP_URLS),
     loadImageMap(youngCropImgs,YOUNG_CROP_URLS),

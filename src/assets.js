@@ -125,6 +125,9 @@ const CHARACTER_TOOL_URLS=Object.freeze({
   'rod.master_angler':'assets/player/rig-v1/tools/rod-master_angler.png',
   'rod.deepwater':'assets/player/rig-v1/tools/rod-deepwater.png'
 });
+const SWORD_TOOL_URLS=Object.freeze({
+  'sword.basic':'assets/player/sword-v1/basic.png'
+});
 const LIFE_ITEM_URLS = Object.freeze({
   log:'assets/forestry/items/log.png',
   oakLog:'assets/forestry/items/oak.png',

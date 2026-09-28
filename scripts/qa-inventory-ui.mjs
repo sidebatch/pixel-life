@@ -117,7 +117,7 @@ try{
   });
   await gridCheck();
   const infoIds=await page.locator('.inventoryInfoButton').evaluateAll(nodes=>nodes.map(node=>({type:node.dataset.inventoryInfoType,id:node.dataset.inventoryInfoId})));
-  if(infoIds.length!==10)throw new Error('Owned weapon tiers missing');
+  if(infoIds.length!==11||!infoIds.some(item=>item.id==='sword.basic'))throw new Error('Owned weapon tiers missing');
   await page.screenshot({path:path.join(output,'small-all-owned-tools.png')});
   for(const {type,id} of infoIds){
     const before=await page.evaluate(()=>JSON.stringify(GAME_STATE));
@@ -159,7 +159,7 @@ try{
   await pc.waitForFunction(()=>!isInventoryDetailOpen(),null,{polling:50});
   if(errors.length)throw new Error(errors.join('\n'));
   const report={threeColumns:true,imageOnlyCards:true,separateInfoButtons:true,singleWeapon:true,appearanceGroups:['옷','가방'],
-    independentAppearanceEquip:true,unownedRejected:true,saveRollback:true,reload:true,allWeaponDetails:10,
+    independentAppearanceEquip:true,unownedRejected:true,saveRollback:true,reload:true,allWeaponDetails:11,
     historyBackForward:true,keyboard:true,viewports:['393x780','320x568','1100x900'],browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log('Inventory UI QA passed: '+JSON.stringify(report));

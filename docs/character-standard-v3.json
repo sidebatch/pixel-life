@@ -1,0 +1,209 @@
+{
+  "id": "npc-compatible-v3-sword",
+  "created": "2026-09-28",
+  "baselineCommit": "a9f22c6",
+  "previewPromotionPending": false,
+  "approvedExtensions": [
+    {"feature":"basic-sword-action-v1","date":"2026-09-28","previousRendererSha256":"5781a8a9955fdf8a1398c721b99e1cdadaf75a943abb8fe6efbcdbd58ba4e814","scope":"Separate sword action metadata, 96x96 basic sword and save/equipment registration. Existing body/feet/grip/chop art, axe/rod geometry and their tool transforms remain fixed. No combat or higher sword tiers yet. See docs/SWORD_ACTION_STANDARD.md."}
+  ],
+  "trialChanges": [
+    {"feature":"soft-down-walk-comparison","date":"2026-09-27","previousRendererSha256":"7b7c41e9045ea18ecced33d8e239c77687cc4970477982d98b415ce0ce41f383","scope":"User-requested opt-in comparison only. Soft down-walk common horizontal offsets [0,2,-1] versus normal approved [0,3,-2]. No atlas, rig geometry, other direction, cadence, save or normal-game change. Axe trial remains opt-in."},
+    {"feature":"soft-walk-neck-registration","date":"2026-09-27","previousRendererSha256":"ae54bcd76ee8870cc0f1b7b333891147d634e0d8d0143d60bf67f3bd5cb02201","scope":"Trial-only shared head/hair counter-offset [0,-1,+1] on south walk to retain the approved relative head-to-collar registration in soft mode. Both characters, all outfits; normal play, atlas, other directions/actions and saves unchanged."},
+    {"feature":"ria-axe-hair-depth-comparison","date":"2026-09-28","previousRendererSha256":"0f4c7d2998712b915c7b61dfabc0987ea4b44509871dfc9e58769667f3e451bb","scope":"Character-master-preview candidate only: Ria front/right axe is drawn after hair to establish unambiguous foreground order. Left/back preserve the rig's behind-tool order. Normal game, Ian, rods, original comparison, pose/feet/tool anchors and saves unchanged."},
+    {"feature":"master-preview-soft-walk-only","date":"2026-09-28","previousRendererSha256":"715b4e12fd7d0b0393259de52d8c47f672452d45c2ad10621ff204f106f8aba9","scope":"Restore the previously preferred soft down-walk in character-master-preview without also enabling the independent walk-preview's front/back axe blade foreshortening. Normal play, standalone walk-preview, all non-down motion, atlas/rig/tool data and saves unchanged."}
+  ],
+  "approvedPromotions": [
+    {"feature":"down-walk-registration","date":"2026-09-27","previousRendererSha256":"f0a4bd996839537be4482073f0ee3dd41684431e28ae31ce14afbcce0f22eb80","scope":"Default down walking offset only; original comparison retained; wardrobe and axe blade remain opt-in at this step."},
+    {"feature":"corrected-wardrobe-and-matching-ui","date":"2026-09-27","scope":"User requested clothing correction. Normal play selects existing wardrobe-v2 art; bag/detail/NPC previews follow actual outfit art. No renderer, pose, tool, save ID or original PNG changes. Original comparison retained; axe blade remains opt-in."},
+    {"feature":"character-baseline-v2","date":"2026-09-28","previousRendererSha256":"aee5ee924ee1ff6a00be00308ff8d791f0a06b6741523e94a053b39da7703202","scope":"User-approved full character trial promoted into nine versioned production atlases, normal soft down-walk and Ria front/right axe-over-hair depth. Historical v1/v3 PNGs and save IDs remain intact; unrelated axe-blade projection still trial-only."},
+    {"feature":"front-back-axe-swing-blade","date":"2026-09-28","previousRendererSha256":"a48fabb2d34795ba68017f562b685bd3547bafb5d1e2e56ff11deb10335c1ea0","scope":"User-requested front/back axe swing blade correction: 0.55 cross-shaft projection and front-ready cutting-edge mirror in normal play. Four axe tiers share the same transform; grip, shaft tip, side swings, rods, timing, save IDs and protected art/rig are unchanged. Original comparison remains available."}
+  ],
+  "geometryHash": "575bb8e51045cca4b5fe2507bde629cdab5f01fe116de19c2a1916e09c9c1ef2",
+  "existingTools": {
+    "axe.basic": {
+      "grip": [
+        16,
+        77
+      ],
+      "tip": [
+        62,
+        31
+      ],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
+    "axe.iron": {
+      "grip": [
+        16,
+        77
+      ],
+      "tip": [
+        62,
+        31
+      ],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
+    "axe.steel": {
+      "grip": [
+        16,
+        75
+      ],
+      "tip": [
+        62,
+        32
+      ],
+      "nativeAngle": -0.7517030560514321,
+      "nativeLength": 62.96824596572467
+    },
+    "axe.master": {
+      "grip": [
+        16,
+        77
+      ],
+      "tip": [
+        62,
+        31
+      ],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
+    "rod.basic": {
+      "grip": [
+        21,
+        76
+      ],
+      "tip": [
+        86,
+        10
+      ],
+      "nativeAngle": -0.7930316029149413,
+      "nativeLength": 92.63368717696602
+    },
+    "rod.sturdy": {
+      "grip": [
+        20,
+        76
+      ],
+      "tip": [
+        86,
+        10
+      ],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 93.33809511662427
+    },
+    "rod.steel": {
+      "grip": [
+        20,
+        76
+      ],
+      "tip": [
+        86,
+        10
+      ],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 93.33809511662427
+    },
+    "rod.expert": {
+      "grip": [
+        20,
+        75
+      ],
+      "tip": [
+        86,
+        11
+      ],
+      "nativeAngle": -0.7700147616168531,
+      "nativeLength": 91.93475947648963
+    },
+    "rod.master_angler": {
+      "grip": [
+        20,
+        75
+      ],
+      "tip": [
+        86,
+        12
+      ],
+      "nativeAngle": -0.7621465405869854,
+      "nativeLength": 91.2414379544733
+    },
+    "rod.deepwater": {
+      "grip": [
+        20,
+        76
+      ],
+      "tip": [
+        86,
+        10
+      ],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 93.33809511662427
+    }
+  },
+  "protectedFiles": {
+    "src/character.js": "cf27e4d45dcb746a4dea72efec43776a9acb4bfe084dcff014a8228bc42e3316",
+    "assets/player/character-baseline-v2/chop-body.png": "ab117f64bf7c30c323a633ee98e13c2dc8b5b42ff01cc1797dbaffbe5604d290",
+    "assets/player/character-baseline-v2/chop-hair.png": "ec9d7ea490acc39f88879608bcbe7846a72bd2fbb950f9a414c0000d56361063",
+    "assets/player/character-baseline-v2/chop-head.png": "19ecdf9429f3a160798e622c5ca280244559546d49b5c3be18ae3d3a21186cb2",
+    "assets/player/character-baseline-v2/fish-body.png": "82a9227294eceecb33e031e6bc7e5834a356241e858ba1c59e3aad955356a789",
+    "assets/player/character-baseline-v2/fish-hair.png": "3f5cfc15d6fb2e3640c1a31b46097de16738ee7a99c5fb4d1c9f3988dc9dd485",
+    "assets/player/character-baseline-v2/fish-head.png": "4a228cd291972e504a081bf355d403bc14f833a0c22c2a8ffdc9d3634d32e9d5",
+    "assets/player/character-baseline-v2/walk-body.png": "54eb418a6e5a769b16fca82868dded353b6720651188e1d6e1ac7995fe125bf2",
+    "assets/player/character-baseline-v2/walk-hair.png": "3f5cfc15d6fb2e3640c1a31b46097de16738ee7a99c5fb4d1c9f3988dc9dd485",
+    "assets/player/character-baseline-v2/walk-head.png": "4a228cd291972e504a081bf355d403bc14f833a0c22c2a8ffdc9d3634d32e9d5",
+    "scripts/lib/character-attachments.mjs": "cbf9c1930f505708aee88c4667cd2caa53d53c493f072f39134b8fa32e27cdce",
+    "assets/player/npc-v1/chop-backpack.png": "911948f80962880e0e7e54265ba9fefba768c0423f09a6137fbf8f40083d448a",
+    "assets/player/npc-v1/chop-berry.png": "b408f743c3f78439a5c33e5ae6ee740f8bbb97d21fe8abc027fba2590e8f4db7",
+    "assets/player/npc-v1/chop-body.png": "cee9dd861a8696068f6a3636eb63315346a9ce819c274f9611f35c13e2d7cedb",
+    "assets/player/npc-v1/chop-ember.png": "3cb6c971075c29e55984f7be773bb43c6a9f56423d25128e879eeee53a3e22c8",
+    "assets/player/npc-v1/chop-female-hair.png": "42e2a346c34814aafa86f5063d0049357aa9df8a50cee6d75fb9584d20b6a539",
+    "assets/player/npc-v1/chop-female-head.png": "c7568509c0a1a2ce177dcebbe1025aef70aec30ea70ff6d912c714482cc7993d",
+    "assets/player/npc-v1/chop-grip.png": "c6ce76f5a906a224b20eb7488cfac99d90c3e2b9554994ea7fd16724a44e9161",
+    "assets/player/npc-v1/chop-hair.png": "51ed2a63dc6a299c271f5a6fe10a3204fc0245cbf1cfe5eb5bb2c77af09dfc1b",
+    "assets/player/npc-v1/chop-head.png": "ae64ec45ce5e27a6b9a3edfc00480e2a69cb825c38e7fafeafbc74f234535a78",
+    "assets/player/npc-v1/chop-meadow.png": "5d390c92cf554972d41091d86450aa181c8b7d10f1ddcf8201fdb16377734221",
+    "assets/player/npc-v1/chop-outfit.png": "e5be8466fe2ea91627ee3f6aa3732f2b58692fd169189644ea765c0c98edb37f",
+    "assets/player/npc-v1/chop-ranger.png": "f40197dea49f14b543b84ba449634360f421d160c8b5dbdc680f71bc1cdc75b9",
+    "assets/player/npc-v1/fish-backpack.png": "78578c583e0e1a7520e39df2ca99e373d57d3ec8c8ed72659b2d30e2bf238d38",
+    "assets/player/npc-v1/fish-berry.png": "ca04f8c2c28a44bc602c529ed0c27fc0df3e989bdfc9390bc2a32ccf76a4b53b",
+    "assets/player/npc-v1/fish-body.png": "2a5221b14afbba2b7ce01e5ce2a4c50a156fa7f9847d19c3de1445e098ad6958",
+    "assets/player/npc-v1/fish-ember.png": "4f99da91723ef2c5233fc5d665bde17b927b29ccfe10446f1776d8892441b5fa",
+    "assets/player/npc-v1/fish-female-hair.png": "aea529ea64b12ec8b5f907d8931fc31112507a79d4efc8fd614f6edde92b49b1",
+    "assets/player/npc-v1/fish-female-head.png": "eec7121131b3e901ef2510f3d8b230559576729d1fdf14b0a1c65d04377daada",
+    "assets/player/npc-v1/fish-grip.png": "a31b1d4b4c748ad83c51fff183201d8e2f2d4ab4e97792d3158ac994897dd994",
+    "assets/player/npc-v1/fish-hair.png": "9b734ef2b43287e4d77896d50641a4787aacf0a8d114588b9c07ea4e58ac670f",
+    "assets/player/npc-v1/fish-head.png": "4560e7def98b3d73a1853a33d2d5caba851e74c83c1de0f582dccdc1b8f71c82",
+    "assets/player/npc-v1/fish-meadow.png": "733b2a37a63162e2ae718ae92ba90420dbef4d8ff2afd52c6d7c3cc9c110d285",
+    "assets/player/npc-v1/fish-outfit.png": "22b13128530c66999b53e2ffaa86f5bf1e1e5ad17ac86d29982018998c6061ce",
+    "assets/player/npc-v1/fish-ranger.png": "f059bcd051685968c85952245585a7ee3075e62488e31c087b2abb349009d630",
+    "assets/player/npc-v1/walk-backpack.png": "1cd4a3db0ab1738fe919e9989e31c36a2a281fc8e508088b4914c6f83637b59e",
+    "assets/player/npc-v1/walk-berry.png": "b28b18dac22f32bf7644ed7b7f6673ec0ee0c648e7baaa3ca38a3c3084e91f50",
+    "assets/player/npc-v1/walk-body.png": "3cd6102b007639644c5441040ba10aba03597d557411e3a5dfd731d7b1b98173",
+    "assets/player/npc-v1/walk-ember.png": "e000b398cc7933f7530c9e9a46d1965d83d146eab3239ed60272f56ef11027c1",
+    "assets/player/npc-v1/walk-female-hair.png": "aea529ea64b12ec8b5f907d8931fc31112507a79d4efc8fd614f6edde92b49b1",
+    "assets/player/npc-v1/walk-female-head.png": "eec7121131b3e901ef2510f3d8b230559576729d1fdf14b0a1c65d04377daada",
+    "assets/player/npc-v1/walk-grip.png": "9e2ccc789712afb51a0ea820c3498d2c82cbc7fb15f2bb1711abb4b09ed3d3b2",
+    "assets/player/npc-v1/walk-hair.png": "9b734ef2b43287e4d77896d50641a4787aacf0a8d114588b9c07ea4e58ac670f",
+    "assets/player/npc-v1/walk-head.png": "4560e7def98b3d73a1853a33d2d5caba851e74c83c1de0f582dccdc1b8f71c82",
+    "assets/player/npc-v1/walk-meadow.png": "d7da4b3545491d6a70f376bf06823b8be77fba75839eaefb0d2b53fcd22c7f07",
+    "assets/player/npc-v1/walk-outfit.png": "df20709b450fdd16dbef1b2ab190585ddd777d01f95a7f9d150423d25e842082",
+    "assets/player/npc-v1/walk-ranger.png": "cfc10d9df421b8345e22f8ceacd43fcd8353040eaf2fa936a3293786ab08878d",
+    "assets/player/npc-wardrobe-v2/chop-ember.png": "4502c9cd60edd5176164d5abaebc350a1ca955e84fe016dedcf05466f74f6f95",
+    "assets/player/npc-wardrobe-v2/chop-meadow.png": "bbccc2669a397467383530234cd597cce7b2f0781e2f8fc074c00f4b4d0fa99a",
+    "assets/player/npc-wardrobe-v2/fish-ember.png": "2b055748a9b97649ba6ab9b79833c0b0f90f86dc8e3123a4cf2eb0c85b8a319d",
+    "assets/player/npc-wardrobe-v2/fish-meadow.png": "667eb873f0acb6f9fdbbb9faf5166e086fa28a772a6d4542ddcc60719f4ad607",
+    "assets/player/npc-wardrobe-v2/walk-ember.png": "3024ccd052bb8dff1a8fc286116a92f9b94e9ff4249dfd31b7cc3985ecf9bf7d",
+    "assets/player/npc-wardrobe-v2/walk-meadow.png": "a3dd86fe4b0d45a15093e409c0fd433f546415cef5d75246030e8975cb4b4376",
+    "assets/player/rig-v1/tools/axe-basic.png": "169682823ff9dce9a73c26d6a43be2b45f69c78b2b0d7bce4562bf378b750542",
+    "assets/player/rig-v1/tools/axe-iron.png": "eef9947ccecb342fa51ae322783e6c2a54127ab2c0cd4da8fee3822d4fc4c95e",
+    "assets/player/rig-v1/tools/axe-steel.png": "ac21247bc1a99a92d9a5a07476469e6d23d58b42f7e58848e37f0708aa7e5bf3",
+    "assets/player/rig-v1/tools/axe-master.png": "3f8099a83ca372ab62c4c1a266fe7d9edd8a0d6463bf390fde8359defd980259",
+    "assets/player/rig-v1/tools/rod-basic.png": "0d6f7f2063df490a6e59cbdb16911bf801a5a1526ff7f63327322d3f18e5141f",
+    "assets/player/rig-v1/tools/rod-sturdy.png": "9edb27fe2a27f6f69c8bd0563d5e7be7c89c524d78e07e68738ed771cf0a27d2",
+    "assets/player/rig-v1/tools/rod-steel.png": "2d8e9404faa921e465314e5431880e86d41a5df8a91e3c9f2cb6907ffc8fa6d2",
+    "assets/player/rig-v1/tools/rod-expert.png": "2840cf7b5865751b06e2a1f656f6c48b625b1132a307d2d96da3333574235008",
+    "assets/player/rig-v1/tools/rod-master_angler.png": "c803521f0420063c84645df3b04a1df72448a3338a140996cc44633eb2ef5eba",
+    "assets/player/rig-v1/tools/rod-deepwater.png": "a7c55c290a746f1dd535e471d16cb7882a76ebadda8f8aac0fc01e022e4caf1a"
+  }
+}

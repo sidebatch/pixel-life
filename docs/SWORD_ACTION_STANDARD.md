@@ -1,0 +1,12 @@
+# 검 동작 규격 v1
+
+공통 캐릭터 기준은 `CHARACTER_ASSET_STANDARD.md`와 `character-standard-v3.json`, 검 동작의 기계 판정값은 `sword-action-v1.json`이다. 기존 v2 몸·옷·가방·96×96 셀·100×100 표시·발 `(48,88)`·오른손 grip·도끼/낚싯대는 그대로 둔다.
+
+- 검은 도끼와 별개인 `sword` 동작군이다. 현재는 검 손/몸 2프레임에 기존 `chop` 레이어를 재사용하되, 검의 방향별 각도·길이·가림을 `src/data/sword-data.js`에서 독립 지정한다. 새 검 때문에 도끼 각도나 캐릭터 배율을 조정하지 않는다.
+- 4방향 행은 아래·오른쪽·왼쪽·위다. 휘두름은 준비 270ms, 종료 700ms이며 걷기 중에는 한 손에 든 검을 보인다. 외형/머리/가방은 두 성별의 현행 레이어와 동일하게 합성한다.
+- 검 이미지는 투명 96×96 PNG 하나이며 캐릭터·손·효과를 포함하지 않는다. 실제 손잡이 `grip`, 칼끝 `tip`, 두 점에서 계산한 `nativeAngle`·`nativeLength`를 `SWORD_TOOLS`에 등록한다. 기본 검의 기준은 `(25,69)→(81,15)`이다. 검의 투영/기준 길이는 휴대 30, 휘두름 38 원본 픽셀이다.
+- 상위 검은 새 ID/원화/grip·tip과 등급·제작/구매 조건을 데이터에 추가한다. `SWORD_ACTION`의 손·각도·프레임을 그대로 쓴다. 가방 장착과 저장의 `ownedSwordIds`·`swordId`를 이용하므로 도끼/낚싯대와 동시에 들지 않는다. 상위 검 상점/재료/전투 효과는 별도 설계 후 구현한다.
+- 현재 검은 동작 검증 단계다. 허공·나무 앞에서 휘둘러도 나무/적 피해, 벌목 보상은 발생하지 않는다. 전투가 생길 때 타격 판정·피해·적 반응·효과음은 독립 시스템으로 추가한다.
+- 신규 검 납품 시 `node scripts/check-sword-standard.mjs`, `node scripts/check.mjs`, `node scripts/qa-sword.mjs`, `node scripts/qa-character.mjs`를 실행하고 실제 폰 화면에서 남녀 4방향 휴대/휘두름 및 옷·머리·가방 조합을 확인한다. 자동 검사가 미술 품질을 보장하지는 않는다.
+
+기본 검 원본과 가공 기록은 `assets/player/source/sword-v1/PRODUCTION.md`에 있다.

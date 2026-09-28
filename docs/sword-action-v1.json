@@ -1,0 +1,23 @@
+{
+  "id": "sword-action-v1",
+  "baseStandard": "npc-compatible-v3-sword",
+  "artPose": "chop",
+  "columns": 2,
+  "faces": ["down", "right", "left", "up"],
+  "angles": {
+    "down": [-2.1, 0.72],
+    "right": [-1.95, 0.12],
+    "left": [5.091592653589793, 3.021592653589793],
+    "up": [-1.95, -0.82]
+  },
+  "grip": [25, 69],
+  "tip": [81, 15],
+  "carryLength": 30,
+  "swingLength": 38,
+  "impactMs": 270,
+  "durationMs": 700,
+  "basicImage": "assets/player/sword-v1/basic.png",
+  "basicImageSha256": "260862ac6f6293f1f30abc005741bbee126f253d3c179b79f9f0b9529cf68107",
+  "sourceImage": "assets/player/source/sword-v1/basic-generated.png",
+  "sourceImageSha256": "855c62d61747245b533aa58f92f443cd28ebada85a4fba719b0cfa7f59e7ea3b"
+}

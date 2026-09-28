@@ -3,6 +3,7 @@ import path from 'node:path';
 import vm from 'node:vm';
 import {decodePNG} from './lib/png.mjs';
 import {checkCharacterStandard} from './check-character-standard.mjs';
+import {checkSwordStandard} from './check-sword-standard.mjs';
 
 const root = process.cwd();
 const scriptFiles = [
@@ -14,6 +15,7 @@ const scriptFiles = [
   'src/data/fishing-gear-data.js',
   'src/data/life-skill-data.js',
   'src/data/life-content-data.js',
+  'src/data/sword-data.js',
   'src/world-time.js',
   'src/weather.js',
   'src/config.js',
@@ -23,6 +25,7 @@ const scriptFiles = [
   'src/world-validation.js',
   'src/simulation.js',
   'src/life-content.js',
+  'src/sword.js',
   'src/debug.js',
   'src/rendering.js',
   'src/character.js',
@@ -55,7 +58,7 @@ const freshContext={WORLD_DEFINITION:{tileSize:48,width:64,height:48},
   document:{getElementById:()=>({width:576,height:1024,getContext:()=>({})})},
   DEFAULT_FISHING_ROD_ID:'rod.basic',DEFAULT_FORESTRY_AXE_ID:'axe.basic'};
 vm.createContext(freshContext);
-vm.runInContext(`${read('src/assets.js')}\n${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
+vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
 assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progression.fishing.level===1&&
   freshContext.__fresh.progression.logging.level===1&&
   freshContext.__fresh.progression.fishing.equippedRodId==='rod.basic'&&
@@ -83,7 +86,7 @@ assert(freshContext.__legacyWardrobe.ownedOutfitIds.length===3&&freshContext.__l
   freshContext.__wardrobeTrial.outfitId==='outfit.traveler'&&freshContext.__wardrobeTrial.backpackId==='pack.traveler',
   'Legacy and selected temporary appearances must restore independently while trial IDs stay excluded');
 vm.createContext(trialContext);
-vm.runInContext(`${read('src/assets.js')}\n${read('src/config.js')}\n
+vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/config.js')}\n
   const trialBefore=JSON.stringify(GAME_STATE);
   globalThis.__trialValid=setCharacterAppearancePreview(['outfitId','hairId','backpackId']);
   globalThis.__trialAppearance=getCharacterRenderAppearance();
@@ -113,7 +116,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 200, `Expected 200 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 201, `Expected 201 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -609,7 +612,7 @@ const saveContext={
   }
 };
 vm.createContext(saveContext);
-vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n`+
+vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/life-skills.js')}\n`+
   `const DEFAULT_OUTFIT_ID='outfit.traveler';const CHARACTER_OUTFIT_BY_ID=new Map([[DEFAULT_OUTFIT_ID,{id:DEFAULT_OUTFIT_ID}]]);\n`+
   `const CHARACTER_PARTS={body:new Map([['body.starter',{}]]),hair:new Map([['hair.brown',{}]]),backpack:new Map([['pack.traveler',{}]])};\n`+
   `${read('src/save.js')}\n`+
@@ -780,6 +783,9 @@ inventoryContext.isFishingRodUnlocked=()=>true;
 inventoryContext.getEquippedFishingRod=()=>inventoryContext.FISHING_RODS[0];
 inventoryContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',asset:'basic'});
 inventoryContext.getOwnedForestryAxes=()=>[{id:'axe.basic',name:'기본 도끼',asset:'basic'},{id:'axe.iron',name:'철 도끼',asset:'iron'}];
+inventoryContext.getEquippedSword=()=>({id:'sword.basic',name:'기본 검',asset:'basic'});
+inventoryContext.getOwnedSwords=()=>[{id:'sword.basic',name:'기본 검',asset:'basic'}];
+inventoryContext.SWORD_TOOL_URLS={'sword.basic':'/sword.png'};
 inventoryContext.FORESTRY_AXE_URLS={basic:'/axe.png',iron:'/iron.png'};
 inventoryContext.GAME_STATE.appearance={outfitId:'outfit.traveler',ownedOutfitIds:['outfit.traveler'],activeTool:'axe'};
 inventoryContext.normalizeSavedAppearance=value=>value;
@@ -790,9 +796,10 @@ assert(inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('data-equip-type="axe" data-equip-id="axe.iron" aria-pressed="false" aria-label="철 도끼, 장착하기"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 장착하기"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 검, 장착하기"')&&
   !inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('fishing/rods/basic.png')&&
-  (inventoryScrollNode.innerHTML.match(/class="inventoryInfoButton"/g)||[]).length===3&&
+  (inventoryScrollNode.innerHTML.match(/class="inventoryInfoButton"/g)||[]).length===4&&
   !inventoryScrollNode.innerHTML.includes('inventoryItemCount'),
   'Owned tools must use image cards, one selection mark and separate info buttons without counts, clothes or duplicate hand picker');
 inventoryContext.saveGame=()=>true;
@@ -1146,8 +1153,9 @@ const characterContext={
 for(const [pose,definition] of Object.entries(rig.poses))for(const name of ['Body','Head','Hair','Outfit','Backpack','Grip'])
   characterContext.characterLayerImgs[pose+name]={id:pose+name,width:definition.columns*96,height:384};
 for(const key of Object.keys(rig.tools))characterContext.characterToolImgs[key]={id:key,width:96,height:96};
+characterContext.characterToolImgs['sword.basic']={id:'sword.basic',width:96,height:96};
 vm.createContext(characterContext);
-vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/character.js')+'\n'+read('src/rendering.js'),characterContext);
+vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/data/sword-data.js')+'\n'+read('src/character.js')+'\n'+read('src/rendering.js'),characterContext);
 vm.runInContext('validateCharacterRigAssets();',characterContext);
 for(const [pose,definition] of Object.entries(rig.poses)){
   for(const face of ['down','right','left','up'])for(let frame=0;frame<definition.columns;frame++){
@@ -1445,6 +1453,8 @@ assert(marketNodes.get('marketCoinGain').textContent===''&&
 
 const validationScripts = [
   'src/assets.js',
+  'src/data/character-rig-data.js',
+  'src/data/sword-data.js',
   'src/data/world-map.js',
   'src/data/region-maps.js',
   'src/data/fishing-gear-data.js',
@@ -1519,4 +1529,5 @@ assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&r
   `Each region must have reachable exits, fishing shore, resource trees, and plots: ${JSON.stringify(accessibility)}`);
 
 checkCharacterStandard();
-console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character standard`);
+checkSwordStandard();
+console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

@@ -58,6 +58,7 @@ function inventoryWearable(type,id){
   const appearance=normalizeSavedAppearance(GAME_STATE.appearance);
   if(type==='axe')return getOwnedForestryAxes().find(item=>item.id===id)||null;
   if(type==='rod')return FISHING_RODS.find(item=>item.id===id&&isFishingRodUnlocked(item))||null;
+  if(type==='sword')return getOwnedSwords().find(item=>item.id===id)||null;
   if(type==='outfit')return appearance.ownedOutfitIds.includes(id)?CHARACTER_OUTFIT_BY_ID.get(id):null;
   if(type==='backpack')return appearance.ownedBackpackIds.includes(id)?CHARACTER_PARTS.backpack.get(id):null;
   return null;
@@ -75,6 +76,7 @@ function equipInventoryAppearance(type,id){
 
 function inventoryWearableArt(type,item){
   const url=type==='axe'?FORESTRY_AXE_URLS[item.asset]:type==='rod'?FISHING_ROD_URLS[item.asset]:
+    type==='sword'?SWORD_TOOL_URLS[item.id]:
     inventoryAppearanceIcon(type,item.id||'pack.traveler')||item.iconUrl;
   return `<img src="${url}" alt="">`;
 }
@@ -91,7 +93,7 @@ function inventoryWearableCard(type,item,equipped){
 }
 
 function selectHeldTool(tool){
-  if(!['axe','rod'].includes(tool)) return false;
+  if(!['axe','rod','sword'].includes(tool)) return false;
   if((typeof isChoppingTree==='function'&&isChoppingTree())||
     (typeof isFishingActive==='function'&&isFishingActive()))return false;
   const previous=GAME_STATE.appearance;
@@ -150,11 +152,13 @@ function renderInventoryEquipment(){
   const rods=FISHING_RODS.filter(rod=>isFishingRodUnlocked(rod));
   const equippedRod=getEquippedFishingRod();
   const equippedAxe=getEquippedForestryAxe();
+  const equippedSword=getEquippedSword();
   const appearance=normalizeSavedAppearance(GAME_STATE.appearance);
-  document.getElementById('inventorySummary').textContent=`장착 ${appearance.activeTool==='rod'?equippedRod.name:equippedAxe.name}`;
+  document.getElementById('inventorySummary').textContent=`장착 ${appearance.activeTool==='rod'?equippedRod.name:appearance.activeTool==='sword'?equippedSword.name:equippedAxe.name}`;
   const equipment=[
     ...getOwnedForestryAxes().map(axe=>inventoryWearableCard('axe',axe,appearance.activeTool==='axe'&&axe.id===equippedAxe.id)),
-    ...rods.map(rod=>inventoryWearableCard('rod',rod,appearance.activeTool==='rod'&&rod.id===equippedRod.id))
+    ...rods.map(rod=>inventoryWearableCard('rod',rod,appearance.activeTool==='rod'&&rod.id===equippedRod.id)),
+    ...getOwnedSwords().map(sword=>inventoryWearableCard('sword',sword,appearance.activeTool==='sword'&&sword.id===equippedSword.id))
   ];
   document.getElementById('inventoryScroll').innerHTML=`<div class="inventoryItemGrid">${equipment.join('')}</div>`;
 }
@@ -176,10 +180,12 @@ function openInventoryDetail(type,id,options={}){
   const appearance=normalizeSavedAppearance(GAME_STATE.appearance);
   const equipped=type==='axe'?appearance.activeTool==='axe'&&getEquippedForestryAxe().id===id:
     type==='rod'?appearance.activeTool==='rod'&&getEquippedFishingRod().id===id:
+    type==='sword'?appearance.activeTool==='sword'&&getEquippedSword().id===id:
     appearance[type==='outfit'?'outfitId':'backpackId']===id;
-  const labels={axe:'벌목 도구',rod:'낚시 도구',outfit:'옷',backpack:'가방'};
+  const labels={axe:'벌목 도구',rod:'낚시 도구',sword:'검',outfit:'옷',backpack:'가방'};
   const effects=type==='rod'?fishingRodEffectLabels(item):
     type==='axe'?[`타격 힘 ${item.damage}`,`벨 수 있는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`]:
+    type==='sword'?[`검 단계 ${item.tier}`,nextSword()?'다음 검은 추후 구매 가능':'상위 검과 전투 콘텐츠는 추후 추가 예정']:
     ['외형용 · 능력치 변화 없음'];
   const description=item.description||(type==='axe'?'나무를 베는 도끼. 장착한 도끼의 힘으로 나무에 피해를 줍니다.':'여행자의 기본 의상. 걷기·낚시·벌목 동작에 함께 적용돼요.');
   document.getElementById('inventoryDetailContent').innerHTML=`<div class="inventoryDetailHero">
@@ -290,6 +296,7 @@ if(typeof document!=='undefined'){
       }
       const success=card.dataset.equipType==='rod'?equipFishingRod(card.dataset.equipId):
         card.dataset.equipType==='axe'?equipForestryAxe(card.dataset.equipId):
+        card.dataset.equipType==='sword'?equipSword(card.dataset.equipId):
         equipInventoryAppearance(card.dataset.equipType,card.dataset.equipId);
       if(success){
         renderInventory();

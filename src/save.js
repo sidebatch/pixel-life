@@ -178,6 +178,13 @@ function normalizeSavedForestryProgress(rawProgress){
   return {axeId,ownedAxeIds};
 }
 
+function normalizeSavedSwordProgress(rawProgress){
+  const ids=Array.isArray(rawProgress?.ownedSwordIds)?rawProgress.ownedSwordIds:[];
+  const ownedSwordIds=[...new Set([DEFAULT_SWORD_ID,...ids])].filter(id=>SWORD_BY_ID.has(id));
+  const swordId=ownedSwordIds.includes(rawProgress?.swordId)?rawProgress.swordId:DEFAULT_SWORD_ID;
+  return {swordId,ownedSwordIds};
+}
+
 function normalizeSavedProgressionFlags(rawFlags){
   const source=rawFlags&&typeof rawFlags==='object'?rawFlags:{};
   const sourceRewards=source.fishCollectionRewards&&typeof source.fishCollectionRewards==='object'?
@@ -208,7 +215,7 @@ function normalizeSavedAppearance(rawAppearance){
     outfitId:ownedOutfitIds.includes(source.outfitId)?source.outfitId:DEFAULT_OUTFIT_ID,
     ownedOutfitIds,
     ownedBackpackIds,
-    activeTool:source.activeTool==='rod'?'rod':'axe'
+    activeTool:['axe','rod','sword'].includes(source.activeTool)?source.activeTool:'axe'
   };
 }
 
@@ -230,7 +237,8 @@ function createSaveData(){
         flags:GAME_STATE.progression.flags,
         fishing:GAME_STATE.progression.fishing,
         logging:GAME_STATE.progression.logging,
-        forestry:GAME_STATE.progression.forestry
+        forestry:GAME_STATE.progression.forestry,
+        swords:GAME_STATE.progression.swords
       }
     }
   };
@@ -257,6 +265,7 @@ function applySaveData(saveData){
   );
   GAME_STATE.progression.logging=normalizeSavedLoggingProgress(savedState.progression?.logging);
   GAME_STATE.progression.forestry=normalizeSavedForestryProgress(savedState.progression?.forestry);
+  GAME_STATE.progression.swords=normalizeSavedSwordProgress(savedState.progression?.swords);
   return true;
 }
 

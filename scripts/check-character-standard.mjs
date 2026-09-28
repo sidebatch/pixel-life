@@ -35,7 +35,7 @@ export function validateTool(image,tool,label){
   assert(Number.isFinite(tool.nativeAngle)&&Math.abs(Math.atan2(Math.sin(tool.nativeAngle-Math.atan2(dy,dx)),Math.cos(tool.nativeAngle-Math.atan2(dy,dx))))<1e-6,`${label}: wrong handle axis`);
   assert(image.data.some((v,p)=>p%4===3&&v>0),`${label}: empty tool`);
 }
-export function checkCharacterStandard(contract=JSON.parse(read('docs/character-standard-v2.json'))){
+export function checkCharacterStandard(contract=JSON.parse(read('docs/character-standard-v3.json'))){
   for(const [file,expected] of Object.entries(contract.protectedFiles)){
     const data=file.endsWith('.png')?fs.readFileSync(file):read(file).replace(/\r\n/g,'\n');
     assert.equal(hash(data),expected,`Frozen reference changed: ${file}. Fix new art, or request an explicit standard version change.`);
@@ -44,7 +44,7 @@ export function checkCharacterStandard(contract=JSON.parse(read('docs/character-
     document:{getElementById:()=>({width:576,height:1024,getContext:()=>({})})},
     DEFAULT_FISHING_ROD_ID:'rod.basic',DEFAULT_FORESTRY_AXE_ID:'axe.basic'};
   vm.createContext(context);
-  vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/assets.js')+'\n'+read('src/config.js')+
+  vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/data/sword-data.js')+'\n'+read('src/assets.js')+'\n'+read('src/config.js')+
     '\nglobalThis.registration={rig:CHARACTER_RIG,layers:CHARACTER_LAYER_URLS,tools:CHARACTER_TOOL_URLS,outfits:CHARACTER_OUTFITS,preview:CHARACTER_WARDROBE_PREVIEW_URLS,parts:Object.fromEntries(Object.entries(CHARACTER_PARTS).map(([k,v])=>[k,[...v]]))};',context);
   const data=plain(context.registration),{tools,...geometry}=data.rig;
   assert.equal(hash(JSON.stringify(geometry)),contract.geometryHash,'Frozen body/grip/pose coordinates changed');

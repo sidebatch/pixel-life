@@ -27,7 +27,8 @@ function resolveWorldInteraction(tile=facingTile()){
   if(tree){
     const needed=FORESTRY_TREES[tree.species]?.tier||1;
     const name=FOREST_WOOD[tree.species];
-    const label=(GAME_STATE.appearance?.activeTool||'axe')!=='axe'?`${name} · 도끼 장착 필요`:
+    const label=GAME_STATE.appearance?.activeTool==='sword'?`${name} · 검 휘두르기`:
+      (GAME_STATE.appearance?.activeTool||'axe')!=='axe'?`${name} · 도끼 장착 필요`:
       !getTreeState(tree).hp?`${name} · 재생 중`:
       getEquippedForestryAxe().tier<needed?`${name} · ${FORESTRY_AXES[needed-1].name} 필요`:`${name} · 벌목`;
     return {kind:'tree',label,target:tree};
@@ -48,7 +49,7 @@ function activateWorldInteraction(interaction){
     case 'characterStyle':return openCharacterStyle();
     case 'npc':return showDialog(interaction.target.name,interaction.target.dialog);
     case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
-    case 'tree':return startTreeChop(interaction.target);
+    case 'tree':return GAME_STATE.appearance?.activeTool==='sword'?startSwordSwing():startTreeChop(interaction.target);
     case 'farm':return openFarmPlot(interaction.target);
     case 'fishing':return startFishing();
     case 'building':return showDialog(interaction.target.name,interaction.target.dialog);
@@ -62,6 +63,7 @@ function interact(){
   const interaction=resolveWorldInteraction();
   if(interaction) return activateWorldInteraction(interaction);
   if((GAME_STATE.appearance?.activeTool||'axe')==='axe') return startAxeSwing();
+  if(GAME_STATE.appearance?.activeTool==='sword') return startSwordSwing();
   showDialog('SYSTEM','조사할 것이 없다.');
 }
 function pressB(){

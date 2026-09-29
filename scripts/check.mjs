@@ -1617,6 +1617,41 @@ const forestRoutes=vm.runInContext(`REGION_EXITS.lilacVillage.some(exit=>exit.to
   REGION_EXITS.oldForest.some(exit=>exit.to==='deepForest'&&exit.entry.x===25&&exit.entry.y===44)&&
   REGION_EXITS.deepForest.some(exit=>exit.to==='oldForest'&&exit.entry.x===25&&exit.entry.y===3)`,validationContext);
 assert(forestRoutes,'Forest 1-1 and 1-2 must have reciprocal, walkable entrances');
+const forestExpansion=vm.runInContext(`['oldForest','deepForest','forestThree','forestFour','forestFive'].map((id,index)=>{
+  GAME_STATE.regionId=id;buildWorldRegion(REGION_WORLDS[id]);validatePlayableRegion();
+  return {id,name:REGION_WORLDS[id].name,count:trees.length,
+    added:trees.filter(tree=>tree.id.includes('_infill_')).length,
+    tiers:[...new Set(trees.map(tree=>FORESTRY_TREES[tree.species].tier))].sort().join(','),
+    upperSouth:trees.some(tree=>FORESTRY_TREES[tree.species].tier===3&&tree.y>=31),
+    north:REGION_EXITS[id].find(exit=>exit.y===1)?.to||null,
+    south:REGION_EXITS[id].find(exit=>exit.y===46)?.to||null};
+})`,validationContext);
+assert(forestExpansion.every((region,index)=>region.name===`오래된 숲 1-${index+1}`&&
+  region.count>=130&&region.added>=40&&!region.upperSouth&&
+  region.south===(index===0?'lilacVillage':forestExpansion[index-1].id)&&
+  region.north===(index===4?null:forestExpansion[index+1].id)),
+  `All five forest maps need dense trees, unchanged species tiers, fishing/music and reciprocal exits: ${JSON.stringify(forestExpansion)}`);
+assert(vm.runInContext(`['oldForest','deepForest','forestThree','forestFour','forestFive'].every(id=>REGION_MUSIC_TRACKS[id]==='woodland')`,musicContext),
+  'All five forest maps should continue the woodland track');
+const forestFishing=vm.runInNewContext(read('src/fishing.js')+';FISHING_HABITAT_BY_REGION',
+  {FISH_HABITATS:{POND:'pond',RIVER:'river',COAST:'coast'}});
+assert(forestExpansion.every(region=>forestFishing[region.id]==='river'),
+  'Every forest water area should use the river fish habitat');
+const forestLandscapes=vm.runInContext(`['oldForest','deepForest','forestThree','forestFour','forestFive'].map(id=>{
+  const def=REGION_WORLDS[id];GAME_STATE.regionId=id;buildWorldRegion(def);
+  const falls=def.terrain?.waterfalls||[];
+  return {id,ground:def.terrain?.ground,
+    route:JSON.stringify(def.paths),water:JSON.stringify(def.waterAreas),
+    hills:def.terrain?.hills?.length||0,falls:falls.length,
+    fallsInWater:falls.every(fall=>[...Array(fall.w)].every((_,dx)=>
+      [...Array(fall.h)].every((_,dy)=>waterSet.has(key(fall.x+dx,fall.y+dy)))))};
+})`,validationContext);
+assert(new Set(forestLandscapes.map(map=>map.ground)).size===5&&
+  new Set(forestLandscapes.map(map=>map.route)).size===5&&
+  new Set(forestLandscapes.map(map=>map.water)).size===5&&
+  forestLandscapes[2].hills>0&&forestLandscapes[3].hills>0&&
+  forestLandscapes[4].falls===1&&forestLandscapes[4].fallsInWater,
+  `Forests should have distinct terrain, routes, water and a traversable waterfall basin: ${JSON.stringify(forestLandscapes)}`);
 const accessibility=vm.runInContext(`Object.values(REGION_WORLDS).map(def=>{
   GAME_STATE.regionId=def.id;buildWorldRegion(def);
   const open=[def.playerSpawn],seen=new Set([key(def.playerSpawn.x,def.playerSpawn.y)]);

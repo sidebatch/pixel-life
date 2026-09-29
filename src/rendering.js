@@ -43,8 +43,9 @@ function pathContainsLocal(x,y,lx,ly,width=36){
 }
 function drawPathTile(x,y){
   // Slight dark rim + warm inner dirt gives the path readable edges without outlines.
-  drawPathShape(x,y,'#bd9558',42);
-  drawPathShape(x,y,'#d9b36c',36);
+  const theme=WORLD_DEFINITION.terrain||{};
+  drawPathShape(x,y,theme.pathRim||'#bd9558',42);
+  drawPathShape(x,y,theme.pathCore||'#d9b36c',36);
 
   const sx=x*TILE-camX, sy=y*TILE-camY;
   // deterministic dirt grains / tiny embedded pebbles
@@ -77,10 +78,73 @@ function drawPathTile(x,y){
   }
   ctx.globalAlpha=1;
 }
+function drawForestHills(terrain){
+  for(const hill of terrain.hills||[]){
+    const x=hill.x*TILE-camX,y=hill.y*TILE-camY,w=hill.w*TILE,h=hill.h*TILE;
+    if(x>VIEW_W+TILE||y>VIEW_H+TILE||x+w<-TILE||y+h<-TILE)continue;
+    ctx.save();
+    ctx.fillStyle='rgba(20,47,36,.32)';
+    roundedRectPath(ctx,x+7,y+16,w,h,54);ctx.fill();
+    ctx.fillStyle='rgba(179,196,128,.27)';
+    roundedRectPath(ctx,x,y,w,h,52);ctx.fill();
+    ctx.strokeStyle='rgba(30,61,42,.45)';ctx.lineWidth=7;
+    roundedRectPath(ctx,x+4,y+4,w-8,h-8,48);ctx.stroke();
+    ctx.strokeStyle='rgba(213,221,156,.22)';ctx.lineWidth=3;
+    roundedRectPath(ctx,x+38,y+32,w-76,h-75,37);ctx.stroke();
+    // Broken stone lip and strata read as a raised, walkable forest slope.
+    for(let index=1;index<hill.w-1;index++){
+      const px=x+index*TILE+Math.round(hash2(hill.x+index,hill.y)*12);
+      const py=y+h-14+Math.round(hash2(index,hill.y)*5);
+      ctx.fillStyle=index%3===0?'rgba(55,72,58,.42)':'rgba(106,113,85,.38)';
+      ctx.fillRect(px,py,25,7);ctx.fillRect(px+4,py+8,16,4);
+    }
+    ctx.restore();
+  }
+}
+function drawForestWaterfalls(terrain){
+  for(const fall of terrain.waterfalls||[]){
+    const x=Math.round(fall.x*TILE-camX),y=Math.round(fall.y*TILE-camY);
+    const w=fall.w*TILE,h=fall.h*TILE;
+    if(x>VIEW_W+TILE||y>VIEW_H+TILE||x+w<-TILE||y+h<-TILE)continue;
+    ctx.save();
+    ctx.fillStyle='#354c49';ctx.fillRect(x-10,y-16,w+20,h+23);
+    ctx.fillStyle='#5e7060';ctx.fillRect(x-10,y-18,w+20,18);
+    ctx.fillStyle='#328eb1';ctx.fillRect(x+22,y,w-44,h);
+    for(let row=0;row<h;row+=16){
+      const wobble=Math.round(hash2(fall.x+row,fall.y)*13);
+      const left=16+wobble,right=17+Math.round(hash2(row,fall.y)*14);
+      ctx.fillStyle=row%32===0?'#657269':'#455b55';
+      ctx.fillRect(x-8,y+row,left+8,16);
+      ctx.fillRect(x+w-right,y+row,right+8,16);
+      ctx.fillStyle='rgba(26,47,47,.4)';
+      ctx.fillRect(x+left-4,y+row+13,12,3);
+      ctx.fillRect(x+w-right-8,y+row+13,12,3);
+    }
+    for(let stripe=0;stripe<fall.w*4;stripe++){
+      const sx=x+25+stripe*12+Math.round(Math.sin(tNow/340+stripe)*2);
+      if(sx>x+w-30)break;
+      ctx.fillStyle=stripe%3===0?'rgba(194,248,245,.78)':stripe%3===1?'rgba(82,200,218,.8)':'rgba(28,127,176,.6)';
+      ctx.fillRect(sx,y+4,4+(stripe%3)*2,h-8);
+      ctx.fillStyle='rgba(239,254,250,.58)';
+      for(let row=0;row<fall.h*2;row++){
+        const drift=(Math.floor(tNow/130)+row*23+stripe*11)%(h-8);
+        ctx.fillRect(sx+2,y+4+drift,5,9);
+      }
+    }
+    ctx.fillStyle='rgba(225,253,250,.88)';
+    for(let bubble=0;bubble<fall.w*5;bubble++){
+      const bx=x+(bubble*37)%(w+7)-4;
+      ctx.fillRect(bx,y+h-12+(bubble%3)*5,12+(bubble%3)*5,4);
+    }
+    ctx.restore();
+  }
+}
 function drawTerrain(){
   // Movement/collision is still tile based, but the terrain is painted as connected surfaces.
-  ctx.fillStyle=FOREST_REGION_SPECIES[GAME_STATE.regionId]?'#538a53':GAME_STATE.regionId==='sunnyFields'?'#91c66a':'#78b85b';
+  const terrain=WORLD_DEFINITION.terrain||{};
+  ctx.fillStyle=terrain.ground||(FOREST_REGION_SPECIES[GAME_STATE.regionId]?'#538a53':GAME_STATE.regionId==='sunnyFields'?'#91c66a':'#78b85b');
   ctx.fillRect(0,0,VIEW_W,VIEW_H);
+  drawForestHills(terrain);
 
   const x0=Math.max(0,Math.floor(camX/TILE)-2), y0=Math.max(0,Math.floor(camY/TILE)-2);
   const x1=Math.min(MAP_W-1,Math.ceil((camX+VIEW_W)/TILE)+2), y1=Math.min(MAP_H-1,Math.ceil((camY+VIEW_H)/TILE)+2);
@@ -99,7 +163,7 @@ function drawTerrain(){
     for(let gx=Math.floor(camX/144)*144-144;gx<camX+VIEW_W+144;gx+=144){
       const r=hash2(gx/144,gy/144);
       const cx=gx-camX+40+r*65, cy=gy-camY+30+hash2(gy/91,gx/77)*75;
-      ctx.fillStyle=r>.5?'#2f7b47':'#b5d76b';
+      ctx.fillStyle=r>.5?(terrain.patchA||'#2f7b47'):(terrain.patchB||'#b5d76b');
       ctx.beginPath();ctx.ellipse(cx,cy,70+r*45,38+r*30,0,0,Math.PI*2);ctx.fill();
     }
   }
@@ -152,6 +216,8 @@ function drawTerrain(){
     if(!waterSet.has(key(x+1,y)) && !bridgeSet.has(key(x+1,y))){ctx.beginPath();ctx.moveTo(wx+TILE-3,wy+4);ctx.lineTo(wx+TILE-3,wy+TILE-4);ctx.stroke();}
   }
   ctx.restore();
+
+  drawForestWaterfalls(terrain);
 
   bridgeSet.forEach(k=>{
     const [x,y]=k.split(',').map(Number);

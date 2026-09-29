@@ -10,6 +10,7 @@ output/character-polish-qa/
 output/forestry-tier1-qa/
 output/forestry-tier2-qa/
 output/forestry-tier3-qa/
+output/forest-expansion-qa/
 *.log
 .DS_Store
 Thumbs.db

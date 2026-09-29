@@ -10,6 +10,9 @@ const FISHING_HABITAT_BY_REGION=Object.freeze({
   lilacVillage:FISH_HABITATS.POND,
   oldForest:FISH_HABITATS.RIVER,
   deepForest:FISH_HABITATS.RIVER,
+  forestThree:FISH_HABITATS.RIVER,
+  forestFour:FISH_HABITATS.RIVER,
+  forestFive:FISH_HABITATS.RIVER,
   sunnyFields:FISH_HABITATS.POND,
   riverValley:FISH_HABITATS.RIVER,
   coast:FISH_HABITATS.COAST

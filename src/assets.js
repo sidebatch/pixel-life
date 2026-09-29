@@ -27,7 +27,15 @@ const FOREST_TREE_URLS = Object.freeze({
   spruce:'assets/forestry/trees/spruce-v2.png',
   willow:'assets/forestry/trees/willow.png',
   cypress:'assets/forestry/trees/cypress.png',
-  broadleaf:'assets/forestry/trees/broadleaf.png'
+  broadleaf:'assets/forestry/trees/broadleaf.png',
+  paulownia:'assets/forestry/trees/paulownia.png',
+  cedar:'assets/forestry/trees/cedar.png',
+  ginkgo:'assets/forestry/trees/ginkgo.png',
+  larch:'assets/forestry/trees/larch.png',
+  cherry:'assets/forestry/trees/cherry.png',
+  chestnut:'assets/forestry/trees/chestnut.png',
+  walnut:'assets/forestry/trees/walnut.png',
+  zelkova:'assets/forestry/trees/zelkova.png'
 });
 const FOREST_STUMP_URLS = Object.freeze({
   oak:'assets/forestry/stumps/oak.png',
@@ -37,7 +45,15 @@ const FOREST_STUMP_URLS = Object.freeze({
   spruce:'assets/forestry/stumps/spruce.png',
   willow:'assets/forestry/stumps/willow.png',
   cypress:'assets/forestry/stumps/cypress.png',
-  broadleaf:'assets/forestry/stumps/broadleaf.png'
+  broadleaf:'assets/forestry/stumps/broadleaf.png',
+  paulownia:'assets/forestry/stumps/paulownia.png',
+  cedar:'assets/forestry/stumps/cedar.png',
+  ginkgo:'assets/forestry/stumps/ginkgo.png',
+  larch:'assets/forestry/stumps/larch.png',
+  cherry:'assets/forestry/stumps/cherry.png',
+  chestnut:'assets/forestry/stumps/chestnut.png',
+  walnut:'assets/forestry/stumps/walnut.png',
+  zelkova:'assets/forestry/stumps/zelkova.png'
 });
 const FORESTRY_AXE_URLS = Object.freeze({
   basic:'assets/forestry/axes/basic.png',
@@ -131,13 +147,21 @@ const SWORD_TOOL_URLS=Object.freeze({
 const LIFE_ITEM_URLS = Object.freeze({
   log:'assets/forestry/items/log.png',
   oakLog:'assets/forestry/items/oak.png',
-  pineLog:'assets/forestry/items/pine.png',
-  birchLog:'assets/forestry/items/birch.png',
-  mapleLog:'assets/forestry/items/maple.png',
-  spruceLog:'assets/forestry/items/spruce.png',
-  willowLog:'assets/forestry/items/willow.png',
-  cypressLog:'assets/forestry/items/cypress.png',
-  broadleafLog:'assets/forestry/items/broadleaf.png',
+  pineLog:'assets/forestry/items/pine-v2.png',
+  birchLog:'assets/forestry/items/birch-v2.png',
+  mapleLog:'assets/forestry/items/maple-v3.png',
+  spruceLog:'assets/forestry/items/spruce-v2.png',
+  willowLog:'assets/forestry/items/willow-v2.png',
+  cypressLog:'assets/forestry/items/cypress-v2.png',
+  broadleafLog:'assets/forestry/items/broadleaf-v2.png',
+  paulowniaLog:'assets/forestry/items/paulownia.png',
+  cedarLog:'assets/forestry/items/cedar.png',
+  ginkgoLog:'assets/forestry/items/ginkgo.png',
+  larchLog:'assets/forestry/items/larch.png',
+  cherryLog:'assets/forestry/items/cherry.png',
+  chestnutLog:'assets/forestry/items/chestnut.png',
+  walnutLog:'assets/forestry/items/walnut.png',
+  zelkovaLog:'assets/forestry/items/zelkova.png',
   carrotSeed:'assets/farming/seeds/carrot.png',
   turnipSeed:'assets/farming/seeds/turnip.png',
   potatoSeed:'assets/farming/seeds/potato.png',

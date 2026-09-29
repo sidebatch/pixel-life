@@ -29,14 +29,22 @@ const isInitialFarmPlot=index=>index%4<2&&Math.floor(index/4)<2;
 // Provisional forestry balance. Upgrade recipes only use wood from trees
 // reachable with the player's current axe, so progression cannot deadlock.
 const FORESTRY_TREES=Object.freeze({
+  paulownia:Object.freeze({tier:1,maxHp:100,xp:10,logPrice:12}),
   oak:Object.freeze({tier:1,maxHp:100,xp:10,logPrice:12}),
   pine:Object.freeze({tier:1,maxHp:100,xp:12,logPrice:14}),
   birch:Object.freeze({tier:1,maxHp:100,xp:14,logPrice:16}),
+  cedar:Object.freeze({tier:1,maxHp:100,xp:16,logPrice:18}),
   maple:Object.freeze({tier:2,maxHp:120,xp:25,logPrice:24}),
   spruce:Object.freeze({tier:2,maxHp:120,xp:28,logPrice:27}),
   willow:Object.freeze({tier:2,maxHp:120,xp:32,logPrice:30}),
+  ginkgo:Object.freeze({tier:2,maxHp:120,xp:25,logPrice:25}),
+  larch:Object.freeze({tier:2,maxHp:120,xp:29,logPrice:28}),
+  cherry:Object.freeze({tier:2,maxHp:120,xp:27,logPrice:26}),
   cypress:Object.freeze({tier:3,maxHp:160,xp:55,logPrice:42}),
-  broadleaf:Object.freeze({tier:3,maxHp:160,xp:65,logPrice:48})
+  broadleaf:Object.freeze({tier:3,maxHp:160,xp:65,logPrice:48}),
+  chestnut:Object.freeze({tier:3,maxHp:160,xp:58,logPrice:43}),
+  walnut:Object.freeze({tier:3,maxHp:160,xp:62,logPrice:46}),
+  zelkova:Object.freeze({tier:3,maxHp:160,xp:68,logPrice:50})
 });
 const FORESTRY_AXES=Object.freeze([
   Object.freeze({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic',coins:0,materials:Object.freeze({})}),

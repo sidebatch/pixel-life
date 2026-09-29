@@ -116,7 +116,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 201, `Expected 201 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 225, `Expected 225 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -172,9 +172,35 @@ assert(cropCatalog.crops.length===10&&new Set(cropCatalog.crops.map(crop=>crop.i
     cropCatalog.young[crop.id]&&cropCatalog.mature[crop.id]&&crop.seedPrice>0&&crop.sellPrice>0&&
     crop.harvestMin>=1&&crop.harvestMax>=crop.harvestMin),
   'Every playable crop must have unique data and four matching sprite types');
-for(const species of ['oak','pine','birch','maple','spruce','willow','cypress','broadleaf']){
+for(const species of ['oak','pine','birch','maple','spruce','willow','cypress','broadleaf','paulownia','cedar','ginkgo','larch','cherry','chestnut','walnut','zelkova']){
   assert(read('src/data/region-maps.js').includes(`species:'${species}'`),`Forest tree species missing: ${species}`);
 }
+const forestryAssets=new Function(`${read('src/assets.js')}\nreturn {trees:FOREST_TREE_URLS,stumps:FOREST_STUMP_URLS,items:LIFE_ITEM_URLS};`)();
+for(const species of ['paulownia','cedar']){
+  assert(forestryAssets.trees[species]&&forestryAssets.stumps[species]&&
+    forestryAssets.items[`${species}Log`]&&
+    [forestryAssets.trees[species],forestryAssets.stumps[species],forestryAssets.items[`${species}Log`]]
+      .every(asset=>fs.existsSync(path.join(root,asset))),
+    `New ${species} tree, stump, and log art must be registered and present`);
+}
+for(const species of ['ginkgo','larch','cherry']){
+  assert(forestryAssets.trees[species]&&forestryAssets.stumps[species]&&
+    forestryAssets.items[`${species}Log`]&&
+    [forestryAssets.trees[species],forestryAssets.stumps[species],forestryAssets.items[`${species}Log`]]
+      .every(asset=>fs.existsSync(path.join(root,asset))),
+    `New ${species} tree, stump, and log art must be registered and present`);
+}
+for(const species of ['chestnut','walnut','zelkova']){
+  assert(forestryAssets.trees[species]&&forestryAssets.stumps[species]&&
+    forestryAssets.items[`${species}Log`]&&
+    [forestryAssets.trees[species],forestryAssets.stumps[species],forestryAssets.items[`${species}Log`]]
+      .every(asset=>fs.existsSync(path.join(root,asset))),
+    `Tier-3 ${species} tree, stump, and log art must be registered and present`);
+}
+assert(['pine','spruce','willow'].every(species=>forestryAssets.items[`${species}Log`].endsWith(`${species}-v2.png`))&&
+  ['cypress','birch','broadleaf'].every(species=>forestryAssets.items[`${species}Log`].endsWith(`${species}-v2.png`))&&
+  forestryAssets.items.mapleLog.endsWith('maple-v3.png'),
+  'Approved Tier-1/2/3 icon candidates must be live without replacing original PNGs');
 
 for (const npc of ['mina', 'thomas', 'elli', 'noah', 'hana', 'jun']) {
   assert(read('src/data/world-map.js').includes(`id:'${npc}'`), `Missing NPC record: ${npc}`);
@@ -713,6 +739,30 @@ vm.runInContext(`GAME_STATE.regionId='deepForest';GAME_STATE.playerLocation={x:2
   `globalThis.__deepSavedRegion=GAME_STATE.regionId;globalThis.__deepSavedTree=GAME_STATE.world.trees.deep_forest_tree_22_39;`,saveContext);
 assert(saveContext.__deepSavedRegion==='deepForest'&&saveContext.__deepSavedTree.hp===40,
   'Deep forest position and partial tree HP must survive a reload');
+vm.runInContext(`GAME_STATE.inventory.push(
+  {type:'material',id:'cypress_log',name:'삼나무',quantity:7},
+  {type:'material',id:'cedar_log',name:'삼나무',quantity:2},
+  {type:'material',id:'ginkgo_log',name:'은행나무',quantity:4},
+  {type:'material',id:'larch_log',name:'낙엽송',quantity:5},
+  {type:'material',id:'cherry_log',name:'벚나무',quantity:6},
+  {type:'material',id:'chestnut_log',name:'밤나무',quantity:7},
+  {type:'material',id:'walnut_log',name:'호두나무',quantity:8},
+  {type:'material',id:'zelkova_log',name:'느티나무',quantity:9});
+  GAME_STATE.world.trees.forest_tier1_paulownia_01={hp:60,choppedAt:null,maxHp:100};
+  GAME_STATE.world.trees.deep_forest_tier2_ginkgo_01={hp:80,choppedAt:null,maxHp:120};
+  GAME_STATE.world.trees.deep_forest_tier3_chestnut_01={hp:110,choppedAt:null,maxHp:160};
+  saveGame();GAME_STATE.inventory=[];GAME_STATE.world.trees={};loadGame();
+  globalThis.__woodMigration=JSON.parse(JSON.stringify({inventory:GAME_STATE.inventory,trees:GAME_STATE.world.trees}));`,saveContext);
+assert(saveContext.__woodMigration.inventory.some(item=>item.id==='cypress_log'&&item.name==='편백나무'&&item.quantity===7)&&
+  saveContext.__woodMigration.inventory.some(item=>item.id==='cedar_log'&&item.name==='삼나무'&&item.quantity===2)&&
+  [['ginkgo',4],['larch',5],['cherry',6]].every(([species,count])=>
+    saveContext.__woodMigration.inventory.some(item=>item.id===`${species}_log`&&item.quantity===count))&&
+  [['chestnut',7],['walnut',8],['zelkova',9]].every(([species,count])=>
+    saveContext.__woodMigration.inventory.some(item=>item.id===`${species}_log`&&item.quantity===count))&&
+  saveContext.__woodMigration.trees.forest_tier1_paulownia_01.hp===60&&
+  saveContext.__woodMigration.trees.deep_forest_tier2_ginkgo_01.hp===80&&
+  saveContext.__woodMigration.trees.deep_forest_tier3_chestnut_01.hp===110,
+  'Existing wood counts, new species counts, and new tree HP must survive saves without ID conversion');
 saveStorage.set('pixel-life.save.v2','{not-json');
 vm.runInContext('globalThis.__invalidJsonSave=loadGame();',saveContext);
 assert(saveContext.__invalidJsonSave===false,'Malformed save JSON must fail safely');
@@ -852,8 +902,12 @@ assert(vm.runInContext(`FORESTRY_AXES[1].coins===3600&&FORESTRY_AXES[1].material
   FORESTRY_AXES[3].coins===30000&&FORESTRY_AXES[3].materials.cypress_log===60`,lifeContext),
   'Axe recipes must keep the revised progression costs');
 assert(vm.runInContext(`lifeItemName('material','log')==='일반 목재'&&
-  FOREST_SPECIES.every(species=>lifeItemName('material',species+'_log')===FOREST_WOOD[species])`,lifeContext),
-  'Wood item names must be short and consistent across all eight species');
+  FOREST_SPECIES.every(species=>lifeItemName('material',species+'_log')===FOREST_WOOD[species])&&
+  FOREST_WOOD.cypress==='편백나무'&&FOREST_WOOD.cedar==='삼나무'&&
+  FORESTRY_TREES.paulownia.tier===1&&FORESTRY_TREES.cedar.tier===1&&
+  ['ginkgo','larch','cherry'].every(species=>FORESTRY_TREES[species].tier===2)&&
+  ['chestnut','walnut','zelkova'].every(species=>FORESTRY_TREES[species].tier===3)`,lifeContext),
+  'Wood item names must be short and consistent across all sixteen species');
 const toastNode={textContent:'',classList:{add(){},remove(){}}};
 const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
@@ -1024,6 +1078,44 @@ vm.runInContext(`GAME_STATE.appearance.activeTool='rod';
 assert(lifeContext.__rodAir===false&&lifeContext.__rodTree===false&&lifeContext.__rodChopSafe&&
   lifeContext.__busyEquipAxe===false,
   'Held rods must reject both axe entry points; equipment cannot change until a swing finishes');
+vm.runInContext(`GAME_STATE.regionId='oldForest';
+  for(const species of ['paulownia','cedar']){
+    const tree=REGION_WORLDS.oldForest.trees.find(item=>item.species===species);
+    for(let hit=0;hit<5;hit++)hitResourceTree({...tree,interactable:true});
+  }
+  globalThis.__newLogRewards=['paulownia','cedar'].map(species=>lifeItemCount('material',species+'_log'));`,lifeContext);
+assert(lifeContext.__newLogRewards.every(count=>count>=1&&count<=3)&&
+  lifeContext.feedback.slice(-2).map(entry=>entry.gained).join(',')==='10,16',
+  'Both new starter trees must be choppable and grant their own wood plus Logging XP');
+vm.runInContext(`GAME_STATE.regionId='deepForest';
+  const ginkgo={...REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='ginkgo'),interactable:true};
+  GAME_STATE.progression.forestry={axeId:'axe.basic',ownedAxeIds:['axe.basic']};
+  globalThis.__tier2Locked=hitResourceTree(ginkgo);
+  globalThis.__tier2LockedHp=getTreeState(ginkgo).hp;
+  GAME_STATE.progression.forestry={axeId:'axe.iron',ownedAxeIds:['axe.basic','axe.iron']};
+  for(const species of ['ginkgo','larch','cherry']){
+    const tree={...REGION_WORLDS.deepForest.trees.find(item=>item.species===species),interactable:true};
+    for(let hit=0;hit<3;hit++)hitResourceTree(tree);
+  }
+  globalThis.__tier2LogRewards=['ginkgo','larch','cherry'].map(species=>lifeItemCount('material',species+'_log'));`,lifeContext);
+assert(lifeContext.__tier2Locked===false&&lifeContext.__tier2LockedHp===120&&
+  lifeContext.__tier2LogRewards.every(count=>count>=1&&count<=3)&&
+  lifeContext.feedback.slice(-3).map(entry=>entry.gained).join(',')==='25,29,27',
+  'New Tier-2 trees must require iron, fall in three hits, and reward their own wood and XP');
+vm.runInContext(`GAME_STATE.regionId='deepForest';
+  const chestnut={...REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='chestnut'),interactable:true};
+  globalThis.__tier3Locked=hitResourceTree(chestnut);
+  globalThis.__tier3LockedHp=getTreeState(chestnut).hp;
+  GAME_STATE.progression.forestry={axeId:'axe.steel',ownedAxeIds:['axe.basic','axe.iron','axe.steel']};
+  for(const species of ['chestnut','walnut','zelkova']){
+    const tree={...REGION_WORLDS.deepForest.trees.find(item=>item.species===species),interactable:true};
+    for(let hit=0;hit<4;hit++)hitResourceTree(tree);
+  }
+  globalThis.__tier3LogRewards=['chestnut','walnut','zelkova'].map(species=>lifeItemCount('material',species+'_log'));`,lifeContext);
+assert(lifeContext.__tier3Locked===false&&lifeContext.__tier3LockedHp===160&&
+  lifeContext.__tier3LogRewards.every(count=>count>=1&&count<=3)&&
+  lifeContext.feedback.slice(-3).map(entry=>entry.gained).join(',')==='58,62,68',
+  'New Tier-3 trees must require steel, fall in four hits, and reward their own wood and XP');
 
 const farmDrawCalls=[];
 const farmIds=['carrot','turnip','potato','onion','cabbage','wheat','corn','tomato','strawberry','pumpkin'];
@@ -1300,6 +1392,12 @@ vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.
   `globalThis.__goodsOversale=planGoodsSale(new Map([['material:log',5]]),goods);`,marketContext);
 assert(vm.runInContext(`marketGoodDefinition('material','birch_log').name==='자작나무'&&
   marketGoodDefinition('material','log').name==='일반 목재'&&
+  marketGoodDefinition('material','cypress_log').name==='편백나무'&&
+  marketGoodDefinition('material','cedar_log').name==='삼나무'&&
+  marketGoodDefinition('material','paulownia_log').price===FORESTRY_TREES.paulownia.logPrice&&
+  ['ginkgo','larch','cherry'].every(species=>marketGoodDefinition('material',species+'_log').price===FORESTRY_TREES[species].logPrice)&&
+  ['chestnut','walnut','zelkova'].every(species=>marketGoodDefinition('material',species+'_log').price===FORESTRY_TREES[species].logPrice)&&
+  planGoodsSale(new Map([['material:cedar_log',2]]),[{type:'material',id:'cedar_log',quantity:3}]).total===2*FORESTRY_TREES.cedar.logPrice&&
   planGoodsSale(new Map([['material:birch_log',2]]),[{type:'material',id:'birch_log',quantity:3}]).total===32`,marketContext),
   'Species logs must sell for their configured per-species price');
 assert(vm.runInContext(`['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>{
@@ -1490,18 +1588,28 @@ assert(shop.x===27&&shop.y===34&&shop.w===5&&shop.h===4&&
   'The entire shop footprint must block movement while all four surrounding approaches remain clear');
 vm.runInContext(`GAME_STATE.regionId='oldForest';buildWorldRegion(REGION_WORLDS.oldForest);globalThis.__forestReport=validatePlayableRegion();globalThis.__resourceTrees=trees.filter(tree=>tree.interactable).length;`+
   `globalThis.__forestInterior=trees.filter(tree=>tree.x>2&&tree.x<61&&tree.y>2&&tree.y<45).length;`+
+  `globalThis.__newSpeciesCounts=Object.fromEntries(['paulownia','cedar'].map(species=>[species,trees.filter(tree=>tree.species===species&&tree.id.startsWith('forest_tier1_')).length]));`+
+  `globalThis.__legacySpeciesStable=[...Array(62).keys()].every(index=>{const x=index+1;return [...Array(46).keys()].every(row=>{const y=row+1;const expected=FOREST_LEGACY_STARTER_SPECIES[Math.abs(x*17+y*31)%3];return forestTreeSpecies(x,y,'oldForest')===expected&&(y<32||forestTreeSpecies(x,y,'deepForest')===expected);});});`+
   `globalThis.__allForestChoppable=trees.every(tree=>tree.interactable&&!!tree.id&&!!FOREST_WOOD[tree.species]);`+
   `globalThis.__starterSpecies=trees.every(tree=>FOREST_REGION_SPECIES.oldForest.includes(tree.species));`+
   `globalThis.__forestBoundaryBlocked=[...Array(MAP_W).keys()].every(x=>blocked.has(key(x,0))&&blocked.has(key(x,MAP_H-1)));`+
   `GAME_STATE.regionId='deepForest';buildWorldRegion(REGION_WORLDS.deepForest);globalThis.__deepReport=validatePlayableRegion();globalThis.__deepTrees=trees.filter(tree=>tree.interactable).length;`+
   `globalThis.__deepInterior=trees.filter(tree=>tree.x>2&&tree.x<61&&tree.y>2&&tree.y<45).length;`+
   `globalThis.__advancedSpecies=trees.every(tree=>FOREST_SPECIES.includes(tree.species));`+
-  `globalThis.__sharedStarterSpecies=FOREST_REGION_SPECIES.oldForest.every(species=>trees.some(tree=>tree.species===species&&FORESTRY_TREES[tree.species].tier===1));`+
+  `globalThis.__tier2SpeciesCounts=Object.fromEntries(['ginkgo','larch','cherry'].map(species=>[species,trees.filter(tree=>tree.species===species&&tree.id.startsWith('deep_forest_tier2_')).length]));`+
+  `globalThis.__tier3SpeciesCounts=Object.fromEntries(['chestnut','walnut','zelkova'].map(species=>[species,trees.filter(tree=>tree.species===species&&tree.id.startsWith('deep_forest_tier3_')).length]));`+
+  `globalThis.__legacyDeepSpeciesStable=[...Array(62).keys()].every(index=>{const x=index+1;return [...Array(46).keys()].every(row=>{const y=row+1;const old=y>=32?FOREST_LEGACY_STARTER_SPECIES:y>=24?FOREST_LEGACY_DEEP_SPECIES.slice(0,3):FOREST_LEGACY_DEEP_SPECIES.slice(3);return forestTreeSpecies(x,y,'deepForest')===old[Math.abs(x*17+y*31)%old.length];});});`+
+  `globalThis.__sharedStarterSpecies=FOREST_LEGACY_STARTER_SPECIES.every(species=>trees.some(tree=>tree.species===species&&FORESTRY_TREES[tree.species].tier===1));`+
   `globalThis.__advancedFartherNorth=trees.some(tree=>FORESTRY_TREES[tree.species].tier===3)&&`+
   `trees.filter(tree=>FORESTRY_TREES[tree.species].tier===3).every(tree=>tree.y<=23);`+
   `GAME_STATE.regionId='sunnyFields';buildWorldRegion(REGION_WORLDS.sunnyFields);globalThis.__farmReport=validatePlayableRegion();globalThis.__plots=WORLD_DEFINITION.farmPlots.length;`,validationContext);
 assert(validationContext.__forestReport.region==='oldForest'&&validationContext.__resourceTrees>=100&&validationContext.__forestInterior>=60&&
   validationContext.__allForestChoppable&&validationContext.__starterSpecies&&validationContext.__forestBoundaryBlocked&&
+  validationContext.__newSpeciesCounts.paulownia===3&&validationContext.__newSpeciesCounts.cedar===3&&
+  validationContext.__legacySpeciesStable&&
+  ['ginkgo','larch','cherry'].every(species=>validationContext.__tier2SpeciesCounts[species]===3)&&
+  ['chestnut','walnut','zelkova'].every(species=>validationContext.__tier3SpeciesCounts[species]===3)&&
+  validationContext.__legacyDeepSpeciesStable&&
   validationContext.__deepReport.region==='deepForest'&&validationContext.__deepTrees>=100&&validationContext.__deepInterior>=60&&validationContext.__advancedSpecies&&validationContext.__sharedStarterSpecies&&validationContext.__advancedFartherNorth&&
   validationContext.__farmReport.region==='sunnyFields'&&validationContext.__plots===16,
   'Forest and farm maps must have exits, fishing water, resource trees, and farm plots');

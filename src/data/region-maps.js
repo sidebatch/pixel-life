@@ -1,17 +1,20 @@
 const VILLAGE_WORLD_DEFINITION=WORLD_DEFINITION;
-const FOREST_WOOD=Object.freeze({oak:'참나무',pine:'소나무',birch:'자작나무',maple:'단풍나무',spruce:'가문비나무',willow:'버드나무',cypress:'삼나무',broadleaf:'활엽수'});
+const FOREST_WOOD=Object.freeze({oak:'참나무',pine:'소나무',birch:'자작나무',maple:'단풍나무',spruce:'가문비나무',willow:'버드나무',cypress:'편백나무',broadleaf:'활엽수',paulownia:'오동나무',cedar:'삼나무',ginkgo:'은행나무',larch:'낙엽송',cherry:'벚나무',chestnut:'밤나무',walnut:'호두나무',zelkova:'느티나무'});
 const FOREST_SPECIES=Object.freeze(Object.keys(FOREST_WOOD));
+// Keep the species of every pre-existing generated tree stable for old saves.
+const FOREST_LEGACY_STARTER_SPECIES=Object.freeze(['oak','pine','birch']);
+const FOREST_LEGACY_DEEP_SPECIES=Object.freeze(['maple','spruce','willow','cypress','broadleaf']);
 const FOREST_REGION_SPECIES=Object.freeze({
-  oldForest:Object.freeze(['oak','pine','birch']),
-  deepForest:Object.freeze(['maple','spruce','willow','cypress','broadleaf'])
+  oldForest:Object.freeze([...FOREST_LEGACY_STARTER_SPECIES,'paulownia','cedar']),
+  deepForest:Object.freeze([...FOREST_LEGACY_DEEP_SPECIES,'ginkgo','larch','cherry','chestnut','walnut','zelkova'])
 });
 const forestTreeId=(x,y,regionId='oldForest')=>`${regionId==='deepForest'?'deep_forest':'forest'}_tree_${x}_${y}`;
 const forestTreeSpecies=(x,y,regionId='oldForest')=>{
   // A species has the same tool requirement in every region. Forest 1-2
   // retains starter species near its entrance, then adds stronger species.
   const species=regionId==='deepForest'?
-    (y>=32?FOREST_REGION_SPECIES.oldForest:y>=24?FOREST_REGION_SPECIES.deepForest.slice(0,3):FOREST_REGION_SPECIES.deepForest.slice(3)):
-    (FOREST_REGION_SPECIES[regionId]||FOREST_SPECIES);
+    (y>=32?FOREST_LEGACY_STARTER_SPECIES:y>=24?FOREST_LEGACY_DEEP_SPECIES.slice(0,3):FOREST_LEGACY_DEEP_SPECIES.slice(3)):
+    (regionId==='oldForest'?FOREST_LEGACY_STARTER_SPECIES:FOREST_REGION_SPECIES[regionId]||FOREST_SPECIES);
   return species[Math.abs(x*17+y*31)%species.length];
 };
 // Fixed coordinates make groves reproducible across visits and saved tree states.
@@ -73,6 +76,13 @@ const REGION_WORLDS=Object.freeze({
       {id:'forest_tree_06',x:34,y:22,species:'birch',interactable:true},
       {id:'forest_tree_07',x:33,y:18,species:'oak',interactable:true},
       {id:'forest_tree_08',x:21,y:17,species:'pine',interactable:true},
+      // New IDs/tiles preserve every existing tree's saved HP and respawn state.
+      {id:'forest_tier1_paulownia_01',x:13,y:37,species:'paulownia'},
+      {id:'forest_tier1_paulownia_02',x:18,y:38,species:'paulownia'},
+      {id:'forest_tier1_paulownia_03',x:30,y:37,species:'paulownia'},
+      {id:'forest_tier1_cedar_01',x:33,y:39,species:'cedar'},
+      {id:'forest_tier1_cedar_02',x:36,y:37,species:'cedar'},
+      {id:'forest_tier1_cedar_03',x:53,y:39,species:'cedar'},
       ...forestGroveTrees('oldForest')
     ],
     farmPlots:[],exits:[
@@ -108,6 +118,26 @@ const REGION_WORLDS=Object.freeze({
       {x:22,y:39,species:'oak'},{x:28,y:38,species:'pine'},
       {x:21,y:26,species:'willow'},{x:28,y:28,species:'spruce'},{x:34,y:23,species:'cypress'},
       {x:19,y:16,species:'broadleaf'},{x:53,y:23,species:'maple'},
+      // Tier-2 additions use new IDs so old grove species and saved HP remain stable.
+      {id:'deep_forest_tier2_ginkgo_01',x:18,y:28,species:'ginkgo'},
+      {id:'deep_forest_tier2_ginkgo_02',x:32,y:29,species:'ginkgo'},
+      {id:'deep_forest_tier2_ginkgo_03',x:51,y:27,species:'ginkgo'},
+      {id:'deep_forest_tier2_larch_01',x:29,y:27,species:'larch'},
+      {id:'deep_forest_tier2_larch_02',x:35,y:29,species:'larch'},
+      {id:'deep_forest_tier2_larch_03',x:55,y:29,species:'larch'},
+      {id:'deep_forest_tier2_cherry_01',x:21,y:29,species:'cherry'},
+      {id:'deep_forest_tier2_cherry_02',x:18,y:24,species:'cherry'},
+      {id:'deep_forest_tier2_cherry_03',x:55,y:24,species:'cherry'},
+      // Tier-3 trees occupy new northern tiles; existing tree IDs/species stay stable.
+      {id:'deep_forest_tier3_chestnut_01',x:11,y:15,species:'chestnut'},
+      {id:'deep_forest_tier3_chestnut_02',x:37,y:9,species:'chestnut'},
+      {id:'deep_forest_tier3_chestnut_03',x:50,y:15,species:'chestnut'},
+      {id:'deep_forest_tier3_walnut_01',x:21,y:21,species:'walnut'},
+      {id:'deep_forest_tier3_walnut_02',x:36,y:15,species:'walnut'},
+      {id:'deep_forest_tier3_walnut_03',x:55,y:15,species:'walnut'},
+      {id:'deep_forest_tier3_zelkova_01',x:8,y:21,species:'zelkova'},
+      {id:'deep_forest_tier3_zelkova_02',x:28,y:15,species:'zelkova'},
+      {id:'deep_forest_tier3_zelkova_03',x:49,y:21,species:'zelkova'},
       ...forestGroveTrees('deepForest')
     ],
     farmPlots:[],exits:[

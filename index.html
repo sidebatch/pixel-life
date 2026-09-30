@@ -4,9 +4,7 @@
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1, user-scalable=no" />
 <meta name="theme-color" content="#0e2431" />
-<link rel="manifest" href="manifest.webmanifest" />
-<link rel="apple-touch-icon" href="icons/apple-touch-icon.png" />
-<title>Still</title>
+<title>Pixel Life</title>
   <!-- build:styles -->
   <link rel="stylesheet" href="styles/game.css" />
   <!-- /build:styles -->
@@ -208,12 +206,5 @@
   <script src="src/character-style.js"></script>
   <script src="src/main.js"></script>
   <!-- /build:scripts -->
-  <script>
-  if('serviceWorker' in navigator){
-    window.addEventListener('load',function(){
-      navigator.serviceWorker.register('sw.js').catch(function(){});
-    });
-  }
-  </script>
 </body>
 </html>

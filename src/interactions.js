@@ -279,5 +279,5 @@ window.addEventListener('pagehide',resetJoystick);
 
 
 
-window.addEventListener('error',e=>console.error('[Pixel Life runtime]',e.error||e.message));
-window.addEventListener('unhandledrejection',e=>console.error('[Pixel Life promise]',e.reason));
+window.addEventListener('error',e=>console.error('[Still runtime]',e.error||e.message));
+window.addEventListener('unhandledrejection',e=>console.error('[Still promise]',e.reason));

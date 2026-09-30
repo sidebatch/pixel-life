@@ -8,7 +8,7 @@ ctx.mozImageSmoothingEnabled = false;
 const DESKTOP_SMOOTH_RENDER = typeof window !== 'undefined' && window.matchMedia?.('(pointer:fine)').matches === true && (navigator.maxTouchPoints||0) === 0;
 
 const PROJECT = Object.freeze({
-  name:'Pixel Life',
+  name:'Still',
   architectureVersion:'2.0',
   genre:'Top-down Open World Life Adventure',
   worldModel:'region-based',

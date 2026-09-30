@@ -274,7 +274,7 @@ function saveGame(){
     localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(createSaveData()));
     return true;
   }catch(error){
-    console.warn('Pixel Life save failed.',error);
+    console.warn('Still save failed.',error);
     return false;
   }
 }
@@ -285,7 +285,7 @@ function loadGame(){
     if(!rawSave) return false;
     return applySaveData(JSON.parse(rawSave));
   }catch(error){
-    console.warn('Pixel Life save could not be loaded.',error);
+    console.warn('Still save could not be loaded.',error);
     return false;
   }
 }

@@ -81,4 +81,14 @@ for(const track of ['meadow','woodland','lakeside']){
   fs.copyFileSync(path.join(root,relative),path.join(musicDirectory,`${track}.mp3`));
 }
 
+// PWA: manifest, service worker, icons
+const pwaDirectory = path.join(root, 'pwa');
+fs.copyFileSync(path.join(pwaDirectory,'manifest.webmanifest'),path.join(outputDirectory,'manifest.webmanifest'));
+fs.copyFileSync(path.join(pwaDirectory,'sw.js'),path.join(outputDirectory,'sw.js'));
+const iconDirectory = path.join(outputDirectory,'icons');
+fs.mkdirSync(iconDirectory,{recursive:true});
+for(const iconFile of ['icon-192.png','icon-512.png','maskable-512.png','apple-touch-icon.png']){
+  fs.copyFileSync(path.join(pwaDirectory,'icons',iconFile),path.join(iconDirectory,iconFile));
+}
+
 console.log(`Built and verified ${path.relative(root, outputFile)} (${fs.statSync(outputFile).size.toLocaleString()} bytes)`);

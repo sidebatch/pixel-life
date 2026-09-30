@@ -122,7 +122,7 @@ function updateWorldClockUI(){
   const clock=document.getElementById('worldClock');
   if(!clock) return;
   const location=document.getElementById('locationName');
-  if(location) location.textContent=WORLD_REGIONS[GAME_STATE.regionId]?.name||'Pixel Life';
+  if(location) location.textContent=WORLD_REGIONS[GAME_STATE.regionId]?.name||'Still';
   const weatherLabel={clear:'맑음',rain:'비',storm:'폭풍'}[getWeatherKind()]||'맑음';
   clock.textContent=`${getWeatherIcon()} ${weatherLabel} · ${formatWorldTime()}`;
   const debugValue=document.getElementById('timeDebugValue');

@@ -39,6 +39,7 @@ const scriptFiles = [
   'src/inventory.js',
   'src/market.js',
   'src/character-style.js',
+  'src/pwa.js',
   'src/main.js'
 ];
 
@@ -102,6 +103,22 @@ assert(trialContext.__trialValid&&!trialContext.__trialInvalid&&trialContext.__t
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
 assert((html.match(/role="tab"/g) || []).length === 14, 'Fish dex, inventory, appearance, and market tabs must be accessible');
+const pwaManifest=JSON.parse(read('manifest.webmanifest'));
+assert(pwaManifest.display==='standalone'&&pwaManifest.orientation==='portrait-primary'&&
+  pwaManifest.start_url==='./'&&pwaManifest.scope==='./'&&
+  pwaManifest.icons.some(icon=>icon.sizes==='192x192')&&pwaManifest.icons.some(icon=>icon.sizes==='512x512'&&icon.purpose==='maskable'),
+  'PWA manifest must define portrait standalone mode and install icons');
+assert(html.includes('rel="manifest" href="manifest.webmanifest"')&&html.includes('id="installAppBtn"')&&
+  read('src/pwa.js').includes("serviceWorker.register('./service-worker.js'")&&
+  read('src/pwa.js').includes('beforeinstallprompt')&&read('service-worker.js').includes("caches.match('./index.html')"),
+  'PWA registration, install prompt, and offline navigation fallback must stay connected');
+for(const size of [192,512]){
+  const iconPath=`assets/pwa/icon-${size}.png`;
+  assert(fs.existsSync(path.join(root,iconPath)),`Missing PWA icon: ${iconPath}`);
+  const icon=decodePNG(fs.readFileSync(path.join(root,iconPath)));
+  assert(icon.width===size&&icon.height===size&&icon.data.every((value,index)=>index%4!==3||value===255),
+    `PWA icon must be an opaque ${size}x${size} PNG`);
+}
 assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
 assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab panel semantics are missing');
 assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&

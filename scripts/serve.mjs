@@ -9,6 +9,7 @@ const mimeTypes = {
   '.css': 'text/css; charset=utf-8',
   '.html': 'text/html; charset=utf-8',
   '.js': 'text/javascript; charset=utf-8',
+  '.webmanifest': 'application/manifest+json; charset=utf-8',
   '.png': 'image/png',
   '.mp3': 'audio/mpeg'
 };
@@ -37,6 +38,7 @@ const server = http.createServer((request, response) => {
     fs.createReadStream(filePath,{start,end}).pipe(response);return;
   }
   response.writeHead(200, { 'Content-Type':type,'Content-Length':size,
+    'Cache-Control':path.basename(filePath)==='service-worker.js'?'no-cache':'no-store',
     'Accept-Ranges':path.extname(filePath)==='.mp3'?'bytes':'none' });
   fs.createReadStream(filePath).pipe(response);
 });

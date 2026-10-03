@@ -7,6 +7,8 @@
     "start": "node scripts/serve.mjs",
     "build": "node scripts/build.mjs",
     "check": "node scripts/check.mjs",
+    "icons:pwa": "node scripts/prepare-pwa-icons.mjs",
+    "qa:pwa": "node scripts/qa-pwa.mjs",
     "test": "npm run check && npm run build"
   },
   "engines": {

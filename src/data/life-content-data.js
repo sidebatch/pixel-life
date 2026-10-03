@@ -48,9 +48,17 @@ const FORESTRY_TREES=Object.freeze({
 });
 const FORESTRY_AXES=Object.freeze([
   Object.freeze({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic',coins:0,materials:Object.freeze({})}),
-  Object.freeze({id:'axe.iron',name:'철 도끼',tier:2,damage:40,asset:'iron',coins:3600,materials:Object.freeze({oak_log:60,pine_log:48,birch_log:36})}),
-  Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:50,asset:'steel',coins:11200,materials:Object.freeze({maple_log:54,spruce_log:42,willow_log:36})}),
-  Object.freeze({id:'axe.master',name:'명장의 도끼',tier:4,damage:80,asset:'master',coins:30000,materials:Object.freeze({cypress_log:60,broadleaf_log:50})})
+  Object.freeze({id:'axe.iron',name:'철 도끼',tier:2,damage:50,asset:'iron',coins:3600,materials:Object.freeze({oak_log:60,pine_log:48,birch_log:36})}),
+  Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:70,asset:'steel',coins:11200,materials:Object.freeze({maple_log:54,spruce_log:42,willow_log:36})}),
+  // Keep axe.master for save compatibility; only its player-facing name changes.
+  Object.freeze({id:'axe.master',name:'청금 도끼',tier:4,damage:90,asset:'master',coins:30000,materials:Object.freeze({cypress_log:60,broadleaf_log:50})}),
+  // Tier 5-10 recipes are intentionally coin-only until their matching trees exist.
+  Object.freeze({id:'axe.black_iron',name:'흑철 도끼',tier:5,damage:125,asset:'black_iron',coins:65000,materials:Object.freeze({}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.rune',name:'룬 도끼',tier:6,damage:175,asset:'rune',coins:115000,materials:Object.freeze({}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.spirit',name:'정령 도끼',tier:7,damage:240,asset:'spirit',coins:180000,materials:Object.freeze({}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.moonlight',name:'달빛 도끼',tier:8,damage:330,asset:'moonlight',coins:270000,materials:Object.freeze({}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.starlight',name:'별빛 도끼',tier:9,damage:450,asset:'starlight',coins:390000,materials:Object.freeze({}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.primordial',name:'태초의 도끼',tier:10,damage:620,asset:'primordial',coins:550000,materials:Object.freeze({}),provisionalRecipe:true})
 ]);
 const FORESTRY_AXE_BY_ID=new Map(FORESTRY_AXES.map(axe=>[axe.id,axe]));
 const DEFAULT_FORESTRY_AXE_ID='axe.basic';

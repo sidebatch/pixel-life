@@ -196,12 +196,15 @@ function renderForestryMarket(){
     const costs=owned?'':Object.entries(axe.materials).map(([id,count])=>
       equipmentCostChip(FOREST_WOOD[id.slice(0,-4)],lifeItemCount('material',id),count)).join('')+
       equipmentCostChip('코인',GAME_STATE.progression.coins,axe.coins);
-    const note=owned?'가방의 장비 탭에서 장착할 수 있어요.':
-      !available?'이전 도끼를 먼저 구매해 주세요.':missing.length?`부족: ${missing.join(' · ')}`:'구매할 수 있어요.';
+    const recipeNote=axe.provisionalRecipe?'새 나무 추가 전까지 사용하는 임시 코인 레시피예요.':'';
+    const note=owned?`가방의 장비 탭에서 장착할 수 있어요.${recipeNote?` ${recipeNote}`:''}`:
+      !available?`이전 도끼를 먼저 구매해 주세요.${recipeNote?` ${recipeNote}`:''}`:
+      missing.length?`부족: ${missing.join(' · ')}${recipeNote?` · ${recipeNote}`:''}`:
+      `구매할 수 있어요.${recipeNote?` ${recipeNote}`:''}`;
     return equipmentCardMarkup({id:axe.id,asset:FORESTRY_AXE_URLS[axe.asset],name:axe.name,
-      effect:`나무 피해 ${axe.damage} · ${axe.tier<=3?`${axe.tier}단계 나무 벌목`:'벌목 속도 향상'}`,
+      effect:`나무 피해 ${axe.damage} · ${axe.tier}단계 도끼`,
       status:active?'장착 중':owned?'보유 중':available?'다음 도끼':'순서대로 구매',
-      details:axe.tier<=3?`${axe.tier}단계 나무까지 벨 수 있어요.`:'현재 숲의 나무를 더 빠르게 벨 수 있어요.',
+      details:axe.tier<=3?`${axe.tier}단계 나무까지 벨 수 있어요.`:`현재 나무를 더 빠르게 벨 수 있고, ${axe.tier}단계 나무가 추가되면 바로 연결돼요.`,
       costs,note,active,open:available,
       action:owned?'':`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${axe.name} 구매</button>`});
   }).join('');

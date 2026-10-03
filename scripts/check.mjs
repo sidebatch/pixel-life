@@ -134,7 +134,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 225, `Expected 225 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 237, `Expected 237 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -917,8 +917,11 @@ vm.createContext(lifeContext);
 vm.runInContext(`${read('src/assets.js')}\n${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n${read('src/life-content.js')}\n`,lifeContext);
 assert(vm.runInContext(`FORESTRY_AXES[1].coins===3600&&FORESTRY_AXES[1].materials.oak_log===60&&
   FORESTRY_AXES[2].coins===11200&&FORESTRY_AXES[2].materials.maple_log===54&&
-  FORESTRY_AXES[3].coins===30000&&FORESTRY_AXES[3].materials.cypress_log===60`,lifeContext),
-  'Axe recipes must keep the revised progression costs');
+  FORESTRY_AXES[3].coins===30000&&FORESTRY_AXES[3].materials.cypress_log===60&&
+  FORESTRY_AXES.length===10&&FORESTRY_AXES.map(axe=>axe.damage).join(',')==='20,50,70,90,125,175,240,330,450,620'&&
+  FORESTRY_AXES.slice(4).every(axe=>axe.provisionalRecipe&&Object.keys(axe.materials).length===0)&&
+  FORESTRY_AXES[9].id==='axe.primordial'&&FORESTRY_AXES[9].coins===550000`,lifeContext),
+  'All ten axe tiers and their current recipes must stay registered');
 assert(vm.runInContext(`lifeItemName('material','log')==='일반 목재'&&
   FOREST_SPECIES.every(species=>lifeItemName('material',species+'_log')===FOREST_WOOD[species])&&
   FOREST_WOOD.cypress==='편백나무'&&FOREST_WOOD.cedar==='삼나무'&&
@@ -970,7 +973,7 @@ vm.runInContext(`GAME_STATE.regionId='deepForest';const deepSource=REGION_WORLDS
   `globalThis.__deepFirstReward=lifeItemCount('material','maple_log');`+
   `globalThis.__deepHits=[hitResourceTree(deepTree),hitResourceTree(deepTree),hitResourceTree(deepTree)];`+
   `globalThis.__deepFinalHp=getTreeState(deepTree).hp;globalThis.__deepLogs=lifeItemCount('material','maple_log');`,lifeContext);
-assert(lifeContext.__deepFirstHit&&lifeContext.__deepFirstHp===80&&lifeContext.__deepFirstReward===0&&
+assert(lifeContext.__deepFirstHit&&lifeContext.__deepFirstHp===70&&lifeContext.__deepFirstReward===0&&
   lifeContext.__deepHits.join(',')==='true,true,false'&&lifeContext.__deepFinalHp===0&&
   lifeContext.__deepLogs>=1&&lifeContext.__deepLogs<=3,
   'Iron axe must cut tier-2 trees in three hits and block duplicate rewards');
@@ -987,7 +990,7 @@ vm.runInContext(`const upperSource=REGION_WORLDS.deepForest.trees.find(tree=>tre
   `globalThis.__upperHits=[hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree),hitResourceTree(upperTree)];`,lifeContext);
 assert(lifeContext.__upperLocked===false&&lifeContext.__upperLockedHp===160&&lifeContext.__steelBought&&
   lifeContext.__steelBeforeEquip==='axe.iron'&&lifeContext.__steelEquipped&&
-  lifeContext.__upperHits.join(',')==='true,true,true,true,false'&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel'&&
+  lifeContext.__upperHits.join(',')==='true,true,true,false,false'&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel'&&
   lifeContext.GAME_STATE.progression.logging.totalXp===90,
   'Tier-3 tree must require steel axe and grant its own XP on the final hit');
 vm.runInContext(`GAME_STATE.progression.coins=32000;`+
@@ -996,9 +999,9 @@ vm.runInContext(`GAME_STATE.progression.coins=32000;`+
   `globalThis.__masterBeforeEquip=getEquippedForestryAxe().id;globalThis.__masterEquipped=equipForestryAxe('axe.master');`+
   `globalThis.__masterDamage=getEquippedForestryAxe().damage;equipForestryAxe('axe.steel');`,lifeContext);
 assert(lifeContext.__masterNext==='axe.master'&&lifeContext.__masterBought&&
-  lifeContext.__masterBeforeEquip==='axe.steel'&&lifeContext.__masterEquipped&&lifeContext.__masterDamage===80&&
-  lifeContext.GAME_STATE.progression.coins===2000&&vm.runInContext('nextForestryAxe()===null',lifeContext),
-  'Master axe must cost reachable tier-3 wood, remain unequipped until selected, and deal more damage');
+  lifeContext.__masterBeforeEquip==='axe.steel'&&lifeContext.__masterEquipped&&lifeContext.__masterDamage===90&&
+  lifeContext.GAME_STATE.progression.coins===2000&&vm.runInContext(`nextForestryAxe().id==='axe.black_iron'`,lifeContext),
+  'Tier-4 axe must cost reachable tier-3 wood, remain unequipped until selected, and unlock tier 5');
 vm.runInContext(`GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logging',65);GAME_STATE.regionId='oldForest';`+
   `const levelTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_03');`+
   `hitResourceTree(levelTree);`+
@@ -1185,8 +1188,9 @@ for(const pose of ['walk','chop','fish']){
 }
 const rigContext={};
 vm.createContext(rigContext);
-vm.runInContext(read('src/data/character-rig-data.js')+'\nglobalThis.rig=CHARACTER_RIG;',rigContext);
+vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/assets.js')+'\nglobalThis.rig=CHARACTER_RIG;globalThis.toolUrls=CHARACTER_TOOL_URLS;',rigContext);
 const rig=rigContext.rig;
+const rigToolUrls=rigContext.toolUrls;
 const rigNeck=rig.neck||[48,63];
 assert(rig.anatomy==='npc-v1'&&rigNeck.join(',')==='48,54','Approved NPC body must use its own neck anchor');
 assert(rig.cell===96&&rig.feet.join(',')==='48,88'&&rig.renderSize===100,
@@ -1237,7 +1241,7 @@ for(const [pose,definition] of Object.entries(rig.poses)){
   }
 }
 for(const [key,tool] of Object.entries(rig.tools)){
-  const image=decodePNG(fs.readFileSync(path.join(root,`assets/player/rig-v1/tools/${key.replace('.','-')}.png`)));
+  const image=decodePNG(fs.readFileSync(path.join(root,rigToolUrls[key])));
   let opaqueGrip=false;
   for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
     const x=tool.grip[0]+dx,y=tool.grip[1]+dy;
@@ -1442,7 +1446,7 @@ marketContext.GAME_STATE.inventory.splice(-2);
 vm.runInContext(`marketState.shop='elli';marketState.view='fish';`,marketContext);
 marketContext.GAME_STATE.progression.logging={level:1};
 marketContext.GAME_STATE.progression.forestry={axeId:'axe.basic',ownedAxeIds:['axe.basic']};
-marketContext.FORESTRY_AXE_URLS={basic:'basic.png',iron:'iron.png',steel:'steel.png',master:'master.png'};
+marketContext.FORESTRY_AXE_URLS={basic:'basic.png',iron:'iron.png',steel:'steel.png',master:'master.png',black_iron:'black-iron.png',rune:'rune.png',spirit:'spirit.png',moonlight:'moonlight.png',starlight:'starlight.png',primordial:'primordial.png'};
 marketContext.FORESTRY_AXES=vm.runInContext('FORESTRY_AXES',lifeContext);
 marketContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic'});
 marketContext.getOwnedForestryAxes=()=>[{id:'axe.basic'}];
@@ -1455,15 +1459,17 @@ vm.runInContext('renderForestryMarket();',marketContext);
 assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.steel"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.master"')&&
-  (seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===4&&
+  seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.primordial"')&&
+  (seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===10&&
   seedMarketNodes.marketList.innerHTML.includes('이전 도끼를 먼저 구매해 주세요')&&
   seedMarketNodes.marketList.innerHTML.includes('참나무 ×60')&&
   seedMarketNodes.marketList.innerHTML.includes('코인 ×3,600')&&
   seedMarketNodes.marketList.innerHTML.includes('부족: 참나무 60개')&&
+  seedMarketNodes.marketList.innerHTML.includes('임시 코인 레시피')&&
   !seedMarketNodes.marketList.innerHTML.includes('0/60')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled')&&
   seedMarketNodes.marketStock.textContent.includes('기본 도끼'),
-  'Axe shop must show all four tiers and their recipes while disabling unaffordable or future upgrades');
+  'Axe shop must show all ten tiers and their recipes while disabling unaffordable or future upgrades');
 marketContext.getEquippedForestryAxe=()=>marketContext.FORESTRY_AXES[1];
 marketContext.getOwnedForestryAxes=()=>marketContext.FORESTRY_AXES.slice(0,2);
 marketContext.nextForestryAxe=()=>marketContext.FORESTRY_AXES[2];

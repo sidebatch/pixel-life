@@ -117,7 +117,7 @@ try{
   });
   await gridCheck();
   const infoIds=await page.locator('.inventoryInfoButton').evaluateAll(nodes=>nodes.map(node=>({type:node.dataset.inventoryInfoType,id:node.dataset.inventoryInfoId})));
-  if(infoIds.length!==11||!infoIds.some(item=>item.id==='sword.basic'))throw new Error('Owned weapon tiers missing');
+  if(infoIds.length!==17||!infoIds.some(item=>item.id==='sword.basic')||!infoIds.some(item=>item.id==='axe.primordial'))throw new Error('Owned weapon tiers missing');
   await page.screenshot({path:path.join(output,'small-all-owned-tools.png')});
   for(const {type,id} of infoIds){
     const before=await page.evaluate(()=>JSON.stringify(GAME_STATE));
@@ -130,6 +130,22 @@ try{
     await page.locator('#inventoryDetailClose').tap();
     await page.waitForFunction(()=>!isInventoryDetailOpen()&&window.history.state?.pixelLifeOverlay==='inventory',null,{polling:50});
   }
+  await page.locator('[data-equip-id="axe.primordial"]').tap();
+  await page.evaluate(()=>{
+    if(GAME_STATE.progression.forestry.axeId!=='axe.primordial'||GAME_STATE.appearance.activeTool!=='axe')
+      throw new Error('Final axe does not equip');
+  });
+  await page.locator('[data-equip-id="rod.basic"]').tap();
+  await page.evaluate(()=>{
+    closeInventory({fromHistory:true});openMarket({shop:'workshop',fromHistory:true});
+    marketState.view='axes';renderMarket();
+    const cards=[...document.querySelectorAll('#marketList .marketEquipmentCard')];
+    if(cards.length!==10||!cards.some(card=>card.dataset.equipmentId==='axe.primordial')||
+      !document.getElementById('marketList').textContent.includes('임시 코인 레시피'))
+      throw new Error('Ten-stage axe shop is incomplete');
+  });
+  await page.screenshot({path:path.join(output,'small-axe-shop.png')});
+  await page.evaluate(()=>{closeMarket({fromHistory:true});openInventory({fromHistory:true});});
   await page.locator('[data-inventory-tab="appearance"]').tap();
   await page.evaluate(()=>saveGame());
   await page.reload();
@@ -157,10 +173,23 @@ try{
   await pc.locator('[data-inventory-info-id="axe.basic"]').focus();await pc.keyboard.press('Enter');
   await pc.keyboard.press('KeyX');
   await pc.waitForFunction(()=>!isInventoryDetailOpen(),null,{polling:50});
+  const debugContext=await browser.newContext({viewport:{width:393,height:780},isMobile:true,hasTouch:true});
+  const debugPage=await debugContext.newPage();debugPage.on('pageerror',error=>errors.push(error.message));
+  await debugPage.goto(base+'?debug');
+  await debugPage.waitForFunction(()=>typeof grantAllAxeDebug==='function'&&characterToolImgs['axe.primordial'],null,{polling:50});
+  await debugPage.locator('#axeDebugFunds').tap();
+  await debugPage.locator('#axeDebugGrant').tap();
+  await debugPage.locator('#axeDebugNext').tap();
+  await debugPage.evaluate(()=>{
+    if(GAME_STATE.progression.forestry.ownedAxeIds.length!==10||GAME_STATE.progression.coins<2000000||
+      getEquippedForestryAxe().id!=='axe.iron')throw new Error('Axe debug shortcuts failed');
+  });
+  await debugContext.close();
   if(errors.length)throw new Error(errors.join('\n'));
   const report={threeColumns:true,imageOnlyCards:true,separateInfoButtons:true,singleWeapon:true,appearanceGroups:['옷','가방'],
-    independentAppearanceEquip:true,unownedRejected:true,saveRollback:true,reload:true,allWeaponDetails:11,
-    historyBackForward:true,keyboard:true,viewports:['393x780','320x568','1100x900'],browserErrors:errors};
+    independentAppearanceEquip:true,unownedRejected:true,saveRollback:true,reload:true,allWeaponDetails:17,
+    tenAxeShop:true,finalAxeEquip:true,axeDebugShortcuts:true,historyBackForward:true,keyboard:true,
+    viewports:['393x780','320x568','1100x900'],browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log('Inventory UI QA passed: '+JSON.stringify(report));
 }finally{await browser.close();}

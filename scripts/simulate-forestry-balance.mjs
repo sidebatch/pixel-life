@@ -1,4 +1,4 @@
-// Design-only model. This file never changes the live game or saved data.
+// Read-only model. Axe damage/purchase values are live; future tree, durability and repair values are proposals.
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -28,9 +28,10 @@ const repairRatio=(index)=>{
   return axe.repair/(treesPerCycle*yieldCoins(previousTree));
 };
 
-// These are the values already shipped, not the proposed ten-stage numbers.
-assert.deepEqual(Array.from(current.FORESTRY_AXES,a=>a.damage),[20,40,50,80]);
-assert.deepEqual(Array.from(current.FORESTRY_AXES,a=>a.coins),[0,3600,11200,30000]);
+// The ten axes are live; tree HP and late-game material recipes remain provisional.
+assert.deepEqual(Array.from(current.FORESTRY_AXES,a=>a.damage),stages.map(stage=>stage.damage));
+assert.deepEqual(Array.from(current.FORESTRY_AXES,a=>a.coins),stages.map(stage=>stage.purchase));
+assert.equal(current.FORESTRY_AXES.length,10);
 assert.equal(current.FORESTRY_TREES.oak.maxHp,100);
 assert.equal(current.FORESTRY_TREES.maple.maxHp,120);
 assert.equal(current.FORESTRY_TREES.chestnut.maxHp,160);
@@ -49,7 +50,7 @@ for(let index=0;index<stages.length;index++){
   assert.ok(repairRatio(index)>=.05&&repairRatio(index)<=.12,`Stage ${stage.tier} repair burden`);
 }
 
-console.log('PROPOSAL ONLY — existing gameplay remains unchanged');
+console.log('LIVE AXES + PROPOSED TREES/DURABILITY — this script does not modify saves');
 console.log('| 단계 | 나무 HP | 도끼 피해 | 같은 단계 타수 | 기본 도끼 타수 | 목재가/개 | XP | 구매 코인 | 내구력/타격 | 완전 수리 코인 | 앞 단계 나무 판매액 대비 수리비 |');
 console.log('| ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: | ---: |');
 for(let index=0;index<stages.length;index++){

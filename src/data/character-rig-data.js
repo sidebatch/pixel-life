@@ -474,6 +474,42 @@ const CHARACTER_RIG=Object.freeze({
       "nativeAngle": -0.7853981633974483,
       "nativeLength": 65.05382386916237
     },
+    "axe.black_iron": {
+      "grip": [16,77],
+      "tip": [62,31],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
+    "axe.rune": {
+      "grip": [16,77],
+      "tip": [62,31],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
+    "axe.spirit": {
+      "grip": [16,77],
+      "tip": [62,31],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
+    "axe.moonlight": {
+      "grip": [16,77],
+      "tip": [62,31],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
+    "axe.starlight": {
+      "grip": [16,77],
+      "tip": [62,31],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
+    "axe.primordial": {
+      "grip": [16,77],
+      "tip": [62,31],
+      "nativeAngle": -0.7853981633974483,
+      "nativeLength": 65.05382386916237
+    },
     "rod.basic": {
       "grip": [
         21,

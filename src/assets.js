@@ -59,7 +59,13 @@ const FORESTRY_AXE_URLS = Object.freeze({
   basic:'assets/forestry/axes/basic.png',
   iron:'assets/forestry/axes/iron.png',
   steel:'assets/forestry/axes/steel.png',
-  master:'assets/forestry/axes/master.png'
+  master:'assets/forestry/axes/master.png',
+  black_iron:'assets/forestry/axes/black-iron.png',
+  rune:'assets/forestry/axes/rune.png',
+  spirit:'assets/forestry/axes/spirit.png',
+  moonlight:'assets/forestry/axes/moonlight.png',
+  starlight:'assets/forestry/axes/starlight.png',
+  primordial:'assets/forestry/axes/primordial.png'
 });
 const FISHING_ROD_URLS = Object.freeze({
   basic:'assets/fishing/rods/basic.png',
@@ -134,6 +140,12 @@ const CHARACTER_TOOL_URLS=Object.freeze({
   'axe.iron':'assets/player/rig-v1/tools/axe-iron.png',
   'axe.steel':'assets/player/rig-v1/tools/axe-steel.png',
   'axe.master':'assets/player/rig-v1/tools/axe-master.png',
+  'axe.black_iron':'assets/player/rig-v1/tools/axe-black-iron.png',
+  'axe.rune':'assets/player/rig-v1/tools/axe-rune.png',
+  'axe.spirit':'assets/player/rig-v1/tools/axe-spirit.png',
+  'axe.moonlight':'assets/player/rig-v1/tools/axe-moonlight.png',
+  'axe.starlight':'assets/player/rig-v1/tools/axe-starlight.png',
+  'axe.primordial':'assets/player/rig-v1/tools/axe-primordial.png',
   'rod.basic':'assets/player/rig-v1/tools/rod-basic.png',
   'rod.sturdy':'assets/player/rig-v1/tools/rod-sturdy.png',
   'rod.steel':'assets/player/rig-v1/tools/rod-steel.png',

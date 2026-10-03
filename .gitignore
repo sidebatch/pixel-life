@@ -11,6 +11,7 @@ output/forestry-tier1-qa/
 output/forestry-tier2-qa/
 output/forestry-tier3-qa/
 output/forest-expansion-qa/
+output/axe-10-qa/
 *.log
 .DS_Store
 Thumbs.db

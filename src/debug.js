@@ -31,6 +31,51 @@ function toggleWorldDebug(force){
   return worldDebugEnabled;
 }
 
+function prepareAxeDebugFunds(){
+  if(!worldDebugEnabled) return false;
+  const previousCoins=GAME_STATE.progression.coins;
+  const previousInventory=JSON.parse(JSON.stringify(GAME_STATE.inventory));
+  GAME_STATE.progression.coins=Math.max(GAME_STATE.progression.coins,2000000);
+  for(const axe of FORESTRY_AXES) for(const [id,count] of Object.entries(axe.materials)){
+    const missing=count-lifeItemCount('material',id);
+    if(missing>0) addLifeItem('material',id,missing);
+  }
+  if(saveGame()){
+    const coinCount=document.getElementById('coinCount');
+    if(coinCount) coinCount.textContent=GAME_STATE.progression.coins.toLocaleString();
+    showLifeToast('도끼 10종 구매 재화를 준비했어요');
+    return true;
+  }
+  GAME_STATE.progression.coins=previousCoins;
+  GAME_STATE.inventory=previousInventory;
+  return false;
+}
+
+function grantAllAxeDebug(){
+  if(!worldDebugEnabled) return false;
+  const previous={...GAME_STATE.progression.forestry,ownedAxeIds:[...(GAME_STATE.progression.forestry?.ownedAxeIds||[])]};
+  GAME_STATE.progression.forestry={...GAME_STATE.progression.forestry,ownedAxeIds:FORESTRY_AXES.map(axe=>axe.id)};
+  if(saveGame()){showLifeToast('도끼 10종을 가방에 넣었어요');return true;}
+  GAME_STATE.progression.forestry=previous;
+  return false;
+}
+
+function equipNextAxeDebug(){
+  if(!worldDebugEnabled) return false;
+  const owned=getOwnedForestryAxes();
+  const current=owned.findIndex(axe=>axe.id===getEquippedForestryAxe().id);
+  const next=owned[(current+1)%owned.length];
+  const equipped=equipForestryAxe(next.id);
+  if(equipped) showLifeToast(`${next.name} 장착 · 피해 ${next.damage}`);
+  return equipped;
+}
+
+if(typeof document!=='undefined'){
+  document.getElementById('axeDebugFunds')?.addEventListener('click',prepareAxeDebugFunds);
+  document.getElementById('axeDebugGrant')?.addEventListener('click',grantAllAxeDebug);
+  document.getElementById('axeDebugNext')?.addEventListener('click',equipNextAxeDebug);
+}
+
 function drawWorldDebug(){
   if(!worldDebugEnabled) return;
   const x0=Math.max(0,Math.floor(camX/TILE)-1), y0=Math.max(0,Math.floor(camY/TILE)-1);

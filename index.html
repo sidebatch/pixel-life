@@ -20,6 +20,11 @@
 <div id="app">
   <div id="gameShell">
     <canvas id="game" width="540" height="960"></canvas>
+    <div id="startupLoading" class="startupLoading" role="status" aria-live="polite">
+      <span class="startupLoadingSpinner" aria-hidden="true"></span>
+      <b>게임 준비 중</b>
+      <small>처음 한 번은 그림을 준비하느라 잠시 걸릴 수 있어요.</small>
+    </div>
     <div class="hud">
       <div class="topbar">
         <div class="locationPill glass">

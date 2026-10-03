@@ -10,6 +10,8 @@ function loop(now){
   update(dt);updateLifeContentUi(now);drawWorld();refreshContext();refreshCharacterPreviewVisibility();requestAnimationFrame(loop);
 }
 loadAll().then(()=>{
+  const startupLoading=document.getElementById('startupLoading');
+  if(startupLoading){startupLoading.classList.add('ready');setTimeout(()=>startupLoading.remove(),220);}
   if(CHARACTER_WALK_PREVIEW_ENABLED&&!CHARACTER_MASTER_PREVIEW_ENABLED){
     const panel=document.createElement('div');
     panel.dataset.characterPreviewPanel='true';
@@ -134,6 +136,9 @@ loadAll().then(()=>{
   }
   requestAnimationFrame(loop);
 }).catch(err=>{
-  console.error(err);document.getElementById('dialogText').textContent='이미지 로딩 중 문제가 발생했습니다.';
+  console.error(err);
+  const startupLoading=document.getElementById('startupLoading');
+  if(startupLoading){startupLoading.querySelector('b').textContent='게임을 준비하지 못했어요';startupLoading.querySelector('small').textContent='인터넷 연결을 확인한 뒤 앱을 완전히 닫고 다시 열어 주세요.';}
+  document.getElementById('dialogText').textContent='이미지 로딩 중 문제가 발생했습니다.';
   document.getElementById('dialog').classList.add('show');
 });

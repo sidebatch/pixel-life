@@ -169,10 +169,17 @@ for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/forestr
   const bytes=fs.readFileSync(path.join(root,assetPath));
   assert(bytes.subarray(0,8).equals(Buffer.from([137,80,78,71,13,10,26,10])),`Invalid PNG asset: ${assetPath}`);
   const actual=`${bytes.readUInt32BE(16)}x${bytes.readUInt32BE(20)}`;
-  const expected=assetPath.includes('/axes/')?'1254x1254':assetPath.includes('/chop/')?'640x1280':
+  const compactAxes=['black-iron','rune','spirit','moonlight','starlight','primordial'];
+  const compactAxe=compactAxes.some(id=>assetPath.endsWith(`/axes/${id}.png`));
+  const expected=compactAxe?'384x384':assetPath.includes('/axes/')?'1254x1254':assetPath.includes('/chop/')?'640x1280':
     assetPath.includes('/trees/')?'120x144':'96x96';
   assert(actual===expected,`Wrong life asset size: ${assetPath} (${actual}, expected ${expected})`);
   assert([4,6].includes(bytes[25]),`Life asset must have an alpha channel: ${assetPath}`);
+}
+for(const id of ['black-iron','rune','spirit','moonlight','starlight','primordial']){
+  const sourcePath=path.join(root,'assets','forestry','axes','source',`${id}-1254.png`);
+  const source=decodePNG(fs.readFileSync(sourcePath));
+  assert(source.width===1254&&source.height===1254,`Missing high-resolution axe source: ${id}`);
 }
 for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/fishing/rods/'))){
   const bytes=fs.readFileSync(path.join(root,assetPath));

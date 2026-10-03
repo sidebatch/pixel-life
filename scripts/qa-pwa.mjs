@@ -81,6 +81,12 @@ try{
     if(state!=='complete')throw new Error(state);
     return state;
   },'Game page did not load');
+  const pageContext=await retry(async()=>{
+    const context=await evaluate(`({href:location.href,title:document.title,secure:isSecureContext,
+      serviceWorkerSupported:'serviceWorker' in navigator,body:(document.body?.innerText||'').slice(0,120)})`);
+    if(!context.serviceWorkerSupported)throw new Error(JSON.stringify(context));
+    return context;
+  },'Service workers are not available on the loaded page');
 
   const online=await evaluate(`(async()=>{
     const registration=await navigator.serviceWorker.ready;
@@ -111,7 +117,7 @@ try{
   if(offline.title!=='Pixel Life'||!offline.controlled||offline.audioStatus!==206||offline.audioBytes!==100)
     throw new Error(`Offline reload failed: ${JSON.stringify(offline)}`);
 
-  console.log(JSON.stringify({browser:path.basename(browserPath),online,manifestUrl:manifest.url,
+  console.log(JSON.stringify({browser:path.basename(browserPath),pageContext,online,manifestUrl:manifest.url,
     installabilityErrors:installability,offline},null,2));
 }finally{
   try{socket?.close();}catch(_){}

@@ -94,19 +94,23 @@ try{
     const names=await caches.keys();
     const entries=[];
     for(const name of names)for(const request of await (await caches.open(name)).keys())entries.push(new URL(request.url).pathname);
+    const manifestUrl=document.querySelector('link[rel="manifest"]').href;
+    const appManifest=await fetch(manifestUrl).then(response=>response.json());
     return {controlled:Boolean(navigator.serviceWorker.controller),scope:registration.scope,names,entries,title:document.title,
-      installButtonHidden:document.getElementById('installAppBtn')?.hidden};
+      installButtonHidden:document.getElementById('installAppBtn')?.hidden,manifestUrl,
+      manifestId:appManifest.id,startUrl:appManifest.start_url};
   })()`);
   const manifest=await send('Page.getAppManifest');
   let installability=[];
   try{installability=(await send('Page.getInstallabilityErrors')).installabilityErrors||[];}catch(_){/* Older Chromium */}
-  if(!online.controlled||!online.names.some(name=>name.startsWith('pixel-life-'))||online.entries.length<7)
+  if(!online.controlled||!online.names.some(name=>name.startsWith('pixel-life-'))||online.entries.length<7||
+    online.manifestId!=='./?app=pixel-life-v2'||online.startUrl!=='./?source=pwa-v2')
     throw new Error(`Incomplete PWA cache: ${JSON.stringify(online)}`);
   if((manifest.errors||[]).length)throw new Error(`Manifest errors: ${JSON.stringify(manifest.errors)}`);
 
   await send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});
   const loaded=waitEvent('Page.loadEventFired');
-  await send('Page.reload');
+  await send('Page.navigate',{url:new URL(online.startUrl,online.manifestUrl).href});
   await loaded;
   const offline=await evaluate(`(async()=>{
     try{

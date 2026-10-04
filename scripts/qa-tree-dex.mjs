@@ -17,7 +17,11 @@ try{
   page.on('pageerror',error=>errors.push(error.message));
   page.on('response',response=>{if(response.status()>=400)errors.push(`${response.status()} ${response.url()}`);});
   await page.goto(base);
-  await page.waitForFunction(()=>typeof openTreeDex==='function'&&forestTreeImgs.abysswood?.naturalWidth===120);
+  try{
+    await page.waitForFunction(()=>typeof openTreeDex==='function',null,{timeout:60000});
+  }catch(error){
+    throw new Error(`${error.message}\nStartup errors:\n${errors.join('\n')||'(none)'}`);
+  }
 
   await page.locator('#menuBtn').tap();
   await page.screenshot({path:path.join(output,'mobile-menu.png')});

@@ -3,44 +3,11 @@ import path from 'node:path';
 import crypto from 'node:crypto';
 
 const root = process.cwd();
-const scriptFiles = [
-  'src/assets.js',
-  'src/data/character-rig-data.js',
-  'src/data/world-map.js',
-  'src/data/region-maps.js',
-  'src/data/fish-data.js',
-  'src/data/fishing-gear-data.js',
-  'src/data/life-skill-data.js',
-  'src/data/life-content-data.js',
-  'src/data/sword-data.js',
-  'src/world-time.js',
-  'src/weather.js',
-  'src/config.js',
-  'src/life-skills.js',
-  'src/save.js',
-  'src/world.js',
-  'src/world-validation.js',
-  'src/simulation.js',
-  'src/life-content.js',
-  'src/sword.js',
-  'src/debug.js',
-  'src/rendering.js',
-  'src/character.js',
-  'src/interactions.js',
-  'src/fishing-effects.js',
-  'src/region-music.js',
-  'src/fishing.js',
-  'src/skill-ui.js',
-  'src/fish-dex.js',
-  'src/fishing-gear.js',
-  'src/inventory.js',
-  'src/market.js',
-  'src/character-style.js',
-  'src/pwa.js',
-  'src/main.js'
-];
-
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
+const sourceHtml=read('index.html');
+const sourceScriptBlock=sourceHtml.match(/<!-- build:scripts -->([\s\S]*?)<!-- \/build:scripts -->/)?.[1]||'';
+const scriptFiles=[...sourceScriptBlock.matchAll(/<script src="([^"]+)"><\/script>/g)].map(match=>match[1]);
+if(!scriptFiles.length)throw new Error('No source scripts found in the build block');
 const assetPattern = /(['"])(assets\/[A-Za-z0-9_./-]+\.(?:png|mp3))\1/g;
 
 let scripts = scriptFiles.map(read).join('\n');
@@ -52,7 +19,7 @@ scripts = scripts.replace(assetPattern, (_match, quote, relativePath) => {
   return `${quote}data:${mimeType};base64,${bytes.toString('base64')}${quote}`;
 });
 
-let html = read('index.html');
+let html = sourceHtml;
 const css = read('styles/game.css');
 html = html.replace(
   /<!-- build:styles -->[\s\S]*?<!-- \/build:styles -->/,

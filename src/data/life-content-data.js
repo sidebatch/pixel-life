@@ -88,13 +88,20 @@ const FORESTRY_AXES=Object.freeze([
   Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:70,asset:'steel',coins:11200,materials:Object.freeze({maple_log:54,spruce_log:42,willow_log:36})}),
   // Keep axe.master for save compatibility; only its player-facing name changes.
   Object.freeze({id:'axe.master',name:'청금 도끼',tier:4,damage:90,asset:'master',coins:30000,materials:Object.freeze({cypress_log:60,broadleaf_log:50})}),
-  // Tier 5-10 recipes stay coin-only until material quantities are finalized after map QA.
-  Object.freeze({id:'axe.black_iron',name:'흑철 도끼',tier:5,damage:125,asset:'black_iron',coins:65000,materials:Object.freeze({}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.rune',name:'룬 도끼',tier:6,damage:175,asset:'rune',coins:115000,materials:Object.freeze({}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.spirit',name:'정령 도끼',tier:7,damage:240,asset:'spirit',coins:180000,materials:Object.freeze({}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.moonlight',name:'달빛 도끼',tier:8,damage:330,asset:'moonlight',coins:270000,materials:Object.freeze({}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.starlight',name:'별빛 도끼',tier:9,damage:450,asset:'starlight',coins:390000,materials:Object.freeze({}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.primordial',name:'태초의 도끼',tier:10,damage:620,asset:'primordial',coins:550000,materials:Object.freeze({}),provisionalRecipe:true})
+  // Every late axe uses only wood reachable with the immediately previous axe.
+  // Counts remain provisional until the final end-to-end balance pass.
+  Object.freeze({id:'axe.black_iron',name:'흑철 도끼',tier:5,damage:125,asset:'black_iron',coins:65000,
+    materials:Object.freeze({ash_log:30,teak_log:28,mahogany_log:26,mango_log:24}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.rune',name:'룬 도끼',tier:6,damage:175,asset:'rune',coins:115000,
+    materials:Object.freeze({baobab_log:22,sequoia_log:22,black_locust_log:20,hickory_log:20,eucalyptus_log:18}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.spirit',name:'정령 도끼',tier:7,damage:240,asset:'spirit',coins:180000,
+    materials:Object.freeze({olive_log:20,purpleheart_log:20,jatoba_log:18,spotted_gum_log:17,ironbark_log:15}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.moonlight',name:'달빛 도끼',tier:8,damage:330,asset:'moonlight',coins:270000,
+    materials:Object.freeze({cumaru_log:18,ipe_log:18,quebracho_log:16,african_blackwood_log:14,lignum_vitae_log:14}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.starlight',name:'별빛 도끼',tier:9,damage:450,asset:'starlight',coins:390000,
+    materials:Object.freeze({ancient_zelkova_log:16,amber_cedar_log:16,silverbark_log:14,spiralwood_log:14,moonshade_log:12}),provisionalRecipe:true}),
+  Object.freeze({id:'axe.primordial',name:'태초의 도끼',tier:10,damage:620,asset:'primordial',coins:550000,
+    materials:Object.freeze({spirit_ancient_log:14,starlight_tree_log:14,moonveil_log:12,crystal_leaf_log:12,whisperwood_log:10}),provisionalRecipe:true})
 ]);
 const FORESTRY_AXE_BY_ID=new Map(FORESTRY_AXES.map(axe=>[axe.id,axe]));
 const DEFAULT_FORESTRY_AXE_ID='axe.basic';

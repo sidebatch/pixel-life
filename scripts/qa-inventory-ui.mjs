@@ -141,7 +141,7 @@ try{
     marketState.view='axes';renderMarket();
     const cards=[...document.querySelectorAll('#marketList .marketEquipmentCard')];
     if(cards.length!==10||!cards.some(card=>card.dataset.equipmentId==='axe.primordial')||
-      !document.getElementById('marketList').textContent.includes('임시 코인 레시피'))
+    !document.getElementById('marketList').textContent.includes('목재 수량은 전체 밸런스 전 임시값'))
       throw new Error('Ten-stage axe shop is incomplete');
   });
   await page.screenshot({path:path.join(output,'small-axe-shop.png')});

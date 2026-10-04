@@ -949,9 +949,13 @@ assert(vm.runInContext(`FORESTRY_AXES[1].coins===3600&&FORESTRY_AXES[1].material
   FORESTRY_AXES[2].coins===11200&&FORESTRY_AXES[2].materials.maple_log===54&&
   FORESTRY_AXES[3].coins===30000&&FORESTRY_AXES[3].materials.cypress_log===60&&
   FORESTRY_AXES.length===10&&FORESTRY_AXES.map(axe=>axe.damage).join(',')==='20,50,70,90,125,175,240,330,450,620'&&
-  FORESTRY_AXES.slice(4).every(axe=>axe.provisionalRecipe&&Object.keys(axe.materials).length===0)&&
+  FORESTRY_AXES.slice(4).every(axe=>axe.provisionalRecipe&&Object.keys(axe.materials).length>=4&&
+    Object.entries(axe.materials).every(([id,count])=>id.endsWith('_log')&&Number.isInteger(count)&&count>0&&
+      FORESTRY_TREES[id.slice(0,-4)]?.tier===axe.tier-1))&&
+  FORESTRY_AXES[4].materials.ash_log===30&&FORESTRY_AXES[4].materials.mango_log===24&&
+  FORESTRY_AXES[9].materials.spirit_ancient_log===14&&FORESTRY_AXES[9].materials.whisperwood_log===10&&
   FORESTRY_AXES[9].id==='axe.primordial'&&FORESTRY_AXES[9].coins===550000`,lifeContext),
-  'All ten axe tiers and their current recipes must stay registered');
+  'All ten axe tiers must use registered wood from the immediately previous tier');
 assert(vm.runInContext(`lifeItemName('material','log')==='일반 목재'&&
   FOREST_SPECIES.every(species=>lifeItemName('material',species+'_log')===FOREST_WOOD[species])&&
   FOREST_WOOD.cypress==='편백나무'&&FOREST_WOOD.cedar==='삼나무'&&
@@ -1032,6 +1036,19 @@ assert(lifeContext.__masterNext==='axe.master'&&lifeContext.__masterBought&&
   lifeContext.__masterBeforeEquip==='axe.steel'&&lifeContext.__masterEquipped&&lifeContext.__masterDamage===90&&
   lifeContext.GAME_STATE.progression.coins===2000&&vm.runInContext(`nextForestryAxe().id==='axe.black_iron'`,lifeContext),
   'Tier-4 axe must cost reachable tier-3 wood, remain unequipped until selected, and unlock tier 5');
+vm.runInContext(`globalThis.__lateAxePurchases=[];
+  for(const axe of FORESTRY_AXES.slice(4)){
+    GAME_STATE.progression.coins=axe.coins;
+    for(const [id,count] of Object.entries(axe.materials))addLifeItem('material',id,count);
+    const bought=upgradeForestryAxe(axe.id);
+    __lateAxePurchases.push({id:axe.id,bought,coins:GAME_STATE.progression.coins,
+      consumed:Object.keys(axe.materials).every(id=>lifeItemCount('material',id)===0),
+      equipped:GAME_STATE.progression.forestry.axeId});
+  }`,lifeContext);
+assert(lifeContext.__lateAxePurchases.length===6&&lifeContext.__lateAxePurchases.every(result=>
+  result.bought&&result.coins===0&&result.consumed&&result.equipped==='axe.steel')&&
+  lifeContext.GAME_STATE.progression.forestry.ownedAxeIds.length===10&&vm.runInContext('nextForestryAxe()===null',lifeContext),
+  'Tier 5-10 upgrades must consume reachable wood in order without auto-equipping the purchase');
 vm.runInContext(`GAME_STATE.progression.logging=lifeSkillProgressFromTotal('logging',65);GAME_STATE.regionId='oldForest';`+
   `const levelTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_03');`+
   `hitResourceTree(levelTree);`+
@@ -1495,7 +1512,7 @@ assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
   seedMarketNodes.marketList.innerHTML.includes('참나무 ×60')&&
   seedMarketNodes.marketList.innerHTML.includes('코인 ×3,600')&&
   seedMarketNodes.marketList.innerHTML.includes('부족: 참나무 60개')&&
-  seedMarketNodes.marketList.innerHTML.includes('임시 코인 레시피')&&
+  seedMarketNodes.marketList.innerHTML.includes('목재 수량은 전체 밸런스 전 임시값')&&
   !seedMarketNodes.marketList.innerHTML.includes('0/60')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled')&&
   seedMarketNodes.marketStock.textContent.includes('기본 도끼'),

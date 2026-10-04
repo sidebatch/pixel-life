@@ -196,7 +196,7 @@ function renderForestryMarket(){
     const costs=owned?'':Object.entries(axe.materials).map(([id,count])=>
       equipmentCostChip(FOREST_WOOD[id.slice(0,-4)],lifeItemCount('material',id),count)).join('')+
       equipmentCostChip('코인',GAME_STATE.progression.coins,axe.coins);
-    const recipeNote=axe.provisionalRecipe?'최종 재료 수량을 정하기 전까지 사용하는 임시 코인 레시피예요.':'';
+    const recipeNote=axe.provisionalRecipe?'목재 수량은 전체 밸런스 전 임시값이에요.':'';
     const note=owned?`가방의 장비 탭에서 장착할 수 있어요.${recipeNote?` ${recipeNote}`:''}`:
       !available?`이전 도끼를 먼저 구매해 주세요.${recipeNote?` ${recipeNote}`:''}`:
       missing.length?`부족: ${missing.join(' · ')}${recipeNote?` · ${recipeNote}`:''}`:

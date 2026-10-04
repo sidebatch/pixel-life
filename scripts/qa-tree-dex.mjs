@@ -33,8 +33,12 @@ try{
       throw new Error('Fresh tree dex does not show 50 undiscovered species');
     if(cards.some(card=>!card.classList.contains('undiscovered')||!card.querySelector('.treeDexSilhouette')))
       throw new Error('Fresh tree dex reveals an undiscovered species');
+    const tabBoxes=tabs.map(tab=>tab.getBoundingClientRect());
+    const tabRows=[...new Set(tabBoxes.map(box=>Math.round(box.top)))];
+    const panel=document.getElementById('treeDexPanel').getBoundingClientRect();
     if(tabs.map(tab=>tab.textContent.trim()).join('|')!=='전체|새싹의 숲|거목의 경계|강철의 대삼림|정령의 성역|태초의 심연'||
-      Math.max(...tabs.map(tab=>tab.getBoundingClientRect().width))-Math.min(...tabs.map(tab=>tab.getBoundingClientRect().width))>1)
+      Math.max(...tabBoxes.map(box=>box.width))-Math.min(...tabBoxes.map(box=>box.width))>1||tabRows.length!==2||
+      tabBoxes.some(box=>box.left<panel.left||box.right>panel.right))
       throw new Error('Tree world tabs are not simple, matching controls');
   });
   await page.screenshot({path:path.join(output,'mobile-undiscovered.png')});

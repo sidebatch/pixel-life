@@ -67,6 +67,7 @@ function interact(){
   showDialog('SYSTEM','조사할 것이 없다.');
 }
 function pressB(){
+  if(typeof isTreeDiscoveryOpen==='function'&&isTreeDiscoveryOpen()) return;
   if(typeof isSkillLevelUpVisible==='function'&&isSkillLevelUpVisible()) dismissSkillLevelUp();
   else if(typeof isCharacterStyleOpen==='function'&&isCharacterStyleOpen()) closeCharacterStyle();
   else if(dialogOpen) closeDialog();

@@ -104,7 +104,7 @@ assert(trialContext.__trialValid&&!trialContext.__trialInvalid&&trialContext.__t
   'Trial parts must switch independently through appearance IDs without changing saved game state');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 18, 'Fish dex, tree dex, inventory, appearance, and market tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 20, 'Fish dex, five-world tree dex, inventory, appearance, and market tabs must be accessible');
 const pwaManifest=JSON.parse(read('manifest.webmanifest'));
 assert(pwaManifest.display==='standalone'&&pwaManifest.orientation==='portrait-primary'&&
   pwaManifest.id==='./?app=pixel-life-v2'&&pwaManifest.start_url==='./?source=pwa-v2'&&pwaManifest.scope==='./'&&
@@ -456,11 +456,12 @@ assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fis
 assert(vm.runInContext(`balancedGameSoundLevel({numberOfChannels:1,getChannelData:()=>new Float32Array(128).fill(.5)})<
   balancedGameSoundLevel({numberOfChannels:1,getChannelData:()=>new Float32Array(128).fill(.02)})`,fishingEffectsContext),
   'Audio balancing must lower loud effects relative to quiet effects');
-vm.runInContext(`globalThis.__chop=playForestryChopSound();globalThis.__cut=playForestryChopSound(true);`,fishingEffectsContext);
-assert(fishingEffectsContext.__chop&&fishingEffectsContext.__cut&&audioProbe.oscillators===15&&
-  audioProbe.gains.some(gain=>gain.ramps?.includes(.23))&&audioProbe.gains.some(gain=>gain.ramps?.includes(.28))&&
-  audioProbe.gains.some(gain=>gain.ramps?.includes(.055)),
-  'Both chop sounds must have a stronger impact and a high-frequency attack audible on phone speakers');
+vm.runInContext(`globalThis.__chop=playForestryChopSound();globalThis.__cut=playForestryChopSound(true);`+
+  `globalThis.__treeDiscoverySound=playTreeDiscoverySound();`,fishingEffectsContext);
+assert(fishingEffectsContext.__chop&&fishingEffectsContext.__cut&&fishingEffectsContext.__treeDiscoverySound&&
+  audioProbe.oscillators===22&&audioProbe.gains.some(gain=>gain.ramps?.includes(.24))&&
+  audioProbe.gains.some(gain=>gain.ramps?.includes(.038))&&audioProbe.gains.some(gain=>gain.ramps?.includes(.31)),
+  'Forestry must use one shared wooden hit, add one low fall impact on completion, and play a three-note discovery chime');
 
 const bufferedProbe={loaded:[],started:[],stopped:0,resumed:0};
 class FakeBufferedAudioContext extends FakeAudioContext{
@@ -956,6 +957,11 @@ vm.createContext(lifeContext);
 vm.runInContext(`${read('src/assets.js')}\n${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n${read('src/life-content.js')}\n`,lifeContext);
 assert(vm.runInContext(`${read('src/data/tree-dex-data.js')}\nObject.keys(TREE_DEX_DESCRIPTIONS).length===50&&FOREST_SPECIES.every(species=>TREE_DEX_DESCRIPTIONS[species])`,lifeContext),
   'Every registered tree species must have a tree-dex description');
+assert(vm.runInContext(`TREE_DEX_WORLDS.length===5&&TREE_DEX_WORLDS.map(world=>world.minTier+'-'+world.maxTier).join(',')==='1-2,3-4,5-6,7-8,9-10'&&
+  TREE_DEX_WORLDS.map(world=>world.milestone).join(',')==='11,20,30,40,50'&&
+  TREE_DEX_WORLDS.every((world,index)=>world.order===index+1&&world.label.startsWith('제'+(index+1)+'세계')&&world.reward===null)&&
+  TREE_DEX_MILESTONE_POLICY.enabled&&TREE_DEX_MILESTONE_POLICY.rewardCategory==='permanent'&&TREE_DEX_MILESTONE_POLICY.rewardStatus==='undecided'`,lifeContext),
+  'Tree dex must use five clearly ordered worlds while permanent milestone rewards remain unassigned');
 assert(vm.runInContext(`FORESTRY_AXES[1].coins===3600&&FORESTRY_AXES[1].materials.oak_log===60&&
   FORESTRY_AXES[2].coins===11200&&FORESTRY_AXES[2].materials.maple_log===54&&
   FORESTRY_AXES[3].coins===30000&&FORESTRY_AXES[3].materials.cypress_log===60&&
@@ -1528,6 +1534,9 @@ assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
   seedMarketNodes.marketList.innerHTML.includes('코인 ×3,600')&&
   seedMarketNodes.marketList.innerHTML.includes('부족: 참나무 60개')&&
   seedMarketNodes.marketList.innerHTML.includes('목재 수량은 전체 밸런스 전 임시값')&&
+  seedMarketNodes.marketList.innerHTML.includes('3,600코인 · 목재 3종')&&
+  seedMarketNodes.marketList.innerHTML.includes('기본 도끼를 보유하면 제작이 열립니다')&&
+  !seedMarketNodes.marketList.innerHTML.includes('나무 피해')&&
   !seedMarketNodes.marketList.innerHTML.includes('0/60')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled')&&
   seedMarketNodes.marketStock.textContent.includes('기본 도끼'),

@@ -201,10 +201,12 @@ function renderForestryMarket(){
       !available?`이전 도끼를 먼저 구매해 주세요.${recipeNote?` ${recipeNote}`:''}`:
       missing.length?`부족: ${missing.join(' · ')}${recipeNote?` · ${recipeNote}`:''}`:
       `구매할 수 있어요.${recipeNote?` ${recipeNote}`:''}`;
+    const previousAxe=FORESTRY_AXES[axe.tier-2];
+    const materialKinds=Object.keys(axe.materials).length;
     return equipmentCardMarkup({id:axe.id,asset:FORESTRY_AXE_URLS[axe.asset],name:axe.name,
-      effect:`나무 피해 ${axe.damage} · ${axe.tier}단계 도끼`,
+      effect:axe.coins?`${axe.coins.toLocaleString()}코인${materialKinds?` · 목재 ${materialKinds}종`:''}`:'기본 지급',
       status:active?'장착 중':owned?'보유 중':available?'다음 도끼':'순서대로 구매',
-      details:axe.tier<=3?`${axe.tier}단계 나무까지 벨 수 있어요.`:`현재 나무를 더 빠르게 베고, 맵에 배치된 ${axe.tier}단계 나무도 벨 수 있어요.`,
+      details:previousAxe?`${previousAxe.name}를 보유하면 제작이 열립니다.`:'처음부터 사용할 수 있는 기본 장비입니다.',
       costs,note,active,open:available,
       action:owned?'':`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${axe.name} 구매</button>`});
   }).join('');

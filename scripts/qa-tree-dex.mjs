@@ -45,20 +45,39 @@ try{
   await page.locator('#treeDexClose').tap();
   await page.waitForFunction(()=>!isTreeDexOpen());
 
-  const chopReport=await page.evaluate(()=>{
+  const firstChop=await page.evaluate(()=>{
     enterWorldRegion({to:'oldForest',entry:{x:31,y:44,face:'up'}});
     GAME_STATE.progression.forestry={axeId:'axe.basic',ownedAxeIds:['axe.basic']};
     GAME_STATE.appearance.activeTool='axe';
     const oakTrees=trees.filter(tree=>tree.species==='oak'&&tree.interactable).slice(0,2);
     if(oakTrees.length<2)throw new Error('Two oak trees are required for collection QA');
-    for(const tree of oakTrees){
-      const hits=Math.ceil(FORESTRY_TREES.oak.maxHp/FORESTRY_AXES[0].damage);
-      for(let hit=0;hit<hits;hit++)if(!hitResourceTree(tree))throw new Error('Oak chop failed');
-    }
+    const hits=Math.ceil(FORESTRY_TREES.oak.maxHp/FORESTRY_AXES[0].damage);
+    for(let hit=0;hit<hits;hit++)if(!hitResourceTree(oakTrees[0]))throw new Error('First oak chop failed');
     const record=getTreeCollectionRecord('oak');
-    if(record?.count!==2||getDiscoveredTreeCount()!==1)throw new Error('Tree collection count did not update');
+    if(record?.count!==1||getDiscoveredTreeCount()!==1)throw new Error('First tree discovery did not update');
     return {count:record.count,logs:lifeItemCount('material','oak_log')};
   });
+  await page.waitForFunction(()=>isTreeDiscoveryOpen());
+  await page.evaluate(()=>{
+    const text=document.getElementById('treeDiscoveryOverlay').textContent;
+    if(!text.includes('참나무')||!text.includes('제1세계 · 새싹의 숲')||
+      !text.includes('확인하고 닫기'))throw new Error('First discovery card is incomplete');
+  });
+  await page.screenshot({path:path.join(output,'first-tree-discovery.png')});
+  await page.keyboard.press('Escape');
+  if(!await page.evaluate(()=>isTreeDiscoveryOpen()))throw new Error('Discovery card closed without its close button');
+  await page.locator('#treeDiscoveryClose').tap();
+  await page.waitForFunction(()=>!isTreeDiscoveryOpen());
+
+  const chopReport=await page.evaluate((firstChop)=>{
+    const tree=trees.filter(item=>item.species==='oak'&&item.interactable)[1];
+    const hits=Math.ceil(FORESTRY_TREES.oak.maxHp/FORESTRY_AXES[0].damage);
+    for(let hit=0;hit<hits;hit++)if(!hitResourceTree(tree))throw new Error('Repeated oak chop failed');
+    const record=getTreeCollectionRecord('oak');
+    if(record?.count!==2||getDiscoveredTreeCount()!==1||isTreeDiscoveryOpen())
+      throw new Error('Repeated species showed discovery again or failed to count');
+    return {count:record.count,logs:lifeItemCount('material','oak_log'),firstDiscovery:firstChop};
+  },firstChop);
 
   await page.locator('#menuBtn').tap();
   await page.locator('#openTreeDexBtn').tap();
@@ -81,11 +100,18 @@ try{
   await page.goBack();
   await page.waitForFunction(()=>isTreeDexOpen()&&!isTreeDexDetailOpen());
 
-  const filterCounts={early:16,middle:19,late:15};
+  const filterCounts={world1:11,world2:9,world3:10,world4:10,world5:10};
   for(const [filter,count] of Object.entries(filterCounts)){
     await page.locator(`[data-tree-filter="${filter}"]`).tap();
     const actual=await page.locator('#treeDexGrid [data-tree-species]').count();
     if(actual!==count)throw new Error(`${filter} filter expected ${count}, got ${actual}`);
+    if(filter==='world1'){
+      const teaser=await page.locator('.treeDexNextWorld');
+      if(!await teaser.textContent().then(text=>text.includes('제2세계 · 거목의 경계'))||await teaser.locator('img').count()!==3)
+        throw new Error('Next-world silhouette teaser is missing');
+      await teaser.scrollIntoViewIfNeeded();
+      await page.screenshot({path:path.join(output,'world1-next-world-teaser.png')});
+    }
   }
   await page.locator('[data-tree-filter="all"]').tap();
   await page.setViewportSize({width:320,height:568});

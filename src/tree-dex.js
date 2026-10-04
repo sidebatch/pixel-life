@@ -1,7 +1,9 @@
-const treeDexState={open:false,detailOpen:false,filter:'all',selectedSpecies:null};
+const treeDexState={open:false,detailOpen:false,filter:'all',selectedSpecies:null,
+  discoveryOpen:false,discoverySpecies:null,returnMenuOpen:false};
 
 function isTreeDexOpen(){return treeDexState.open;}
 function isTreeDexDetailOpen(){return treeDexState.detailOpen;}
+function isTreeDiscoveryOpen(){return treeDexState.discoveryOpen;}
 
 function treeDexEntries(){
   return FOREST_SPECIES.map((species,index)=>({species,index,name:FOREST_WOOD[species],...FORESTRY_TREES[species]}))
@@ -10,10 +12,18 @@ function treeDexEntries(){
 
 function treeDexList(){
   const entries=treeDexEntries();
-  if(treeDexState.filter==='early')return entries.filter(tree=>tree.tier<=3);
-  if(treeDexState.filter==='middle')return entries.filter(tree=>tree.tier>=4&&tree.tier<=7);
-  if(treeDexState.filter==='late')return entries.filter(tree=>tree.tier>=8);
+  const world=TREE_DEX_WORLDS.find(item=>item.id===treeDexState.filter);
+  if(world)return entries.filter(tree=>tree.tier>=world.minTier&&tree.tier<=world.maxTier);
   return entries;
+}
+
+function treeDexWorldForTier(tier){
+  return TREE_DEX_WORLDS.find(world=>tier>=world.minTier&&tier<=world.maxTier)||TREE_DEX_WORLDS[0];
+}
+
+function treeDexWorldProgress(world){
+  const entries=treeDexEntries().filter(tree=>tree.tier>=world.minTier&&tree.tier<=world.maxTier);
+  return {found:entries.filter(tree=>getTreeCollectionRecord(tree.species)).length,total:entries.length};
 }
 
 function treeDexRegionNames(species){
@@ -29,8 +39,13 @@ function treeDexLogImage(species){return LIFE_ITEM_URLS[`${species}Log`];}
 function renderTreeDexSummary(discovered){
   const percent=Math.round(discovered/FOREST_SPECIES.length*100);
   const summary=document.getElementById('treeDexSummary');
-  summary.className=`fishDexReward treeDexSummary${discovered===FOREST_SPECIES.length?' complete':''}`;
-  summary.innerHTML=`<div><small>${discovered===FOREST_SPECIES.length?'COLLECTION COMPLETE':'벌목 발견 기록'}</small><b>${discovered===FOREST_SPECIES.length?'🌳 모든 나무를 발견했어요!':'🪵 나무를 완전히 베면 도감에 등록돼요'}</b><i><span style="width:${percent}%"></span></i></div><span>${percent}%</span>`;
+  const nextWorld=TREE_DEX_WORLDS.find(world=>{
+    const progress=treeDexWorldProgress(world);
+    return progress.found<progress.total;
+  });
+  const progress=nextWorld?treeDexWorldProgress(nextWorld):null;
+  summary.className=`fishDexReward treeDexSummary${nextWorld?'':' complete'}`;
+  summary.innerHTML=`<div><small>${nextWorld?`${nextWorld.label} · ${progress.found}/${progress.total}`:'FIVE WORLDS COMPLETE'}</small><b>${nextWorld?'🪵 이 세계의 나무를 모두 기록해 보세요':'🌳 다섯 세계의 나무를 모두 발견했어요!'}</b><i><span style="width:${percent}%"></span></i></div><span>${percent}%</span>`;
 }
 
 function renderTreeDexDetail(tree){
@@ -38,17 +53,18 @@ function renderTreeDexDetail(tree){
   const record=getTreeCollectionRecord(tree.species);
   const regions=treeDexRegionNames(tree.species);
   const requiredAxe=FORESTRY_AXES[tree.tier-1];
+  const world=treeDexWorldForTier(tree.tier);
   if(!record){
     detail.className='fishDexDetail treeDexDetail undiscovered';
     detail.innerHTML=`
-      <div class="fishDexDetailHero treeDexDetailHero"><span><img class="treeDexSilhouette" src="${treeDexImage(tree.species)}" alt=""></span><div><small>미발견 · ${tree.tier}단계</small><h3>???</h3></div></div>
+      <div class="fishDexDetailHero treeDexDetailHero"><span><img class="treeDexSilhouette" src="${treeDexImage(tree.species)}" alt=""></span><div><small>${world.label} · ${tree.tier}단계</small><h3>???</h3></div></div>
       <p>아직 발견하지 못한 나무입니다. 직접 완전히 베어 도감에 기록해 보세요.</p>
       <div class="fishDexHint"><b>발견 힌트</b><span>🗺️ ${regions.join(' · ')||`${tree.tier}단계 숲`}</span><span>🪓 ${requiredAxe.name} 이상 필요</span></div>`;
     return;
   }
   detail.className=`fishDexDetail treeDexDetail tree-tier-${tree.tier}`;
   detail.innerHTML=`
-    <div class="fishDexDetailHero treeDexDetailHero"><span><img src="${treeDexImage(tree.species)}" alt=""></span><div><small>${tree.tier>=8?'환상 수종':'실제 수종'} · ${tree.tier}단계</small><h3>${tree.name}</h3></div></div>
+    <div class="fishDexDetailHero treeDexDetailHero"><span><img src="${treeDexImage(tree.species)}" alt=""></span><div><small>${world.label} · ${tree.tier}단계</small><h3>${tree.name}</h3></div></div>
     <p>${TREE_DEX_DESCRIPTIONS[tree.species]||'벌목 도감에 기록된 나무입니다.'}</p>
     <div class="fishDexStats">
       <div><span>벤 횟수</span><b>${record.count.toLocaleString()}그루</b></div>
@@ -58,6 +74,20 @@ function renderTreeDexDetail(tree){
     </div>
     <div class="treeDexWood"><img src="${treeDexLogImage(tree.species)}" alt=""><span><small>획득 목재</small><b>${tree.name} 목재 · 1~3개</b></span></div>
     <div class="fishDexConditions"><span>🗺️ ${regions.join(' · ')||'숲'}</span><span>🪓 ${requiredAxe.name} 이상</span></div>`;
+}
+
+function treeDexNextWorldTeaser(){
+  const index=TREE_DEX_WORLDS.findIndex(world=>world.id===treeDexState.filter);
+  if(index<0||index>=TREE_DEX_WORLDS.length-1)return '';
+  const next=TREE_DEX_WORLDS[index+1];
+  const silhouettes=treeDexEntries()
+    .filter(tree=>tree.tier>=next.minTier&&tree.tier<=next.maxTier)
+    .slice(0,3)
+    .map(tree=>`<img src="${treeDexImage(tree.species)}" alt="">`).join('');
+  return `<aside class="treeDexNextWorld" aria-label="다음 세계 미리보기">
+    <div class="treeDexNextSilhouettes" aria-hidden="true">${silhouettes}</div>
+    <span><small>NEXT WORLD</small><b>${next.label}</b><em>${next.minTier}–${next.maxTier}단계의 새로운 나무</em></span>
+  </aside>`;
 }
 
 function renderTreeDex(){
@@ -76,8 +106,44 @@ function renderTreeDex(){
       <span class="fishDexCardIcon treeDexCardIcon"><img class="${found?'':'treeDexSilhouette'}" src="${treeDexImage(tree.species)}" alt=""></span>
       <b>${found?tree.name:'???'}</b><small>${found?`${tree.tier}단계`:'미발견'}</small>
     </button>`;
-  }).join('');
+  }).join('')+treeDexNextWorldTeaser();
   grid.querySelectorAll('[data-tree-species]').forEach(button=>button.addEventListener('click',()=>openTreeDexDetail(button.dataset.treeSpecies)));
+}
+
+function showTreeDiscoveryReveal(species){
+  const tree=treeDexEntries().find(item=>item.species===species);
+  if(!tree||treeDexState.discoveryOpen)return false;
+  const world=treeDexWorldForTier(tree.tier);
+  treeDexState.discoveryOpen=true;
+  treeDexState.discoverySpecies=species;
+  treeDexState.returnMenuOpen=menuOpen;
+  menuOpen=true;
+  clearMovement();
+  document.getElementById('treeDiscoveryImage').src=treeDexImage(species);
+  document.getElementById('treeDiscoveryImage').alt=`${tree.name} 나무`;
+  document.getElementById('treeDiscoveryWorld').textContent=`${world.label} · ${tree.tier}단계`;
+  document.getElementById('treeDiscoveryTitle').textContent=tree.name;
+  document.getElementById('treeDiscoveryDescription').textContent=TREE_DEX_DESCRIPTIONS[species]||'새로운 나무가 도감에 기록되었습니다.';
+  const overlay=document.getElementById('treeDiscoveryOverlay');
+  overlay.classList.remove('show');
+  void overlay.offsetWidth;
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+  if(typeof playTreeDiscoverySound==='function')playTreeDiscoverySound();
+  document.getElementById('treeDiscoveryClose').focus();
+  return true;
+}
+
+function closeTreeDiscoveryReveal(){
+  if(!treeDexState.discoveryOpen)return false;
+  treeDexState.discoveryOpen=false;
+  const overlay=document.getElementById('treeDiscoveryOverlay');
+  overlay.classList.remove('show');
+  overlay.setAttribute('aria-hidden','true');
+  menuOpen=treeDexState.returnMenuOpen;
+  treeDexState.returnMenuOpen=false;
+  document.getElementById('btnA')?.focus({preventScroll:true});
+  return true;
 }
 
 function openTreeDexDetail(species,options={}){
@@ -130,6 +196,13 @@ function closeTreeDex(options={}){
 document.getElementById('openTreeDexBtn').addEventListener('click',openTreeDex);
 document.getElementById('treeDexClose').addEventListener('click',closeTreeDex);
 document.getElementById('treeDexModalClose').addEventListener('click',closeTreeDexDetail);
+document.getElementById('treeDiscoveryClose').addEventListener('click',closeTreeDiscoveryReveal);
+document.getElementById('treeDiscoveryOverlay').addEventListener('keydown',event=>{
+  if(event.key!=='Escape'&&event.key!=='Tab')return;
+  event.preventDefault();
+  event.stopPropagation();
+  document.getElementById('treeDiscoveryClose').focus();
+});
 document.querySelectorAll('[data-tree-filter]').forEach(button=>button.addEventListener('click',()=>{
   treeDexState.filter=button.dataset.treeFilter;
   treeDexState.selectedSpecies=null;

@@ -50,3 +50,21 @@ const TREE_DEX_DESCRIPTIONS=Object.freeze({
   dawncore:'검은 껍질 사이로 따뜻한 황금빛 중심부가 드러나는 희귀목이다.',
   abysswood:'거의 검은 줄기와 깊은 청자색 수관을 가진 최심부의 나무다.'
 });
+
+// Five ordered worlds make the collection feel like a journey instead of a
+// technical tier list. Rewards stay intentionally unset until their permanent
+// effects and presentation are approved together.
+const TREE_DEX_WORLDS=Object.freeze([
+  Object.freeze({id:'world1',order:1,name:'새싹의 숲',label:'제1세계 · 새싹의 숲',minTier:1,maxTier:2,milestone:11,reward:null}),
+  Object.freeze({id:'world2',order:2,name:'거목의 경계',label:'제2세계 · 거목의 경계',minTier:3,maxTier:4,milestone:20,reward:null}),
+  Object.freeze({id:'world3',order:3,name:'강철의 대삼림',label:'제3세계 · 강철의 대삼림',minTier:5,maxTier:6,milestone:30,reward:null}),
+  Object.freeze({id:'world4',order:4,name:'정령의 성역',label:'제4세계 · 정령의 성역',minTier:7,maxTier:8,milestone:40,reward:null}),
+  Object.freeze({id:'world5',order:5,name:'태초의 심연',label:'제5세계 · 태초의 심연',minTier:9,maxTier:10,milestone:50,reward:null})
+]);
+
+const TREE_DEX_MILESTONE_POLICY=Object.freeze({
+  enabled:true,
+  requirement:'complete-world',
+  rewardCategory:'permanent',
+  rewardStatus:'undecided'
+});

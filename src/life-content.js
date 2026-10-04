@@ -181,6 +181,7 @@ function hitResourceTree(tree){
   if(logs){
     showLifeToast(`${FOREST_WOOD[tree.species]} +${logs}개${firstDiscovery?' · 새 나무 도감!':''}`,{belowSkill:true});
     showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
+    if(firstDiscovery&&typeof showTreeDiscoveryReveal==='function')showTreeDiscoveryReveal(tree.species);
   }
   return true;
 }

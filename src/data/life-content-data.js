@@ -88,7 +88,7 @@ const FORESTRY_AXES=Object.freeze([
   Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:70,asset:'steel',coins:11200,materials:Object.freeze({maple_log:54,spruce_log:42,willow_log:36})}),
   // Keep axe.master for save compatibility; only its player-facing name changes.
   Object.freeze({id:'axe.master',name:'청금 도끼',tier:4,damage:90,asset:'master',coins:30000,materials:Object.freeze({cypress_log:60,broadleaf_log:50})}),
-  // Tier 5-10 recipes stay coin-only until their matching trees are reachable on maps.
+  // Tier 5-10 recipes stay coin-only until material quantities are finalized after map QA.
   Object.freeze({id:'axe.black_iron',name:'흑철 도끼',tier:5,damage:125,asset:'black_iron',coins:65000,materials:Object.freeze({}),provisionalRecipe:true}),
   Object.freeze({id:'axe.rune',name:'룬 도끼',tier:6,damage:175,asset:'rune',coins:115000,materials:Object.freeze({}),provisionalRecipe:true}),
   Object.freeze({id:'axe.spirit',name:'정령 도끼',tier:7,damage:240,asset:'spirit',coins:180000,materials:Object.freeze({}),provisionalRecipe:true}),

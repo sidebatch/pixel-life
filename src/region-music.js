@@ -6,7 +6,9 @@ const REGION_MUSIC_URLS=Object.freeze({
 });
 const REGION_MUSIC_TRACKS=Object.freeze({
   lilacVillage:'meadow',oldForest:'woodland',deepForest:'woodland',
-  forestThree:'woodland',forestFour:'woodland',forestFive:'woodland',sunnyFields:'lakeside'
+  forestThree:'woodland',forestFour:'woodland',forestFive:'woodland',forestSix:'woodland',
+  forestSeven:'woodland',forestEight:'woodland',forestNine:'woodland',forestTen:'woodland',
+  forestEleven:'woodland',forestTwelve:'woodland',sunnyFields:'lakeside'
 });
 const REGION_MUSIC_VOLUME=.3;
 const REGION_MUSIC_MUTE_KEY='pixel-life.music-muted.v1';

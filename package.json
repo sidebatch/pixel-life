@@ -10,6 +10,7 @@
     "icons:pwa": "node scripts/prepare-pwa-icons.mjs",
     "qa:pwa": "node scripts/qa-pwa.mjs",
     "qa:forestry:tiers": "node scripts/qa-forestry-tier4-10.mjs",
+    "qa:forestry:maps": "node scripts/qa-forestry-maps-tier4-10.mjs",
     "test": "npm run check && npm run build"
   },
   "engines": {

@@ -15,12 +15,22 @@ const FOREST_SPECIES=Object.freeze(Object.keys(FOREST_WOOD));
 // Keep the species of every pre-existing generated tree stable for old saves.
 const FOREST_LEGACY_STARTER_SPECIES=Object.freeze(['oak','pine','birch']);
 const FOREST_LEGACY_DEEP_SPECIES=Object.freeze(['maple','spruce','willow','cypress','broadleaf']);
+const FOREST_TIER_REGION_SPECIES=Object.freeze({
+  forestSix:Object.freeze(['oak','ash','teak','mahogany','mango']),
+  forestSeven:Object.freeze(['baobab','sequoia','black_locust','hickory','eucalyptus']),
+  forestEight:Object.freeze(['olive','purpleheart','jatoba','spotted_gum','ironbark']),
+  forestNine:Object.freeze(['cumaru','ipe','quebracho','african_blackwood','lignum_vitae']),
+  forestTen:Object.freeze(['ancient_zelkova','amber_cedar','silverbark','spiralwood','moonshade']),
+  forestEleven:Object.freeze(['spirit_ancient','starlight_tree','moonveil','crystal_leaf','whisperwood']),
+  forestTwelve:Object.freeze(['origin_tree','primal_ancient','worldroot','dawncore','abysswood'])
+});
 const FOREST_REGION_SPECIES=Object.freeze({
   oldForest:Object.freeze([...FOREST_LEGACY_STARTER_SPECIES,'paulownia','cedar']),
   deepForest:Object.freeze([...FOREST_LEGACY_DEEP_SPECIES,'ginkgo','larch','cherry','chestnut','walnut','zelkova']),
   forestThree:Object.freeze(FOREST_SPECIES),
   forestFour:Object.freeze(FOREST_SPECIES),
-  forestFive:Object.freeze(FOREST_SPECIES)
+  forestFive:Object.freeze(FOREST_SPECIES),
+  ...FOREST_TIER_REGION_SPECIES
 });
 const forestTreeId=(x,y,regionId='oldForest')=>`${regionId==='deepForest'?'deep_forest':regionId==='oldForest'?'forest':regionId}_tree_${x}_${y}`;
 const forestTreeSpecies=(x,y,regionId='oldForest')=>{
@@ -31,9 +41,9 @@ const forestTreeSpecies=(x,y,regionId='oldForest')=>{
     forestFour:y>=35?['oak','pine','cedar']:y>=23?['maple','spruce','willow','ginkgo','larch','cherry']:['cypress','broadleaf','chestnut','walnut','zelkova'],
     forestFive:y>=39?['oak','birch','cedar']:y>=30?['maple','larch','cherry']:['cypress','broadleaf','chestnut','walnut','zelkova']
   };
-  const species=regionId==='deepForest'?
+  const species=FOREST_TIER_REGION_SPECIES[regionId]||(regionId==='deepForest'?
     (y>=32?FOREST_LEGACY_STARTER_SPECIES:y>=24?FOREST_LEGACY_DEEP_SPECIES.slice(0,3):FOREST_LEGACY_DEEP_SPECIES.slice(3)):
-    (regionId==='oldForest'?FOREST_LEGACY_STARTER_SPECIES:laterForestSpecies[regionId]||FOREST_SPECIES);
+    (regionId==='oldForest'?FOREST_LEGACY_STARTER_SPECIES:laterForestSpecies[regionId]||FOREST_SPECIES));
   return species[Math.abs(x*17+y*31)%species.length];
 };
 // Fixed coordinates make groves reproducible across visits and saved tree states.
@@ -61,14 +71,54 @@ function forestInfillTrees(regionId,waterAreas=[]){
   }
   return extras;
 }
+const FOREST_ROUTE_IDS=Object.freeze(['deepForest','forestThree','forestFour','forestFive','forestSix','forestSeven','forestEight','forestNine','forestTen','forestEleven','forestTwelve']);
+const FOREST_ROUTE_LABELS=Object.freeze({
+  deepForest:'숲 1-2',forestThree:'숲 1-3',forestFour:'숲 1-4',forestFive:'숲 1-5',
+  forestSix:'거목 숲',forestSeven:'붉은 거목림',forestEight:'은빛 경목림',forestNine:'검은 경목림',
+  forestTen:'고대 숲',forestEleven:'정령 숲',forestTwelve:'태초 숲'
+});
+const FOREST_REGION_NAMES=Object.freeze({
+  forestSix:'거목 숲 2-1',forestSeven:'붉은 거목림 2-2',forestEight:'은빛 경목림 2-3',
+  forestNine:'검은 경목림 2-4',forestTen:'고대 숲 3-1',forestEleven:'정령 숲 3-2',forestTwelve:'태초 숲 3-3'
+});
+function forestFrontierExits(id){
+  const index=FOREST_ROUTE_IDS.indexOf(id),previous=FOREST_ROUTE_IDS[index-1],next=FOREST_ROUTE_IDS[index+1];
+  return [
+    ...(next?[{x:25,y:1,to:next,entry:{x:25,y:44,face:'up'},label:FOREST_ROUTE_LABELS[next]}]:[]),
+    {x:25,y:46,to:previous,entry:{x:25,y:3,face:'down'},label:FOREST_ROUTE_LABELS[previous]}
+  ];
+}
+const forestNearSegment=(x,y,segment,padding=1)=>x>=Math.min(segment.x1,segment.x2)-padding&&
+  x<=Math.max(segment.x1,segment.x2)+padding&&y>=Math.min(segment.y1,segment.y2)-padding&&
+  y<=Math.max(segment.y1,segment.y2)+padding;
+const forestNearArea=(x,y,area,padding=1)=>x>=area.x-padding&&x<area.x+area.w+padding&&
+  y>=area.y-padding&&y<area.y+area.h+padding;
+function forestTierTrees(regionId,layout){
+  const species=FOREST_TIER_REGION_SPECIES[regionId],pattern=layout.treePattern||{};
+  const trees=[],used=new Set(),areas=[...(layout.waterAreas||[]),...(layout.stoneAreas||[])];
+  const available=(x,y)=>x>=3&&x<=60&&y>=3&&y<=44&&!used.has(`${x},${y}`)&&
+    !layout.paths.some(path=>forestNearSegment(x,y,path,1))&&!areas.some(area=>forestNearArea(x,y,area,1));
+  const add=(x,y,wood)=>{if(!available(x,y))return false;used.add(`${x},${y}`);trees.push({id:`${regionId}_tier_${x}_${y}`,x,y,species:wood});return true;};
+  const xStart=pattern.xStart||5,yStart=pattern.yStart||5,xStep=pattern.xStep||4,yStep=pattern.yStep||4;
+  const seed=pattern.seed||0,skipModulo=pattern.skipModulo||9;
+  for(let x=xStart;x<=59;x+=xStep)for(let y=yStart+((x+seed)%2);y<=43;y+=yStep){
+    if((x*11+y*7+seed)%skipModulo===0)continue;
+    add(x,y,species[Math.abs(x*13+y*29+seed)%species.length]);
+  }
+  // Guarantee that all five species appear even when a layout removes many grid points.
+  for(let index=0;index<species.length;index++)if(!trees.some(tree=>tree.species===species[index])){
+    for(let y=4;y<=43;y++)for(let x=4;x<=59;x++)if(add(x,y,species[index])){y=44;break;}
+  }
+  return trees;
+}
 function forestFrontierRegion(id,number,layout){
   const {paths,waterAreas,fishingSpot,rocks,terrain}=layout;
   return Object.freeze({
-    id,name:`오래된 숲 1-${number}`,tileSize:48,width:64,height:48,
+    id,name:FOREST_REGION_NAMES[id]||`오래된 숲 1-${number}`,tileSize:48,width:64,height:48,
     playerSpawn:{x:25,y:44,face:'up'},
     paths,terrain,
-    stoneAreas:[],waterAreas,bridges:[],fishingSpot,npcs:[],fixedObjects:{rocks},
-    decorations:{
+    stoneAreas:layout.stoneAreas||[],waterAreas,bridges:layout.bridges||[],fishingSpot,npcs:[],fixedObjects:{rocks},
+    decorations:layout.decorations||{
       bushes:[{x:18,y:36,v:0,s:.8},{x:34,y:38,v:1,s:.85},{x:53,y:33,v:0,s:.8}],
       flowers:[{x:22,y:30,v:1,s:.56},{x:32,y:25,v:0,s:.55}],
       grassTufts:[{x:20,y:40,s:.38},{x:30,y:35,s:.36}],
@@ -80,11 +130,8 @@ function forestFrontierRegion(id,number,layout){
       {axis:'y',from:3,to:44,step:2,fixed:1,gaps:[]},
       {axis:'y',from:3,to:44,step:2,fixed:62,gaps:[]}
     ],
-    trees:[...forestGroveTrees(id),...forestInfillTrees(id,waterAreas)],
-    farmPlots:[],exits:[
-      ...(number<5?[{x:25,y:1,to:number===3?'forestFour':'forestFive',entry:{x:25,y:44,face:'up'},label:`숲 1-${number+1}`}]:[]),
-      {x:25,y:46,to:number===3?'deepForest':number===4?'forestThree':'forestFour',entry:{x:25,y:3,face:'down'},label:`숲 1-${number-1}`}
-    ]
+    trees:FOREST_TIER_REGION_SPECIES[id]?forestTierTrees(id,layout):[...forestGroveTrees(id),...forestInfillTrees(id,waterAreas)],
+    farmPlots:[],exits:forestFrontierExits(id)
   });
 }
 const REGION_WORLDS=Object.freeze({
@@ -244,6 +291,100 @@ const REGION_WORLDS=Object.freeze({
       {id:'deep_mirror_pool',x:9,y:27,w:9,h:9,cutCorners:true}],
     fishingSpot:{x:39,y:19},rocks:[{x:34,y:30},{x:20,y:36},{x:54,y:27}]
   }),
+  forestSix:forestFrontierRegion('forestSix',6,{
+    terrain:{ground:'#68734a',patchA:'#3f5d36',patchB:'#b99b5c',pathRim:'#765d3f',pathCore:'#b58a58',
+      hills:[{x:5,y:7,w:14,h:27},{x:48,y:30,w:11,h:12}]},
+    paths:[{x1:25,y1:39,x2:25,y2:46},{x1:25,y1:39,x2:34,y2:39},
+      {x1:34,y1:30,x2:34,y2:39},{x1:25,y1:30,x2:34,y2:30},{x1:25,y1:20,x2:25,y2:30},
+      {x1:18,y1:20,x2:25,y2:20},{x1:18,y1:10,x2:18,y2:20},{x1:18,y1:10,x2:25,y2:10},
+      {x1:25,y1:1,x2:25,y2:10},{x1:34,y1:24,x2:41,y2:24}],
+    stoneAreas:[{x:29,y:34,w:8,h:4}],
+    waterAreas:[{id:'giant_canopy_lake',x:42,y:10,w:10,h:18,cutCorners:true},
+      {id:'giant_canopy_cove',x:48,y:27,w:7,h:9,cutCorners:true}],
+    fishingSpot:{x:42,y:24},rocks:[{x:11,y:36},{x:39,y:17},{x:56,y:39}],
+    treePattern:{xStart:4,yStart:5,xStep:4,yStep:4,seed:6,skipModulo:8}
+  }),
+  forestSeven:forestFrontierRegion('forestSeven',7,{
+    terrain:{ground:'#9b7849',patchA:'#6a4f35',patchB:'#d1ad65',pathRim:'#755237',pathCore:'#c9965f',
+      hills:[{x:4,y:5,w:18,h:12},{x:36,y:8,w:23,h:17},{x:5,y:38,w:14,h:7}]},
+    paths:[{x1:25,y1:36,x2:25,y2:46},{x1:15,y1:36,x2:25,y2:36},{x1:15,y1:27,x2:15,y2:36},
+      {x1:15,y1:27,x2:30,y2:27},{x1:30,y1:17,x2:30,y2:27},{x1:25,y1:17,x2:30,y2:17},
+      {x1:25,y1:1,x2:25,y2:17},{x1:30,y1:31,x2:44,y2:31},{x1:15,y1:22,x2:21,y2:22}],
+    stoneAreas:[{x:20,y:12,w:10,h:5}],
+    waterAreas:[{id:'red_grove_oasis_west',x:7,y:8,w:9,h:9,cutCorners:true},
+      {id:'red_grove_oasis_east',x:45,y:27,w:10,h:9,cutCorners:true}],
+    fishingSpot:{x:45,y:31},rocks:[{x:9,y:25},{x:37,y:34},{x:55,y:18}],
+    treePattern:{xStart:5,yStart:4,xStep:5,yStep:3,seed:13,skipModulo:10}
+  }),
+  forestEight:forestFrontierRegion('forestEight',8,{
+    terrain:{ground:'#566c65',patchA:'#314e4d',patchB:'#9aa98c',pathRim:'#71675c',pathCore:'#aaa08f',
+      hills:[{x:5,y:25,w:16,h:17},{x:47,y:5,w:12,h:16}]},
+    paths:[{x1:25,y1:40,x2:25,y2:46},{x1:25,y1:40,x2:36,y2:40},{x1:36,y1:31,x2:36,y2:40},
+      {x1:27,y1:31,x2:36,y2:31},{x1:27,y1:22,x2:27,y2:31},{x1:18,y1:22,x2:27,y2:22},
+      {x1:18,y1:13,x2:18,y2:22},{x1:18,y1:13,x2:25,y2:13},{x1:25,y1:1,x2:25,y2:13},
+      {x1:27,y1:26,x2:40,y2:26}],
+    stoneAreas:[{x:8,y:28,w:10,h:9,cutCorners:true}],
+    waterAreas:[{id:'silver_ravine',x:41,y:6,w:6,h:30,cutCorners:true},
+      {id:'silver_ravine_pool',x:45,y:29,w:10,h:9,cutCorners:true}],
+    fishingSpot:{x:41,y:26},rocks:[{x:12,y:20},{x:33,y:16},{x:55,y:41}],
+    treePattern:{xStart:4,yStart:6,xStep:3,yStep:5,seed:21,skipModulo:11}
+  }),
+  forestNine:forestFrontierRegion('forestNine',9,{
+    terrain:{ground:'#3b4a40',patchA:'#202f2b',patchB:'#747456',pathRim:'#51473d',pathCore:'#827565',
+      hills:[{x:31,y:5,w:27,h:16},{x:4,y:30,w:18,h:13}]},
+    paths:[{x1:25,y1:37,x2:25,y2:46},{x1:25,y1:37,x2:35,y2:37},{x1:35,y1:28,x2:35,y2:37},
+      {x1:25,y1:28,x2:35,y2:28},{x1:25,y1:19,x2:25,y2:28},{x1:20,y1:19,x2:25,y2:19},
+      {x1:20,y1:9,x2:20,y2:19},{x1:20,y1:9,x2:25,y2:9},{x1:25,y1:1,x2:25,y2:9},
+      {x1:18,y1:17,x2:20,y2:17},{x1:35,y1:32,x2:43,y2:32}],
+    stoneAreas:[{x:27,y:22,w:8,h:5}],
+    waterAreas:[{id:'blackwood_marsh_west',x:8,y:12,w:10,h:10,cutCorners:true},
+      {id:'blackwood_marsh_east',x:44,y:8,w:11,h:13,cutCorners:true},
+      {id:'blackwood_marsh_south',x:44,y:29,w:9,h:9,cutCorners:true}],
+    fishingSpot:{x:17,y:17},rocks:[{x:10,y:28},{x:38,y:20},{x:56,y:25}],
+    treePattern:{xStart:6,yStart:5,xStep:4,yStep:3,seed:34,skipModulo:9}
+  }),
+  forestTen:forestFrontierRegion('forestTen',10,{
+    terrain:{ground:'#315f55',patchA:'#1d4542',patchB:'#719982',pathRim:'#63584a',pathCore:'#9a8c70',
+      hills:[{x:4,y:6,w:17,h:18},{x:43,y:24,w:16,h:18}]},
+    paths:[{x1:25,y1:39,x2:25,y2:46},{x1:17,y1:39,x2:25,y2:39},{x1:17,y1:30,x2:17,y2:39},
+      {x1:17,y1:30,x2:32,y2:30},{x1:32,y1:21,x2:32,y2:30},{x1:24,y1:21,x2:32,y2:21},
+      {x1:24,y1:11,x2:24,y2:21},{x1:24,y1:11,x2:31,y2:11},{x1:31,y1:5,x2:31,y2:11},
+      {x1:25,y1:5,x2:31,y2:5},{x1:25,y1:1,x2:25,y2:5},{x1:32,y1:25,x2:43,y2:25}],
+    stoneAreas:[{x:21,y:18,w:14,h:7,cutCorners:true}],
+    waterAreas:[{id:'ancient_root_pool_west',x:6,y:25,w:9,h:11,cutCorners:true},
+      {id:'ancient_root_pool_east',x:44,y:19,w:11,h:13,cutCorners:true}],
+    fishingSpot:{x:44,y:25},rocks:[{x:10,y:12},{x:39,y:37},{x:55,y:15}],
+    treePattern:{xStart:4,yStart:4,xStep:5,yStep:4,seed:55,skipModulo:8}
+  }),
+  forestEleven:forestFrontierRegion('forestEleven',11,{
+    terrain:{ground:'#31465e',patchA:'#252f55',patchB:'#6c78a0',pathRim:'#56506d',pathCore:'#8c83aa',
+      hills:[{x:5,y:8,w:14,h:27},{x:49,y:6,w:10,h:34}]},
+    paths:[{x1:25,y1:38,x2:25,y2:46},{x1:25,y1:38,x2:34,y2:38},{x1:34,y1:29,x2:34,y2:38},
+      {x1:22,y1:29,x2:34,y2:29},{x1:22,y1:20,x2:22,y2:29},{x1:22,y1:20,x2:30,y2:20},
+      {x1:30,y1:11,x2:30,y2:20},{x1:25,y1:11,x2:30,y2:11},{x1:25,y1:1,x2:25,y2:11},
+      {x1:34,y1:33,x2:42,y2:33},{x1:30,y1:15,x2:41,y2:15}],
+    stoneAreas:[{x:17,y:16,w:7,h:7,cutCorners:true}],
+    waterAreas:[{id:'spirit_moon_upper',x:42,y:8,w:10,h:8,cutCorners:true},
+      {id:'spirit_moon_middle',x:45,y:15,w:10,h:13,cutCorners:true},
+      {id:'spirit_moon_lower',x:41,y:27,w:11,h:10,cutCorners:true}],
+    fishingSpot:{x:42,y:12},rocks:[{x:11,y:39},{x:37,y:23},{x:56,y:40}],
+    treePattern:{xStart:5,yStart:5,xStep:3,yStep:4,seed:89,skipModulo:12}
+  }),
+  forestTwelve:forestFrontierRegion('forestTwelve',12,{
+    terrain:{ground:'#292b45',patchA:'#15182f',patchB:'#62516f',pathRim:'#554454',pathCore:'#8b7184',
+      hills:[{x:3,y:5,w:19,h:17},{x:40,y:28,w:20,h:14}],
+      waterfalls:[{x:46,y:10,w:3,h:5}]},
+    paths:[{x1:25,y1:39,x2:25,y2:46},{x1:16,y1:39,x2:25,y2:39},{x1:16,y1:31,x2:16,y2:39},
+      {x1:16,y1:31,x2:34,y2:31},{x1:34,y1:22,x2:34,y2:31},{x1:25,y1:22,x2:34,y2:22},
+      {x1:25,y1:13,x2:25,y2:22},{x1:18,y1:13,x2:25,y2:13},{x1:18,y1:7,x2:18,y2:13},
+      {x1:18,y1:7,x2:25,y2:7},{x1:25,y1:1,x2:25,y2:7},{x1:34,y1:17,x2:41,y2:17}],
+    stoneAreas:[{x:21,y:19,w:9,h:7,cutCorners:true},{x:38,y:30,w:7,h:6,cutCorners:true}],
+    waterAreas:[{id:'origin_abyss_west',x:6,y:18,w:10,h:14,cutCorners:true},
+      {id:'origin_falls_basin',x:42,y:7,w:10,h:13,cutCorners:true},
+      {id:'origin_abyss_south',x:47,y:29,w:9,h:9,cutCorners:true}],
+    fishingSpot:{x:42,y:17},rocks:[{x:11,y:10},{x:36,y:39},{x:57,y:23}],
+    treePattern:{xStart:4,yStart:5,xStep:4,yStep:5,seed:144,skipModulo:7}
+  }),
   sunnyFields:Object.freeze({
     id:'sunnyFields',name:'햇살 농장',tileSize:48,width:64,height:48,
     playerSpawn:{x:3,y:24,face:'right'},
@@ -282,5 +423,12 @@ const REGION_EXITS=Object.freeze({
   forestThree:REGION_WORLDS.forestThree.exits,
   forestFour:REGION_WORLDS.forestFour.exits,
   forestFive:REGION_WORLDS.forestFive.exits,
+  forestSix:REGION_WORLDS.forestSix.exits,
+  forestSeven:REGION_WORLDS.forestSeven.exits,
+  forestEight:REGION_WORLDS.forestEight.exits,
+  forestNine:REGION_WORLDS.forestNine.exits,
+  forestTen:REGION_WORLDS.forestTen.exits,
+  forestEleven:REGION_WORLDS.forestEleven.exits,
+  forestTwelve:REGION_WORLDS.forestTwelve.exits,
   sunnyFields:REGION_WORLDS.sunnyFields.exits
 });

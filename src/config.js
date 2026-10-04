@@ -86,6 +86,13 @@ const WORLD_REGIONS = Object.freeze({
   forestThree:{id:'forestThree',name:'오래된 숲 1-3',status:'playable'},
   forestFour:{id:'forestFour',name:'오래된 숲 1-4',status:'playable'},
   forestFive:{id:'forestFive',name:'오래된 숲 1-5',status:'playable'},
+  forestSix:{id:'forestSix',name:'거목 숲 2-1',status:'playable'},
+  forestSeven:{id:'forestSeven',name:'붉은 거목림 2-2',status:'playable'},
+  forestEight:{id:'forestEight',name:'은빛 경목림 2-3',status:'playable'},
+  forestNine:{id:'forestNine',name:'검은 경목림 2-4',status:'playable'},
+  forestTen:{id:'forestTen',name:'고대 숲 3-1',status:'playable'},
+  forestEleven:{id:'forestEleven',name:'정령 숲 3-2',status:'playable'},
+  forestTwelve:{id:'forestTwelve',name:'태초 숲 3-3',status:'playable'},
   sunnyFields:{id:'sunnyFields',name:'햇살 농장',status:'playable'},
   riverValley:{id:'riverValley',name:'강 계곡',status:'planned'},
   coast:{id:'coast',name:'해변과 항구',status:'planned'}

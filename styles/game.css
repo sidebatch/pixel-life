@@ -130,6 +130,7 @@
   .menuCard{min-height:148px;align-items:center;justify-content:center;gap:6px;padding:12px;text-align:center}
   .menuCardIcon{width:86px;height:86px;border:0;background:transparent}
   .menuCardIcon img{display:block;width:100%;height:100%;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 4px 3px rgba(0,0,0,.25))}
+  .menuCardTreeDex{grid-column:1/-1;min-height:88px;flex-direction:row;align-items:center}.menuCardTreeDex .menuCardIcon{width:58px;height:58px}.menuCardTreeDex .menuCardCopy small{display:block}
   .menuCardCopy b{font-size:16px}
 
   /* Tap a shop row for the full recipe; keep the catalog readable at phone width. */
@@ -205,3 +206,4 @@
   #characterStyleApply:disabled{opacity:.45}
   .characterStyleSheet button:focus-visible{outline:3px solid #ffdc83;outline-offset:3px}
   .inventoryDetailContent footer{margin-top:16px;color:#afdbbf;font-size:11px}
+  .treeDexPanel{background:linear-gradient(180deg,rgba(28,61,42,.99),rgba(9,31,29,.99))}.treeDexPanel .fishDexHeader span{color:#b6e59f}.treeDexSummary{border-color:rgba(168,220,111,.3);background:linear-gradient(90deg,rgba(65,116,37,.28),rgba(110,78,28,.17));color:#eaffd8}.treeDexSummary small{color:rgba(224,255,205,.68)}.treeDexSummary i span{background:linear-gradient(90deg,#83cc65,#e4c166)}.treeDexGrid{align-items:stretch}.treeDexCard{min-height:132px}.treeDexCardIcon{width:58px;height:72px;border-radius:16px}.treeDexCardIcon img{width:58px;height:72px;object-fit:contain}.treeDexCard.discovered{border-color:rgba(157,218,118,.26);background:linear-gradient(180deg,rgba(101,157,72,.14),rgba(255,255,255,.045))}.treeDexCard.discovered b{color:#dfffc8}.treeDexCard small{color:#b7d3a8}.treeDexSilhouette{filter:brightness(0) opacity(.42)!important}.treeDexCard.undiscovered .treeDexCardIcon{width:58px;height:72px}.treeDexDetailHero>span{width:82px;height:104px}.treeDexDetailHero>span img{width:82px;height:104px;object-fit:contain}.treeDexWood{display:flex;align-items:center;gap:9px;margin-top:9px;padding:7px 9px;border-radius:11px;background:rgba(132,190,93,.1)}.treeDexWood img{width:42px;height:42px;object-fit:contain;image-rendering:pixelated}.treeDexWood span,.treeDexWood small,.treeDexWood b{display:block}.treeDexWood small{color:#9fbe93;font-size:9px}.treeDexWood b{margin-top:2px;color:#eaffdd;font-size:11px}

@@ -15,6 +15,7 @@ const scriptFiles = [
   'src/data/fishing-gear-data.js',
   'src/data/life-skill-data.js',
   'src/data/life-content-data.js',
+  'src/data/tree-dex-data.js',
   'src/data/sword-data.js',
   'src/world-time.js',
   'src/weather.js',
@@ -35,6 +36,7 @@ const scriptFiles = [
   'src/fishing.js',
   'src/skill-ui.js',
   'src/fish-dex.js',
+  'src/tree-dex.js',
   'src/fishing-gear.js',
   'src/inventory.js',
   'src/market.js',
@@ -102,7 +104,7 @@ assert(trialContext.__trialValid&&!trialContext.__trialInvalid&&trialContext.__t
   'Trial parts must switch independently through appearance IDs without changing saved game state');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 14, 'Fish dex, inventory, appearance, and market tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 18, 'Fish dex, tree dex, inventory, appearance, and market tabs must be accessible');
 const pwaManifest=JSON.parse(read('manifest.webmanifest'));
 assert(pwaManifest.display==='standalone'&&pwaManifest.orientation==='portrait-primary'&&
   pwaManifest.id==='./?app=pixel-life-v2'&&pwaManifest.start_url==='./?source=pwa-v2'&&pwaManifest.scope==='./'&&
@@ -121,17 +123,18 @@ for(const size of [192,512]){
     `PWA icon must be an opaque ${size}x${size} PNG`);
 }
 assert(html.includes('id="fishDexScroll" role="tabpanel"'), 'Fish dex tab panel semantics are missing');
+assert(html.includes('id="treeDexScroll" role="tabpanel"'), 'Tree dex tab panel semantics are missing');
 assert(html.includes('id="inventoryScroll" role="tabpanel"'), 'Inventory tab panel semantics are missing');
 assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   read('src/market.js').includes("getElementById('marketExitBtn').addEventListener('click',closeMarket)"),
   'Market exit button must use the existing close behavior');
 const menuMarkup=html.match(/<div id="menuPanel"[\s\S]*?(?=<div id="fishDexPanel")/)?.[0]||'';
-assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
-  ['openInventoryBtn','openFishDexBtn','menuBagIcon','menuFishDexIcon','menuDismiss','closeMenu'].every(id=>menuMarkup.includes(`id="${id}"`))&&
+assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
+  ['openInventoryBtn','openFishDexBtn','openTreeDexBtn','menuBagIcon','menuFishDexIcon','menuTreeDexIcon','menuDismiss','closeMenu'].every(id=>menuMarkup.includes(`id="${id}"`))&&
   !menuMarkup.includes('openFishingGearBtn')&&!html.includes('id="fishingGearPanel"')&&
   !menuMarkup.includes('디펜스')&&!menuMarkup.includes('마을 북쪽 숲')&&
-  (menuMarkup.match(/<img /g)||[]).length===2&&!(menuMarkup.match(/<small>/g)||[]).length,
-  'World menu must contain only the image-led bag and fish-dex cards');
+  (menuMarkup.match(/<img /g)||[]).length===3&&(menuMarkup.match(/<small>/g)||[]).length===1,
+  'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
 assert(assetPaths.length === 339, `Expected 339 runtime and archived-comparison asset references, found ${assetPaths.length}`);
@@ -550,7 +553,7 @@ const fishingLogicContext={
   GAME_STATE:{
     regionId:'lilacVillage',
     inventory:[],
-    collections:{fish:{}},
+    collections:{fish:{},trees:{}},
     progression:{coins:0,flags:{},fishing:{level:1,xp:0,totalXp:0,equippedRodId:'rod.basic'}},
     activity:{active:null}
   },
@@ -692,15 +695,17 @@ vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.
   `${read('src/save.js')}\n`+
   `GAME_STATE.inventory.push({type:'fish',id:'fish.crucian_carp',name:'붕어',rarity:'common',sizeCm:22.5,price:26,quantity:1});`+
   `GAME_STATE.collections.fish['fish.crucian_carp']={fishId:'fish.crucian_carp',name:'붕어',rarity:'common',count:2,minSizeCm:20,maxSizeCm:25,totalSizeCm:45,averageSizeCm:22.5};`+
+  `GAME_STATE.collections.trees={oak:{species:'oak',name:'참나무',count:3}};`+
   `GAME_STATE.inventory.push({type:'equipment',id:'rod.master_angler',name:'강태공의 낚싯대',quantity:1});`+
   `GAME_STATE.appearance={outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],activeTool:'rod'};`+
   `GAME_STATE.progression.coins=1400;GAME_STATE.progression.flags={fishCollectionRewards:{5:true,10:true,15:true,19:true,20:true},rareFishHints:true,finalFishClue:true,masterAnglerTitle:true,masterRod:true};GAME_STATE.progression.fishing={level:2,xp:8,totalXp:80,equippedRodId:'rod.master_angler'};`+
   `saveGame();`+
-  `GAME_STATE.inventory=[];GAME_STATE.appearance=null;GAME_STATE.collections.fish={};GAME_STATE.progression.coins=0;GAME_STATE.progression.flags={};GAME_STATE.progression.fishing={level:1,xp:0,totalXp:0};`+
+  `GAME_STATE.inventory=[];GAME_STATE.appearance=null;GAME_STATE.collections.fish={};GAME_STATE.collections.trees={};GAME_STATE.progression.coins=0;GAME_STATE.progression.flags={};GAME_STATE.progression.fishing={level:1,xp:0,totalXp:0};`+
   `globalThis.__loaded=loadGame();globalThis.__restored=JSON.parse(JSON.stringify(GAME_STATE));`+
   `globalThis.__lockedRod=normalizeSavedFishingProgress({level:2,xp:0,totalXp:0,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__oldCap=normalizeSavedFishingProgress({level:20,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',20)+900,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__savedMastery=normalizeSavedFishingProgress({level:100,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17,equippedRodId:'rod.expert'},{},[]);`+
+  `globalThis.__migratedTreeCollection=normalizeSavedTreeCollections(null,{},[{type:'material',id:'pine_log',quantity:4}]);`+
   `globalThis.__invalidAppearance=normalizeSavedAppearance({bodyId:'bad',hairId:'bad',backpackId:'bad',outfitId:'outfit.unknown',ownedOutfitIds:['outfit.unknown'],activeTool:'bad'});`,saveContext);
 assert(saveContext.__loaded,'Versioned save did not load');
 assert(saveContext.__restored.appearance.outfitId==='outfit.traveler'&&
@@ -719,6 +724,10 @@ assert(saveContext.__restored.inventory.length===2&&saveContext.__restored.inven
   'Saved inventory did not restore');
 assert(saveContext.__restored.collections.fish['fish.crucian_carp'].averageSizeCm===22.5,
   'Saved fish collection did not restore');
+assert(saveContext.__restored.collections.trees.oak.count===3&&saveContext.__restored.collections.trees.oak.name==='참나무',
+  'Saved tree collection did not restore');
+assert(saveContext.__migratedTreeCollection.pine.count===1&&saveContext.__migratedTreeCollection.pine.name==='소나무',
+  'Legacy saves with species wood must migrate that species into the tree collection');
 assert(saveContext.__restored.progression.coins===1400&&saveContext.__restored.progression.fishing.level===2&&
   saveContext.__restored.progression.fishing.xp===8&&saveContext.__restored.progression.fishing.totalXp===80&&
   saveContext.__restored.progression.fishing.equippedRodId==='rod.master_angler',
@@ -936,7 +945,7 @@ assert(inventoryContext.__appearanceEquip&&inventoryContext.GAME_STATE.appearanc
   'Backpack equip must preserve the sole held weapon');
 
 const lifeContext={
-  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},appearance:{activeTool:'rod'},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic',ownedAxeIds:['axe.basic']}}},
+  GAME_STATE:{regionId:'oldForest',inventory:[],world:{trees:{},plots:{}},collections:{trees:{}},appearance:{activeTool:'rod'},progression:{coins:500,logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},forestry:{axeId:'axe.basic',ownedAxeIds:['axe.basic']}}},
   saveGame:()=>true,
   feedback:[],
   performance:{now:()=>100},
@@ -945,6 +954,8 @@ const lifeContext={
 lifeContext.showSkillXpFeedback=(skillId,before,after,gained)=>lifeContext.feedback.push({skillId,before,after,gained});
 vm.createContext(lifeContext);
 vm.runInContext(`${read('src/assets.js')}\n${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n${read('src/life-content.js')}\n`,lifeContext);
+assert(vm.runInContext(`${read('src/data/tree-dex-data.js')}\nObject.keys(TREE_DEX_DESCRIPTIONS).length===50&&FOREST_SPECIES.every(species=>TREE_DEX_DESCRIPTIONS[species])`,lifeContext),
+  'Every registered tree species must have a tree-dex description');
 assert(vm.runInContext(`FORESTRY_AXES[1].coins===3600&&FORESTRY_AXES[1].materials.oak_log===60&&
   FORESTRY_AXES[2].coins===11200&&FORESTRY_AXES[2].materials.maple_log===54&&
   FORESTRY_AXES[3].coins===30000&&FORESTRY_AXES[3].materials.cypress_log===60&&
@@ -968,8 +979,10 @@ const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
 vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_01');`+
   `globalThis.__hits=[hitResourceTree(testTree)];globalThis.__firstHitToast=document.getElementById('lifeToast').textContent;`+
-  `__hits.push(hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree));`+
+  `__hits.push(hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree),hitResourceTree(testTree));`+
   `globalThis.__logs=lifeItemCount('material','oak_log');`+
+  `globalThis.__treeDiscovery={count:getTreeCollectionRecord('oak')?.count,total:getDiscoveredTreeCount(),toast:document.getElementById('lifeToast').textContent};`+
+  `__hits.push(hitResourceTree(testTree));`+
   `globalThis.__regrown=getTreeState(testTree,Date.now()+LIFE_CONTENT.treeRespawnMs+1);`+
   `const lockedPlot=REGION_WORLDS.sunnyFields.farmPlots[2];GAME_STATE.regionId='sunnyFields';`+
   `GAME_STATE.progression.coins=50;globalThis.__poorBuy=buyFarmPlot(lockedPlot);`+
@@ -983,6 +996,8 @@ vm.runInContext(`const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id
   `globalThis.__cropCount=lifeItemCount('crop','carrot');globalThis.__farmCoins=GAME_STATE.progression.coins;`,lifeContext);
 assert(lifeContext.__hits.join(',')==='true,true,true,true,true,false'&&lifeContext.__logs>=1&&lifeContext.__logs<=3&&
   lifeContext.__regrown.hp===100,'Trees must take five hits, grant one drop, and regrow from wall-clock time');
+assert(lifeContext.__treeDiscovery.count===1&&lifeContext.__treeDiscovery.total===1&&lifeContext.__treeDiscovery.toast.includes('새 나무 도감'),
+  'A completed first cut must register exactly one tree species and announce the discovery');
 assert(lifeContext.__firstHitToast===''&&lifeContext.GAME_STATE.progression.logging.totalXp===10&&
   lifeContext.feedback.length===1&&lifeContext.feedback[0].skillId==='logging'&&lifeContext.feedback[0].gained===10,
   'Partial hits must stay quiet and grant no XP; complete cuts must show Logging XP once');
@@ -1069,14 +1084,14 @@ vm.runInContext(`globalThis.__failedEquip=equipForestryAxe('axe.basic');globalTh
 assert(!lifeContext.__failedEquip&&!lifeContext.__unownedAxe&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel'&&
   lifeContext.GAME_STATE.appearance.activeTool==='rod',
   'Axe equip must reject unowned gear and roll back when saving fails');
-vm.runInContext(`GAME_STATE.regionId='oldForest';const before=totalLogCount();`+
+vm.runInContext(`GAME_STATE.regionId='oldForest';const before=totalLogCount();const collectionBefore=getDiscoveredTreeCount();`+
   `globalThis.__failedHit=hitResourceTree(REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_02'));`+
   `globalThis.__rollbackOk=totalLogCount()===before&&!GAME_STATE.world.trees.forest_tree_02;`+
   `GAME_STATE.world.trees.forest_tree_02={hp:20,choppedAt:null,maxHp:100};`+
   `const xpBefore=GAME_STATE.progression.logging.totalXp;`+
   `globalThis.__failedFinalHit=hitResourceTree(REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_02'));`+
   `globalThis.__finalRollbackOk=GAME_STATE.world.trees.forest_tree_02.hp===20&&totalLogCount()===before&&`+
-  `GAME_STATE.progression.logging.totalXp===xpBefore;`,lifeContext);
+  `GAME_STATE.progression.logging.totalXp===xpBefore&&getDiscoveredTreeCount()===collectionBefore;`,lifeContext);
 assert(lifeContext.__failedHit===false&&lifeContext.__rollbackOk,
   'Failed life-content save must roll back tree damage and rewards');
 assert(lifeContext.__failedFinalHit===false&&lifeContext.__finalRollbackOk&&lifeContext.feedback.length===4,

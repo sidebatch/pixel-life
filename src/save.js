@@ -61,21 +61,7 @@ function normalizeSavedInventory(rawInventory){
 function normalizeSavedLifeWorld(rawWorld){
   const source=rawWorld&&typeof rawWorld==='object'?rawWorld:{};
   const now=Date.now();
-  const knownTrees=new Map();
-  for(const regionId of Object.keys(FOREST_REGION_SPECIES)){
-    const forest=REGION_WORLDS[regionId];
-    for(const line of forest.treeLines){
-      for(let value=line.from;value<=line.to;value+=line.step){
-        if(line.gaps?.some(([start,end])=>value>=start&&value<=end)) continue;
-        const x=line.axis==='x'?value:line.fixed,y=line.axis==='x'?line.fixed:value;
-        knownTrees.set(forestTreeId(x,y,regionId),forestTreeSpecies(x,y,regionId));
-      }
-    }
-    for(const tree of forest.trees){
-      const id=tree.id||forestTreeId(tree.x,tree.y,regionId);
-      if(!knownTrees.has(id)) knownTrees.set(id,tree.species||forestTreeSpecies(tree.x,tree.y,regionId));
-    }
-  }
+  const knownTrees=getSaveKnownTrees();
   const trees={};
   for(const [id,value] of Object.entries(source.trees||{})){
     const species=knownTrees.get(id);
@@ -101,6 +87,45 @@ function normalizeSavedLifeWorld(rawWorld){
       plantedAt:plantedAt>0&&plantedAt<=now?plantedAt:null};
   });
   return {trees,plots};
+}
+
+function getSaveKnownTrees(){
+  const knownTrees=new Map();
+  for(const regionId of Object.keys(FOREST_REGION_SPECIES)){
+    const forest=REGION_WORLDS[regionId];
+    for(const line of forest.treeLines){
+      for(let value=line.from;value<=line.to;value+=line.step){
+        if(line.gaps?.some(([start,end])=>value>=start&&value<=end)) continue;
+        const x=line.axis==='x'?value:line.fixed,y=line.axis==='x'?line.fixed:value;
+        knownTrees.set(forestTreeId(x,y,regionId),forestTreeSpecies(x,y,regionId));
+      }
+    }
+    for(const tree of forest.trees){
+      const id=tree.id||forestTreeId(tree.x,tree.y,regionId);
+      if(!knownTrees.has(id)) knownTrees.set(id,tree.species||forestTreeSpecies(tree.x,tree.y,regionId));
+    }
+  }
+  return knownTrees;
+}
+
+function normalizeSavedTreeCollections(rawCollections,rawWorld,inventory=[]){
+  const source=rawCollections&&typeof rawCollections==='object'?rawCollections:{};
+  const collections={};
+  const discover=species=>{
+    if(!FORESTRY_TREES[species]) return;
+    const saved=source[species];
+    const count=saved&&typeof saved==='object'?Math.max(1,Math.floor(saveFiniteNumber(saved.count,1))):1;
+    collections[species]={species,name:FOREST_WOOD[species],count:saveClamp(count,1,999999)};
+  };
+  for(const species of FOREST_SPECIES) if(source[species]) discover(species);
+  for(const item of inventory){
+    if(item.type==='material'&&item.id?.endsWith('_log')) discover(item.id.slice(0,-4));
+  }
+  const knownTrees=getSaveKnownTrees();
+  for(const [id,value] of Object.entries(rawWorld?.trees||{})){
+    if(saveFiniteNumber(value?.choppedAt,0)>0) discover(knownTrees.get(id));
+  }
+  return collections;
 }
 
 function normalizeSavedFishCollections(rawCollections){
@@ -231,7 +256,7 @@ function createSaveData(){
       inventory:GAME_STATE.inventory,
       appearance:GAME_STATE.appearance,
       world:GAME_STATE.world,
-      collections:{fish:GAME_STATE.collections.fish},
+      collections:{fish:GAME_STATE.collections.fish,trees:GAME_STATE.collections.trees},
       progression:{
         coins:GAME_STATE.progression.coins,
         flags:GAME_STATE.progression.flags,
@@ -256,6 +281,7 @@ function applySaveData(saveData){
   GAME_STATE.appearance=normalizeSavedAppearance(savedState.appearance);
   GAME_STATE.world=normalizeSavedLifeWorld(savedState.world);
   GAME_STATE.collections.fish=normalizeSavedFishCollections(savedState.collections?.fish);
+  GAME_STATE.collections.trees=normalizeSavedTreeCollections(savedState.collections?.trees,savedState.world,GAME_STATE.inventory);
   GAME_STATE.progression.coins=Math.max(0,Math.floor(saveFiniteNumber(savedState.progression?.coins,GAME_STATE.progression.coins)));
   GAME_STATE.progression.flags=normalizeSavedProgressionFlags(savedState.progression?.flags);
   GAME_STATE.progression.fishing=normalizeSavedFishingProgress(

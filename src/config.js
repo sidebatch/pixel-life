@@ -112,7 +112,7 @@ const GAME_STATE = {
   playerLocation:null,
   inventory:[],
   world:{trees:{},plots:{}},
-  collections:{fish:{}},
+  collections:{fish:{},trees:{}},
   appearance:{bodyId:'body.starter',hairId:'hair.brown',backpackId:'pack.traveler',
     outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID,...TEMPORARY_OUTFIT_IDS],ownedBackpackIds:['pack.traveler',...TEMPORARY_BACKPACK_IDS],activeTool:'axe'},
   progression:{

@@ -12,6 +12,7 @@
     "qa:forestry:tiers": "node scripts/qa-forestry-tier4-10.mjs",
     "qa:forestry:maps": "node scripts/qa-forestry-maps-tier4-10.mjs",
     "qa:forestry:recipes": "node scripts/qa-forestry-recipes.mjs",
+    "qa:forestry:dex": "node scripts/qa-tree-dex.mjs",
     "test": "npm run check && npm run build"
   },
   "engines": {

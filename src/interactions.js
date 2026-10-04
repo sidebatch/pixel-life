@@ -73,6 +73,8 @@ function pressB(){
   else if(typeof isInventoryDetailOpen==='function'&&isInventoryDetailOpen()) closeInventoryDetail();
   else if(typeof isFishDexDetailOpen==='function'&&isFishDexDetailOpen()) closeFishDexDetail();
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
+  else if(typeof isTreeDexDetailOpen==='function'&&isTreeDexDetailOpen()) closeTreeDexDetail();
+  else if(typeof isTreeDexOpen==='function'&&isTreeDexOpen()) closeTreeDex();
   else if(typeof isInventoryOpen==='function'&&isInventoryOpen()) closeInventory();
   else if(typeof isMarketOpen==='function'&&isMarketOpen()) closeMarket();
   else if(typeof isFarmPlotOpen==='function'&&isFarmPlotOpen()) closeFarmPlot();
@@ -125,6 +127,17 @@ window.addEventListener('popstate',()=>{
     return;
   }
   if(isFishDexOpen()) closeFishDex({fromHistory:true});
+  if(layer==='tree-detail'){
+    if(!isTreeDexOpen()) openTreeDex({fromHistory:true});
+    if(!isTreeDexDetailOpen()) openTreeDexDetail(window.history.state.fishId,{fromHistory:true});
+    return;
+  }
+  if(isTreeDexDetailOpen()) closeTreeDexDetail({fromHistory:true});
+  if(layer==='tree-dex'){
+    if(!isTreeDexOpen()) openTreeDex({fromHistory:true});
+    return;
+  }
+  if(isTreeDexOpen()) closeTreeDex({fromHistory:true});
   if(layer==='inventory'){
     if(!isInventoryOpen()) openInventory({fromHistory:true});
     return;
@@ -156,6 +169,7 @@ function toggleMenu(force){
 
 document.getElementById('menuBagIcon').src=MENU_ICON_URLS.bag;
 document.getElementById('menuFishDexIcon').src=MENU_ICON_URLS.fishDex;
+document.getElementById('menuTreeDexIcon').src=FOREST_TREE_URLS.oak;
 
 function clearMovement(){for(const k of Object.keys(inputs)) inputs[k]=false; activeDir=null;clearPlayerInputBuffer?.();}
 const joystick=document.getElementById('joystick');

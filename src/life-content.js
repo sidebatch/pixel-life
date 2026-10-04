@@ -64,6 +64,24 @@ function lifeItemCount(type,id,inventory=GAME_STATE.inventory){
 function totalLogCount(inventory=GAME_STATE.inventory){
   return lifeItemCount('material','log',inventory)+FOREST_SPECIES.reduce((total,species)=>total+lifeItemCount('material',`${species}_log`,inventory),0);
 }
+
+function getTreeCollectionRecord(species){
+  return GAME_STATE.collections?.trees?.[species]||null;
+}
+
+function getDiscoveredTreeCount(){
+  return FOREST_SPECIES.reduce((total,species)=>total+(getTreeCollectionRecord(species)?1:0),0);
+}
+
+function recordTreeDiscovery(species){
+  if(!FORESTRY_TREES[species]||!FOREST_WOOD[species]) return null;
+  const collections=GAME_STATE.collections||(GAME_STATE.collections={});
+  const collection=collections.trees||(collections.trees={});
+  const previous=collection[species];
+  const record={species,name:FOREST_WOOD[species],count:(previous?.count||0)+1};
+  collection[species]=record;
+  return {record,isFirst:!previous};
+}
 function spendLogs(quantity){
   let remaining=quantity;
   for(const id of ['log',...FOREST_SPECIES.map(species=>`${species}_log`)]){
@@ -98,6 +116,7 @@ function removeLifeItem(type,id,quantity){
 function commitLifeChange(change){
   const beforeInventory=JSON.parse(JSON.stringify(GAME_STATE.inventory));
   const beforeWorld=JSON.parse(JSON.stringify(GAME_STATE.world));
+  const beforeTreeCollection=JSON.parse(JSON.stringify(GAME_STATE.collections?.trees||{}));
   const beforeCoins=GAME_STATE.progression.coins;
   const beforeLogging=GAME_STATE.progression.logging?{...GAME_STATE.progression.logging}:null;
   const beforeForestry=GAME_STATE.progression.forestry?{...GAME_STATE.progression.forestry}:null;
@@ -105,6 +124,7 @@ function commitLifeChange(change){
   if(result&&saveGame()) return result;
   GAME_STATE.inventory=beforeInventory;
   GAME_STATE.world=beforeWorld;
+  (GAME_STATE.collections||(GAME_STATE.collections={})).trees=beforeTreeCollection;
   GAME_STATE.progression.coins=beforeCoins;
   if(beforeLogging) GAME_STATE.progression.logging=beforeLogging;
   if(beforeForestry) GAME_STATE.progression.forestry=beforeForestry;
@@ -147,17 +167,19 @@ function hitResourceTree(tree){
   const nextHp=Math.max(0,current.hp-axe.damage);
   const logs=nextHp===0?1+Math.floor(Math.random()*3):0;
   const gainedXp=logs?treeType.xp:0;
+  const firstDiscovery=Boolean(logs&&!getTreeCollectionRecord(tree.species));
   const progressBefore=gainedXp?lifeSkillProgressSnapshot('logging'):null;
   const success=commitLifeChange(()=>{
     GAME_STATE.world.trees[tree.id]=nextHp===0?{hp:0,choppedAt:now,maxHp:treeType.maxHp}:{hp:nextHp,choppedAt:null,maxHp:treeType.maxHp};
     if(logs) addLifeItem('material',`${tree.species}_log`,logs);
+    if(logs) recordTreeDiscovery(tree.species);
     if(gainedXp) grantLifeSkillXp('logging',gainedXp);
     return true;
   });
   if(!success){showLifeToast('저장하지 못했어요. 다시 시도해 주세요');return false;}
   lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,cut:nextHp===0,until:performance.now()+650};
   if(logs){
-    showLifeToast(`${FOREST_WOOD[tree.species]} +${logs}개`,{belowSkill:true});
+    showLifeToast(`${FOREST_WOOD[tree.species]} +${logs}개${firstDiscovery?' · 새 나무 도감!':''}`,{belowSkill:true});
     showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
   }
   return true;

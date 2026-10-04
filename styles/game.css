@@ -211,17 +211,14 @@
   /* Five ordered collection worlds and a silhouette teaser for the next one. */
   .treeDexTabs{display:flex;gap:6px;overflow-x:auto;padding-bottom:10px;scroll-snap-type:x proximity;scrollbar-width:none;touch-action:pan-x}
   .treeDexTabs::-webkit-scrollbar{display:none}
-  .treeDexTabs button{flex:0 0 126px;display:flex;min-height:48px;flex-direction:column;align-items:flex-start;justify-content:center;padding:6px 9px;text-align:left;scroll-snap-align:start}
-  .treeDexTabs button:first-child{flex-basis:62px;align-items:center;text-align:center}
-  .treeDexTabs button b,.treeDexTabs button small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .treeDexTabs button b{font-size:11px}.treeDexTabs button small{margin-top:2px;color:rgba(226,247,217,.58);font-size:8px;font-weight:750}
-  .treeDexTabs button.active small{color:#c8edb4}
+  .treeDexTabs button{flex:0 0 116px;display:grid;place-items:center;min-height:42px;padding:6px 8px;text-align:center;white-space:nowrap;scroll-snap-align:start}
   .treeDexNextWorld{grid-column:1/-1;display:flex;align-items:center;gap:11px;min-height:104px;margin-top:5px;padding:11px 12px;border:1px dashed rgba(184,225,148,.38);border-radius:17px;background:linear-gradient(120deg,rgba(92,142,64,.17),rgba(18,39,35,.38));overflow:hidden}
   .treeDexNextSilhouettes{position:relative;flex:0 0 104px;height:78px}
   .treeDexNextSilhouettes img{position:absolute;bottom:0;width:58px;height:74px;object-fit:contain;image-rendering:pixelated;filter:brightness(0) opacity(.36) drop-shadow(0 4px 3px rgba(0,0,0,.5))}
   .treeDexNextSilhouettes img:nth-child(1){left:0;transform:scale(.82)}.treeDexNextSilhouettes img:nth-child(2){left:25px;z-index:1}.treeDexNextSilhouettes img:nth-child(3){left:54px;transform:scale(.86)}
   .treeDexNextWorld>span{min-width:0}.treeDexNextWorld small,.treeDexNextWorld b,.treeDexNextWorld em{display:block}
   .treeDexNextWorld small{color:#a7d889;font-size:8px;font-weight:950;letter-spacing:.14em}.treeDexNextWorld b{margin-top:3px;color:#efffdf;font-size:13px}.treeDexNextWorld em{margin-top:4px;color:#a9c59c;font-size:9px;font-style:normal;line-height:1.4}
+  .treeDexDetail .fishDexStats{grid-template-columns:repeat(3,minmax(0,1fr))}.treeDexDetail .fishDexStats div{min-width:0;padding:8px 5px}.treeDexDetail .fishDexStats span,.treeDexDetail .fishDexStats b{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 
   /* A first discovery is player-dismissed so the moment cannot disappear unseen. */
   .treeDiscoveryOverlay{position:absolute;z-index:38;inset:0;display:none;align-items:center;justify-content:center;padding:18px;pointer-events:auto;perspective:900px}

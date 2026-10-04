@@ -26,13 +26,6 @@ function treeDexWorldProgress(world){
   return {found:entries.filter(tree=>getTreeCollectionRecord(tree.species)).length,total:entries.length};
 }
 
-function treeDexRegionNames(species){
-  return Object.entries(FOREST_REGION_SPECIES)
-    .filter(([,speciesList])=>speciesList.includes(species))
-    .map(([regionId])=>REGION_WORLDS[regionId]?.name)
-    .filter((name,index,names)=>name&&names.indexOf(name)===index);
-}
-
 function treeDexImage(species){return FOREST_TREE_URLS[species];}
 function treeDexLogImage(species){return LIFE_ITEM_URLS[`${species}Log`];}
 
@@ -45,35 +38,30 @@ function renderTreeDexSummary(discovered){
   });
   const progress=nextWorld?treeDexWorldProgress(nextWorld):null;
   summary.className=`fishDexReward treeDexSummary${nextWorld?'':' complete'}`;
-  summary.innerHTML=`<div><small>${nextWorld?`${nextWorld.label} · ${progress.found}/${progress.total}`:'FIVE WORLDS COMPLETE'}</small><b>${nextWorld?'🪵 이 세계의 나무를 모두 기록해 보세요':'🌳 다섯 세계의 나무를 모두 발견했어요!'}</b><i><span style="width:${percent}%"></span></i></div><span>${percent}%</span>`;
+  summary.innerHTML=`<div><small>${nextWorld?`${nextWorld.name} · ${progress.found}/${progress.total}`:'나무 도감'}</small><b>${nextWorld?'수집 중':'도감 완성'}</b><i><span style="width:${percent}%"></span></i></div><span>${percent}%</span>`;
 }
 
 function renderTreeDexDetail(tree){
   const detail=document.getElementById('treeDexDetail');
   const record=getTreeCollectionRecord(tree.species);
-  const regions=treeDexRegionNames(tree.species);
-  const requiredAxe=FORESTRY_AXES[tree.tier-1];
   const world=treeDexWorldForTier(tree.tier);
   if(!record){
     detail.className='fishDexDetail treeDexDetail undiscovered';
     detail.innerHTML=`
-      <div class="fishDexDetailHero treeDexDetailHero"><span><img class="treeDexSilhouette" src="${treeDexImage(tree.species)}" alt=""></span><div><small>${world.label} · ${tree.tier}단계</small><h3>???</h3></div></div>
-      <p>아직 발견하지 못한 나무입니다. 직접 완전히 베어 도감에 기록해 보세요.</p>
-      <div class="fishDexHint"><b>발견 힌트</b><span>🗺️ ${regions.join(' · ')||`${tree.tier}단계 숲`}</span><span>🪓 ${requiredAxe.name} 이상 필요</span></div>`;
+      <div class="fishDexDetailHero treeDexDetailHero"><span><img class="treeDexSilhouette" src="${treeDexImage(tree.species)}" alt=""></span><div><small>${world.name}</small><h3>???</h3></div></div>
+      <p>아직 발견하지 못한 나무입니다.</p>`;
     return;
   }
   detail.className=`fishDexDetail treeDexDetail tree-tier-${tree.tier}`;
   detail.innerHTML=`
-    <div class="fishDexDetailHero treeDexDetailHero"><span><img src="${treeDexImage(tree.species)}" alt=""></span><div><small>${world.label} · ${tree.tier}단계</small><h3>${tree.name}</h3></div></div>
+    <div class="fishDexDetailHero treeDexDetailHero"><span><img src="${treeDexImage(tree.species)}" alt=""></span><div><small>${world.name}</small><h3>${tree.name}</h3></div></div>
     <p>${TREE_DEX_DESCRIPTIONS[tree.species]||'벌목 도감에 기록된 나무입니다.'}</p>
     <div class="fishDexStats">
       <div><span>벤 횟수</span><b>${record.count.toLocaleString()}그루</b></div>
-      <div><span>나무 체력</span><b>${tree.maxHp.toLocaleString()}</b></div>
       <div><span>벌목 경험치</span><b>${tree.xp.toLocaleString()} XP</b></div>
       <div><span>목재 판매가</span><b>${tree.logPrice.toLocaleString()}코인</b></div>
     </div>
-    <div class="treeDexWood"><img src="${treeDexLogImage(tree.species)}" alt=""><span><small>획득 목재</small><b>${tree.name} 목재 · 1~3개</b></span></div>
-    <div class="fishDexConditions"><span>🗺️ ${regions.join(' · ')||'숲'}</span><span>🪓 ${requiredAxe.name} 이상</span></div>`;
+    <div class="treeDexWood"><img src="${treeDexLogImage(tree.species)}" alt=""><span><small>획득 목재</small><b>${tree.name} 목재 · 1~3개</b></span></div>`;
 }
 
 function treeDexNextWorldTeaser(){
@@ -86,7 +74,7 @@ function treeDexNextWorldTeaser(){
     .map(tree=>`<img src="${treeDexImage(tree.species)}" alt="">`).join('');
   return `<aside class="treeDexNextWorld" aria-label="다음 세계 미리보기">
     <div class="treeDexNextSilhouettes" aria-hidden="true">${silhouettes}</div>
-    <span><small>NEXT WORLD</small><b>${next.label}</b><em>${next.minTier}–${next.maxTier}단계의 새로운 나무</em></span>
+    <span><small>다음 숲</small><b>${next.name}</b><em>새로운 나무</em></span>
   </aside>`;
 }
 
@@ -102,9 +90,9 @@ function renderTreeDex(){
   const grid=document.getElementById('treeDexGrid');
   grid.innerHTML=treeDexList().map(tree=>{
     const found=Boolean(getTreeCollectionRecord(tree.species));
-    return `<button type="button" class="fishDexCard treeDexCard ${found?'discovered':'undiscovered'} tree-tier-${tree.tier}" data-tree-species="${tree.species}" aria-label="${found?`${tree.name} · ${tree.tier}단계`:`미발견 ${tree.tier}단계 나무`}" aria-haspopup="dialog">
+    return `<button type="button" class="fishDexCard treeDexCard ${found?'discovered':'undiscovered'} tree-tier-${tree.tier}" data-tree-species="${tree.species}" aria-label="${found?tree.name:'미발견 나무'}" aria-haspopup="dialog">
       <span class="fishDexCardIcon treeDexCardIcon"><img class="${found?'':'treeDexSilhouette'}" src="${treeDexImage(tree.species)}" alt=""></span>
-      <b>${found?tree.name:'???'}</b><small>${found?`${tree.tier}단계`:'미발견'}</small>
+      <b>${found?tree.name:'???'}</b>
     </button>`;
   }).join('')+treeDexNextWorldTeaser();
   grid.querySelectorAll('[data-tree-species]').forEach(button=>button.addEventListener('click',()=>openTreeDexDetail(button.dataset.treeSpecies)));
@@ -121,7 +109,7 @@ function showTreeDiscoveryReveal(species){
   clearMovement();
   document.getElementById('treeDiscoveryImage').src=treeDexImage(species);
   document.getElementById('treeDiscoveryImage').alt=`${tree.name} 나무`;
-  document.getElementById('treeDiscoveryWorld').textContent=`${world.label} · ${tree.tier}단계`;
+  document.getElementById('treeDiscoveryWorld').textContent=world.name;
   document.getElementById('treeDiscoveryTitle').textContent=tree.name;
   document.getElementById('treeDiscoveryDescription').textContent=TREE_DEX_DESCRIPTIONS[species]||'새로운 나무가 도감에 기록되었습니다.';
   const overlay=document.getElementById('treeDiscoveryOverlay');

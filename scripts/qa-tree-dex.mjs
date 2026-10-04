@@ -28,17 +28,22 @@ try{
   await page.locator('#openTreeDexBtn').tap();
   await page.evaluate(()=>{
     const cards=[...document.querySelectorAll('#treeDexGrid [data-tree-species]')];
+    const tabs=[...document.querySelectorAll('.treeDexTabs [data-tree-filter]')];
     if(cards.length!==50||document.getElementById('treeDexProgress').textContent.trim()!=='0 / 50')
       throw new Error('Fresh tree dex does not show 50 undiscovered species');
     if(cards.some(card=>!card.classList.contains('undiscovered')||!card.querySelector('.treeDexSilhouette')))
       throw new Error('Fresh tree dex reveals an undiscovered species');
+    if(tabs.map(tab=>tab.textContent.trim()).join('|')!=='전체|새싹의 숲|거목의 경계|강철의 대삼림|정령의 성역|태초의 심연'||
+      Math.max(...tabs.map(tab=>tab.getBoundingClientRect().width))-Math.min(...tabs.map(tab=>tab.getBoundingClientRect().width))>1)
+      throw new Error('Tree world tabs are not simple, matching controls');
   });
   await page.screenshot({path:path.join(output,'mobile-undiscovered.png')});
   await page.locator('[data-tree-species="oak"]').tap();
   await page.evaluate(()=>{
-    if(!isTreeDexDetailOpen()||!document.getElementById('treeDexDetail').textContent.includes('???')||
-      !document.getElementById('treeDexDetail').textContent.includes('기본 도끼 이상 필요'))
-      throw new Error('Undiscovered tree hint is incomplete');
+    const text=document.getElementById('treeDexDetail').textContent;
+    if(!isTreeDexDetailOpen()||!text.includes('???')||!text.includes('새싹의 숲')||
+      text.includes('단계')||text.includes('발견 힌트')||text.includes('도끼')||text.includes('나오는 곳'))
+      throw new Error('Undiscovered tree detail is not minimal');
   });
   await page.goBack();
   await page.waitForFunction(()=>isTreeDexOpen()&&!isTreeDexDetailOpen());
@@ -60,8 +65,8 @@ try{
   await page.waitForFunction(()=>isTreeDiscoveryOpen());
   await page.evaluate(()=>{
     const text=document.getElementById('treeDiscoveryOverlay').textContent;
-    if(!text.includes('참나무')||!text.includes('제1세계 · 새싹의 숲')||
-      !text.includes('확인하고 닫기'))throw new Error('First discovery card is incomplete');
+    if(!text.includes('참나무')||!text.includes('새싹의 숲')||!text.includes('확인')||
+      text.includes('제1세계')||text.includes('1단계'))throw new Error('First discovery card is not concise');
   });
   await page.screenshot({path:path.join(output,'first-tree-discovery.png')});
   await page.keyboard.press('Escape');
@@ -84,6 +89,7 @@ try{
   await page.evaluate(()=>{
     const oak=document.querySelector('[data-tree-species="oak"]');
     if(!oak?.classList.contains('discovered')||!oak.textContent.includes('참나무')||
+      oak.textContent.includes('단계')||
       document.getElementById('treeDexProgress').textContent.trim()!=='1 / 50'||
       document.querySelectorAll('#treeDexGrid .undiscovered').length!==49)
       throw new Error('Discovered oak card or progress is incorrect');
@@ -92,9 +98,10 @@ try{
   await page.locator('[data-tree-species="oak"]').tap();
   await page.evaluate(()=>{
     const text=document.getElementById('treeDexDetail').textContent;
-    if(!text.includes('참나무')||!text.includes('2그루')||!text.includes('나무 체력')||
-      !text.includes('벌목 경험치')||!text.includes('목재 판매가')||!text.includes('참나무 목재'))
-      throw new Error('Discovered tree detail is incomplete');
+    if(!text.includes('참나무')||!text.includes('새싹의 숲')||!text.includes('2그루')||
+      !text.includes('벌목 경험치')||!text.includes('목재 판매가')||!text.includes('참나무 목재')||
+      text.includes('나무 체력')||text.includes('단계')||text.includes('기본 도끼')||text.includes('오래된 숲'))
+      throw new Error('Discovered tree detail is not concise');
   });
   await page.screenshot({path:path.join(output,'mobile-oak-detail.png')});
   await page.goBack();
@@ -107,7 +114,7 @@ try{
     if(actual!==count)throw new Error(`${filter} filter expected ${count}, got ${actual}`);
     if(filter==='world1'){
       const teaser=await page.locator('.treeDexNextWorld');
-      if(!await teaser.textContent().then(text=>text.includes('제2세계 · 거목의 경계'))||await teaser.locator('img').count()!==3)
+      if(!await teaser.textContent().then(text=>text.includes('거목의 경계')&&!text.includes('제2세계')&&!text.includes('단계'))||await teaser.locator('img').count()!==3)
         throw new Error('Next-world silhouette teaser is missing');
       await teaser.scrollIntoViewIfNeeded();
       await page.screenshot({path:path.join(output,'world1-next-world-teaser.png')});

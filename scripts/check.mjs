@@ -134,7 +134,7 @@ assert((menuMarkup.match(/class="menuCard"/g)||[]).length===2&&
   'World menu must contain only the image-led bag and fish-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 237, `Expected 237 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 339, `Expected 339 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -201,6 +201,29 @@ for(const species of ['oak','pine','birch','maple','spruce','willow','cypress','
   assert(read('src/data/region-maps.js').includes(`species:'${species}'`),`Forest tree species missing: ${species}`);
 }
 const forestryAssets=new Function(`${read('src/assets.js')}\nreturn {trees:FOREST_TREE_URLS,stumps:FOREST_STUMP_URLS,items:LIFE_ITEM_URLS};`)();
+const forestryCatalog=new Function(`const WORLD_DEFINITION={};\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\nreturn {species:FOREST_SPECIES,names:FOREST_WOOD,trees:FORESTRY_TREES};`)();
+assert(forestryCatalog.species.length===50&&Object.keys(forestryCatalog.trees).length===50&&
+  forestryCatalog.species.every(species=>forestryCatalog.names[species]&&forestryCatalog.trees[species]&&
+    forestryAssets.trees[species]&&forestryAssets.stumps[species]&&forestryAssets.items[`${species}Log`]),
+  'All 50 forestry species must have a name, gameplay data, tree, stump, and log art');
+const expectedNewTiers={
+  4:['ash','teak','mahogany','mango'],
+  5:['baobab','sequoia','black_locust','hickory','eucalyptus'],
+  6:['olive','purpleheart','jatoba','spotted_gum','ironbark'],
+  7:['cumaru','ipe','quebracho','african_blackwood','lignum_vitae'],
+  8:['ancient_zelkova','amber_cedar','silverbark','spiralwood','moonshade'],
+  9:['spirit_ancient','starlight_tree','moonveil','crystal_leaf','whisperwood'],
+  10:['origin_tree','primal_ancient','worldroot','dawncore','abysswood']
+};
+for(const [tier,speciesList] of Object.entries(expectedNewTiers))for(const species of speciesList){
+  assert(forestryCatalog.trees[species].tier===Number(tier)&&forestryCatalog.trees[species].provisionalBalance,
+    `${species} must use its provisional Tier-${tier} gameplay data`);
+}
+for(const species of forestryCatalog.species){
+  assert([forestryAssets.trees[species],forestryAssets.stumps[species],forestryAssets.items[`${species}Log`]]
+    .every(asset=>fs.existsSync(path.join(root,asset))),
+    `${species} tree, stump, and log art must be registered and present`);
+}
 for(const species of ['paulownia','cedar']){
   assert(forestryAssets.trees[species]&&forestryAssets.stumps[species]&&
     forestryAssets.items[`${species}Log`]&&
@@ -935,7 +958,7 @@ assert(vm.runInContext(`lifeItemName('material','log')==='일반 목재'&&
   FORESTRY_TREES.paulownia.tier===1&&FORESTRY_TREES.cedar.tier===1&&
   ['ginkgo','larch','cherry'].every(species=>FORESTRY_TREES[species].tier===2)&&
   ['chestnut','walnut','zelkova'].every(species=>FORESTRY_TREES[species].tier===3)`,lifeContext),
-  'Wood item names must be short and consistent across all sixteen species');
+  'Wood item names must be short and consistent across all 50 species');
 const toastNode={textContent:'',classList:{add(){},remove(){}}};
 const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};

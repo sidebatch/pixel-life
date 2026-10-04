@@ -44,7 +44,43 @@ const FORESTRY_TREES=Object.freeze({
   broadleaf:Object.freeze({tier:3,maxHp:160,xp:65,logPrice:48}),
   chestnut:Object.freeze({tier:3,maxHp:160,xp:58,logPrice:43}),
   walnut:Object.freeze({tier:3,maxHp:160,xp:62,logPrice:46}),
-  zelkova:Object.freeze({tier:3,maxHp:160,xp:68,logPrice:50})
+  zelkova:Object.freeze({tier:3,maxHp:160,xp:68,logPrice:50}),
+  // Tier 4-10 values are functional placeholders. Final HP, XP and prices
+  // are intentionally deferred until every tree is spawned and testable.
+  ash:Object.freeze({tier:4,maxHp:260,xp:90,logPrice:75,provisionalBalance:true}),
+  teak:Object.freeze({tier:4,maxHp:260,xp:90,logPrice:75,provisionalBalance:true}),
+  mahogany:Object.freeze({tier:4,maxHp:260,xp:90,logPrice:75,provisionalBalance:true}),
+  mango:Object.freeze({tier:4,maxHp:260,xp:90,logPrice:75,provisionalBalance:true}),
+  baobab:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
+  sequoia:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
+  black_locust:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
+  hickory:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
+  eucalyptus:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
+  olive:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
+  purpleheart:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
+  jatoba:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
+  spotted_gum:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
+  ironbark:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
+  cumaru:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
+  ipe:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
+  quebracho:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
+  african_blackwood:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
+  lignum_vitae:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
+  ancient_zelkova:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
+  amber_cedar:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
+  silverbark:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
+  spiralwood:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
+  moonshade:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
+  spirit_ancient:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
+  starlight_tree:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
+  moonveil:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
+  crystal_leaf:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
+  whisperwood:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
+  origin_tree:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true}),
+  primal_ancient:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true}),
+  worldroot:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true}),
+  dawncore:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true}),
+  abysswood:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true})
 });
 const FORESTRY_AXES=Object.freeze([
   Object.freeze({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic',coins:0,materials:Object.freeze({})}),
@@ -52,7 +88,7 @@ const FORESTRY_AXES=Object.freeze([
   Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:70,asset:'steel',coins:11200,materials:Object.freeze({maple_log:54,spruce_log:42,willow_log:36})}),
   // Keep axe.master for save compatibility; only its player-facing name changes.
   Object.freeze({id:'axe.master',name:'청금 도끼',tier:4,damage:90,asset:'master',coins:30000,materials:Object.freeze({cypress_log:60,broadleaf_log:50})}),
-  // Tier 5-10 recipes are intentionally coin-only until their matching trees exist.
+  // Tier 5-10 recipes stay coin-only until their matching trees are reachable on maps.
   Object.freeze({id:'axe.black_iron',name:'흑철 도끼',tier:5,damage:125,asset:'black_iron',coins:65000,materials:Object.freeze({}),provisionalRecipe:true}),
   Object.freeze({id:'axe.rune',name:'룬 도끼',tier:6,damage:175,asset:'rune',coins:115000,materials:Object.freeze({}),provisionalRecipe:true}),
   Object.freeze({id:'axe.spirit',name:'정령 도끼',tier:7,damage:240,asset:'spirit',coins:180000,materials:Object.freeze({}),provisionalRecipe:true}),

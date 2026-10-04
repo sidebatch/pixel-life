@@ -1,5 +1,16 @@
 const VILLAGE_WORLD_DEFINITION=WORLD_DEFINITION;
-const FOREST_WOOD=Object.freeze({oak:'참나무',pine:'소나무',birch:'자작나무',maple:'단풍나무',spruce:'가문비나무',willow:'버드나무',cypress:'편백나무',broadleaf:'활엽수',paulownia:'오동나무',cedar:'삼나무',ginkgo:'은행나무',larch:'낙엽송',cherry:'벚나무',chestnut:'밤나무',walnut:'호두나무',zelkova:'느티나무'});
+const FOREST_WOOD=Object.freeze({
+  oak:'참나무',pine:'소나무',birch:'자작나무',maple:'단풍나무',spruce:'가문비나무',
+  willow:'버드나무',cypress:'편백나무',broadleaf:'활엽수',paulownia:'오동나무',cedar:'삼나무',
+  ginkgo:'은행나무',larch:'낙엽송',cherry:'벚나무',chestnut:'밤나무',walnut:'호두나무',zelkova:'느티나무',
+  ash:'물푸레나무',teak:'티크',mahogany:'마호가니',mango:'망고나무',
+  baobab:'바오밥',sequoia:'세쿼이아',black_locust:'아까시나무',hickory:'히코리',eucalyptus:'유칼립투스',
+  olive:'올리브나무',purpleheart:'퍼플하트',jatoba:'자토바',spotted_gum:'스포티드검',ironbark:'아이언바크',
+  cumaru:'쿠마루',ipe:'이페',quebracho:'케브라초',african_blackwood:'아프리칸 블랙우드',lignum_vitae:'리그넘바이테',
+  ancient_zelkova:'고대 느티나무',amber_cedar:'호박삼나무',silverbark:'은피나무',spiralwood:'나선목',moonshade:'달그늘나무',
+  spirit_ancient:'정령고목',starlight_tree:'별빛나무',moonveil:'달장막나무',crystal_leaf:'수정잎나무',whisperwood:'속삭임나무',
+  origin_tree:'시원의 나무',primal_ancient:'태초고목',worldroot:'세계뿌리나무',dawncore:'여명목',abysswood:'심연목'
+});
 const FOREST_SPECIES=Object.freeze(Object.keys(FOREST_WOOD));
 // Keep the species of every pre-existing generated tree stable for old saves.
 const FOREST_LEGACY_STARTER_SPECIES=Object.freeze(['oak','pine','birch']);

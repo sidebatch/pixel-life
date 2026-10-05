@@ -108,6 +108,26 @@ try{
     throw new Error(`Incomplete PWA cache: ${JSON.stringify(online)}`);
   if((manifest.errors||[]).length)throw new Error(`Manifest errors: ${JSON.stringify(manifest.errors)}`);
 
+  // Re-enter under an active controller, then mimic an update takeover. The
+  // running game must stay on the same page instead of showing startup twice.
+  const controlledLoad=waitEvent('Page.loadEventFired');
+  await send('Page.navigate',{url:base});
+  await controlledLoad;
+  await retry(async()=>{
+    const state=await evaluate(`({ready:document.readyState,controlled:Boolean(navigator.serviceWorker?.controller)})`);
+    if(state.ready!=='complete'||!state.controlled)throw new Error(JSON.stringify(state));
+    return state;
+  },'Controlled game page did not reload');
+  const noForcedReload=await evaluate(`(async()=>{
+    let pageHidden=false;
+    addEventListener('pagehide',()=>{pageHidden=true;},{once:true});
+    navigator.serviceWorker.dispatchEvent(new Event('controllerchange'));
+    await new Promise(resolve=>setTimeout(resolve,700));
+    return {pageHidden,loadingScreens:document.querySelectorAll('#startupLoading').length,title:document.title};
+  })()`);
+  if(noForcedReload.pageHidden||noForcedReload.loadingScreens>1||noForcedReload.title!=='Pixel Life')
+    throw new Error(`Service worker update forced another startup: ${JSON.stringify(noForcedReload)}`);
+
   await send('Network.emulateNetworkConditions',{offline:true,latency:0,downloadThroughput:0,uploadThroughput:0});
   const loaded=waitEvent('Page.loadEventFired');
   await send('Page.navigate',{url:new URL(online.startUrl,online.manifestUrl).href});
@@ -121,7 +141,7 @@ try{
   if(offline.title!=='Pixel Life'||!offline.controlled||offline.audioStatus!==206||offline.audioBytes!==100)
     throw new Error(`Offline reload failed: ${JSON.stringify(offline)}`);
 
-  console.log(JSON.stringify({browser:path.basename(browserPath),pageContext,online,manifestUrl:manifest.url,
+  console.log(JSON.stringify({browser:path.basename(browserPath),pageContext,online,noForcedReload,manifestUrl:manifest.url,
     installabilityErrors:installability,offline},null,2));
 }finally{
   try{socket?.close();}catch(_){}

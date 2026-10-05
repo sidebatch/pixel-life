@@ -35,11 +35,6 @@
   });
 
   if(!('serviceWorker' in navigator)||!(location.protocol==='https:'||location.hostname==='localhost'||location.hostname==='127.0.0.1'))return;
-  const hadController=Boolean(navigator.serviceWorker.controller);
-  let reloading=false;
-  navigator.serviceWorker.addEventListener('controllerchange',()=>{
-    if(hadController&&!reloading){reloading=true;location.reload();}
-  });
   window.addEventListener('load',()=>{
     navigator.serviceWorker.register('./service-worker.js',{scope:'./'}).catch(error=>{
       console.warn('Pixel Life offline mode could not start.',error);

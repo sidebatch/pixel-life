@@ -113,9 +113,10 @@ assert(pwaManifest.display==='standalone'&&pwaManifest.orientation==='portrait-p
   'PWA manifest must define portrait standalone mode and install icons');
 assert(html.includes('rel="manifest" href="manifest.webmanifest?v=pixel-life-v2"')&&html.includes('id="installAppBtn"')&&
   read('src/pwa.js').includes("serviceWorker.register('./service-worker.js'")&&
-  read('src/pwa.js').includes('beforeinstallprompt')&&read('service-worker.js').includes("caches.match('./index.html')")&&
+  read('src/pwa.js').includes('beforeinstallprompt')&&!read('src/pwa.js').includes('location.reload')&&
+  read('service-worker.js').includes("caches.match('./index.html')")&&
   read('service-worker.js').includes("key==='still-v1'"),
-  'PWA registration, install prompt, and offline navigation fallback must stay connected');
+  'PWA registration and offline fallback must stay connected without forcing a second startup reload');
 for(const size of [192,512]){
   const iconPath=`assets/pwa/icon-${size}.png`;
   assert(fs.existsSync(path.join(root,iconPath)),`Missing PWA icon: ${iconPath}`);

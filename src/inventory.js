@@ -82,11 +82,13 @@ function inventoryWearableArt(type,item){
 }
 
 function inventoryWearableCard(type,item,equipped){
+  const broken=type==='axe'&&getForestryAxeDurability(item)?.broken;
   return `<div class="inventoryWearableSlot${equipped?' selected':''}">
-    <button type="button" class="inventoryItemCard inventoryEquipmentCard${equipped?' equipped':''}" data-equip-type="${type}" data-equip-id="${item.id}" aria-pressed="${equipped}" aria-label="${item.name}${equipped?', 장착 중':', 장착하기'}">
+    <button type="button" class="inventoryItemCard inventoryEquipmentCard${equipped?' equipped':''}${broken?' broken':''}" data-equip-type="${type}" data-equip-id="${item.id}" aria-pressed="${equipped}" aria-label="${item.name}${equipped?', 장착 중':broken?', 수리 필요':', 장착하기'}">
       <span class="inventoryItemArt">${inventoryWearableArt(type,item)}</span>
       ${equipped?'<span class="inventorySelectedMark" aria-hidden="true">✓</span>':''}
-      <span class="inventoryItemName" aria-hidden="true">${item.name}</span>
+      ${broken?'<span class="inventoryBrokenMark" aria-hidden="true">수리</span>':''}
+      <span class="inventoryItemName" aria-hidden="true">${item.name}${broken?' · 수리 필요':''}</span>
     </button>
     <button type="button" class="inventoryInfoButton" data-inventory-info-type="${type}" data-inventory-info-id="${item.id}" aria-label="${item.name} 상세 정보" aria-haspopup="dialog"><span aria-hidden="true">i</span></button>
   </div>`;
@@ -121,13 +123,15 @@ function groupInventoryFish(items=GAME_STATE.inventory){
     .sort((a,b)=>b.latestIndex-a.latestIndex);
 }
 
-function inventoryItemCardMarkup({name,count,unit='개',art,className='',equipped=false,equipType='',equipId=''}){
+function inventoryItemCardMarkup({name,count,unit='개',art,className='',equipped=false,equipType='',equipId='',useItemId=''}){
   const quantity=count.toLocaleString();
   const equipAttributes=equipType?` data-equip-type="${equipType}" data-equip-id="${equipId}"`:'';
-  return `<button type="button" class="inventoryItemCard ${className}${equipped?' equipped':''}"${equipAttributes} aria-label="${name}, ${quantity}${unit}${equipped?', 장착 중':equipType?', 장착하기':''}">
+  const useAttributes=useItemId?` data-use-item-id="${useItemId}"`:'';
+  return `<button type="button" class="inventoryItemCard ${className}${equipped?' equipped':''}"${equipAttributes}${useAttributes} aria-label="${name}, ${quantity}${unit}${equipped?', 장착 중':equipType?', 장착하기':useItemId?', 사용하기':''}">
     <span class="inventoryItemArt">${art}<strong class="inventoryItemCount" aria-hidden="true">${quantity}</strong></span>
     ${equipped?'<span class="inventoryItemEquipped" aria-hidden="true">장착 중</span>':''}
     ${equipType&&!equipped?'<span class="inventoryEquipPrompt" aria-hidden="true">장착</span>':''}
+    ${useItemId?'<span class="inventoryEquipPrompt" aria-hidden="true">사용</span>':''}
     <span class="inventoryItemName" aria-hidden="true">${name}</span>
   </button>`;
 }
@@ -154,7 +158,8 @@ function renderInventoryEquipment(){
   const equippedAxe=getEquippedForestryAxe();
   const equippedSword=getEquippedSword();
   const appearance=normalizeSavedAppearance(GAME_STATE.appearance);
-  document.getElementById('inventorySummary').textContent=`장착 ${appearance.activeTool==='rod'?equippedRod.name:appearance.activeTool==='sword'?equippedSword.name:equippedAxe.name}`;
+  document.getElementById('inventorySummary').textContent=appearance.activeTool==='none'?'장착 없음 · 망가진 도끼는 준의 도구점에서 수리':
+    `장착 ${appearance.activeTool==='rod'?equippedRod.name:appearance.activeTool==='sword'?equippedSword.name:equippedAxe.name}`;
   const equipment=[
     ...getOwnedForestryAxes().map(axe=>inventoryWearableCard('axe',axe,appearance.activeTool==='axe'&&axe.id===equippedAxe.id)),
     ...rods.map(rod=>inventoryWearableCard('rod',rod,appearance.activeTool==='rod'&&rod.id===equippedRod.id)),
@@ -183,15 +188,17 @@ function openInventoryDetail(type,id,options={}){
     type==='sword'?appearance.activeTool==='sword'&&getEquippedSword().id===id:
     appearance[type==='outfit'?'outfitId':'backpackId']===id;
   const labels={axe:'벌목 도구',rod:'낚시 도구',sword:'검',outfit:'옷',backpack:'가방'};
+  const axeDurability=type==='axe'?getForestryAxeDurability(item):null;
   const effects=type==='rod'?fishingRodEffectLabels(item):
-    type==='axe'?[`타격 힘 ${item.damage}`,`벨 수 있는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`]:
+    type==='axe'?[`타격 힘 ${item.damage}`,axeDurability.infinite?'내구도 무제한':`내구도 ${axeDurability.current} / ${axeDurability.max}`,
+      `벨 수 있는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`]:
     type==='sword'?[`검 단계 ${item.tier}`,nextSword()?'다음 검은 추후 구매 가능':'상위 검과 전투 콘텐츠는 추후 추가 예정']:
     ['외형용 · 능력치 변화 없음'];
   const description=item.description||(type==='axe'?'나무를 베는 도끼. 장착한 도끼의 힘으로 나무에 피해를 줍니다.':'여행자의 기본 의상. 걷기·낚시·벌목 동작에 함께 적용돼요.');
   document.getElementById('inventoryDetailContent').innerHTML=`<div class="inventoryDetailHero">
     <span>${inventoryWearableArt(type,{...item,id})}</span><div><small>${labels[type]}</small><h3 id="inventoryDetailTitle">${item.name}</h3></div></div>
     <p>${description}</p><ul>${effects.map(effect=>`<li>${effect}</li>`).join('')}</ul>
-    <footer>${equipped?'✓ 현재 장착 중':'가방에서 카드를 누르면 장착할 수 있어요.'}</footer>`;
+    <footer>${equipped?'✓ 현재 장착 중':axeDurability?.broken?'망가짐 · 준의 도구점에서 수리해야 다시 장착할 수 있어요.':'가방에서 카드를 누르면 장착할 수 있어요.'}</footer>`;
   inventoryState.detail={type,id};
   const modal=document.getElementById('inventoryDetailModal');
   modal.classList.add('show');modal.setAttribute('aria-hidden','false');
@@ -214,6 +221,7 @@ function closeInventoryDetail(options={}){
 
 function renderInventorySupplies(){
   const entries=[
+    {type:'consumable',id:VILLAGE_RETURN_ITEM.id,icon:VILLAGE_RETURN_ITEM.icon,name:VILLAGE_RETURN_ITEM.name},
     {type:'material',id:'log',icon:'🪵',name:lifeItemName('material','log')},
     ...FOREST_SPECIES.map(species=>({type:'material',id:`${species}_log`,icon:'🪵',name:lifeItemName('material',`${species}_log`)})),
     ...LIFE_CONTENT.crops.flatMap(crop=>[
@@ -224,7 +232,8 @@ function renderInventorySupplies(){
   document.getElementById('inventorySummary').textContent=`보유 재료 ${entries.reduce((sum,item)=>sum+item.count,0)}개`;
   document.getElementById('inventoryScroll').innerHTML=entries.length?
     `<div class="inventoryItemGrid">${entries.map(item=>inventoryItemCardMarkup({name:item.name,count:item.count,
-      art:lifeItemIconMarkup(item.type,item.id,item.icon),className:'inventorySupplyCard'})).join('')}</div>`:
+      art:lifeItemIconMarkup(item.type,item.id,item.icon),className:`inventorySupplyCard${item.type==='consumable'?' inventoryConsumableCard':''}`,
+      useItemId:item.type==='consumable'?item.id:''})).join('')}</div>`:
     '<div class="inventoryEmpty"><span>🪵</span><b>아직 재료가 없어요</b><p>숲에서 벌목하거나 농장에서 씨앗을 심어 보세요.</p></div>';
 }
 
@@ -290,6 +299,10 @@ if(typeof document!=='undefined'){
     }
     const card=event.target.closest('.inventoryItemCard');
     if(!card) return;
+    if(card.dataset.useItemId){
+      if(!useVillageReturnItem())document.getElementById('inventorySummary').textContent='귀환석을 사용하지 못했어요. 다시 시도해 주세요.';
+      return;
+    }
     if(card.dataset.equipType){
       if(card.classList.contains('equipped')){
         card.classList.add('showName');return;
@@ -303,7 +316,9 @@ if(typeof document!=='undefined'){
         document.getElementById('inventorySummary').textContent=`${inventoryWearable(card.dataset.equipType,card.dataset.equipId).name} 장착`;
         const selected=document.querySelector(`[data-equip-id="${card.dataset.equipId}"]`);
         selected?.classList.add('showName');selected?.focus({preventScroll:true});
-      }else document.getElementById('inventorySummary').textContent='장착 상태를 저장하지 못했어요. 다시 시도해 주세요.';
+      }else document.getElementById('inventorySummary').textContent=card.dataset.equipType==='axe'&&
+        getForestryAxeDurability(card.dataset.equipId)?.broken?'망가진 도끼예요. 준의 도구점에서 먼저 수리해 주세요.':
+        '장착 상태를 저장하지 못했어요. 다시 시도해 주세요.';
       return;
     }
     const show=!card.classList.contains('showName');

@@ -34,6 +34,7 @@ try{
   await page.evaluate(()=>enterWorldRegion({to:'deepForest',entry:{x:53,y:17,face:'left'}}));
   await page.screenshot({path:path.join(output,'forest-north-east-393.png')});
   await page.evaluate(async()=>{
+    Math.random=()=>.99;
     const chestnut=trees.find(tree=>tree.species==='chestnut');
     GAME_STATE.progression.forestry={axeId:'axe.iron',ownedAxeIds:['axe.basic','axe.iron']};
     if(hitResourceTree(chestnut)||getTreeState(chestnut).hp!==160)
@@ -41,7 +42,8 @@ try{
     GAME_STATE.progression.forestry={axeId:'axe.steel',ownedAxeIds:['axe.basic','axe.iron','axe.steel']};
     for(const species of ['chestnut','walnut','zelkova']){
       const tree=trees.find(item=>item.species===species);
-      for(let hit=0;hit<4;hit++)if(!hitResourceTree(tree))throw new Error(`${species} chop failed`);
+      const hits=Math.ceil(FORESTRY_TREES[species].maxHp/FORESTRY_AXES[2].damage);
+      for(let hit=0;hit<hits;hit++)if(!hitResourceTree(tree))throw new Error(`${species} chop failed`);
       if(lifeItemCount('material',`${species}_log`)<1||getTreeState(tree).hp!==0)
         throw new Error(`${species} reward or stump failed`);
     }

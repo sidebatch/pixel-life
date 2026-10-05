@@ -107,7 +107,7 @@ function regionExitAt(x,y){
   return (REGION_EXITS[GAME_STATE.regionId]||[]).find(exit=>exit.x===x&&exit.y===y)||null;
 }
 
-function enterWorldRegion(exit){
+function enterWorldRegion(exit,options={}){
   if(!exit||!REGION_WORLDS[exit.to]) return false;
   clearMovement();
   GAME_STATE.regionId=exit.to;
@@ -120,7 +120,7 @@ function enterWorldRegion(exit){
   camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));
   updateWorldClockUI();
   if(typeof syncRegionMusic==='function')syncRegionMusic();
-  saveGame();
+  if(!options.skipSave)saveGame();
   return true;
 }
 

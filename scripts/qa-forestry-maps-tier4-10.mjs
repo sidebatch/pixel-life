@@ -22,6 +22,7 @@ try{
   const reports=[];
   for(let index=0;index<regions.length;index++){
     const report=await page.evaluate(({id,previous,tier})=>{
+      Math.random=()=>.99;
       const exit=REGION_EXITS[previous].find(item=>item.to===id);
       if(!exit||!enterWorldRegion(exit))throw new Error(`Cannot enter ${id} from ${previous}`);
       validatePlayableRegion();

@@ -28,6 +28,7 @@ try{
   });
   await page.screenshot({path:path.join(output,'forest-393.png')});
   await page.evaluate(async()=>{
+    Math.random=()=>.99;
     for(const species of ['paulownia','cedar']){
       const tree=trees.find(item=>item.species===species);
       for(let hit=0;hit<5;hit++)if(!hitResourceTree(tree))throw new Error(`${species} chop failed`);

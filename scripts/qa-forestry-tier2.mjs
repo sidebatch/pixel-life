@@ -31,6 +31,7 @@ try{
   await page.evaluate(()=>enterWorldRegion({to:'deepForest',entry:{x:18,y:25,face:'left'}}));
   await page.screenshot({path:path.join(output,'forest-cherry-393.png')});
   await page.evaluate(async()=>{
+    Math.random=()=>.99;
     const ginkgo=trees.find(tree=>tree.species==='ginkgo');
     if(hitResourceTree(ginkgo)||getTreeState(ginkgo).hp!==120)throw new Error('Basic axe bypassed Tier-2 requirement');
     GAME_STATE.progression.forestry={axeId:'axe.iron',ownedAxeIds:['axe.basic','axe.iron']};

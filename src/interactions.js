@@ -28,6 +28,7 @@ function resolveWorldInteraction(tile=facingTile()){
     const needed=FORESTRY_TREES[tree.species]?.tier||1;
     const name=FOREST_WOOD[tree.species];
     const label=GAME_STATE.appearance?.activeTool==='sword'?`${name} · 검 휘두르기`:
+      GAME_STATE.appearance?.activeTool==='none'&&getForestryAxeDurability()?.broken?`${name} · 도끼 수리 필요`:
       (GAME_STATE.appearance?.activeTool||'axe')!=='axe'?`${name} · 도끼 장착 필요`:
       !getTreeState(tree).hp?`${name} · 재생 중`:
       getEquippedForestryAxe().tier<needed?`${name} · ${FORESTRY_AXES[needed-1].name} 필요`:`${name} · 벌목`;

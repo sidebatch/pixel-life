@@ -42,6 +42,11 @@ function normalizeSavedInventory(rawInventory){
       if(quantity) inventory.push({type:item.type,id:crop.id,name:item.type==='seed'?`${crop.name} 씨앗`:crop.name,quantity});
       continue;
     }
+    if(item.type==='consumable'&&item.id===VILLAGE_RETURN_ITEM.id){
+      const quantity=saveClamp(Math.floor(saveFiniteNumber(item.quantity,0)),0,99999);
+      if(quantity) inventory.push({type:'consumable',id:VILLAGE_RETURN_ITEM.id,name:VILLAGE_RETURN_ITEM.name,quantity});
+      continue;
+    }
     if(item.type!=='fish') continue;
     const fish=SAVE_FISH_BY_ID.get(item.id);
     if(!fish) continue;
@@ -200,7 +205,16 @@ function normalizeSavedForestryProgress(rawProgress){
   const ids=Array.isArray(rawProgress?.ownedAxeIds)?rawProgress.ownedAxeIds:[];
   const ownedAxeIds=[...new Set([DEFAULT_FORESTRY_AXE_ID,...ids])].filter(id=>FORESTRY_AXE_BY_ID.has(id));
   const axeId=ownedAxeIds.includes(rawProgress?.axeId)?rawProgress.axeId:DEFAULT_FORESTRY_AXE_ID;
-  return {axeId,ownedAxeIds};
+  const source=rawProgress?.durabilityByAxeId&&typeof rawProgress.durabilityByAxeId==='object'?
+    rawProgress.durabilityByAxeId:{};
+  const durabilityByAxeId={};
+  for(const id of ownedAxeIds){
+    const axe=FORESTRY_AXE_BY_ID.get(id);
+    if(!axe.maxDurability)continue;
+    const saved=Number(source[id]);
+    durabilityByAxeId[id]=Number.isFinite(saved)?saveClamp(Math.floor(saved),0,axe.maxDurability):axe.maxDurability;
+  }
+  return {axeId,ownedAxeIds,durabilityByAxeId};
 }
 
 function normalizeSavedSwordProgress(rawProgress){
@@ -240,7 +254,7 @@ function normalizeSavedAppearance(rawAppearance){
     outfitId:ownedOutfitIds.includes(source.outfitId)?source.outfitId:DEFAULT_OUTFIT_ID,
     ownedOutfitIds,
     ownedBackpackIds,
-    activeTool:['axe','rod','sword'].includes(source.activeTool)?source.activeTool:'axe'
+    activeTool:['axe','rod','sword','none'].includes(source.activeTool)?source.activeTool:'axe'
   };
 }
 
@@ -291,6 +305,9 @@ function applySaveData(saveData){
   );
   GAME_STATE.progression.logging=normalizeSavedLoggingProgress(savedState.progression?.logging);
   GAME_STATE.progression.forestry=normalizeSavedForestryProgress(savedState.progression?.forestry);
+  const savedAxe=FORESTRY_AXE_BY_ID.get(GAME_STATE.progression.forestry.axeId);
+  if(GAME_STATE.appearance.activeTool==='axe'&&savedAxe?.maxDurability&&
+    GAME_STATE.progression.forestry.durabilityByAxeId[savedAxe.id]===0) GAME_STATE.appearance.activeTool='none';
   GAME_STATE.progression.swords=normalizeSavedSwordProgress(savedState.progression?.swords);
   return true;
 }

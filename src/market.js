@@ -183,10 +183,12 @@ function equipmentCardMarkup({id,asset,name,effect,status,details,costs='',note=
 
 function renderForestryMarket(){
   const equipped=getEquippedForestryAxe(),next=nextForestryAxe();
+  const axeActive=GAME_STATE.appearance?.activeTool==='axe';
   const ownedIds=new Set(getOwnedForestryAxes().map(axe=>axe.id));
-  document.getElementById('marketStock').textContent=`현재 ${equipped.name} · 벌목 Lv.${GAME_STATE.progression.logging.level}`;
+  document.getElementById('marketStock').textContent=`현재 ${axeActive?equipped.name:'장착 없음'} · 벌목 Lv.${GAME_STATE.progression.logging.level}`;
   const catalog=FORESTRY_AXES.map(axe=>{
-    const owned=ownedIds.has(axe.id),active=equipped.id===axe.id;
+    const owned=ownedIds.has(axe.id),active=axeActive&&equipped.id===axe.id;
+    const durability=getForestryAxeDurability(axe),repairCost=owned?forestryAxeRepairCost(axe):0;
     const available=next?.id===axe.id;
     const missing=Object.entries(axe.materials).flatMap(([id,count])=>{
       const short=count-lifeItemCount('material',id);
@@ -197,20 +199,34 @@ function renderForestryMarket(){
       equipmentCostChip(FOREST_WOOD[id.slice(0,-4)],lifeItemCount('material',id),count)).join('')+
       equipmentCostChip('코인',GAME_STATE.progression.coins,axe.coins);
     const recipeNote=axe.provisionalRecipe?'목재 수량은 전체 밸런스 전 임시값이에요.':'';
-    const note=owned?`가방의 장비 탭에서 장착할 수 있어요.${recipeNote?` ${recipeNote}`:''}`:
+    const note=owned?(durability.infinite?'기본 도끼는 내구도가 닳지 않아요.':durability.broken?
+      '수리해도 자동으로 장착되지 않아요. 가방에서 다시 장착해 주세요.':
+      `닳은 만큼만 수리할 수 있어요.${recipeNote?` ${recipeNote}`:''}`):
       !available?`이전 도끼를 먼저 구매해 주세요.${recipeNote?` ${recipeNote}`:''}`:
       missing.length?`부족: ${missing.join(' · ')}${recipeNote?` · ${recipeNote}`:''}`:
       `구매할 수 있어요.${recipeNote?` ${recipeNote}`:''}`;
     const previousAxe=FORESTRY_AXES[axe.tier-2];
     const materialKinds=Object.keys(axe.materials).length;
+    const repairAction=owned&&repairCost?`<button type="button" class="marketAxeUpgrade" data-repair-axe-id="${axe.id}" ${GAME_STATE.progression.coins>=repairCost?'':'disabled'}>수리 ${repairCost.toLocaleString()}코인</button>`:'';
     return equipmentCardMarkup({id:axe.id,asset:FORESTRY_AXE_URLS[axe.asset],name:axe.name,
-      effect:axe.coins?`${axe.coins.toLocaleString()}코인${materialKinds?` · 목재 ${materialKinds}종`:''}`:'기본 지급',
-      status:active?'장착 중':owned?'보유 중':available?'다음 도끼':'순서대로 구매',
-      details:previousAxe?`${previousAxe.name}를 보유하면 제작이 열립니다.`:'처음부터 사용할 수 있는 기본 장비입니다.',
-      costs,note,active,open:available,
-      action:owned?'':`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${axe.name} 구매</button>`});
+      effect:owned?(durability.infinite?'내구도 무제한':
+        `내구도 ${durability.current} / ${durability.max}`):
+        `${axe.coins.toLocaleString()}코인${materialKinds?` · 목재 ${materialKinds}종`:''}`,
+      status:active?'장착 중':durability.broken?'수리 필요':owned?'보유 중':available?'다음 도끼':'순서대로 구매',
+      details:previousAxe?`${previousAxe.name}를 보유하면 제작이 열립니다. 높은 단계 나무일수록 한 번 칠 때 내구도가 더 많이 닳습니다.`:
+        '처음부터 사용할 수 있는 기본 장비이며 내구도가 닳지 않습니다.',
+      costs,note,active,open:available||durability.broken,
+      action:owned?repairAction:`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${axe.name} 구매</button>`});
   }).join('');
-  document.getElementById('marketList').innerHTML=`${skillCardMarkup('logging')}${catalog}`;
+  const returnItemCount=lifeItemCount('consumable',VILLAGE_RETURN_ITEM.id);
+  const returnItem=`<div class="marketFishRow" data-return-item="${VILLAGE_RETURN_ITEM.id}">
+    <span class="marketGoodsIcon" aria-hidden="true">${VILLAGE_RETURN_ITEM.icon}</span>
+    <div class="marketFishBody"><div class="marketFishTop"><b>${VILLAGE_RETURN_ITEM.name}</b><span>보유 ${returnItemCount.toLocaleString()}개</span></div>
+      <small>어디서든 사용하면 마을 북쪽 입구로 돌아와요 · ${VILLAGE_RETURN_ITEM.price.toLocaleString()}코인</small>
+      <div class="marketFishBottom"><span>사용할 때 1개 소모</span>
+        <button type="button" class="marketSeedBuy" data-buy-return-item="${VILLAGE_RETURN_ITEM.id}" ${GAME_STATE.progression.coins>=VILLAGE_RETURN_ITEM.price?'':'disabled'}>구매</button>
+      </div></div></div>`;
+  document.getElementById('marketList').innerHTML=`${skillCardMarkup('logging')}${returnItem}${catalog}`;
 }
 
 function renderRodMarket(){
@@ -288,14 +304,14 @@ function renderMarket(){
   document.querySelector('.marketTabs').style.gridTemplateColumns=`repeat(${shop.views.length},minmax(0,1fr))`;
   document.getElementById('marketShopName').textContent=shop.name;
   document.getElementById('marketPanel').setAttribute('aria-label',shop.name);
-  document.getElementById('marketTitle').textContent={fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 구매',wood:'목재 판매',axes:'도끼 구매'}[marketState.view];
+  document.getElementById('marketTitle').textContent={fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 구매',wood:'목재 판매',axes:'도끼 · 귀환 도구'}[marketState.view];
   document.querySelector('.marketGreeting').textContent={fish:'엘리: 어떤 물고기를 팔고 싶어?',
     crops:'엘리: 수확한 작물을 보여 줘!',seeds:'엘리: 농장에 심을 씨앗을 골라 봐!',rods:'엘리: 잡아 온 물고기로 낚싯대를 바꿔 줄게!',
-    wood:'준: 목재를 가져왔어?',axes:'준: 새 도끼를 만들 재료를 가져왔어?'}[marketState.view];
+    wood:'준: 목재를 가져왔어?',axes:`준: 도끼를 고치고 ${VILLAGE_RETURN_ITEM.name}도 챙겨 가!`}[marketState.view];
   document.querySelector('.marketRule').textContent=marketState.view==='fish'?'같은 어종은 먼저 낚은 물고기부터 판매돼요.':
     marketState.view==='crops'?'수확한 작물을 원하는 수량만큼 팔 수 있어요.':
     marketState.view==='wood'?'목재를 원하는 수량만큼 팔 수 있어요.':
-    marketState.view==='axes'?'목재와 코인으로 도끼를 구매해요. 장착은 가방에서 해 주세요.':
+    marketState.view==='axes'?`도끼는 닳은 만큼 언제든 수리할 수 있고, ${VILLAGE_RETURN_ITEM.name}은 재료 탭에서 사용해요.`:
     marketState.view==='rods'?'물고기와 코인으로 낚싯대를 구매해요. 도감 기록은 남고 장착은 가방에서 해 주세요.':'씨앗을 사서 햇살 농장의 빈 밭에 심어 보세요.';
   document.getElementById('marketMessage').textContent=marketState.message;
   const noSale=['seeds','axes','rods'].includes(marketState.view);
@@ -422,6 +438,25 @@ if(typeof document!=='undefined'){
   document.getElementById('marketList').addEventListener('click',event=>{
     if(marketState.view==='axes'){
       if(marketState.shop!=='workshop') return;
+      const returnItemButton=event.target.closest('[data-buy-return-item]');
+      if(returnItemButton){
+        if(returnItemButton.disabled)return;
+        const success=buyVillageReturnItem();
+        marketState.message=success?`${VILLAGE_RETURN_ITEM.name} 1개를 샀어요. 가방의 재료 탭에서 사용할 수 있어요.`:`${VILLAGE_RETURN_ITEM.name}을 구매하지 못했어요.`;
+        if(success)setMarketCoinDisplay(GAME_STATE.progression.coins);
+        renderMarket();return;
+      }
+      const repairButton=event.target.closest('[data-repair-axe-id]');
+      if(repairButton){
+        if(repairButton.disabled)return;
+        const axe=FORESTRY_AXE_BY_ID.get(repairButton.dataset.repairAxeId);
+        const cost=forestryAxeRepairCost(axe);
+        const wasEquipped=GAME_STATE.appearance?.activeTool==='axe'&&getEquippedForestryAxe().id===axe.id;
+        const success=repairForestryAxe(axe.id);
+        marketState.message=success?`${axe.name} 수리 완료! -${cost.toLocaleString()}코인${wasEquipped?'':' · 가방에서 다시 장착해 주세요.'}`:'도끼를 수리하지 못했어요.';
+        if(success)setMarketCoinDisplay(GAME_STATE.progression.coins);
+        renderMarket();return;
+      }
       const button=event.target.closest('[data-axe-id]');
       if(!button||button.disabled) return;
       const axe=FORESTRY_AXE_BY_ID.get(button.dataset.axeId);

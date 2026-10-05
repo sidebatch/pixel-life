@@ -25,6 +25,10 @@ const LIFE_CONTENT=Object.freeze({
 });
 const LIFE_CROP_BY_ID=new Map(LIFE_CONTENT.crops.map(crop=>[crop.id,crop]));
 const isInitialFarmPlot=index=>index%4<2&&Math.floor(index/4)<2;
+const VILLAGE_RETURN_ITEM=Object.freeze({
+  // Keep the original id so existing saves retain their items.
+  id:'village_return_charm',name:'귀환석',englishName:'Return Stone',icon:'🌀',price:100
+});
 
 // Provisional forestry balance. Upgrade recipes only use wood from trees
 // reachable with the player's current axe, so progression cannot deadlock.
@@ -66,41 +70,52 @@ const FORESTRY_TREES=Object.freeze({
   quebracho:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
   african_blackwood:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
   lignum_vitae:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
-  ancient_zelkova:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
-  amber_cedar:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
-  silverbark:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
-  spiralwood:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
-  moonshade:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:240,provisionalBalance:true}),
-  spirit_ancient:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
-  starlight_tree:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
-  moonveil:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
-  crystal_leaf:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
-  whisperwood:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:300,provisionalBalance:true}),
-  origin_tree:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true}),
-  primal_ancient:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true}),
-  worldroot:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true}),
-  dawncore:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true}),
-  abysswood:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:350,provisionalBalance:true})
+  // Late-tier prices include durability repair costs and keep the newest
+  // unlocked grove ahead of faster lower-tier trees at the two-second baseline.
+  ancient_zelkova:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
+  amber_cedar:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
+  silverbark:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
+  spiralwood:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
+  moonshade:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
+  spirit_ancient:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
+  starlight_tree:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
+  moonveil:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
+  crystal_leaf:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
+  whisperwood:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
+  origin_tree:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true}),
+  primal_ancient:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true}),
+  worldroot:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true}),
+  dawncore:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true}),
+  abysswood:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true})
 });
+const FORESTRY_LOG_DROP_TABLE=Object.freeze([0,1,2,3]);
+const FORESTRY_EXPECTED_LOGS_PER_TREE=FORESTRY_LOG_DROP_TABLE.reduce((sum,count)=>sum+count,0)/FORESTRY_LOG_DROP_TABLE.length;
+const FORESTRY_LOGGING_XP_RATE=.05;
+function rollForestryLogs(randomValue=Math.random()){
+  const index=Math.max(0,Math.min(FORESTRY_LOG_DROP_TABLE.length-1,
+    Math.floor(Number(randomValue)*FORESTRY_LOG_DROP_TABLE.length)));
+  return FORESTRY_LOG_DROP_TABLE[index];
+}
+function forestryTreeXp(tree){return Math.max(1,Math.round((tree?.xp||0)*FORESTRY_LOGGING_XP_RATE));}
 const FORESTRY_AXES=Object.freeze([
-  Object.freeze({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic',coins:0,materials:Object.freeze({})}),
-  Object.freeze({id:'axe.iron',name:'철 도끼',tier:2,damage:50,asset:'iron',coins:3600,materials:Object.freeze({oak_log:60,pine_log:48,birch_log:36})}),
-  Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:70,asset:'steel',coins:11200,materials:Object.freeze({maple_log:54,spruce_log:42,willow_log:36})}),
+  Object.freeze({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic',coins:0,maxDurability:null,repairCoins:0,materials:Object.freeze({})}),
+  Object.freeze({id:'axe.iron',name:'철 도끼',tier:2,damage:50,asset:'iron',coins:3600,maxDurability:180,repairCoins:150,materials:Object.freeze({oak_log:60,pine_log:48,birch_log:36})}),
+  Object.freeze({id:'axe.steel',name:'강철 도끼',tier:3,damage:70,asset:'steel',coins:11200,maxDurability:240,repairCoins:240,materials:Object.freeze({maple_log:54,spruce_log:42,willow_log:36})}),
   // Keep axe.master for save compatibility; only its player-facing name changes.
-  Object.freeze({id:'axe.master',name:'청금 도끼',tier:4,damage:90,asset:'master',coins:30000,materials:Object.freeze({cypress_log:60,broadleaf_log:50})}),
+  Object.freeze({id:'axe.master',name:'청금 도끼',tier:4,damage:90,asset:'master',coins:30000,maxDurability:360,repairCoins:400,materials:Object.freeze({cypress_log:60,broadleaf_log:50})}),
   // Every late axe uses only wood reachable with the immediately previous axe.
   // Counts remain provisional until the final end-to-end balance pass.
-  Object.freeze({id:'axe.black_iron',name:'흑철 도끼',tier:5,damage:125,asset:'black_iron',coins:65000,
+  Object.freeze({id:'axe.black_iron',name:'흑철 도끼',tier:5,damage:125,asset:'black_iron',coins:65000,maxDurability:600,repairCoins:570,
     materials:Object.freeze({ash_log:30,teak_log:28,mahogany_log:26,mango_log:24}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.rune',name:'룬 도끼',tier:6,damage:175,asset:'rune',coins:115000,
+  Object.freeze({id:'axe.rune',name:'룬 도끼',tier:6,damage:175,asset:'rune',coins:115000,maxDurability:750,repairCoins:830,
     materials:Object.freeze({baobab_log:22,sequoia_log:22,black_locust_log:20,hickory_log:20,eucalyptus_log:18}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.spirit',name:'정령 도끼',tier:7,damage:240,asset:'spirit',coins:180000,
+  Object.freeze({id:'axe.spirit',name:'정령 도끼',tier:7,damage:240,asset:'spirit',coins:180000,maxDurability:900,repairCoins:1100,
     materials:Object.freeze({olive_log:20,purpleheart_log:20,jatoba_log:18,spotted_gum_log:17,ironbark_log:15}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.moonlight',name:'달빛 도끼',tier:8,damage:330,asset:'moonlight',coins:270000,
+  Object.freeze({id:'axe.moonlight',name:'달빛 도끼',tier:8,damage:330,asset:'moonlight',coins:270000,maxDurability:1200,repairCoins:1450,
     materials:Object.freeze({cumaru_log:18,ipe_log:18,quebracho_log:16,african_blackwood_log:14,lignum_vitae_log:14}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.starlight',name:'별빛 도끼',tier:9,damage:450,asset:'starlight',coins:390000,
+  Object.freeze({id:'axe.starlight',name:'별빛 도끼',tier:9,damage:450,asset:'starlight',coins:390000,maxDurability:1500,repairCoins:1800,
     materials:Object.freeze({ancient_zelkova_log:16,amber_cedar_log:16,silverbark_log:14,spiralwood_log:14,moonshade_log:12}),provisionalRecipe:true}),
-  Object.freeze({id:'axe.primordial',name:'태초의 도끼',tier:10,damage:620,asset:'primordial',coins:550000,
+  Object.freeze({id:'axe.primordial',name:'태초의 도끼',tier:10,damage:620,asset:'primordial',coins:550000,maxDurability:1800,repairCoins:2250,
     materials:Object.freeze({spirit_ancient_log:14,starlight_tree_log:14,moonveil_log:12,crystal_leaf_log:12,whisperwood_log:10}),provisionalRecipe:true})
 ]);
 const FORESTRY_AXE_BY_ID=new Map(FORESTRY_AXES.map(axe=>[axe.id,axe]));

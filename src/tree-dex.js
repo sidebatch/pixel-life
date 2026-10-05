@@ -58,10 +58,10 @@ function renderTreeDexDetail(tree){
     <p>${TREE_DEX_DESCRIPTIONS[tree.species]||'벌목 도감에 기록된 나무입니다.'}</p>
     <div class="fishDexStats">
       <div><span>벤 횟수</span><b>${record.count.toLocaleString()}그루</b></div>
-      <div><span>벌목 경험치</span><b>${tree.xp.toLocaleString()} XP</b></div>
+      <div><span>벌목 경험치</span><b>${forestryTreeXp(tree).toLocaleString()} XP</b></div>
       <div><span>목재 판매가</span><b>${tree.logPrice.toLocaleString()}코인</b></div>
     </div>
-    <div class="treeDexWood"><img src="${treeDexLogImage(tree.species)}" alt=""><span><small>획득 목재</small><b>${tree.name} 목재 · 1~3개</b></span></div>`;
+    <div class="treeDexWood"><img src="${treeDexLogImage(tree.species)}" alt=""><span><small>획득 목재</small><b>${tree.name} 목재 · 0~3개</b></span></div>`;
 }
 
 function treeDexNextWorldTeaser(){

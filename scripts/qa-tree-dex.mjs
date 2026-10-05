@@ -55,6 +55,7 @@ try{
   await page.waitForFunction(()=>!isTreeDexOpen());
 
   const firstChop=await page.evaluate(()=>{
+    Math.random=()=>0;
     enterWorldRegion({to:'oldForest',entry:{x:31,y:44,face:'up'}});
     GAME_STATE.progression.forestry={axeId:'axe.basic',ownedAxeIds:['axe.basic']};
     GAME_STATE.appearance.activeTool='axe';
@@ -63,8 +64,10 @@ try{
     const hits=Math.ceil(FORESTRY_TREES.oak.maxHp/FORESTRY_AXES[0].damage);
     for(let hit=0;hit<hits;hit++)if(!hitResourceTree(oakTrees[0]))throw new Error('First oak chop failed');
     const record=getTreeCollectionRecord('oak');
-    if(record?.count!==1||getDiscoveredTreeCount()!==1)throw new Error('First tree discovery did not update');
-    return {count:record.count,logs:lifeItemCount('material','oak_log')};
+    if(record?.count!==1||getDiscoveredTreeCount()!==1||lifeItemCount('material','oak_log')!==0||
+      GAME_STATE.progression.logging.totalXp!==forestryTreeXp(FORESTRY_TREES.oak))
+      throw new Error('Zero-item first cut did not update discovery and Logging XP');
+    return {count:record.count,logs:lifeItemCount('material','oak_log'),xp:GAME_STATE.progression.logging.totalXp};
   });
   await page.waitForFunction(()=>isTreeDiscoveryOpen());
   await page.evaluate(()=>{
@@ -79,11 +82,13 @@ try{
   await page.waitForFunction(()=>!isTreeDiscoveryOpen());
 
   const chopReport=await page.evaluate((firstChop)=>{
+    Math.random=()=>.99;
     const tree=trees.filter(item=>item.species==='oak'&&item.interactable)[1];
     const hits=Math.ceil(FORESTRY_TREES.oak.maxHp/FORESTRY_AXES[0].damage);
     for(let hit=0;hit<hits;hit++)if(!hitResourceTree(tree))throw new Error('Repeated oak chop failed');
     const record=getTreeCollectionRecord('oak');
-    if(record?.count!==2||getDiscoveredTreeCount()!==1||isTreeDiscoveryOpen())
+    if(record?.count!==2||getDiscoveredTreeCount()!==1||isTreeDiscoveryOpen()||
+      lifeItemCount('material','oak_log')!==3||GAME_STATE.progression.logging.totalXp!==2*forestryTreeXp(FORESTRY_TREES.oak))
       throw new Error('Repeated species showed discovery again or failed to count');
     return {count:record.count,logs:lifeItemCount('material','oak_log'),firstDiscovery:firstChop};
   },firstChop);
@@ -103,7 +108,8 @@ try{
   await page.evaluate(()=>{
     const text=document.getElementById('treeDexDetail').textContent;
     if(!text.includes('참나무')||!text.includes('새싹의 숲')||!text.includes('2그루')||
-      !text.includes('벌목 경험치')||!text.includes('목재 판매가')||!text.includes('참나무 목재')||
+      !text.includes('벌목 경험치')||!text.includes('1 XP')||!text.includes('목재 판매가')||
+      !text.includes('참나무 목재 · 0~3개')||
       text.includes('나무 체력')||text.includes('단계')||text.includes('기본 도끼')||text.includes('오래된 숲'))
       throw new Error('Discovered tree detail is not concise');
   });

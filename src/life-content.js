@@ -11,6 +11,37 @@ function getOwnedForestryAxes(){
   return FORESTRY_AXES.filter(axe=>owned.includes(axe.id));
 }
 
+function getForestryAxeDurability(axeOrId=getEquippedForestryAxe()){
+  const axe=typeof axeOrId==='string'?FORESTRY_AXE_BY_ID.get(axeOrId):axeOrId;
+  if(!axe)return null;
+  if(!axe.maxDurability)return {current:null,max:null,missing:0,broken:false,infinite:true};
+  const saved=Number(GAME_STATE.progression.forestry?.durabilityByAxeId?.[axe.id]);
+  const current=Number.isFinite(saved)?Math.max(0,Math.min(axe.maxDurability,Math.floor(saved))):axe.maxDurability;
+  return {current,max:axe.maxDurability,missing:axe.maxDurability-current,broken:current===0,infinite:false};
+}
+
+function forestryAxeHitCost(treeType){return Math.max(1,Math.floor(treeType?.tier||1));}
+
+function forestryAxeRepairCost(axeOrId){
+  const axe=typeof axeOrId==='string'?FORESTRY_AXE_BY_ID.get(axeOrId):axeOrId;
+  const durability=getForestryAxeDurability(axe);
+  if(!axe||!durability||durability.infinite||!durability.missing)return 0;
+  return Math.max(1,Math.ceil(axe.repairCoins*durability.missing/axe.maxDurability));
+}
+
+function repairForestryAxe(axeId){
+  const axe=FORESTRY_AXE_BY_ID.get(axeId),durability=getForestryAxeDurability(axe);
+  const cost=forestryAxeRepairCost(axe);
+  if(GAME_STATE.regionId!=='lilacVillage'||!axe||!getOwnedForestryAxes().some(item=>item.id===axe.id)||
+    durability?.infinite||!cost||GAME_STATE.progression.coins<cost)return false;
+  return Boolean(commitLifeChange(()=>{
+    GAME_STATE.progression.coins-=cost;
+    GAME_STATE.progression.forestry={...GAME_STATE.progression.forestry,
+      durabilityByAxeId:{...(GAME_STATE.progression.forestry.durabilityByAxeId||{}),[axe.id]:axe.maxDurability}};
+    return true;
+  }));
+}
+
 function nextForestryAxe(){
   const tier=Math.max(...getOwnedForestryAxes().map(axe=>axe.tier));
   return FORESTRY_AXES.find(axe=>axe.tier===tier+1)||null;
@@ -28,7 +59,9 @@ function upgradeForestryAxe(axeId){
     GAME_STATE.progression.coins-=axe.coins;
     for(const [id,count] of Object.entries(axe.materials)) removeLifeItem('material',id,count);
     GAME_STATE.progression.forestry={...GAME_STATE.progression.forestry,
-      ownedAxeIds:[...new Set([...getOwnedForestryAxes().map(owned=>owned.id),axe.id])]};
+      ownedAxeIds:[...new Set([...getOwnedForestryAxes().map(owned=>owned.id),axe.id])],
+      durabilityByAxeId:{...(GAME_STATE.progression.forestry.durabilityByAxeId||{}),
+        ...(axe.maxDurability?{[axe.id]:axe.maxDurability}:{})}};
     return true;
   }));
 }
@@ -36,6 +69,10 @@ function upgradeForestryAxe(axeId){
 function equipForestryAxe(axeId){
   if(isChoppingTree()||(typeof isFishingActive==='function'&&isFishingActive()))return false;
   if(!getOwnedForestryAxes().some(axe=>axe.id===axeId)) return false;
+  if(getForestryAxeDurability(axeId)?.broken){
+    showLifeToast('도끼가 망가졌어요. 마을 도구점에서 수리해 주세요');
+    return false;
+  }
   const previous=GAME_STATE.progression.forestry.axeId;
   const previousTool=GAME_STATE.appearance?.activeTool;
   GAME_STATE.progression.forestry.axeId=axeId;
@@ -54,6 +91,7 @@ function lifeItemIconMarkup(type,id,fallback=''){
 
 function lifeItemName(type,id){
   if(type==='material') return id==='log'?'일반 목재':FOREST_WOOD[id.slice(0,-4)]&&id.endsWith('_log')?FOREST_WOOD[id.slice(0,-4)]:'';
+  if(type==='consumable'&&id===VILLAGE_RETURN_ITEM.id) return VILLAGE_RETURN_ITEM.name;
   const crop=LIFE_CROP_BY_ID.get(id);
   return crop?(type==='seed'?`${crop.name} 씨앗`:type==='crop'?crop.name:''):'';
 }
@@ -119,7 +157,8 @@ function commitLifeChange(change){
   const beforeTreeCollection=JSON.parse(JSON.stringify(GAME_STATE.collections?.trees||{}));
   const beforeCoins=GAME_STATE.progression.coins;
   const beforeLogging=GAME_STATE.progression.logging?{...GAME_STATE.progression.logging}:null;
-  const beforeForestry=GAME_STATE.progression.forestry?{...GAME_STATE.progression.forestry}:null;
+  const beforeForestry=GAME_STATE.progression.forestry?JSON.parse(JSON.stringify(GAME_STATE.progression.forestry)):null;
+  const beforeAppearance=GAME_STATE.appearance?{...GAME_STATE.appearance}:null;
   const result=change();
   if(result&&saveGame()) return result;
   GAME_STATE.inventory=beforeInventory;
@@ -128,7 +167,37 @@ function commitLifeChange(change){
   GAME_STATE.progression.coins=beforeCoins;
   if(beforeLogging) GAME_STATE.progression.logging=beforeLogging;
   if(beforeForestry) GAME_STATE.progression.forestry=beforeForestry;
+  if(beforeAppearance) GAME_STATE.appearance=beforeAppearance;
   return null;
+}
+
+function buyVillageReturnItem(){
+  if(GAME_STATE.regionId!=='lilacVillage'||GAME_STATE.progression.coins<VILLAGE_RETURN_ITEM.price)return false;
+  return Boolean(commitLifeChange(()=>{
+    GAME_STATE.progression.coins-=VILLAGE_RETURN_ITEM.price;
+    return addLifeItem('consumable',VILLAGE_RETURN_ITEM.id,1);
+  }));
+}
+
+function useVillageReturnItem(){
+  if(lifeItemCount('consumable',VILLAGE_RETURN_ITEM.id)<1||
+    isChoppingTree()||(typeof isFishingActive==='function'&&isFishingActive()))return false;
+  const previousRegion=GAME_STATE.regionId;
+  const previousLocation={x:player.x,y:player.y,face:player.face};
+  const previousInventory=JSON.parse(JSON.stringify(GAME_STATE.inventory));
+  if(!removeLifeItem('consumable',VILLAGE_RETURN_ITEM.id,1)||
+    !enterWorldRegion({to:'lilacVillage',entry:{x:25,y:3,face:'down'}},{skipSave:true})){
+    GAME_STATE.inventory=previousInventory;
+    return false;
+  }
+  if(!saveGame()){
+    GAME_STATE.inventory=previousInventory;
+    enterWorldRegion({to:previousRegion,entry:previousLocation},{skipSave:true});
+    return false;
+  }
+  if(typeof closeInventory==='function'&&isInventoryOpen())closeInventory();
+  showLifeToast('마을로 돌아왔어요');
+  return true;
 }
 
 function getTreeState(tree,now=Date.now()){
@@ -154,6 +223,11 @@ function hitResourceTree(tree){
   if(!tree?.interactable||!FOREST_REGION_SPECIES[GAME_STATE.regionId]) return false;
   const treeType=FORESTRY_TREES[tree.species],axe=getEquippedForestryAxe();
   if(!treeType) return false;
+  const durability=getForestryAxeDurability(axe);
+  if(durability?.broken){
+    showLifeToast('도끼가 망가졌어요. 마을 도구점에서 수리해 주세요');
+    return false;
+  }
   if(axe.tier<treeType.tier){
     showLifeToast(`${FOREST_WOOD[tree.species]}는 ${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
     return false;
@@ -165,24 +239,32 @@ function hitResourceTree(tree){
     return false;
   }
   const nextHp=Math.max(0,current.hp-axe.damage);
-  const logs=nextHp===0?1+Math.floor(Math.random()*3):0;
-  const gainedXp=logs?treeType.xp:0;
-  const firstDiscovery=Boolean(logs&&!getTreeCollectionRecord(tree.species));
+  const completed=nextHp===0;
+  const logs=completed?rollForestryLogs():0;
+  const gainedXp=completed?forestryTreeXp(treeType):0;
+  const firstDiscovery=Boolean(completed&&!getTreeCollectionRecord(tree.species));
+  const nextDurability=durability?.infinite?null:Math.max(0,durability.current-forestryAxeHitCost(treeType));
   const progressBefore=gainedXp?lifeSkillProgressSnapshot('logging'):null;
   const success=commitLifeChange(()=>{
-    GAME_STATE.world.trees[tree.id]=nextHp===0?{hp:0,choppedAt:now,maxHp:treeType.maxHp}:{hp:nextHp,choppedAt:null,maxHp:treeType.maxHp};
+    GAME_STATE.world.trees[tree.id]=completed?{hp:0,choppedAt:now,maxHp:treeType.maxHp}:{hp:nextHp,choppedAt:null,maxHp:treeType.maxHp};
     if(logs) addLifeItem('material',`${tree.species}_log`,logs);
-    if(logs) recordTreeDiscovery(tree.species);
+    if(completed) recordTreeDiscovery(tree.species);
     if(gainedXp) grantLifeSkillXp('logging',gainedXp);
+    if(nextDurability!==null){
+      GAME_STATE.progression.forestry={...GAME_STATE.progression.forestry,
+        durabilityByAxeId:{...(GAME_STATE.progression.forestry.durabilityByAxeId||{}),[axe.id]:nextDurability}};
+      if(nextDurability===0)GAME_STATE.appearance.activeTool='none';
+    }
     return true;
   });
   if(!success){showLifeToast('저장하지 못했어요. 다시 시도해 주세요');return false;}
   lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,cut:nextHp===0,until:performance.now()+650};
-  if(logs){
-    showLifeToast(`${FOREST_WOOD[tree.species]} +${logs}개${firstDiscovery?' · 새 나무 도감!':''}`,{belowSkill:true});
+  if(completed){
+    if(logs&&nextDurability!==0)showLifeToast(`${FOREST_WOOD[tree.species]} +${logs}개${firstDiscovery?' · 새 나무 도감!':''}`,{belowSkill:true});
     showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
     if(firstDiscovery&&typeof showTreeDiscoveryReveal==='function')showTreeDiscoveryReveal(tree.species);
   }
+  if(nextDurability===0)showLifeToast(`${completed&&logs?`${FOREST_WOOD[tree.species]} +${logs}개 · `:''}도끼가 망가졌어요 · 마을 도구점에서 수리해 주세요`);
   return true;
 }
 
@@ -199,10 +281,14 @@ function startAxeSwing(tree=null){
 function startTreeChop(tree){
   if(!tree||lifeUi.chop||player.moving||menuOpen||dialogOpen) return false;
   if((GAME_STATE.appearance?.activeTool||'axe')!=='axe'){
-    showLifeToast('도끼를 장착해야 벌목할 수 있어요');return false;
+    showLifeToast(GAME_STATE.appearance?.activeTool==='none'&&getForestryAxeDurability()?.broken?
+      '도끼가 망가졌어요. 마을 도구점에서 수리해 주세요':'도끼를 장착해야 벌목할 수 있어요');return false;
   }
   const treeType=FORESTRY_TREES[tree.species];
   if(!treeType) return false;
+  if(getForestryAxeDurability()?.broken){
+    showLifeToast('도끼가 망가졌어요. 마을 도구점에서 수리해 주세요');return false;
+  }
   if(getEquippedForestryAxe().tier<treeType.tier){
     showLifeToast(`${FOREST_WOOD[tree.species]}는 ${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
     return false;

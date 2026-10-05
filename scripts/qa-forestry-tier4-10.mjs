@@ -22,6 +22,7 @@ try{
     FOREST_SPECIES.every(species=>forestTreeImgs[species]?.naturalWidth===120&&
       forestStumpImgs[species]?.naturalWidth===96&&lifeItemImgs[`${species}Log`]?.naturalWidth===96));
   const result=await page.evaluate(()=>{
+    Math.random=()=>.99;
     const byTier={
       4:['ash','teak','mahogany','mango'],
       5:['baobab','sequoia','black_locust','hickory','eucalyptus'],

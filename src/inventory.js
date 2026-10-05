@@ -312,6 +312,7 @@ if(typeof document!=='undefined'){
         card.dataset.equipType==='sword'?equipSword(card.dataset.equipId):
         equipInventoryAppearance(card.dataset.equipType,card.dataset.equipId);
       if(success){
+        if(typeof playItemEquipSound==='function')playItemEquipSound();
         renderInventory();
         document.getElementById('inventorySummary').textContent=`${inventoryWearable(card.dataset.equipType,card.dataset.equipId).name} 장착`;
         const selected=document.querySelector(`[data-equip-id="${card.dataset.equipId}"]`);

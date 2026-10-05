@@ -267,7 +267,10 @@ function hitResourceTree(tree){
     showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
     if(firstDiscovery&&typeof showTreeDiscoveryReveal==='function')showTreeDiscoveryReveal(tree.species);
   }
-  if(nextDurability===0)showLifeToast(`${completed&&logs?`${FOREST_WOOD[tree.species]} +${logs}개 · `:''}도끼가 망가졌어요 · 마을 도구점에서 수리해 주세요`);
+  if(nextDurability===0){
+    if(typeof playAxeBreakSound==='function')playAxeBreakSound();
+    showLifeToast(`${completed&&logs?`${FOREST_WOOD[tree.species]} +${logs}개 · `:''}도끼가 망가졌어요 · 마을 도구점에서 수리해 주세요`);
+  }
   return true;
 }
 

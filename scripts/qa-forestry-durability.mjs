@@ -23,6 +23,8 @@ try{
   await page.waitForFunction(()=>typeof repairForestryAxe==='function');
 
   const chopReport=await page.evaluate(()=>{
+    let axeBreakSoundCount=0;
+    playAxeBreakSound=()=>{axeBreakSoundCount+=1;return true;};
     Math.random=()=>0;
     enterWorldRegion({to:'oldForest',entry:{x:31,y:44,face:'up'}});
     GAME_STATE.progression.forestry={axeId:'axe.basic',ownedAxeIds:['axe.basic'],durabilityByAxeId:{}};
@@ -49,9 +51,10 @@ try{
     if(hp!==20||getForestryAxeDurability('axe.iron').current!==0||GAME_STATE.appearance.activeTool!=='none'||
       hitResourceTree(maple)||getTreeState(maple).hp!==hp||equipForestryAxe('axe.iron'))
       throw new Error('Broken axe did not stop use and auto-unequip');
-    return {noDropQuiet,basicInfinite:true,mapleId:maple.id,hp,
+    return {noDropQuiet,basicInfinite:true,mapleId:maple.id,hp,axeBreakSoundCount,
       hitCosts:[forestryAxeHitCost(FORESTRY_TREES.oak),forestryAxeHitCost(FORESTRY_TREES.maple),forestryAxeHitCost(FORESTRY_TREES.worldroot)]};
   });
+  if(chopReport.axeBreakSoundCount!==1)throw new Error('Axe break sound did not play exactly once');
 
   await page.reload();
   await page.waitForFunction(()=>typeof repairForestryAxe==='function');
@@ -126,6 +129,23 @@ try{
     !partialRepair.message.includes('수리 완료')||partialRepair.message.includes('다시 장착'))
     throw new Error(`70% partial repair result is wrong: ${JSON.stringify(partialRepair)}`);
 
+  await page.evaluate(()=>{
+    window.__equipSoundCount=0;
+    playItemEquipSound=()=>{window.__equipSoundCount+=1;return true;};
+    closeMarket({fromHistory:true});
+    openInventory({fromHistory:true});inventoryState.tab='equipment';renderInventory();
+  });
+  await page.locator('[data-equip-type="axe"][data-equip-id="axe.basic"]').tap();
+  await page.locator('[data-equip-type="axe"][data-equip-id="axe.iron"]').tap();
+  await page.locator('[data-equip-type="axe"][data-equip-id="axe.iron"]').tap();
+  const equipSoundReport=await page.evaluate(()=>(
+    {count:window.__equipSoundCount,axeId:GAME_STATE.progression.forestry.axeId,activeTool:GAME_STATE.appearance.activeTool}
+  ));
+  if(equipSoundReport.count!==2||equipSoundReport.axeId!=='axe.iron'||equipSoundReport.activeTool!=='axe')
+    throw new Error(`Successful inventory equips did not play once each or repeated on the equipped card: ${JSON.stringify(equipSoundReport)}`);
+  await page.evaluate(()=>closeInventory({fromHistory:true}));
+
+  await page.evaluate(()=>{openMarket({shop:'workshop',fromHistory:true});marketState.view='axes';renderMarket();});
   const returnBuyButton=page.locator('[data-buy-return-item="village_return_charm"]');
   await returnBuyButton.tap();
   await returnBuyButton.tap();
@@ -180,7 +200,7 @@ try{
     throw new Error(`Repaired and re-equipped axe did not survive reload: ${JSON.stringify(finalState)}`);
   if(chopReport.hitCosts.join(',')!=='1,2,10')throw new Error('Higher-tier trees do not consume more durability');
   if(errors.length)throw new Error(errors.join('\n'));
-  const report={chopReport,restored,repaired,partialRepair,purchasedReturns,returned,homeUse,finalState};
+  const report={chopReport,restored,repaired,partialRepair,equipSoundReport,purchasedReturns,returned,homeUse,finalState};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log('Forestry durability browser QA passed: quiet no-drop, raised full/70% repairs, Return Stone use inside/outside village and reload');
 }finally{

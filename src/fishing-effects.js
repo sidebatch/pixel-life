@@ -188,6 +188,37 @@ function playTreeDiscoverySound(){
   });
 }
 
+function playItemEquipSound(){
+  return playFishingAudio(context=>{
+    const start=context.currentTime+.015;
+    scheduleFishingTone(context,330,start,.09,'triangle',.032);
+    scheduleFishingTone(context,520,start+.045,.12,'sine',.026);
+  });
+}
+
+function playAxeBreakSound(){
+  return playFishingAudio(context=>{
+    const start=context.currentTime+.035;
+    const sweeps=[
+      {type:'square',from:940,to:170,duration:.16,volume:.058},
+      {type:'sawtooth',from:220,to:58,duration:.34,volume:.072},
+      {type:'triangle',from:1450,to:520,duration:.11,volume:.022}
+    ];
+    sweeps.forEach((sweep,index)=>{
+      const offset=index===1?.045:index===2?.012:0;
+      const oscillator=context.createOscillator(),gain=context.createGain();
+      oscillator.type=sweep.type;
+      oscillator.frequency.setValueAtTime(sweep.from,start+offset);
+      oscillator.frequency.exponentialRampToValueAtTime(sweep.to,start+offset+sweep.duration);
+      gain.gain.setValueAtTime(.0001,start+offset);
+      gain.gain.exponentialRampToValueAtTime(sweep.volume,start+offset+.006);
+      gain.gain.exponentialRampToValueAtTime(.0001,start+offset+sweep.duration);
+      oscillator.connect(gain);gain.connect(context.destination);
+      oscillator.start(start+offset);oscillator.stop(start+offset+sweep.duration+.02);
+    });
+  });
+}
+
 for(const kind of Object.keys(GAME_SOUND_URLS)) getGameSoundPlayer(kind);
 
 function clearFishingRarityEffect(dialog=document.getElementById('dialog')){

@@ -459,11 +459,13 @@ assert(vm.runInContext(`balancedGameSoundLevel({numberOfChannels:1,getChannelDat
   balancedGameSoundLevel({numberOfChannels:1,getChannelData:()=>new Float32Array(128).fill(.02)})`,fishingEffectsContext),
   'Audio balancing must lower loud effects relative to quiet effects');
 vm.runInContext(`globalThis.__chop=playForestryChopSound();globalThis.__cut=playForestryChopSound(true);`+
-  `globalThis.__treeDiscoverySound=playTreeDiscoverySound();`,fishingEffectsContext);
+  `globalThis.__treeDiscoverySound=playTreeDiscoverySound();globalThis.__equipSound=playItemEquipSound();`+
+  `globalThis.__axeBreakSound=playAxeBreakSound();`,fishingEffectsContext);
 assert(fishingEffectsContext.__chop&&fishingEffectsContext.__cut&&fishingEffectsContext.__treeDiscoverySound&&
-  audioProbe.oscillators===22&&audioProbe.gains.some(gain=>gain.ramps?.includes(.24))&&
+  fishingEffectsContext.__equipSound&&fishingEffectsContext.__axeBreakSound&&audioProbe.oscillators===27&&
+  audioProbe.gains.some(gain=>gain.ramps?.includes(.24))&&
   audioProbe.gains.some(gain=>gain.ramps?.includes(.038))&&audioProbe.gains.some(gain=>gain.ramps?.includes(.31)),
-  'Forestry must use one shared wooden hit, add one low fall impact on completion, and play a three-note discovery chime');
+  'Forestry and inventory must provide wooden hits, tree fall, discovery, equipment, and axe-break sounds');
 
 const bufferedProbe={loaded:[],started:[],stopped:0,resumed:0};
 class FakeBufferedAudioContext extends FakeAudioContext{
@@ -1121,6 +1123,8 @@ assert(lifeContext.__lateAxePurchases.length===6&&lifeContext.__lateAxePurchases
   result.bought&&result.coins===0&&result.consumed&&result.equipped==='axe.steel')&&
   lifeContext.GAME_STATE.progression.forestry.ownedAxeIds.length===10&&vm.runInContext('nextForestryAxe()===null',lifeContext),
   'Tier 5-10 upgrades must consume reachable wood in order without auto-equipping the purchase');
+let axeBreakSoundCount=0;
+lifeContext.playAxeBreakSound=()=>{axeBreakSoundCount+=1;return true;};
 vm.runInContext(`GAME_STATE.regionId='oldForest';equipForestryAxe('axe.basic');`+
   `const basicDurabilityTree={id:'durability_basic',species:'oak',interactable:true,x:1,y:1};`+
   `globalThis.__basicDurabilityHit=hitResourceTree(basicDurabilityTree);`+
@@ -1139,6 +1143,7 @@ vm.runInContext(`GAME_STATE.regionId='oldForest';equipForestryAxe('axe.basic');`
   `globalThis.__durabilityTierCosts=[forestryAxeHitCost(FORESTRY_TREES.oak),forestryAxeHitCost(FORESTRY_TREES.maple),forestryAxeHitCost(FORESTRY_TREES.worldroot)];`,lifeContext);
 assert(lifeContext.__basicDurabilityHit&&lifeContext.__basicDurabilityKeys===0&&lifeContext.__breakingHit&&
   lifeContext.__brokenHp===30&&!lifeContext.__blockedBrokenHit&&!lifeContext.__blockedBrokenEquip&&
+  axeBreakSoundCount===1&&
   !lifeContext.__fieldRepair&&!lifeContext.__poorRepair&&lifeContext.__fullRepairCost===240&&lifeContext.__repaired&&
   lifeContext.__repairedDurability===240&&lifeContext.__toolAfterRepair==='none'&&lifeContext.__equippedAfterRepair&&
   lifeContext.__partialRepairCost===120&&lifeContext.__durabilityTierCosts.join(',')==='1,2,10'&&

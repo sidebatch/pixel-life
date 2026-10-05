@@ -1,9 +1,46 @@
 const treeDexState={open:false,detailOpen:false,filter:'all',selectedSpecies:null,
-  discoveryOpen:false,discoverySpecies:null,returnMenuOpen:false};
+  discoveryOpen:false,discoverySpecies:null,revealType:null,milestoneId:null,returnMenuOpen:false};
 
 function isTreeDexOpen(){return treeDexState.open;}
 function isTreeDexDetailOpen(){return treeDexState.detailOpen;}
 function isTreeDiscoveryOpen(){return treeDexState.discoveryOpen;}
+
+function getTreeDexMilestoneState(){
+  const collections=GAME_STATE.collections||(GAME_STATE.collections={});
+  const current=collections.treeMilestones;
+  if(!current||!Array.isArray(current.unlockedIds)||!Array.isArray(current.revealedIds)){
+    collections.treeMilestones={unlockedIds:[],revealedIds:[]};
+  }
+  return collections.treeMilestones;
+}
+
+function syncTreeDexMilestones(){
+  const state=getTreeDexMilestoneState();
+  const discovered=getDiscoveredTreeCount();
+  const unlockedIds=TREE_DEX_WORLDS.filter(world=>world.reward&&discovered>=world.milestone).map(world=>world.id);
+  const newlyUnlocked=unlockedIds.filter(id=>!state.unlockedIds.includes(id));
+  state.unlockedIds=unlockedIds;
+  state.revealedIds=state.revealedIds.filter(id=>unlockedIds.includes(id));
+  return newlyUnlocked;
+}
+
+function treeDexUnlockedWorlds(){
+  syncTreeDexMilestones();
+  const unlockedIds=getTreeDexMilestoneState().unlockedIds;
+  return TREE_DEX_WORLDS.filter(world=>unlockedIds.includes(world.id));
+}
+
+function treeDexActiveTitle(){
+  return [...treeDexUnlockedWorlds()].reverse().find(world=>world.reward?.title)?.reward.title||null;
+}
+
+function treeDexPanelRewardClass(){
+  const rewards=treeDexUnlockedWorlds().map(world=>world.reward);
+  if(rewards.some(reward=>reward?.frame==='gold'))return 'reward-gold';
+  if(rewards.some(reward=>reward?.effect==='spirit'))return 'reward-spirit';
+  if(rewards.some(reward=>reward?.frame==='bronze'))return 'reward-bronze';
+  return '';
+}
 
 function treeDexEntries(){
   return FOREST_SPECIES.map((species,index)=>({species,index,name:FOREST_WOOD[species],...FORESTRY_TREES[species]}))
@@ -37,8 +74,10 @@ function renderTreeDexSummary(discovered){
     return progress.found<progress.total;
   });
   const progress=nextWorld?treeDexWorldProgress(nextWorld):null;
+  const activeTitle=treeDexActiveTitle();
+  const nextReward=TREE_DEX_WORLDS.find(world=>discovered<world.milestone);
   summary.className=`fishDexReward treeDexSummary${nextWorld?'':' complete'}`;
-  summary.innerHTML=`<div><small>${nextWorld?`${nextWorld.name} · ${progress.found}/${progress.total}`:'나무 도감'}</small><b>${nextWorld?'수집 중':'도감 완성'}</b><i><span style="width:${percent}%"></span></i></div><span>${percent}%</span>`;
+  summary.innerHTML=`<div><small>${nextWorld?`${nextWorld.name} · ${progress.found}/${progress.total}`:'나무 도감'}</small><b>${nextWorld?'수집 중':'도감 완성'}</b><em class="treeDexTitleBadge">${activeTitle?`칭호 · ${activeTitle}`:nextReward?`첫 영구 보상 · ${nextReward.milestone}종`:'모든 보상 획득'}</em><i><span style="width:${percent}%"></span></i></div><span>${percent}%</span>`;
 }
 
 function renderTreeDexDetail(tree){
@@ -80,6 +119,10 @@ function treeDexNextWorldTeaser(){
 
 function renderTreeDex(){
   const discovered=getDiscoveredTreeCount();
+  const panel=document.getElementById('treeDexPanel');
+  panel.classList.remove('reward-bronze','reward-spirit','reward-gold');
+  const rewardClass=treeDexPanelRewardClass();
+  if(rewardClass)panel.classList.add(rewardClass);
   document.getElementById('treeDexProgress').textContent=`${discovered} / ${FOREST_SPECIES.length}`;
   renderTreeDexSummary(discovered);
   document.querySelectorAll('[data-tree-filter]').forEach(button=>{
@@ -104,16 +147,68 @@ function showTreeDiscoveryReveal(species){
   const world=treeDexWorldForTier(tree.tier);
   treeDexState.discoveryOpen=true;
   treeDexState.discoverySpecies=species;
+  treeDexState.revealType='tree';
+  treeDexState.milestoneId=null;
   treeDexState.returnMenuOpen=menuOpen;
   menuOpen=true;
   clearMovement();
-  document.getElementById('treeDiscoveryImage').src=treeDexImage(species);
-  document.getElementById('treeDiscoveryImage').alt=`${tree.name} 나무`;
+  const image=document.getElementById('treeDiscoveryImage');
+  const rewardIcon=document.getElementById('treeDiscoveryRewardIcon');
+  image.hidden=false;
+  image.src=treeDexImage(species);
+  image.alt=`${tree.name} 나무`;
+  rewardIcon.hidden=true;
+  document.querySelector('.treeDiscoveryEyebrow').textContent='NEW TREE DISCOVERED';
   document.getElementById('treeDiscoveryWorld').textContent=world.name;
   document.getElementById('treeDiscoveryTitle').textContent=tree.name;
   document.getElementById('treeDiscoveryDescription').textContent=TREE_DEX_DESCRIPTIONS[species]||'새로운 나무가 도감에 기록되었습니다.';
+  document.getElementById('treeDiscoveryClose').textContent='확인';
   const overlay=document.getElementById('treeDiscoveryOverlay');
+  overlay.classList.remove('milestoneReward','milestone-bronze','milestone-spirit','milestone-gold');
   overlay.classList.remove('show');
+  void overlay.offsetWidth;
+  overlay.classList.add('show');
+  overlay.setAttribute('aria-hidden','false');
+  if(typeof playTreeDiscoverySound==='function')playTreeDiscoverySound();
+  document.getElementById('treeDiscoveryClose').focus();
+  return true;
+}
+
+function pendingTreeDexMilestone(){
+  syncTreeDexMilestones();
+  const state=getTreeDexMilestoneState();
+  return TREE_DEX_WORLDS.find(world=>state.unlockedIds.includes(world.id)&&!state.revealedIds.includes(world.id))||null;
+}
+
+function showTreeMilestoneReveal(options={}){
+  if(treeDexState.discoveryOpen)return false;
+  const world=pendingTreeDexMilestone();
+  if(!world)return false;
+  const reward=world.reward;
+  treeDexState.discoveryOpen=true;
+  treeDexState.discoverySpecies=null;
+  treeDexState.revealType='milestone';
+  treeDexState.milestoneId=world.id;
+  treeDexState.returnMenuOpen=options.returnMenuOpen??menuOpen;
+  menuOpen=true;
+  clearMovement();
+  const image=document.getElementById('treeDiscoveryImage');
+  const rewardIcon=document.getElementById('treeDiscoveryRewardIcon');
+  image.hidden=true;
+  image.alt='';
+  rewardIcon.hidden=false;
+  rewardIcon.textContent=reward.icon;
+  document.querySelector('.treeDiscoveryEyebrow').textContent='TREE MILESTONE';
+  document.getElementById('treeDiscoveryWorld').textContent=`${world.milestone} / ${FOREST_SPECIES.length}종 발견`;
+  document.getElementById('treeDiscoveryTitle').textContent=reward.name;
+  document.getElementById('treeDiscoveryDescription').textContent=reward.description;
+  document.getElementById('treeDiscoveryClose').textContent='보상 받기';
+  const overlay=document.getElementById('treeDiscoveryOverlay');
+  overlay.classList.remove('show','milestone-bronze','milestone-spirit','milestone-gold');
+  overlay.classList.add('milestoneReward');
+  if(reward.frame==='gold')overlay.classList.add('milestone-gold');
+  else if(reward.effect==='spirit')overlay.classList.add('milestone-spirit');
+  else if(reward.frame==='bronze')overlay.classList.add('milestone-bronze');
   void overlay.offsetWidth;
   overlay.classList.add('show');
   overlay.setAttribute('aria-hidden','false');
@@ -124,12 +219,29 @@ function showTreeDiscoveryReveal(species){
 
 function closeTreeDiscoveryReveal(){
   if(!treeDexState.discoveryOpen)return false;
+  const returnMenuOpen=treeDexState.returnMenuOpen;
+  if(treeDexState.revealType==='milestone'){
+    const state=getTreeDexMilestoneState();
+    const previous=[...state.revealedIds];
+    if(treeDexState.milestoneId&&!state.revealedIds.includes(treeDexState.milestoneId))state.revealedIds.push(treeDexState.milestoneId);
+    if(!saveGame()){
+      state.revealedIds=previous;
+      if(typeof showLifeToast==='function')showLifeToast('보상을 저장하지 못했어요. 다시 시도해 주세요');
+      return false;
+    }
+  }
   treeDexState.discoveryOpen=false;
+  treeDexState.discoverySpecies=null;
+  treeDexState.revealType=null;
+  treeDexState.milestoneId=null;
   const overlay=document.getElementById('treeDiscoveryOverlay');
   overlay.classList.remove('show');
   overlay.setAttribute('aria-hidden','true');
-  menuOpen=treeDexState.returnMenuOpen;
+  if(showTreeMilestoneReveal({returnMenuOpen}))return true;
+  overlay.classList.remove('milestoneReward','milestone-bronze','milestone-spirit','milestone-gold');
+  menuOpen=returnMenuOpen;
   treeDexState.returnMenuOpen=false;
+  if(treeDexState.open)renderTreeDex();
   document.getElementById('btnA')?.focus({preventScroll:true});
   return true;
 }
@@ -169,6 +281,7 @@ function openTreeDex(options={}){
   panel.setAttribute('aria-hidden','false');
   document.getElementById('treeDexClose').focus();
   if(!options.fromHistory)pushGameOverlayHistory('tree-dex');
+  showTreeMilestoneReveal({returnMenuOpen:true});
 }
 
 function closeTreeDex(options={}){

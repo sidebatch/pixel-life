@@ -209,6 +209,10 @@
   .characterStyleSheet button:focus-visible{outline:3px solid #ffdc83;outline-offset:3px}
   .inventoryDetailContent footer{margin-top:16px;color:#afdbbf;font-size:11px}
   .treeDexPanel{background:linear-gradient(180deg,rgba(28,61,42,.99),rgba(9,31,29,.99))}.treeDexPanel .fishDexHeader span{color:#b6e59f}.treeDexSummary{border-color:rgba(168,220,111,.3);background:linear-gradient(90deg,rgba(65,116,37,.28),rgba(110,78,28,.17));color:#eaffd8}.treeDexSummary small{color:rgba(224,255,205,.68)}.treeDexSummary i span{background:linear-gradient(90deg,#83cc65,#e4c166)}.treeDexGrid{align-items:stretch}.treeDexCard{min-height:132px}.treeDexCardIcon{width:58px;height:72px;border-radius:16px}.treeDexCardIcon img{width:58px;height:72px;object-fit:contain}.treeDexCard.discovered{border-color:rgba(157,218,118,.26);background:linear-gradient(180deg,rgba(101,157,72,.14),rgba(255,255,255,.045))}.treeDexCard.discovered b{color:#dfffc8}.treeDexCard small{color:#b7d3a8}.treeDexSilhouette{filter:brightness(0) opacity(.42)!important}.treeDexCard.undiscovered .treeDexCardIcon{width:58px;height:72px}.treeDexDetailHero>span{width:82px;height:104px}.treeDexDetailHero>span img{width:82px;height:104px;object-fit:contain}.treeDexWood{display:flex;align-items:center;gap:9px;margin-top:9px;padding:7px 9px;border-radius:11px;background:rgba(132,190,93,.1)}.treeDexWood img{width:42px;height:42px;object-fit:contain;image-rendering:pixelated}.treeDexWood span,.treeDexWood small,.treeDexWood b{display:block}.treeDexWood small{color:#9fbe93;font-size:9px}.treeDexWood b{margin-top:2px;color:#eaffdd;font-size:11px}
+  .treeDexTitleBadge{display:block;margin-top:3px;color:#f0d985;font-size:9px;font-style:normal;font-weight:900;letter-spacing:.02em}
+  .treeDexPanel.reward-bronze{border-color:#bd8150;box-shadow:inset 0 0 0 2px rgba(104,55,25,.72),0 18px 55px rgba(0,0,0,.58)}
+  .treeDexPanel.reward-spirit{border-color:#9cf5d5;box-shadow:inset 0 0 0 2px rgba(114,233,204,.23),0 0 30px rgba(92,239,197,.22),0 18px 55px rgba(0,0,0,.58)}
+  .treeDexPanel.reward-gold{border-color:#ffe38a;animation:treeDexGoldFrame 2.2s ease-in-out infinite;box-shadow:inset 0 0 0 2px rgba(255,208,79,.38),0 0 28px rgba(255,214,83,.28),0 18px 55px rgba(0,0,0,.6)}
 
   /* Five ordered collection worlds and a silhouette teaser for the next one. */
   .treeDexTabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;overflow:visible;padding-bottom:10px;touch-action:manipulation}
@@ -231,10 +235,19 @@
   .treeDiscoveryArt{position:relative;display:grid;place-items:center;width:148px;height:162px;margin:7px auto 0}
   .treeDiscoveryArt span{position:absolute;width:118px;height:118px;border-radius:50%;background:radial-gradient(circle,#f7e99a55,transparent 70%);box-shadow:0 0 42px #d7ec7d2f}
   .treeDiscoveryArt img{position:relative;width:124px;height:150px;object-fit:contain;image-rendering:pixelated;filter:drop-shadow(0 9px 6px rgba(0,0,0,.38))}
+  .treeDiscoveryRewardIcon{position:relative;display:grid;place-items:center;width:112px;height:112px;border:2px solid rgba(255,245,181,.72);border-radius:50%;background:radial-gradient(circle at 50% 38%,rgba(255,255,224,.32),rgba(66,111,65,.72));box-shadow:inset 0 0 23px rgba(255,255,208,.2),0 8px 25px rgba(0,0,0,.35);font-size:54px;line-height:1}
+  .treeDiscoveryRewardIcon[hidden]{display:none}
   .treeDiscoveryWorld{margin:0;color:#cbe5a7;font-size:10px;font-weight:850}.treeDiscoveryCard h2{margin:4px 0 0;color:#fff9d5;font-size:27px;line-height:1.15}
   .treeDiscoveryDescription{margin:11px auto 15px;max-width:290px;color:#d9e8d5;font-size:11px;line-height:1.65}
   .treeDiscoveryCard button{width:100%;min-height:48px;border:1px solid #fff0a9;border-radius:14px;background:linear-gradient(180deg,#f1d16f,#c9933d);color:#2f2818;font:950 13px system-ui;box-shadow:0 5px 15px rgba(0,0,0,.28)}
   .treeDiscoveryCard button:focus-visible{outline:3px solid #fff7c4;outline-offset:3px}
+  .treeDiscoveryOverlay.milestoneReward .treeDiscoveryBackdrop{background:radial-gradient(circle at 50% 42%,rgba(255,220,117,.25),rgba(2,15,13,.91) 65%)}
+  .treeDiscoveryOverlay.milestoneReward .treeDiscoveryCard{border-color:#ffe7a0;background:linear-gradient(155deg,#566f3c,#274833 56%,#16312c)}
+  .treeDiscoveryOverlay.milestoneReward .treeDiscoveryEyebrow{background:#fff0ad;color:#4b3a19}
+  .treeDiscoveryOverlay.milestone-bronze .treeDiscoveryCard{border-color:#d49a68;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 40px rgba(196,121,65,.25)}
+  .treeDiscoveryOverlay.milestone-spirit .treeDiscoveryCard{border-color:#9ff4d6;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 44px rgba(92,239,197,.3)}
+  .treeDiscoveryOverlay.milestone-gold .treeDiscoveryCard{border-color:#ffe17b;box-shadow:0 24px 80px rgba(0,0,0,.7),0 0 48px rgba(255,213,81,.35)}
   @keyframes treeDiscoveryFlip{0%{opacity:0;transform:translateY(22px) rotateY(-92deg) scale(.82)}58%{opacity:1;transform:translateY(-4px) rotateY(7deg) scale(1.025)}100%{opacity:1;transform:none}}
-  @media (prefers-reduced-motion:reduce){.treeDiscoveryOverlay.show .treeDiscoveryCard{animation:none}}
+  @keyframes treeDexGoldFrame{0%,100%{border-color:#f1c85f;box-shadow:inset 0 0 0 2px rgba(255,208,79,.3),0 0 20px rgba(255,214,83,.2),0 18px 55px rgba(0,0,0,.6)}50%{border-color:#fff3b0;box-shadow:inset 0 0 0 2px rgba(255,229,139,.52),0 0 38px rgba(255,222,104,.4),0 18px 55px rgba(0,0,0,.6)}}
+  @media (prefers-reduced-motion:reduce){.treeDiscoveryOverlay.show .treeDiscoveryCard,.treeDexPanel.reward-gold{animation:none}}
   @media (max-height:600px){.treeDiscoveryCard{padding-top:13px}.treeDiscoveryArt{width:108px;height:116px}.treeDiscoveryArt img{width:94px;height:110px}.treeDiscoveryDescription{margin:8px auto 11px}}

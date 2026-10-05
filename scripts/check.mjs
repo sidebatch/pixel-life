@@ -692,12 +692,14 @@ const saveContext={
 };
 vm.createContext(saveContext);
 vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/life-skills.js')}\n`+
+  `${read('src/data/tree-dex-data.js')}\n`+
   `const DEFAULT_OUTFIT_ID='outfit.traveler';const CHARACTER_OUTFIT_BY_ID=new Map([[DEFAULT_OUTFIT_ID,{id:DEFAULT_OUTFIT_ID}]]);\n`+
   `const CHARACTER_PARTS={body:new Map([['body.starter',{}]]),hair:new Map([['hair.brown',{}]]),backpack:new Map([['pack.traveler',{}]])};\n`+
   `${read('src/save.js')}\n`+
   `GAME_STATE.inventory.push({type:'fish',id:'fish.crucian_carp',name:'붕어',rarity:'common',sizeCm:22.5,price:26,quantity:1});`+
   `GAME_STATE.collections.fish['fish.crucian_carp']={fishId:'fish.crucian_carp',name:'붕어',rarity:'common',count:2,minSizeCm:20,maxSizeCm:25,totalSizeCm:45,averageSizeCm:22.5};`+
   `GAME_STATE.collections.trees={oak:{species:'oak',name:'참나무',count:3}};`+
+  `GAME_STATE.collections.treeMilestones={unlockedIds:[],revealedIds:[]};`+
   `GAME_STATE.inventory.push({type:'equipment',id:'rod.master_angler',name:'강태공의 낚싯대',quantity:1});`+
   `GAME_STATE.appearance={outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID],activeTool:'rod'};`+
   `GAME_STATE.progression.coins=1400;GAME_STATE.progression.flags={fishCollectionRewards:{5:true,10:true,15:true,19:true,20:true},rareFishHints:true,finalFishClue:true,masterAnglerTitle:true,masterRod:true};GAME_STATE.progression.fishing={level:2,xp:8,totalXp:80,equippedRodId:'rod.master_angler'};`+
@@ -708,6 +710,9 @@ vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.
   `globalThis.__oldCap=normalizeSavedFishingProgress({level:20,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',20)+900,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__savedMastery=normalizeSavedFishingProgress({level:100,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__migratedTreeCollection=normalizeSavedTreeCollections(null,{},[{type:'material',id:'pine_log',quantity:4}]);`+
+  `const twentyTrees=Object.fromEntries(FOREST_SPECIES.slice(0,20).map(species=>[species,{species,name:FOREST_WOOD[species],count:1}]));`+
+  `globalThis.__retroactiveMilestones=normalizeSavedTreeMilestones(null,twentyTrees);`+
+  `globalThis.__pendingMilestones=normalizeSavedTreeMilestones({unlockedIds:['world1'],revealedIds:['world1']},twentyTrees);`+
   `globalThis.__invalidAppearance=normalizeSavedAppearance({bodyId:'bad',hairId:'bad',backpackId:'bad',outfitId:'outfit.unknown',ownedOutfitIds:['outfit.unknown'],activeTool:'bad'});`,saveContext);
 assert(saveContext.__loaded,'Versioned save did not load');
 assert(saveContext.__restored.appearance.outfitId==='outfit.traveler'&&
@@ -730,6 +735,12 @@ assert(saveContext.__restored.collections.trees.oak.count===3&&saveContext.__res
   'Saved tree collection did not restore');
 assert(saveContext.__migratedTreeCollection.pine.count===1&&saveContext.__migratedTreeCollection.pine.name==='소나무',
   'Legacy saves with species wood must migrate that species into the tree collection');
+assert(saveContext.__retroactiveMilestones.unlockedIds.join(',')==='world1,world2'&&
+  saveContext.__retroactiveMilestones.revealedIds.join(',')==='world1,world2',
+  'Legacy tree collections must receive unlocked milestone cosmetics without replaying old reward cards');
+assert(saveContext.__pendingMilestones.unlockedIds.join(',')==='world1,world2'&&
+  saveContext.__pendingMilestones.revealedIds.join(',')==='world1',
+  'Saved milestone cards must remain pending until the player receives them');
 assert(saveContext.__restored.progression.coins===1400&&saveContext.__restored.progression.fishing.level===2&&
   saveContext.__restored.progression.fishing.xp===8&&saveContext.__restored.progression.fishing.totalXp===80&&
   saveContext.__restored.progression.fishing.equippedRodId==='rod.master_angler',
@@ -970,9 +981,11 @@ assert(vm.runInContext(`${read('src/data/tree-dex-data.js')}\nObject.keys(TREE_D
   'Every registered tree species must have a tree-dex description');
 assert(vm.runInContext(`TREE_DEX_WORLDS.length===5&&TREE_DEX_WORLDS.map(world=>world.minTier+'-'+world.maxTier).join(',')==='1-2,3-4,5-6,7-8,9-10'&&
   TREE_DEX_WORLDS.map(world=>world.milestone).join(',')==='11,20,30,40,50'&&
-  TREE_DEX_WORLDS.every((world,index)=>world.order===index+1&&world.label.startsWith('제'+(index+1)+'세계')&&world.reward===null)&&
-  TREE_DEX_MILESTONE_POLICY.enabled&&TREE_DEX_MILESTONE_POLICY.rewardCategory==='permanent'&&TREE_DEX_MILESTONE_POLICY.rewardStatus==='undecided'`,lifeContext),
-  'Tree dex must use five clearly ordered worlds while permanent milestone rewards remain unassigned');
+  TREE_DEX_WORLDS.every((world,index)=>world.order===index+1&&world.label.startsWith('제'+(index+1)+'세계')&&world.reward?.id)&&
+  TREE_DEX_WORLDS.map(world=>world.reward.id).join(',')==='sprout-explorer,bronze-tree-frame,great-forest-lumberjack,spirit-light-effect,world-tree-chronicler'&&
+  TREE_DEX_WORLDS.filter(world=>world.reward.title).map(world=>world.reward.title).join(',')==='새싹의 탐험가,대삼림의 벌목꾼,세계수의 기록자'&&
+  TREE_DEX_MILESTONE_POLICY.enabled&&TREE_DEX_MILESTONE_POLICY.rewardCategory==='permanent'&&TREE_DEX_MILESTONE_POLICY.rewardStatus==='applied'`,lifeContext),
+  'Tree dex must use five clearly ordered worlds with permanent cosmetic milestone rewards');
 assert(vm.runInContext(`FORESTRY_AXES[1].coins===3600&&FORESTRY_AXES[1].materials.oak_log===60&&
   FORESTRY_AXES[2].coins===11200&&FORESTRY_AXES[2].materials.maple_log===54&&
   FORESTRY_AXES[3].coins===30000&&FORESTRY_AXES[3].materials.cypress_log===60&&

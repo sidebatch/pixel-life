@@ -52,19 +52,19 @@ const TREE_DEX_DESCRIPTIONS=Object.freeze({
 });
 
 // Five ordered worlds make the collection feel like a journey instead of a
-// technical tier list. Rewards stay intentionally unset until their permanent
-// effects and presentation are approved together.
+// technical tier list. Every reward is cosmetic and permanent: collection
+// progress never grants coins, wood, or skill XP.
 const TREE_DEX_WORLDS=Object.freeze([
-  Object.freeze({id:'world1',order:1,name:'새싹의 숲',label:'제1세계 · 새싹의 숲',minTier:1,maxTier:2,milestone:11,reward:null}),
-  Object.freeze({id:'world2',order:2,name:'거목의 경계',label:'제2세계 · 거목의 경계',minTier:3,maxTier:4,milestone:20,reward:null}),
-  Object.freeze({id:'world3',order:3,name:'강철의 대삼림',label:'제3세계 · 강철의 대삼림',minTier:5,maxTier:6,milestone:30,reward:null}),
-  Object.freeze({id:'world4',order:4,name:'정령의 성역',label:'제4세계 · 정령의 성역',minTier:7,maxTier:8,milestone:40,reward:null}),
-  Object.freeze({id:'world5',order:5,name:'태초의 심연',label:'제5세계 · 태초의 심연',minTier:9,maxTier:10,milestone:50,reward:null})
+  Object.freeze({id:'world1',order:1,name:'새싹의 숲',label:'제1세계 · 새싹의 숲',minTier:1,maxTier:2,milestone:11,reward:Object.freeze({id:'sprout-explorer',kind:'title',name:'새싹의 탐험가',title:'새싹의 탐험가',icon:'🌿',description:'나무 도감에 영구 칭호가 새겨졌습니다.'})}),
+  Object.freeze({id:'world2',order:2,name:'거목의 경계',label:'제2세계 · 거목의 경계',minTier:3,maxTier:4,milestone:20,reward:Object.freeze({id:'bronze-tree-frame',kind:'frame',name:'청동 나무 테두리',frame:'bronze',icon:'🛡️',description:'나무 도감에 영구 청동 테두리가 적용됩니다.'})}),
+  Object.freeze({id:'world3',order:3,name:'강철의 대삼림',label:'제3세계 · 강철의 대삼림',minTier:5,maxTier:6,milestone:30,reward:Object.freeze({id:'great-forest-lumberjack',kind:'title',name:'대삼림의 벌목꾼',title:'대삼림의 벌목꾼',icon:'🌲',description:'나무 도감의 영구 칭호가 한 단계 높아졌습니다.'})}),
+  Object.freeze({id:'world4',order:4,name:'정령의 성역',label:'제4세계 · 정령의 성역',minTier:7,maxTier:8,milestone:40,reward:Object.freeze({id:'spirit-light-effect',kind:'effect',name:'정령빛 도감 효과',effect:'spirit',icon:'✨',description:'나무 도감에 은은한 정령빛 효과가 영구 적용됩니다.'})}),
+  Object.freeze({id:'world5',order:5,name:'태초의 심연',label:'제5세계 · 태초의 심연',minTier:9,maxTier:10,milestone:50,reward:Object.freeze({id:'world-tree-chronicler',kind:'title-frame',name:'세계수의 기록자',title:'세계수의 기록자',frame:'gold',icon:'🌳',description:'최종 영구 칭호와 움직이는 황금 테두리가 적용됩니다.'})})
 ]);
 
 const TREE_DEX_MILESTONE_POLICY=Object.freeze({
   enabled:true,
   requirement:'complete-world',
   rewardCategory:'permanent',
-  rewardStatus:'undecided'
+  rewardStatus:'applied'
 });

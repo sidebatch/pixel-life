@@ -118,6 +118,7 @@ function recordTreeDiscovery(species){
   const previous=collection[species];
   const record={species,name:FOREST_WOOD[species],count:(previous?.count||0)+1};
   collection[species]=record;
+  if(typeof syncTreeDexMilestones==='function')syncTreeDexMilestones();
   return {record,isFirst:!previous};
 }
 function spendLogs(quantity){
@@ -155,6 +156,7 @@ function commitLifeChange(change){
   const beforeInventory=JSON.parse(JSON.stringify(GAME_STATE.inventory));
   const beforeWorld=JSON.parse(JSON.stringify(GAME_STATE.world));
   const beforeTreeCollection=JSON.parse(JSON.stringify(GAME_STATE.collections?.trees||{}));
+  const beforeTreeMilestones=JSON.parse(JSON.stringify(GAME_STATE.collections?.treeMilestones||{unlockedIds:[],revealedIds:[]}));
   const beforeCoins=GAME_STATE.progression.coins;
   const beforeLogging=GAME_STATE.progression.logging?{...GAME_STATE.progression.logging}:null;
   const beforeForestry=GAME_STATE.progression.forestry?JSON.parse(JSON.stringify(GAME_STATE.progression.forestry)):null;
@@ -164,6 +166,7 @@ function commitLifeChange(change){
   GAME_STATE.inventory=beforeInventory;
   GAME_STATE.world=beforeWorld;
   (GAME_STATE.collections||(GAME_STATE.collections={})).trees=beforeTreeCollection;
+  GAME_STATE.collections.treeMilestones=beforeTreeMilestones;
   GAME_STATE.progression.coins=beforeCoins;
   if(beforeLogging) GAME_STATE.progression.logging=beforeLogging;
   if(beforeForestry) GAME_STATE.progression.forestry=beforeForestry;

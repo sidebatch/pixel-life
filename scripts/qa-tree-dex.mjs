@@ -146,9 +146,93 @@ try{
   const restored=await page.evaluate(()=>({record:getTreeCollectionRecord('oak'),total:getDiscoveredTreeCount()}));
   if(restored.record?.count!==2||restored.total!==1)
     throw new Error(`Tree collection save did not restore: ${JSON.stringify(restored)}`);
+
+  await page.setViewportSize({width:393,height:780});
+  await page.evaluate(()=>{
+    const milestoneTree=trees.find(tree=>tree.interactable&&!getTreeCollectionRecord(tree.species));
+    if(!milestoneTree)throw new Error('A distinct milestone tree is required');
+    for(const species of FOREST_SPECIES){
+      if(getDiscoveredTreeCount()>=10)break;
+      if(species!==milestoneTree.species&&!getTreeCollectionRecord(species))recordTreeDiscovery(species);
+    }
+    GAME_STATE.progression.forestry={axeId:'axe.primordial',ownedAxeIds:['axe.basic','axe.primordial'],
+      durabilityByAxeId:{'axe.primordial':FORESTRY_AXE_BY_ID.get('axe.primordial').maxDurability}};
+    GAME_STATE.appearance.activeTool='axe';
+    const hits=Math.ceil(FORESTRY_TREES[milestoneTree.species].maxHp/FORESTRY_AXE_BY_ID.get('axe.primordial').damage);
+    for(let hit=0;hit<hits;hit++)if(!hitResourceTree(milestoneTree))throw new Error('Milestone tree chop failed');
+    if(getDiscoveredTreeCount()!==11||treeDexState.revealType!=='tree')throw new Error('Eleventh discovery did not open its tree card first');
+  });
+  await page.locator('#treeDiscoveryClose').tap();
+  await page.waitForFunction(()=>treeDexState.revealType==='milestone');
+  await page.evaluate(()=>{
+    const text=document.getElementById('treeDiscoveryOverlay').textContent;
+    if(!text.includes('11 / 50종 발견')||!text.includes('새싹의 탐험가')||!text.includes('보상 받기'))
+      throw new Error('Eleven-tree title reward card is incorrect');
+  });
+  await page.waitForTimeout(800);
+  await page.screenshot({path:path.join(output,'milestone-11-title.png')});
+  await page.locator('#treeDiscoveryClose').tap();
+  await page.waitForFunction(()=>!isTreeDiscoveryOpen());
+  await page.locator('#menuBtn').tap();
+  await page.locator('#openTreeDexBtn').tap();
+  await page.evaluate(()=>{
+    if(!document.getElementById('treeDexSummary').textContent.includes('칭호 · 새싹의 탐험가'))
+      throw new Error('Unlocked tree title is not visible in the dex');
+  });
+
+  const milestoneChecks=[
+    {count:20,name:'청동 나무 테두리',panelClass:'reward-bronze',shot:'milestone-20-bronze.png'},
+    {count:30,name:'대삼림의 벌목꾼',panelClass:'reward-bronze',shot:'milestone-30-title.png'},
+    {count:40,name:'정령빛 도감 효과',panelClass:'reward-spirit',shot:'milestone-40-spirit.png'},
+    {count:50,name:'세계수의 기록자',panelClass:'reward-gold',shot:'milestone-50-gold.png'}
+  ];
+  for(const milestone of milestoneChecks){
+    await page.evaluate(target=>{
+      for(const species of FOREST_SPECIES){
+        if(getDiscoveredTreeCount()>=target)break;
+        if(!getTreeCollectionRecord(species))recordTreeDiscovery(species);
+      }
+      if(getDiscoveredTreeCount()!==target||!saveGame()||!showTreeMilestoneReveal({returnMenuOpen:true}))
+        throw new Error(`Could not open ${target}-tree milestone`);
+    },milestone.count);
+    await page.evaluate(({count,name})=>{
+      const text=document.getElementById('treeDiscoveryOverlay').textContent;
+      if(!text.includes(`${count} / 50종 발견`)||!text.includes(name))throw new Error(`${count}-tree reward card is incorrect`);
+    },milestone);
+    await page.waitForTimeout(800);
+    await page.screenshot({path:path.join(output,milestone.shot)});
+    await page.locator('#treeDiscoveryClose').tap();
+    await page.waitForFunction(()=>!isTreeDiscoveryOpen());
+    await page.evaluate(({count,panelClass})=>{
+      const panel=document.getElementById('treeDexPanel');
+      if(!panel.classList.contains(panelClass)||getTreeDexMilestoneState().revealedIds.length!==TREE_DEX_WORLDS.filter(world=>world.milestone<=count).length)
+        throw new Error(`${count}-tree permanent cosmetic was not applied or saved`);
+    },milestone);
+  }
+  await page.setViewportSize({width:320,height:568});
+  await page.evaluate(()=>{
+    const summary=document.getElementById('treeDexSummary').textContent;
+    const panel=document.getElementById('treeDexPanel').getBoundingClientRect();
+    if(!summary.includes('칭호 · 세계수의 기록자')||document.getElementById('treeDexProgress').textContent.trim()!=='50 / 50')
+      throw new Error('Final tree title or completion progress is missing');
+    if(panel.left<0||panel.right>innerWidth||panel.top<0||panel.bottom>innerHeight)
+      throw new Error('Final gold dex frame overflows the small viewport');
+  });
+  await page.screenshot({path:path.join(output,'small-final-gold-dex.png')});
+  await page.locator('#treeDexClose').tap();
+  await page.reload();
+  await page.waitForFunction(()=>typeof openTreeDex==='function');
+  await page.locator('#menuBtn').tap();
+  await page.locator('#openTreeDexBtn').tap();
+  await page.evaluate(()=>{
+    const milestones=getTreeDexMilestoneState();
+    if(isTreeDiscoveryOpen()||milestones.unlockedIds.length!==5||milestones.revealedIds.length!==5||
+      !document.getElementById('treeDexPanel').classList.contains('reward-gold'))
+      throw new Error('Completed milestone rewards did not restore without replaying cards');
+  });
   if(errors.length)throw new Error(errors.join('\n'));
 
-  const report={species:50,filterCounts,chopReport,discoveryProgress:'1 / 50',saveRestored:true,
+  const report={species:50,filterCounts,chopReport,discoveryProgress:'1 / 50',saveRestored:true,milestones:[11,20,30,40,50],
     viewports:['393x780','320x568'],browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log('Tree dex QA passed: '+JSON.stringify(report));

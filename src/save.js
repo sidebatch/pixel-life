@@ -133,6 +133,16 @@ function normalizeSavedTreeCollections(rawCollections,rawWorld,inventory=[]){
   return collections;
 }
 
+function normalizeSavedTreeMilestones(rawMilestones,treeCollections={}){
+  const discovered=FOREST_SPECIES.reduce((total,species)=>total+(treeCollections[species]?1:0),0);
+  const unlockedIds=TREE_DEX_WORLDS.filter(world=>world.reward&&discovered>=world.milestone).map(world=>world.id);
+  const hasMilestoneSave=rawMilestones&&typeof rawMilestones==='object'&&Array.isArray(rawMilestones.revealedIds);
+  const revealedIds=hasMilestoneSave?
+    rawMilestones.revealedIds.filter((id,index,ids)=>unlockedIds.includes(id)&&ids.indexOf(id)===index):
+    [...unlockedIds];
+  return {unlockedIds,revealedIds};
+}
+
 function normalizeSavedFishCollections(rawCollections){
   const source=rawCollections&&typeof rawCollections==='object'?rawCollections:{};
   const collections={};
@@ -270,7 +280,8 @@ function createSaveData(){
       inventory:GAME_STATE.inventory,
       appearance:GAME_STATE.appearance,
       world:GAME_STATE.world,
-      collections:{fish:GAME_STATE.collections.fish,trees:GAME_STATE.collections.trees},
+      collections:{fish:GAME_STATE.collections.fish,trees:GAME_STATE.collections.trees,
+        treeMilestones:GAME_STATE.collections.treeMilestones},
       progression:{
         coins:GAME_STATE.progression.coins,
         flags:GAME_STATE.progression.flags,
@@ -296,6 +307,7 @@ function applySaveData(saveData){
   GAME_STATE.world=normalizeSavedLifeWorld(savedState.world);
   GAME_STATE.collections.fish=normalizeSavedFishCollections(savedState.collections?.fish);
   GAME_STATE.collections.trees=normalizeSavedTreeCollections(savedState.collections?.trees,savedState.world,GAME_STATE.inventory);
+  GAME_STATE.collections.treeMilestones=normalizeSavedTreeMilestones(savedState.collections?.treeMilestones,GAME_STATE.collections.trees);
   GAME_STATE.progression.coins=Math.max(0,Math.floor(saveFiniteNumber(savedState.progression?.coins,GAME_STATE.progression.coins)));
   GAME_STATE.progression.flags=normalizeSavedProgressionFlags(savedState.progression?.flags);
   GAME_STATE.progression.fishing=normalizeSavedFishingProgress(

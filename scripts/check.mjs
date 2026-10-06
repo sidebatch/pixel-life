@@ -417,7 +417,7 @@ assert(rodShopContext.__deepwaterLocked&&rodShopContext.__deepwaterBought&&
   rodShopContext.GAME_STATE.progression.fishing.equippedRodId==='rod.sturdy',
   'Deepwater rod must require the collection reward and consume its full recipe without auto-equipping');
 
-const audioProbe={oscillators:0,starts:0,stops:0,players:[],gains:[]};
+const audioProbe={oscillators:0,noiseSources:0,filters:0,starts:0,stops:0,players:[],gains:[]};
 class FakeAudioParam{
   setValueAtTime(){}
   exponentialRampToValueAtTime(value){this.ramps??=[];this.ramps.push(value);}
@@ -429,6 +429,15 @@ class FakeAudioContext{
     return {type:'sine',frequency:new FakeAudioParam(),connect(){},start(){audioProbe.starts+=1;},stop(){audioProbe.stops+=1;}};
   }
   createGain(){const gain=new FakeAudioParam();audioProbe.gains.push(gain);return {gain,connect(){}};}
+  createBuffer(_channels,length){const samples=new Float32Array(length);return {getChannelData:()=>samples};}
+  createBufferSource(){
+    audioProbe.noiseSources+=1;
+    return {buffer:null,connect(){},start(){},stop(){}};
+  }
+  createBiquadFilter(){
+    audioProbe.filters+=1;
+    return {type:'bandpass',frequency:new FakeAudioParam(),Q:new FakeAudioParam(),connect(){}};
+  }
 }
 class FakeAudio{
   constructor(src){this.src=src;this.currentTime=3;this.plays=0;this.pauses=0;audioProbe.players.push(this);}
@@ -463,6 +472,7 @@ vm.runInContext(`globalThis.__chop=playForestryChopSound();globalThis.__cut=play
   `globalThis.__axeBreakSound=playAxeBreakSound();`,fishingEffectsContext);
 assert(fishingEffectsContext.__chop&&fishingEffectsContext.__cut&&fishingEffectsContext.__treeDiscoverySound&&
   fishingEffectsContext.__equipSound&&fishingEffectsContext.__axeBreakSound&&audioProbe.oscillators===27&&
+  audioProbe.noiseSources===7&&audioProbe.filters===7&&
   audioProbe.gains.some(gain=>gain.ramps?.includes(.24))&&
   audioProbe.gains.some(gain=>gain.ramps?.includes(.038))&&audioProbe.gains.some(gain=>gain.ramps?.includes(.31)),
   'Forestry and inventory must provide wooden hits, tree fall, discovery, equipment, and axe-break sounds');

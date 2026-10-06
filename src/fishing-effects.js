@@ -188,34 +188,76 @@ function playTreeDiscoverySound(){
   });
 }
 
-function playItemEquipSound(){
+function scheduleGameSoundSweep(context,start,{from,to,duration,type='triangle',volume=.04,attack=.004}){
+  const oscillator=context.createOscillator(),gain=context.createGain();
+  oscillator.type=type;
+  oscillator.frequency.setValueAtTime(from,start);
+  oscillator.frequency.exponentialRampToValueAtTime(to,start+duration);
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.exponentialRampToValueAtTime(volume,start+attack);
+  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+  oscillator.connect(gain);gain.connect(context.destination);
+  oscillator.start(start);oscillator.stop(start+duration+.02);
+}
+
+function scheduleGameSoundNoise(context,start,{duration=.12,filter='bandpass',frequency=900,q=.8,volume=.04,attack=.003,seed=1}){
+  if(typeof context.createBuffer!=='function'||typeof context.createBufferSource!=='function'||
+    typeof context.createBiquadFilter!=='function')return false;
+  const length=Math.max(1,Math.ceil(context.sampleRate*duration));
+  const buffer=context.createBuffer(1,length,context.sampleRate),samples=buffer.getChannelData(0);
+  let random=seed>>>0||1,smoothed=0;
+  for(let index=0;index<samples.length;index++){
+    random^=random<<13;random^=random>>>17;random^=random<<5;
+    const white=(random>>>0)/4294967295*2-1;
+    smoothed=smoothed*.38+white*.62;
+    samples[index]=smoothed;
+  }
+  const source=context.createBufferSource(),tone=context.createBiquadFilter(),gain=context.createGain();
+  source.buffer=buffer;tone.type=filter;
+  tone.frequency.setValueAtTime(frequency,start);
+  tone.Q.setValueAtTime(q,start);
+  gain.gain.setValueAtTime(.0001,start);
+  gain.gain.exponentialRampToValueAtTime(volume,start+attack);
+  gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+  source.connect(tone);tone.connect(gain);gain.connect(context.destination);
+  source.start(start);source.stop(start+duration+.01);
+  return true;
+}
+
+function playItemEquipSound(kind='equipment'){
   return playFishingAudio(context=>{
-    const start=context.currentTime+.015;
-    scheduleFishingTone(context,330,start,.09,'triangle',.032);
-    scheduleFishingTone(context,520,start+.045,.12,'sine',.026);
+    const start=context.currentTime+.012;
+    const soft=kind==='outfit'||kind==='backpack';
+    // Close, dry cloth/leather movement supplies the tactile body. Short
+    // mechanical transients add weight without turning the cue into a melody.
+    scheduleGameSoundNoise(context,start,{duration:soft ? .19 : .14,filter:'bandpass',frequency:soft?920:690,
+      q:soft ? .65 : .9,volume:soft ? .045 : .038,seed:kind==='outfit'?29:kind==='backpack'?41:53});
+    scheduleGameSoundNoise(context,start+.052,{duration:soft ? .13 : .075,filter:'highpass',frequency:soft?1450:2100,
+      q:.55,volume:soft ? .022 : .018,attack:.002,seed:kind==='rod'?67:79});
+    if(soft){
+      if(kind==='backpack')scheduleGameSoundSweep(context,start+.042,{from:118,to:76,duration:.11,type:'sine',volume:.026});
+      return;
+    }
+    scheduleGameSoundSweep(context,start+.025,{from:148,to:82,duration:.105,type:'triangle',volume:.047});
+    const metal=kind==='rod'?{from:980,to:610,duration:.09,volume:.013,type:'triangle'}:
+      kind==='sword'?{from:2240,to:1540,duration:.17,volume:.018,type:'sine'}:
+      {from:1720,to:1160,duration:.14,volume:.017,type:'sine'};
+    scheduleGameSoundSweep(context,start+.055,metal);
   });
 }
 
 function playAxeBreakSound(){
   return playFishingAudio(context=>{
-    const start=context.currentTime+.035;
-    const sweeps=[
-      {type:'square',from:940,to:170,duration:.16,volume:.058},
-      {type:'sawtooth',from:220,to:58,duration:.34,volume:.072},
-      {type:'triangle',from:1450,to:520,duration:.11,volume:.022}
-    ];
-    sweeps.forEach((sweep,index)=>{
-      const offset=index===1?.045:index===2?.012:0;
-      const oscillator=context.createOscillator(),gain=context.createGain();
-      oscillator.type=sweep.type;
-      oscillator.frequency.setValueAtTime(sweep.from,start+offset);
-      oscillator.frequency.exponentialRampToValueAtTime(sweep.to,start+offset+sweep.duration);
-      gain.gain.setValueAtTime(.0001,start+offset);
-      gain.gain.exponentialRampToValueAtTime(sweep.volume,start+offset+.006);
-      gain.gain.exponentialRampToValueAtTime(.0001,start+offset+sweep.duration);
-      oscillator.connect(gain);gain.connect(context.destination);
-      oscillator.start(start+offset);oscillator.stop(start+offset+sweep.duration+.02);
-    });
+    const start=context.currentTime+.028;
+    // Dense low wood/handle stress, a sharp metal fracture, then three tiny
+    // fragments. The dry close-mic mix intentionally has no synthetic reverb.
+    scheduleGameSoundNoise(context,start,{duration:.2,filter:'lowpass',frequency:260,q:.7,volume:.105,seed:101});
+    scheduleGameSoundNoise(context,start+.018,{duration:.095,filter:'bandpass',frequency:1750,q:1.1,volume:.061,seed:131});
+    [0,.047,.098].forEach((offset,index)=>scheduleGameSoundNoise(context,start+.09+offset,
+      {duration:.034+index*.008,filter:'highpass',frequency:2800+index*520,q:.6,volume:.026-index*.004,attack:.001,seed:173+index*17}));
+    scheduleGameSoundSweep(context,start,{from:820,to:118,duration:.15,type:'square',volume:.061,attack:.002});
+    scheduleGameSoundSweep(context,start+.014,{from:1960,to:430,duration:.21,type:'triangle',volume:.034,attack:.002});
+    scheduleGameSoundSweep(context,start+.045,{from:108,to:43,duration:.38,type:'sine',volume:.088,attack:.006});
   });
 }
 

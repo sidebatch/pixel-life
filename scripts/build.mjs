@@ -36,8 +36,8 @@ const inlineOnlyHtml=html
 if (html.includes('<script src=') || html.includes('<link rel="stylesheet"') || /['"]assets\//.test(inlineOnlyHtml)) {
   throw new Error('Standalone build still contains external runtime dependencies');
 }
-if((html.match(/data:audio\/mpeg;base64,/g)||[]).length!==5){
-  throw new Error('Standalone build must inline all five game sounds');
+if((html.match(/data:audio\/mpeg;base64,/g)||[]).length!==9){
+  throw new Error('Standalone build must inline all nine game sounds');
 }
 
 const outputDirectory = path.join(root, 'dist');

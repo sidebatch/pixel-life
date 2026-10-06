@@ -312,8 +312,11 @@ if(typeof document!=='undefined'){
         card.dataset.equipType==='sword'?equipSword(card.dataset.equipId):
         equipInventoryAppearance(card.dataset.equipType,card.dataset.equipId);
       if(success){
-        if(typeof playItemEquipSound==='function')playItemEquipSound(card.dataset.equipType);
         renderInventory();
+        const equipKind=card.dataset.equipType;
+        if(equipKind==='rod'){if(typeof playEquipRodSound==='function')playEquipRodSound();}
+        else if(equipKind==='axe'||equipKind==='sword'){if(typeof playEquipWeaponSound==='function')playEquipWeaponSound();}
+        else if(typeof playEquipClothesSound==='function')playEquipClothesSound();
         document.getElementById('inventorySummary').textContent=`${inventoryWearable(card.dataset.equipType,card.dataset.equipId).name} 장착`;
         const selected=document.querySelector(`[data-equip-id="${card.dataset.equipId}"]`);
         selected?.classList.add('showName');selected?.focus({preventScroll:true});

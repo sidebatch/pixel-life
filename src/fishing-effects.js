@@ -14,8 +14,7 @@ const GAME_SOUND_URLS=Object.freeze({
   marketSale:'assets/audio/market-sale.mp3',
   equipWeapon:'assets/audio/equip-weapon.mp3',
   equipClothes:'assets/audio/equip-clothes.mp3',
-  equipRod:'assets/fishing/audio/equip-rod.mp3',
-  chop:'assets/audio/chop.mp3'
+  equipRod:'assets/fishing/audio/equip-rod.mp3'
 });
 const gameSoundPlayers=new Map();
 const gameSoundBuffers=new Map();
@@ -147,7 +146,42 @@ function playEquipClothesSound(){return playGameSample('equipClothes');}
 function playEquipRodSound(){return playGameSample('equipRod');}
 
 function playForestryChopSound(cut=false){
-  return playGameSample('chop');
+  return playFishingAudio(context=>{
+    const start=context.currentTime;
+    // Every axe and every tree uses the same compact wooden "thud". Tool
+    // progression is communicated by fewer swings, not by a sound ladder.
+    const thud=context.createOscillator(),thudGain=context.createGain();
+    thud.type='triangle';
+    thud.frequency.setValueAtTime(245,start);
+    thud.frequency.exponentialRampToValueAtTime(105,start+.105);
+    thudGain.gain.setValueAtTime(.0001,start);
+    thudGain.gain.exponentialRampToValueAtTime(.24,start+.008);
+    thudGain.gain.exponentialRampToValueAtTime(.0001,start+.15);
+    thud.connect(thudGain);thudGain.connect(context.destination);
+    thud.start(start);thud.stop(start+.16);
+
+    const knock=context.createOscillator(),knockGain=context.createGain();
+    knock.type='square';
+    knock.frequency.setValueAtTime(620,start);
+    knock.frequency.exponentialRampToValueAtTime(260,start+.035);
+    knockGain.gain.setValueAtTime(.0001,start);
+    knockGain.gain.exponentialRampToValueAtTime(.038,start+.002);
+    knockGain.gain.exponentialRampToValueAtTime(.0001,start+.055);
+    knock.connect(knockGain);knockGain.connect(context.destination);
+    knock.start(start);knock.stop(start+.06);
+
+    if(cut){
+      const fall=context.createOscillator(),fallGain=context.createGain();
+      fall.type='sine';
+      fall.frequency.setValueAtTime(92,start+.045);
+      fall.frequency.exponentialRampToValueAtTime(43,start+.42);
+      fallGain.gain.setValueAtTime(.0001,start+.035);
+      fallGain.gain.exponentialRampToValueAtTime(.31,start+.075);
+      fallGain.gain.exponentialRampToValueAtTime(.0001,start+.48);
+      fall.connect(fallGain);fallGain.connect(context.destination);
+      fall.start(start+.035);fall.stop(start+.5);
+    }
+  });
 }
 
 function playTreeDiscoverySound(){

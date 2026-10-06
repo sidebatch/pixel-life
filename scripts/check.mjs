@@ -268,7 +268,7 @@ const marketSaleAudioPath='assets/audio/market-sale.mp3';
 assert(read('src/fishing-effects.js').includes(`'${marketSaleAudioPath}'`),'Missing market sale audio mapping');
 const gameAudioPaths=[...fishingAudioPaths,levelUpAudioPath,marketSaleAudioPath,
   'assets/audio/equip-weapon.mp3','assets/audio/equip-clothes.mp3',
-  'assets/fishing/audio/equip-rod.mp3','assets/audio/chop.mp3'];
+  'assets/fishing/audio/equip-rod.mp3'];
 for(const equipAudioPath of gameAudioPaths.slice(5))
   assert(read('src/fishing-effects.js').includes(`'${equipAudioPath}'`),'Missing equipment/chop audio mapping');
 const musicProbe={players:[],events:{},storage:new Map()};
@@ -463,8 +463,8 @@ assert(Object.values(rarityEffects).every(effect=>effect.tones.length>=3),
 assert(fishingEffectsContext.__legendarySound&&audioProbe.oscillators===11&&
   audioProbe.starts===11&&audioProbe.stops===11,
   'Legendary fishing sound scheduling failed');
-vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__biteSound=playFishingBiteSound();globalThis.__catchSound=playFishingCatchSound();globalThis.__levelUpSound=playSkillLevelUpSound();globalThis.__marketSaleSound=playMarketSaleSound();globalThis.__equipWeaponSound=playEquipWeaponSound();globalThis.__equipClothesSound=playEquipClothesSound();globalThis.__equipRodSound=playEquipRodSound();globalThis.__chopSampleSound=playForestryChopSound();`,fishingEffectsContext);
-assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fishingEffectsContext.__catchSound&&fishingEffectsContext.__levelUpSound&&fishingEffectsContext.__marketSaleSound&&fishingEffectsContext.__equipWeaponSound&&fishingEffectsContext.__equipClothesSound&&fishingEffectsContext.__equipRodSound&&fishingEffectsContext.__chopSampleSound&&
+vm.runInContext(`globalThis.__castSound=playFishingCastSound();globalThis.__biteSound=playFishingBiteSound();globalThis.__catchSound=playFishingCatchSound();globalThis.__levelUpSound=playSkillLevelUpSound();globalThis.__marketSaleSound=playMarketSaleSound();globalThis.__equipWeaponSound=playEquipWeaponSound();globalThis.__equipClothesSound=playEquipClothesSound();globalThis.__equipRodSound=playEquipRodSound();`,fishingEffectsContext);
+assert(fishingEffectsContext.__castSound&&fishingEffectsContext.__biteSound&&fishingEffectsContext.__catchSound&&fishingEffectsContext.__levelUpSound&&fishingEffectsContext.__marketSaleSound&&fishingEffectsContext.__equipWeaponSound&&fishingEffectsContext.__equipClothesSound&&fishingEffectsContext.__equipRodSound&&
   audioProbe.players.length===gameAudioPaths.length&&audioProbe.players.every(player=>player.loaded&&player.plays===1&&player.currentTime===0&&player.volume===.65)&&
   audioProbe.players.map(player=>player.src).join(',')===gameAudioPaths.join(','),
   'Game sound MP3 fallback mapping failed');
@@ -474,13 +474,11 @@ assert(vm.runInContext(`balancedGameSoundLevel({numberOfChannels:1,getChannelDat
 vm.runInContext(`globalThis.__chop=playForestryChopSound();globalThis.__cut=playForestryChopSound(true);`+
   `globalThis.__treeDiscoverySound=playTreeDiscoverySound();`+
   `globalThis.__axeBreakSound=playAxeBreakSound();`,fishingEffectsContext);
-const chopSamplePlayers=audioProbe.players.filter(player=>player.src==='assets/audio/chop.mp3');
 assert(fishingEffectsContext.__chop&&fishingEffectsContext.__cut&&fishingEffectsContext.__treeDiscoverySound&&
-  fishingEffectsContext.__axeBreakSound&&chopSamplePlayers.length===1&&chopSamplePlayers[0].plays===3&&
-  audioProbe.oscillators===20&&audioProbe.noiseSources===5&&audioProbe.filters===5&&
-  audioProbe.gains.some(gain=>gain.ramps?.includes(.105))&&
-  audioProbe.gains.some(gain=>gain.ramps?.includes(.088)),
-  'Forestry must provide MP3 chop hits, tree discovery, and axe-break sounds');
+  fishingEffectsContext.__axeBreakSound&&audioProbe.oscillators===25&&audioProbe.noiseSources===5&&audioProbe.filters===5&&
+  audioProbe.gains.some(gain=>gain.ramps?.includes(.24))&&
+  audioProbe.gains.some(gain=>gain.ramps?.includes(.038))&&audioProbe.gains.some(gain=>gain.ramps?.includes(.31)),
+  'Forestry must provide wooden chop hits, tree fall, discovery, and axe-break sounds');
 
 const bufferedProbe={loaded:[],started:[],stopped:0,resumed:0};
 class FakeBufferedAudioContext extends FakeAudioContext{
@@ -500,7 +498,7 @@ const bufferedContext={window:{AudioContext:FakeBufferedAudioContext},Audio:Fake
 vm.createContext(bufferedContext);
 vm.runInContext(read('src/fishing-effects.js'),bufferedContext);
 await vm.runInContext('gameSoundLoadPromise',bufferedContext);
-vm.runInContext('playFishingCastSound();playFishingBiteSound();playFishingCatchSound();playSkillLevelUpSound();playMarketSaleSound();playEquipWeaponSound();playEquipClothesSound();playEquipRodSound();playForestryChopSound();',bufferedContext);
+vm.runInContext('playFishingCastSound();playFishingBiteSound();playFishingCatchSound();playSkillLevelUpSound();playMarketSaleSound();playEquipWeaponSound();playEquipClothesSound();playEquipRodSound();',bufferedContext);
 assert(bufferedProbe.stopped===2,'Level-up and sale sounds must not interrupt the catch sound');
 vm.runInContext('stopFishingSound("catch");stopGameSound("levelUp");stopGameSound("marketSale");',bufferedContext);
 assert(bufferedProbe.loaded.join(',')===gameAudioPaths.join(',')&&bufferedProbe.started.length===gameAudioPaths.length&&

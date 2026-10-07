@@ -1929,4 +1929,5 @@ assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&r
 
 checkCharacterStandard();
 checkSwordStandard();
+await import('./qa-fishing-baseline.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

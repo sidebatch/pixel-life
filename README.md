@@ -23,6 +23,7 @@ node scripts/serve.mjs
 ## 검사와 빌드
 
 ```bash
+node scripts/qa-fishing-baseline.mjs
 node scripts/check.mjs
 node scripts/build.mjs
 ```

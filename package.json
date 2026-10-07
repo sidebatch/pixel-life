@@ -9,6 +9,7 @@
     "check": "node scripts/check.mjs",
     "icons:pwa": "node scripts/prepare-pwa-icons.mjs",
     "qa:pwa": "node scripts/qa-pwa.mjs",
+    "qa:fishing:baseline": "node scripts/qa-fishing-baseline.mjs",
     "qa:forestry:tiers": "node scripts/qa-forestry-tier4-10.mjs",
     "qa:forestry:maps": "node scripts/qa-forestry-maps-tier4-10.mjs",
     "qa:forestry:recipes": "node scripts/qa-forestry-recipes.mjs",

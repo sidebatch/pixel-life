@@ -15,7 +15,7 @@ assert.equal(baseline.legacyRods.length,6,'Baseline must contain the original si
 
 const dataContext={};
 vm.createContext(dataContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
   `globalThis.__fish=FISH_DATA;globalThis.__rewards=FISH_COLLECTION_REWARDS;`+
   `globalThis.__rods=FISHING_RODS;globalThis.__defaultRod=DEFAULT_FISHING_ROD_ID;`,dataContext);
 
@@ -95,7 +95,7 @@ const fishingContext={
   saveGame:()=>{saveCalls+=1;return true;}
 };
 vm.createContext(fishingContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
   `${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${fishingSource}\n`+
   `globalThis.__config=FISHING_CONFIG;`+
   `globalThis.__started=startFishing();`+
@@ -137,7 +137,7 @@ const saveContext={
   GAME_STATE:{progression:{}}
 };
 vm.createContext(saveContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
   `${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/save.js')}\n`+
   `globalThis.__saveKey=SAVE_CONFIG.key;`,saveContext);
 assert.equal(saveContext.__saveKey,baseline.runtime.saveKey,'Fishing expansion must not silently change the save namespace');

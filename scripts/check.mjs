@@ -11,6 +11,7 @@ const scriptFiles = [
   'src/data/character-rig-data.js',
   'src/data/world-map.js',
   'src/data/region-maps.js',
+  'src/data/fishing-habitat-data.js',
   'src/data/fish-data.js',
   'src/data/fishing-gear-data.js',
   'src/data/life-skill-data.js',
@@ -337,7 +338,7 @@ for(const assetPath of gameAudioPaths){
 
 const fishContext={};
 vm.createContext(fishContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\nglobalThis.__fishData=FISH_DATA;globalThis.__fishRewards=FISH_COLLECTION_REWARDS;`,fishContext);
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\nglobalThis.__fishData=FISH_DATA;globalThis.__fishRewards=FISH_COLLECTION_REWARDS;`,fishContext);
 const fishData=fishContext.__fishData;
 const fishRewards=fishContext.__fishRewards;
 assert(fishData.length===20,`Expected 20 fish records, found ${fishData.length}`);
@@ -508,7 +509,7 @@ assert(bufferedProbe.loaded.join(',')===gameAudioPaths.join(',')&&bufferedProbe.
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
   `globalThis.__forcedFish=getFishingDebugFish()?.id;`,fishingDebugContext);
 assert(fishingDebugContext.__forcedFish==='fish.coelacanth','Debug fish override failed');
 
@@ -579,7 +580,7 @@ const fishingLogicContext={
   getWeatherKind:()=> 'clear'
 };
 vm.createContext(fishingLogicContext);
-vm.runInContext(`${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
   `const pool=getEligibleFishPool();`+
   `globalThis.__villagePool=pool.map(fish=>fish.id);`+
   `globalThis.__villageReachable=[...new Set(['DAWN','DAY','DUSK','NIGHT'].flatMap(period=>['clear','rain','storm'].flatMap(weather=>getEligibleFishPool({regionId:'lilacVillage',habitat:'pond',period,weather}).map(fish=>fish.id))))];`+
@@ -707,7 +708,7 @@ const saveContext={
   }
 };
 vm.createContext(saveContext);
-vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/life-skills.js')}\n`+
+vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/life-skills.js')}\n`+
   `${read('src/data/tree-dex-data.js')}\n`+
   `const DEFAULT_OUTFIT_ID='outfit.traveler';const CHARACTER_OUTFIT_BY_ID=new Map([[DEFAULT_OUTFIT_ID,{id:DEFAULT_OUTFIT_ID}]]);\n`+
   `const CHARACTER_PARTS={body:new Map([['body.starter',{}]]),hair:new Map([['hair.brown',{}]]),backpack:new Map([['pack.traveler',{}]])};\n`+
@@ -1929,5 +1930,6 @@ assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&r
 
 checkCharacterStandard();
 checkSwordStandard();
+await import('./qa-fishing-expansion-data.mjs');
 await import('./qa-fishing-baseline.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

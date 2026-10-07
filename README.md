@@ -24,6 +24,7 @@ node scripts/serve.mjs
 
 ```bash
 node scripts/qa-fishing-baseline.mjs
+node scripts/qa-fishing-expansion-data.mjs
 node scripts/check.mjs
 node scripts/build.mjs
 ```
@@ -50,7 +51,8 @@ src/
   data/world-map.js  맵 크기, 지형, 엔티티 배치 데이터
   data/region-maps.js 숲 12개·농장 지역과 지역 간 출입구
   data/life-content-data.js 나무·밭·작물·가격 설정
-  data/fish-data.js  물고기 20종, 출현 조건, 보상 데이터
+  data/fishing-habitat-data.js 10개 서식지와 74종 목표 명단
+  data/fish-data.js  실제 물고기 20종, 설명, 출현 조건, 보상 데이터
   data/fishing-gear-data.js 낚싯대 6종과 해금·효과 데이터
   data/life-skill-data.js 생활 스킬 6종 메타데이터와 임시 XP 요구량
   life-skills.js     공통 Lv.1–100·숙련도 성장 계산

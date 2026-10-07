@@ -1,30 +1,7 @@
 const FISH_DEX_LABELS=Object.freeze({
-  habitats:{pond:'연못',river:'강',coast:'바다'},
+  habitats:Object.freeze(Object.fromEntries(FISHING_HABITATS.map(habitat=>[habitat.id,habitat.label]))),
   periods:{DAWN:'새벽',DAY:'낮',DUSK:'저녁',NIGHT:'밤'},
   weather:{clear:'맑음',rain:'비',storm:'폭풍'}
-});
-
-const FISH_DESCRIPTIONS=Object.freeze({
-  'fish.crucian_carp':'마을 연못에서 흔히 만나는 느긋한 물고기.',
-  'fish.koi':'큰 몸집으로 천천히 물살을 가르는 친숙한 민물고기.',
-  'fish.goldfish':'햇빛 아래에서 비늘이 반짝이는 작은 관상어.',
-  'fish.largemouth_bass':'먹잇감을 발견하면 빠르게 달려드는 힘센 포식자.',
-  'fish.catfish':'비가 오는 밤, 연못 바닥을 조용히 누비는 물고기.',
-  'fish.golden_koi':'새벽빛을 머금은 듯 황금색으로 빛나는 희귀한 잉어.',
-  'fish.minnow':'맑은 강의 얕은 물에서 무리 지어 헤엄치는 작은 물고기.',
-  'fish.trout':'차가운 강물을 거슬러 오르는 재빠른 물고기.',
-  'fish.ayu':'깨끗한 물과 햇살을 좋아하는 은빛 강물고기.',
-  'fish.salmon':'새벽과 저녁에 긴 여정을 이어가는 힘센 회유어.',
-  'fish.snakehead':'어두운 밤의 강에서 조용히 먹잇감을 노리는 사냥꾼.',
-  'fish.rainbow_trout':'빗속에서 선명한 무지갯빛을 드러내는 아름다운 송어.',
-  'fish.masou_salmon':'맑은 새벽의 깊은 계곡에서만 모습을 보이는 귀한 물고기.',
-  'fish.sardine':'바닷가를 은빛 물결처럼 가득 채우는 작은 물고기.',
-  'fish.mackerel':'넓은 바다를 빠르게 헤엄치는 푸른 등빛 물고기.',
-  'fish.horse_mackerel':'해안 가까이에서 부지런히 움직이는 날렵한 물고기.',
-  'fish.red_seabream':'맑은 바다에서 붉은 비늘을 자랑하는 복스러운 물고기.',
-  'fish.seabass':'거친 날씨의 밤바다를 누비는 강인한 포식자.',
-  'fish.flounder':'모래 바닥에 몸을 숨기고 때를 기다리는 납작한 물고기.',
-  'fish.coelacanth':'폭풍우 치는 밤에만 전설처럼 나타나는 태고의 물고기.'
 });
 
 const fishDexState={open:false,detailOpen:false,filter:'all',selectedFishId:null};
@@ -91,7 +68,7 @@ function renderFishDexDetail(fish){
   detail.className=`fishDexDetail rarity-${fish.rarity}`;
   detail.innerHTML=`
     <div class="fishDexDetailHero"><span><img src="${getFishImageUrl(fish)}" alt=""></span><div><small>${FISH_RARITY_LABELS[fish.rarity]}</small><h3>${fish.name}</h3></div></div>
-    <p>${FISH_DESCRIPTIONS[fish.id]||'도감에 기록된 물고기입니다.'}</p>
+    <p>${fish.description||'도감에 기록된 물고기입니다.'}</p>
     <div class="fishDexStats">
       <div><span>잡은 수</span><b>${record.count}마리</b></div>
       <div><span>최대 크기</span><b>${record.maxSizeCm.toFixed(1)}cm</b></div>

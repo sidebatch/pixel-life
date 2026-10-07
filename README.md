@@ -26,6 +26,7 @@ node scripts/serve.mjs
 node scripts/qa-fishing-baseline.mjs
 node scripts/qa-fishing-expansion-data.mjs
 node scripts/qa-fish-dex.mjs
+node scripts/qa-fishing-spots.mjs
 node scripts/check.mjs
 node scripts/build.mjs
 ```
@@ -53,6 +54,7 @@ src/
   data/region-maps.js 숲 12개·농장 지역과 지역 간 출입구
   data/life-content-data.js 나무·밭·작물·가격 설정
   data/fishing-habitat-data.js 10개 서식지와 74종 목표 명단
+  fishing-spots.js   물 영역별 낚시 지점 ID·서식지 판정
   data/fish-data.js  실제 물고기 20종, 설명, 출현 조건, 보상 데이터
   data/fishing-gear-data.js 낚싯대 6종과 해금·효과 데이터
   data/life-skill-data.js 생활 스킬 6종 메타데이터와 임시 XP 요구량
@@ -98,7 +100,7 @@ dist/index.html      생성되는 독립 실행형 배포 파일
 - 월드 배치 자동 검사와 F3 디버그 오버레이
 - 현실 30분 기준 월드 시계와 시간대별 화면·조명
 - 맑음·비·폭풍 자동 날씨와 화면 전체 강수 효과
-- 물고기 20종 데이터와 지역·시간·날씨별 Fish Pool. 강·바다 맵 추가 전까지는 마을 연못에서 20종 모두 낚을 수 있도록 지역 제한만 임시 해제(시간·날씨 조건 유지)
+- 물고기 20종 데이터와 낚시 지점·시간·날씨별 Fish Pool. 각 물 영역은 안정적인 지점 ID와 서식지를 가지며, 강·바다 맵 추가 전까지는 마을 연못에서 20종 모두 낚을 수 있도록 서식지 제한만 임시 해제(시간·날씨 조건 유지)
 - 상대 Weight 추첨과 같은 어종 3연속 보정
 - 낚시 XP·레벨, 발견·크기 통계, 로컬 저장·복원
 - 낚시 Lv.1–100·숙련도와 +XP·100% 경험치 바·레벨업 안내 (Lv.21 이후 XP는 임시 밸런스)

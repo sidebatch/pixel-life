@@ -67,7 +67,11 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 ### `src/fishing.js`
 
-낚시의 `idle → casting → waiting → bite → result` 상태 흐름과 지역·시간·날씨 필터, 상대 Weight 선택, 같은 어종 3연속 보정 및 XP·발견 통계 갱신을 담당한다. 장착한 낚싯대의 입질 대기 감소, 희귀 이상 Weight 증가와 큰 개체 보정도 최종 선택 단계에서 적용한다. 임시 플래그 `temporaryAllFishAtVillagePond`는 마을 연못의 지역 조건만 해제하며, 숲의 강과 농장 연못은 지역별 풀을 사용한다. 이 임시 플래그는 바닷가와 지역 밸런스가 완성되면 재검토한다. 발견 수가 5/10/15/19/20에 도달하면 데이터에 선언된 보상을 한 번만 자동 지급한다. `?debug&fish=<fish.id>`는 실제 저장·결과 UI를 거치면서 지정 어종의 입질을 즉시 발생시키는 QA 전용 경로다. 실제 출현 중인 어종·설명·보상은 `src/data/fish-data.js`, 10개 서식지와 74종 목표 명단은 `src/data/fishing-habitat-data.js`, 낚싯대 원본은 `src/data/fishing-gear-data.js`에 두며, 이 파일은 선택 규칙과 상태 전이에 집중한다.
+낚시의 `idle → casting → waiting → bite → result` 상태 흐름과 지점·시간·날씨 필터, 상대 Weight 선택, 같은 어종 3연속 보정 및 XP·발견 통계 갱신을 담당한다. 캐스팅 순간 `regionId + spotId + habitat + period + weather`를 고정해 진행 중 월드 상태가 바뀌어도 같은 풀을 사용한다. 장착한 낚싯대의 입질 대기 감소, 희귀 이상 Weight 증가와 큰 개체 보정도 최종 선택 단계에서 적용한다. 임시 플래그 `temporaryAllFishAtVillagePond`는 마을 연못의 서식지 조건만 해제하며, 숲의 강과 농장 연못은 각 지점의 풀을 사용한다. 이 임시 플래그는 바닷가와 지역 밸런스가 완성되면 재검토한다. 발견 수가 5/10/15/19/20에 도달하면 데이터에 선언된 보상을 한 번만 자동 지급한다. `?debug&fish=<fish.id>`는 실제 저장·결과 UI를 거치면서 지정 어종의 입질을 즉시 발생시키는 QA 전용 경로다. 실제 출현 중인 어종·설명·보상은 `src/data/fish-data.js`, 10개 서식지와 74종 목표 명단은 `src/data/fishing-habitat-data.js`, 낚시 지점 판정은 `src/fishing-spots.js`, 낚싯대 원본은 `src/data/fishing-gear-data.js`에 둔다.
+
+### `src/fishing-spots.js`
+
+월드의 사각 물 영역과 잘린 모서리 규칙을 사용해 현재 물 타일의 안정적인 `spotId`와 `fishingHabitat`을 반환한다. 모든 새 물 영역은 고유 ID와 알려진 서식지를 가져야 한다. 이전 맵 호환을 위한 지역 기본 서식지도 관리하지만 실제 캐스팅은 물 영역의 명시값을 우선한다. 월드 검증은 서로 다른 서식지 영역이 겹쳐 한 타일의 결과가 모호해지는 것을 막는다.
 
 낚시 결과창의 위치·스크롤·확인 버튼 배치는 `styles/game.css`의 `#dialog.fishingResult` 전용 규칙에서 관리한다. 일반 대화창의 하단 배치는 변경하지 않는다.
 

@@ -6,25 +6,6 @@ const FISHING_CONFIG = Object.freeze({
   temporaryAllFishAtVillagePond: true
 });
 
-const FISHING_HABITAT_BY_REGION=Object.freeze({
-  lilacVillage:FISH_HABITATS.POND,
-  oldForest:FISH_HABITATS.RIVER,
-  deepForest:FISH_HABITATS.RIVER,
-  forestThree:FISH_HABITATS.RIVER,
-  forestFour:FISH_HABITATS.RIVER,
-  forestFive:FISH_HABITATS.RIVER,
-  forestSix:FISH_HABITATS.RIVER,
-  forestSeven:FISH_HABITATS.RIVER,
-  forestEight:FISH_HABITATS.RIVER,
-  forestNine:FISH_HABITATS.RIVER,
-  forestTen:FISH_HABITATS.RIVER,
-  forestEleven:FISH_HABITATS.RIVER,
-  forestTwelve:FISH_HABITATS.RIVER,
-  sunnyFields:FISH_HABITATS.POND,
-  riverValley:FISH_HABITATS.RIVER,
-  coast:FISH_HABITATS.COAST
-});
-
 const fishingState = {
   phase: 'idle',
   timer: 0,
@@ -43,20 +24,24 @@ function isFishingResult(){ return fishingState.phase === 'result'; }
 
 function fishingWaterInFront(){
   const t=facingTile();
-  return waterSet.has(key(t.x,t.y));
+  return waterSet.has(key(t.x,t.y))&&!!resolveFishingSpot(WORLD_DEFINITION,t,GAME_STATE.regionId);
 }
 
-function getFishingHabitat(regionId=GAME_STATE.regionId){
-  return FISHING_HABITAT_BY_REGION[regionId]||FISH_HABITATS.POND;
+function getFishingSpotInFront(){
+  const tile=facingTile();
+  if(!waterSet.has(key(tile.x,tile.y))) return null;
+  return resolveFishingSpot(WORLD_DEFINITION,tile,GAME_STATE.regionId);
 }
 
-function getFishingContext(){
-  return {
-    regionId:GAME_STATE.regionId,
-    habitat:getFishingHabitat(),
+function getFishingContext(spot=null){
+  const regionId=spot?.regionId||GAME_STATE.regionId;
+  return Object.freeze({
+    regionId,
+    spotId:spot?.spotId||null,
+    habitat:getFishingHabitat(regionId,spot),
     period:getWorldTimePeriod(),
     weather:getWeatherKind()
-  };
+  });
 }
 
 function fishMatchesContext(fish,context){
@@ -226,14 +211,15 @@ function applyFishCollectionRewards(){
 function startFishing(){
   if(GAME_STATE.appearance?.activeTool!=='rod'||
     (typeof isChoppingTree==='function'&&isChoppingTree())||
-    menuOpen || isFishingActive() || !fishingWaterInFront()) return false;
+    menuOpen || isFishingActive()) return false;
+  const spot=getFishingSpotInFront();
+  if(!spot) return false;
   fishingState.phase=fishingDebugFishId?'bite':'casting';
   fishingState.timer=0;
   fishingState.biteDelay=getFishingBiteDelay();
   fishingState.result=null;
-  const target=facingTile();
-  fishingState.spot={x:target.x,y:target.y};
-  fishingState.context=getFishingContext();
+  fishingState.spot={spotId:spot.spotId,x:spot.x,y:spot.y,fishingHabitat:spot.fishingHabitat};
+  fishingState.context=getFishingContext(spot);
   GAME_STATE.activity.active='fishing';
   inputs.up=inputs.down=inputs.left=inputs.right=false;
   activeDir=null;

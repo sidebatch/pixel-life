@@ -1,3 +1,32 @@
+function validateFishingWaterAreas(definition,fail){
+  const ids=new Set();
+  for(const [index,area] of (definition.waterAreas||[]).entries()){
+    if(!area.id) fail(`water area[${index}] is missing a stable fishing spot id`);
+    else if(ids.has(area.id)) fail(`Duplicate water area id '${area.id}'`);
+    else ids.add(area.id);
+    if(!Number.isInteger(area.x)||!Number.isInteger(area.y)||!Number.isInteger(area.w)||!Number.isInteger(area.h)||area.w<1||area.h<1)
+      fail(`water area '${area.id||index}' has an invalid rectangle`);
+    if(!FISHING_HABITAT_BY_ID.has(area.fishingHabitat))
+      fail(`water area '${area.id||index}' has an unknown fishing habitat '${area.fishingHabitat}'`);
+  }
+  for(let left=0;left<(definition.waterAreas||[]).length;left++){
+    for(let right=left+1;right<definition.waterAreas.length;right++){
+      const a=definition.waterAreas[left],b=definition.waterAreas[right];
+      if(a.fishingHabitat===b.fishingHabitat) continue;
+      let overlaps=false;
+      for(let x=Math.max(a.x,b.x);x<Math.min(a.x+a.w,b.x+b.w)&&!overlaps;x++){
+        for(let y=Math.max(a.y,b.y);y<Math.min(a.y+a.h,b.y+b.h);y++){
+          if(fishingAreaContainsTile(a,{x,y})&&fishingAreaContainsTile(b,{x,y})){overlaps=true;break;}
+        }
+      }
+      if(overlaps) fail(`Fishing water areas '${a.id}' and '${b.id}' overlap with different habitats`);
+    }
+  }
+  const marker=resolveFishingSpot(definition,definition.fishingSpot,definition.id);
+  if(!marker) fail(`Region ${definition.id} fishing marker does not resolve to a stable spot`);
+  return marker;
+}
+
 function validateWorldDefinition(){
   const errors=[];
   const warnings=[];
@@ -28,6 +57,7 @@ function validateWorldDefinition(){
     if(ids.has(item.id)) fail(`Duplicate id '${item.id}' used by ${ids.get(item.id)} and ${type}`);
     else ids.set(item.id,type);
   };
+  validateFishingWaterAreas(WORLD_DEFINITION,fail);
 
   const solidOccupancy=new Map();
   const occupy=(label,x,y)=>{
@@ -126,6 +156,9 @@ function validateWorldDefinition(){
 
 function validatePlayableRegion(){
   const definition=WORLD_DEFINITION;
+  const fishingErrors=[];
+  validateFishingWaterAreas(definition,message=>fishingErrors.push(message));
+  if(fishingErrors.length) throw new Error(`Region ${definition.id} fishing validation failed:\n- ${fishingErrors.join('\n- ')}`);
   const spawn=definition.playerSpawn;
   if(!inside(spawn.x,spawn.y)||blocked.has(key(spawn.x,spawn.y)))
     throw new Error(`Region ${definition.id} has a blocked spawn`);

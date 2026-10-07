@@ -85,6 +85,7 @@ const fishingContext={
   getWorldTimePeriod:()=> 'DAY',
   getWeatherKind:()=> 'clear',
   facingTile:()=>({x:1,y:1}),
+  WORLD_DEFINITION:{id:'lilacVillage',waterAreas:[{id:'lilac_pond',x:1,y:1,w:1,h:1,fishingHabitat:'pond'}]},
   waterSet:new Set(['1,1']),
   key:(x,y)=>`${x},${y}`,
   menuOpen:false,
@@ -97,7 +98,7 @@ const fishingContext={
   saveGame:()=>{saveCalls+=1;return true;}
 };
 vm.createContext(fishingContext);
-vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/fishing-spots.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
   `${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${fishingSource}\n`+
   `globalThis.__config=FISHING_CONFIG;`+
   `globalThis.__started=startFishing();`+

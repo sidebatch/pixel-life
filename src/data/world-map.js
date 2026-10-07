@@ -27,7 +27,7 @@ let WORLD_DEFINITION = Object.freeze({
   ],
 
   waterAreas: [
-    { id: 'lilac_pond', x: 35, y: 14, w: 13, h: 16, cutCorners: true }
+    { id: 'lilac_pond', x: 35, y: 14, w: 13, h: 16, cutCorners: true, fishingHabitat: 'pond' }
   ],
 
   bridges: [

@@ -113,11 +113,12 @@ function forestTierTrees(regionId,layout){
 }
 function forestFrontierRegion(id,number,layout){
   const {paths,waterAreas,fishingSpot,rocks,terrain}=layout;
+  const fishingWaterAreas=waterAreas.map(area=>Object.freeze({...area,fishingHabitat:area.fishingHabitat||'river'}));
   return Object.freeze({
     id,name:FOREST_REGION_NAMES[id]||`오래된 숲 1-${number}`,tileSize:48,width:64,height:48,
     playerSpawn:{x:25,y:44,face:'up'},
     paths,terrain,
-    stoneAreas:layout.stoneAreas||[],waterAreas,bridges:layout.bridges||[],fishingSpot,npcs:[],fixedObjects:{rocks},
+    stoneAreas:layout.stoneAreas||[],waterAreas:fishingWaterAreas,bridges:layout.bridges||[],fishingSpot,npcs:[],fixedObjects:{rocks},
     decorations:layout.decorations||{
       bushes:[{x:18,y:36,v:0,s:.8},{x:34,y:38,v:1,s:.85},{x:53,y:33,v:0,s:.8}],
       flowers:[{x:22,y:30,v:1,s:.56},{x:32,y:25,v:0,s:.55}],
@@ -130,7 +131,7 @@ function forestFrontierRegion(id,number,layout){
       {axis:'y',from:3,to:44,step:2,fixed:1,gaps:[]},
       {axis:'y',from:3,to:44,step:2,fixed:62,gaps:[]}
     ],
-    trees:FOREST_TIER_REGION_SPECIES[id]?forestTierTrees(id,layout):[...forestGroveTrees(id),...forestInfillTrees(id,waterAreas)],
+    trees:FOREST_TIER_REGION_SPECIES[id]?forestTierTrees(id,layout):[...forestGroveTrees(id),...forestInfillTrees(id,fishingWaterAreas)],
     farmPlots:[],exits:forestFrontierExits(id)
   });
 }
@@ -146,8 +147,8 @@ const REGION_WORLDS=Object.freeze({
       {x1:31,y1:20,x2:31,y2:34}
     ],
     stoneAreas:[],waterAreas:[
-      {id:'forest_stream',x:40,y:7,w:8,h:30,cutCorners:true},
-      {id:'forest_pool',x:37,y:21,w:4,h:9,cutCorners:true}
+      {id:'forest_stream',x:40,y:7,w:8,h:30,cutCorners:true,fishingHabitat:'river'},
+      {id:'forest_pool',x:37,y:21,w:4,h:9,cutCorners:true,fishingHabitat:'river'}
     ],bridges:[],fishingSpot:{x:40,y:20},
     npcs:[],fixedObjects:{rocks:[{x:35,y:29},{x:19,y:36},{x:50,y:39}]},
     decorations:{
@@ -204,8 +205,8 @@ const REGION_WORLDS=Object.freeze({
       {x1:25,y1:17,x2:39,y2:17},{x1:31,y1:17,x2:31,y2:31}
     ],
     stoneAreas:[],waterAreas:[
-      {id:'deep_forest_stream',x:40,y:7,w:8,h:30,cutCorners:true},
-      {id:'deep_forest_pool',x:37,y:19,w:4,h:9,cutCorners:true}
+      {id:'deep_forest_stream',x:40,y:7,w:8,h:30,cutCorners:true,fishingHabitat:'river'},
+      {id:'deep_forest_pool',x:37,y:19,w:4,h:9,cutCorners:true,fishingHabitat:'river'}
     ],bridges:[],fishingSpot:{x:40,y:17},
     npcs:[],fixedObjects:{rocks:[{x:35,y:27},{x:20,y:37},{x:52,y:38}]},
     decorations:{
@@ -393,7 +394,7 @@ const REGION_WORLDS=Object.freeze({
       {x1:11,y1:20,x2:21,y2:20},{x1:11,y1:28,x2:21,y2:28},
       {x1:22,y1:20,x2:22,y2:31}
     ],
-    stoneAreas:[],waterAreas:[{id:'farm_pond',x:27,y:13,w:11,h:15,cutCorners:true}],
+    stoneAreas:[],waterAreas:[{id:'farm_pond',x:27,y:13,w:11,h:15,cutCorners:true,fishingHabitat:'pond'}],
     bridges:[],fishingSpot:{x:27,y:20},npcs:[],
     fixedObjects:{rocks:[{x:39,y:30},{x:7,y:34}]},
     decorations:{

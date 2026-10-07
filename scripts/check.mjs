@@ -12,6 +12,7 @@ const scriptFiles = [
   'src/data/world-map.js',
   'src/data/region-maps.js',
   'src/data/fishing-habitat-data.js',
+  'src/fishing-spots.js',
   'src/data/fish-data.js',
   'src/data/fishing-gear-data.js',
   'src/data/life-skill-data.js',
@@ -509,7 +510,7 @@ assert(bufferedProbe.loaded.join(',')===gameAudioPaths.join(',')&&bufferedProbe.
 
 const fishingDebugContext={window:{location:{search:'?debug&fish=fish.coelacanth'}},URLSearchParams};
 vm.createContext(fishingDebugContext);
-vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/fishing-spots.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
   `globalThis.__forcedFish=getFishingDebugFish()?.id;`,fishingDebugContext);
 assert(fishingDebugContext.__forcedFish==='fish.coelacanth','Debug fish override failed');
 
@@ -580,7 +581,7 @@ const fishingLogicContext={
   getWeatherKind:()=> 'clear'
 };
 vm.createContext(fishingLogicContext);
-vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
+vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/fishing-spots.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/life-skills.js')}\n${read('src/fishing.js')}\n`+
   `const pool=getEligibleFishPool();`+
   `globalThis.__villagePool=pool.map(fish=>fish.id);`+
   `globalThis.__villageReachable=[...new Set(['DAWN','DAY','DUSK','NIGHT'].flatMap(period=>['clear','rain','storm'].flatMap(weather=>getEligibleFishPool({regionId:'lilacVillage',habitat:'pond',period,weather}).map(fish=>fish.id))))];`+
@@ -1805,6 +1806,8 @@ const validationScripts = [
   'src/data/sword-data.js',
   'src/data/world-map.js',
   'src/data/region-maps.js',
+  'src/data/fishing-habitat-data.js',
+  'src/fishing-spots.js',
   'src/data/fishing-gear-data.js',
   'src/data/life-content-data.js',
   'src/config.js',
@@ -1890,7 +1893,7 @@ assert(forestExpansion.every((region,index)=>region.name===playableForestNames[i
   `All twelve forest maps need dense tier trees and reciprocal exits: ${JSON.stringify(forestExpansion)}`);
 assert(vm.runInContext(`${JSON.stringify(playableForestIds)}.every(id=>REGION_MUSIC_TRACKS[id]==='woodland')`,musicContext),
   'All twelve forest maps should continue the woodland track');
-const forestFishing=vm.runInNewContext(read('src/fishing.js')+';FISHING_HABITAT_BY_REGION',
+const forestFishing=vm.runInNewContext(read('src/fishing-spots.js')+';FISHING_HABITAT_BY_REGION',
   {FISH_HABITATS:{POND:'pond',RIVER:'river',COAST:'coast'}});
 assert(forestExpansion.every(region=>forestFishing[region.id]==='river'),
   'Every forest water area should use the river fish habitat');
@@ -1932,4 +1935,5 @@ checkCharacterStandard();
 checkSwordStandard();
 await import('./qa-fishing-expansion-data.mjs');
 await import('./qa-fishing-baseline.mjs');
+await import('./qa-fishing-spots.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

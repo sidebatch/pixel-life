@@ -1,4 +1,5 @@
 from pathlib import Path
+from math import ceil
 
 from PIL import Image, ImageDraw
 
@@ -13,6 +14,8 @@ FISH_NAMES = [
     "largemouth_bass",
     "catfish",
     "golden_koi",
+    "bluegill",
+    "killifish",
     "minnow",
     "trout",
     "ayu",
@@ -20,6 +23,7 @@ FISH_NAMES = [
     "snakehead",
     "rainbow_trout",
     "masou_salmon",
+    "mandarin_fish",
     "sardine",
     "mackerel",
     "horse_mackerel",
@@ -51,7 +55,7 @@ def normalize_sprite(source_path: Path) -> Image.Image:
 
 def build_contact_sheet(sprites: dict[str, Image.Image]) -> None:
     cell_width, cell_height = 128, 116
-    sheet = Image.new("RGBA", (cell_width * 5, cell_height * 4), (8, 35, 35, 255))
+    sheet = Image.new("RGBA", (cell_width * 5, cell_height * ceil(len(FISH_NAMES) / 5)), (8, 35, 35, 255))
     draw = ImageDraw.Draw(sheet)
     for index, name in enumerate(FISH_NAMES):
         x = (index % 5) * cell_width

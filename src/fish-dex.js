@@ -42,7 +42,8 @@ function renderFishDexReward(discovered){
   const nextReward=FISH_COLLECTION_REWARDS.find(reward=>discovered<reward.count);
   if(!nextReward){
     rewardPanel.className='fishDexReward complete';
-    rewardPanel.innerHTML='<div><small>COLLECTION COMPLETE</small><b>🏆 강태공 · 모든 도감 보상 완료</b></div><span>20 / 20</span>';
+    const complete=discovered===FISH_DATA.length;
+    rewardPanel.innerHTML=`<div><small>${complete?'CURRENT COLLECTION COMPLETE':'LEGACY REWARDS COMPLETE'}</small><b>🏆 강태공 · 기존 20종 도감 보상 완료</b></div><span>${discovered} / ${FISH_DATA.length}</span>`;
     return;
   }
   const progress=Math.min(100,discovered/nextReward.count*100);

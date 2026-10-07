@@ -15,7 +15,7 @@
 
 ### `src/assets.js`
 
-개발용 이미지 경로만 관리한다. 월드·캐릭터·건물과 `FISH_URLS`의 20종 물고기, `FOREST_TREE_URLS`·`FOREST_STUMP_URLS`의 숲 나무/그루터기, `LIFE_ITEM_URLS`의 통나무/씨앗 경로를 한곳에서 선언한다. base64 데이터는 소스에 직접 넣지 않으며 빌드 단계에서만 단일 HTML에 포함한다. 생활 콘텐츠 이미지 규격은 `LIFE_ASSET_STANDARD.md`를 따른다.
+개발용 이미지 경로만 관리한다. 월드·캐릭터·건물과 `FISH_URLS`의 23종 물고기, `FOREST_TREE_URLS`·`FOREST_STUMP_URLS`의 숲 나무/그루터기, `LIFE_ITEM_URLS`의 통나무/씨앗 경로를 한곳에서 선언한다. base64 데이터는 소스에 직접 넣지 않으며 빌드 단계에서만 단일 HTML에 포함한다. 생활 콘텐츠 이미지 규격은 `LIFE_ASSET_STANDARD.md`를 따른다.
 
 ### `src/config.js`
 
@@ -113,7 +113,7 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 ### `scripts/process-fish-assets.py`
 
-`assets/fishing/source/`의 생성 원본에서 투명 영역을 자르고 알파 가장자리를 정리한 뒤, 최근접 보간으로 96×96 게임용 PNG와 검토용 contact sheet를 만든다. 런타임과 단일 HTML 빌드는 정규화된 20개 파일만 참조한다.
+`assets/fishing/source/`의 생성 원본에서 투명 영역을 자르고 알파 가장자리를 정리한 뒤, 최근접 보간으로 96×96 게임용 PNG와 검토용 contact sheet를 만든다. 런타임과 단일 HTML 빌드는 정규화된 23개 파일을 참조한다.
 
 ### `src/save.js`
 

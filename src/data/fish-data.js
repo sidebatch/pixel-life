@@ -42,6 +42,8 @@ const FISH_DATA=Object.freeze([
   defineFish({id:'fish.largemouth_bass',name:'큰입배스',emoji:'🐟',asset:'largemouth_bass',habitat:FISH_HABITATS.POND,rarity:FISH_RARITIES.UNCOMMON,periods:['DAY','DUSK'],weather:null,minSizeCm:20,maxSizeCm:65,basePrice:75,xp:12,weight:16,description:'연못의 포식자. 입질이 강렬하다.',introducedVersion:'baseline-v1'}),
   defineFish({id:'fish.catfish',name:'메기',emoji:'🐟',asset:'catfish',habitat:FISH_HABITATS.POND,rarity:FISH_RARITIES.RARE,periods:['NIGHT'],weather:['rain','storm'],minSizeCm:25,maxSizeCm:100,basePrice:160,xp:20,weight:7,description:'비 오는 밤에만 모습을 드러내는 연못의 그림자다.',introducedVersion:'baseline-v1'}),
   defineFish({id:'fish.golden_koi',name:'황금잉어',emoji:'🐠',asset:'golden_koi',habitat:FISH_HABITATS.POND,rarity:FISH_RARITIES.HEROIC,periods:['DAWN'],weather:['clear'],minSizeCm:30,maxSizeCm:90,basePrice:420,xp:40,weight:2,description:'새벽 연못에 떠오르는 황금빛 행운이다.',introducedVersion:'baseline-v1'}),
+  defineFish({id:'fish.bluegill',name:'블루길',emoji:'🐟',asset:'bluegill',habitat:FISH_HABITATS.POND,rarity:FISH_RARITIES.COMMON,periods:null,weather:null,minSizeCm:8,maxSizeCm:28,basePrice:22,xp:8,weight:28,description:'파란 볼이 매력적인 연못의 단골이다.',introducedVersion:'expansion'}),
+  defineFish({id:'fish.killifish',name:'송사리',emoji:'🐟',asset:'killifish',habitat:FISH_HABITATS.POND,rarity:FISH_RARITIES.COMMON,periods:['DAY'],weather:null,minSizeCm:2,maxSizeCm:6,basePrice:18,xp:8,weight:22,description:'수면 위를 총총 뛰어다니는 작은 물고기다.',introducedVersion:'expansion'}),
 
   // Forest river
   defineFish({id:'fish.minnow',name:'피라미',emoji:'🐟',asset:'minnow',habitat:FISH_HABITATS.RIVER,rarity:FISH_RARITIES.COMMON,periods:null,weather:null,minSizeCm:6,maxSizeCm:18,basePrice:20,xp:8,weight:35,description:'숲 강에서 가장 흔한 작은 물고기다.',introducedVersion:'baseline-v1'}),
@@ -51,6 +53,7 @@ const FISH_DATA=Object.freeze([
   defineFish({id:'fish.snakehead',name:'가물치',emoji:'🐟',asset:'snakehead',habitat:FISH_HABITATS.RIVER,rarity:FISH_RARITIES.RARE,periods:['NIGHT'],weather:null,minSizeCm:30,maxSizeCm:100,basePrice:145,xp:20,weight:8,description:'밤의 강을 지배하는 사나운 포식자다.',introducedVersion:'baseline-v1'}),
   defineFish({id:'fish.rainbow_trout',name:'무지개송어',emoji:'🐠',asset:'rainbow_trout',habitat:FISH_HABITATS.RIVER,rarity:FISH_RARITIES.RARE,periods:['DAY','DUSK'],weather:['rain'],minSizeCm:20,maxSizeCm:70,basePrice:180,xp:20,weight:6,description:'비 오는 날 무지개처럼 빛나는 송어다.',introducedVersion:'baseline-v1'}),
   defineFish({id:'fish.masou_salmon',name:'산천어',emoji:'🐟',asset:'masou_salmon',habitat:FISH_HABITATS.RIVER,rarity:FISH_RARITIES.HEROIC,periods:['DAWN'],weather:['clear'],minSizeCm:15,maxSizeCm:45,basePrice:360,xp:40,weight:2,description:'새벽 강물에 떠오르는 붉은 점의 귀빈이다.',introducedVersion:'baseline-v1'}),
+  defineFish({id:'fish.mandarin_fish',name:'쏘가리',emoji:'🐟',asset:'mandarin_fish',habitat:FISH_HABITATS.RIVER,rarity:FISH_RARITIES.COMMON,periods:null,weather:null,minSizeCm:15,maxSizeCm:50,basePrice:38,xp:8,weight:25,description:'맑은 강바닥에 숨어사는 자존심 강한 물고기다.',introducedVersion:'expansion'}),
 
   // Coast
   defineFish({id:'fish.sardine',name:'정어리',emoji:'🐟',asset:'sardine',habitat:FISH_HABITATS.COAST,rarity:FISH_RARITIES.COMMON,periods:null,weather:null,minSizeCm:10,maxSizeCm:25,basePrice:25,xp:8,weight:35,description:'해안의 대표 소형어. 떼로 몰려다닌다.',introducedVersion:'baseline-v1'}),

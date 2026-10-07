@@ -41,16 +41,22 @@ try{
     const sections=[...document.querySelectorAll('[data-fish-section]')];
     if(sections.map(section=>section.dataset.fishSection).join(',')!=='pond,river,coast')
       throw new Error('All view is not grouped into the three live habitats');
-    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==6||
+    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==8||
       !document.querySelector('[data-fish-section="pond"]')?.classList.contains('open')||
-      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 20')
+      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 23')
       throw new Error('All view must lazily render only the open pond section');
+    renderFishDexReward(20);
+    const legacyReward=document.getElementById('fishDexReward');
+    if(!legacyReward.textContent.includes('기존 20종 도감 보상 완료')||
+      !legacyReward.textContent.includes('20 / 23'))
+      throw new Error('Legacy 20-fish rewards must not claim the current 23-fish collection is complete');
+    renderFishDexReward(0);
   });
   await page.screenshot({path:path.join(output,'393-all-habitats.png')});
 
   await page.locator('[data-fish-section-toggle="river"]').tap();
   await page.evaluate(()=>{
-    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==7||
+    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==8||
       document.querySelector('[data-fish-section-toggle="river"]')?.getAttribute('aria-expanded')!=='true'||
       document.querySelector('[data-fish-section-toggle="pond"]')?.getAttribute('aria-expanded')!=='false')
       throw new Error('Habitat accordion did not switch lazy cards from pond to river');
@@ -72,7 +78,7 @@ try{
     if(tabs.map(button=>button.textContent.trim()).join('|')!=='내륙 전체|연못|강|산악 호수|폭포|늪지'||
       rows.size!==2||boxes.some(box=>box.left<panel.left||box.right>panel.right)||
       document.querySelectorAll('[data-fish-section]').length!==5||
-      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==6)
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==8)
       throw new Error('Inland two-level filter or three-column habitat layout failed');
     for(const id of ['mountain_lake','waterfall','swamp']){
       if(!document.querySelector(`[data-fish-section="${id}"]`)?.textContent.includes('준비 중'))
@@ -85,8 +91,8 @@ try{
   await page.evaluate(()=>{
     if(document.querySelectorAll('[data-fish-section]').length!==1||
       document.querySelector('[data-fish-section]')?.dataset.fishSection!=='river'||
-      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==7)
-      throw new Error('River habitat filter does not show the seven live river fish');
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==8)
+      throw new Error('River habitat filter does not show the eight live river fish');
   });
   await page.locator('[data-fish-habitat="all"]').tap();
 
@@ -128,7 +134,7 @@ try{
       const box=element.getBoundingClientRect();
       if(box.left<panel.left-1||box.right>panel.right+1)throw new Error('Fish dex content overflows at 320px');
     }
-    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length>7)
+    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length>8)
       throw new Error('All view rendered more than one habitat at once');
   });
   await page.screenshot({path:path.join(output,'320-all-habitats.png')});
@@ -143,8 +149,8 @@ try{
   if(errors.length)throw new Error(errors.join('\n'));
 
   const report={categories:['전체','내륙','해안','원양'],habitatGridMaxColumns:3,
-    allSections:['pond','river','coast'],lazyCards:true,liveFish:20,futureHabitats:true,
-    detailHistory:true,viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
+    allSections:['pond','river','coast'],lazyCards:true,liveFish:23,futureHabitats:true,
+    detailHistory:true,legacyRewardProgress:'20 / 23',viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log('Fish dex browser QA passed: '+JSON.stringify(report));
 }finally{

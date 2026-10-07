@@ -119,7 +119,10 @@ assert.ok(baselineIds.every(id=>target.some(fish=>fish.id===id)),
 assert.equal(target.filter(fish=>fish.introducedVersion==='expansion').length,54,
   'The target roster must contain exactly 54 expansion species');
 
-assert.equal(runtime.length,20,'Step 2 must keep the live fishing roster at 20 species');
+const promotedExpansionIds=['fish.bluegill','fish.killifish','fish.mandarin_fish'];
+assert.equal(runtime.length,23,'Step 5 must expose the original 20 fish and three existing-map additions');
+assert.deepEqual(runtime.filter(fish=>fish.introducedVersion==='expansion').map(fish=>fish.id),promotedExpansionIds,
+  'Only the three approved existing-map fish may be promoted in step 5');
 const targetById=new Map(target.map(fish=>[fish.id,fish]));
 for(const fish of runtime){
   const planned=targetById.get(fish.id);
@@ -130,7 +133,7 @@ for(const fish of runtime){
   assert.deepEqual(fish.periods,planned.periods,`Live fish periods differ from target: ${fish.id}`);
   assert.deepEqual(fish.weather,planned.weather,`Live fish weather differs from target: ${fish.id}`);
   assert.equal(fish.description,planned.description,`Live fish description differs from target: ${fish.id}`);
-  assert.equal(fish.introducedVersion,'baseline-v1',`Live fish version marker changed: ${fish.id}`);
+  assert.equal(fish.introducedVersion,planned.introducedVersion,`Live fish version marker differs from target: ${fish.id}`);
   if(fish.id==='fish.coelacanth'){
     assert.equal(fish.habitat,'coast','Coelacanth must stay live at the coast until the deep-sea migration step');
     assert.equal(planned.habitat,'boat_deep','Coelacanth target habitat must be the deep-sea route');
@@ -142,4 +145,4 @@ assert.ok(!dexSource.includes('FISH_DESCRIPTIONS'),'Fish descriptions must not r
 assert.ok(dexSource.includes("fish.description||'도감에 기록된 물고기입니다.'"),
   'Fish dex details must read descriptions from fish data');
 
-console.log('Fishing expansion data passed: 3 groups, 10 habitats, 74 target species, 20 live species');
+console.log('Fishing expansion data passed: 3 groups, 10 habitats, 74 target species, 23 live species');

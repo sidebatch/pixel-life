@@ -43,13 +43,13 @@ try{
       throw new Error('All view is not grouped into the three live habitats');
     if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==8||
       !document.querySelector('[data-fish-section="pond"]')?.classList.contains('open')||
-      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 23')
+      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 25')
       throw new Error('All view must lazily render only the open pond section');
     renderFishDexReward(20);
     const legacyReward=document.getElementById('fishDexReward');
     if(!legacyReward.textContent.includes('기존 20종 도감 보상 완료')||
-      !legacyReward.textContent.includes('20 / 23'))
-      throw new Error('Legacy 20-fish rewards must not claim the current 23-fish collection is complete');
+      !legacyReward.textContent.includes('20 / 25'))
+      throw new Error('Legacy 20-fish rewards must not claim the current 25-fish collection is complete');
     renderFishDexReward(0);
   });
   await page.screenshot({path:path.join(output,'393-all-habitats.png')});
@@ -100,7 +100,7 @@ try{
   await page.evaluate(()=>{
     if([...document.querySelectorAll('[data-fish-habitat]')].map(button=>button.textContent.trim()).join('|')!=='해안 전체|바다'||
       document.querySelectorAll('[data-fish-section]').length!==1||
-      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==7)
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==9)
       throw new Error('Coastal category does not preserve the live coast collection');
   });
 
@@ -134,7 +134,7 @@ try{
       const box=element.getBoundingClientRect();
       if(box.left<panel.left-1||box.right>panel.right+1)throw new Error('Fish dex content overflows at 320px');
     }
-    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length>8)
+    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length>9)
       throw new Error('All view rendered more than one habitat at once');
   });
   await page.screenshot({path:path.join(output,'320-all-habitats.png')});
@@ -149,8 +149,8 @@ try{
   if(errors.length)throw new Error(errors.join('\n'));
 
   const report={categories:['전체','내륙','해안','원양'],habitatGridMaxColumns:3,
-    allSections:['pond','river','coast'],lazyCards:true,liveFish:23,futureHabitats:true,
-    detailHistory:true,legacyRewardProgress:'20 / 23',viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
+    allSections:['pond','river','coast'],lazyCards:true,liveFish:25,futureHabitats:true,
+    detailHistory:true,legacyRewardProgress:'20 / 25',viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log('Fish dex browser QA passed: '+JSON.stringify(report));
 }finally{

@@ -2,8 +2,8 @@ const FISHING_CONFIG = Object.freeze({
   castMs: 320,
   minWaitMs: 3000,
   maxWaitMs: 6000,
-  // Keep the temporary village preview until region-exclusive fish balancing is updated.
-  temporaryAllFishAtVillagePond: true
+  // The village pond now uses its real pond-only pool; other habitats are reachable in-world.
+  temporaryAllFishAtVillagePond: false
 });
 
 const fishingState = {

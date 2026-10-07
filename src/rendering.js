@@ -395,6 +395,70 @@ function drawMarketShop(){
   ctx.restore();
 }
 
+function drawHarborWaterDetails(){
+  if(GAME_STATE.regionId!=='coast')return;
+  ctx.save();
+  const pulse=.55+.2*Math.sin(tNow/420);
+  for(const buoy of [{x:10,y:34,c:'#ef5d4b'},{x:24,y:40,c:'#f2b84a'},{x:55,y:37,c:'#ef5d4b'}]){
+    const x=Math.round((buoy.x+.5)*TILE-camX),y=Math.round((buoy.y+.5)*TILE-camY+Math.sin(tNow/360+buoy.x)*3);
+    ctx.globalAlpha=pulse;ctx.fillStyle='rgba(226,249,255,.45)';ctx.beginPath();ctx.ellipse(x,y+7,18,5,0,0,Math.PI*2);ctx.fill();
+    ctx.globalAlpha=1;ctx.fillStyle=buoy.c;ctx.fillRect(x-6,y-9,12,16);ctx.fillStyle='#f8e6b0';ctx.fillRect(x-3,y-13,6,5);
+  }
+  const boat=WORLD_DEFINITION.fixedObjects?.harbor?.boat;
+  if(boat){
+    const x=boat.x*TILE-camX,y=(boat.y+boat.h)*TILE-camY;
+    ctx.globalAlpha=.25;ctx.strokeStyle='#d9f5ff';ctx.lineWidth=4;
+    for(let line=0;line<3;line++){
+      ctx.beginPath();ctx.moveTo(x-15-line*10,y-40+line*14);ctx.quadraticCurveTo(x-45-line*18,y-34+line*14,x-85-line*25,y-28+line*14);ctx.stroke();
+    }
+  }
+  ctx.restore();
+}
+
+function drawHarborTicketBooth(booth){
+  const x=Math.round(booth.x*TILE-camX),ground=Math.round((booth.y+booth.h)*TILE-camY);
+  const width=booth.w*TILE,height=154;
+  ctx.save();
+  ctx.fillStyle='rgba(49,42,31,.2)';ctx.beginPath();ctx.ellipse(x+width/2,ground-2,width*.46,13,0,0,Math.PI*2);ctx.fill();
+  ctx.fillStyle='#765137';ctx.fillRect(x+12,ground-height+26,width-24,height-30);
+  ctx.fillStyle='#b97b49';ctx.fillRect(x+20,ground-height+38,width-40,height-46);
+  ctx.fillStyle='#315f70';ctx.fillRect(x+6,ground-height+14,width-12,30);
+  ctx.fillStyle='#447f8e';ctx.fillRect(x+18,ground-height,width-36,22);
+  ctx.fillStyle='#173c49';ctx.fillRect(x+44,ground-86,width-88,45);
+  ctx.fillStyle='#bde7e5';ctx.fillRect(x+51,ground-79,width-102,29);
+  ctx.fillStyle='#493321';ctx.fillRect(x+width/2-20,ground-52,40,48);
+  ctx.fillStyle='#f7d987';ctx.fillRect(x+width/2-42,ground-height+7,84,19);
+  ctx.fillStyle='#233b40';ctx.font='900 10px system-ui';ctx.textAlign='center';ctx.fillText('TICKETS',x+width/2,ground-height+20);
+  ctx.fillStyle='#e9bd67';ctx.fillRect(x+width/2+10,ground-31,5,5);
+  ctx.restore();
+}
+
+function drawHarborBoat(boat){
+  const x=Math.round(boat.x*TILE-camX),y=Math.round(boat.y*TILE-camY);
+  const width=boat.w*TILE,height=boat.h*TILE;
+  ctx.save();
+  ctx.fillStyle='rgba(7,34,51,.32)';ctx.beginPath();ctx.ellipse(x+width*.48,y+height*.58,width*.52,height*.34,0,0,Math.PI*2);ctx.fill();
+  ctx.beginPath();ctx.moveTo(x+12,y+height*.18);ctx.lineTo(x+width*.72,y+10);ctx.lineTo(x+width-3,y+height*.5);ctx.lineTo(x+width*.72,y+height-12);ctx.lineTo(x+12,y+height*.82);ctx.closePath();
+  ctx.fillStyle='#f1e3bf';ctx.fill();ctx.strokeStyle='#704d37';ctx.lineWidth=9;ctx.stroke();
+  ctx.fillStyle='#2e7890';ctx.fillRect(x+35,y+42,width-112,height-84);
+  ctx.fillStyle='#e8d7ad';ctx.fillRect(x+92,y+67,112,104);
+  ctx.fillStyle='#2a5969';ctx.fillRect(x+105,y+79,86,45);
+  ctx.fillStyle='#b9e2e4';ctx.fillRect(x+114,y+87,30,27);ctx.fillRect(x+151,y+87,30,27);
+  ctx.fillStyle='#7c5032';ctx.fillRect(x+56,y+height/2-8,width-138,16);
+  ctx.fillStyle='#e8d7ad';ctx.fillRect(x+68,y+height/2-5,width-162,10);
+  const mastX=x+218;ctx.fillStyle='#5c402b';ctx.fillRect(mastX,y+16,9,height-32);
+  ctx.strokeStyle='#d9c493';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(mastX+4,y+22);ctx.lineTo(x+50,y+height*.22);ctx.moveTo(mastX+4,y+24);ctx.lineTo(x+width-28,y+height*.5);ctx.stroke();
+  ctx.fillStyle='#d45f48';ctx.beginPath();ctx.moveTo(mastX+8,y+28);ctx.lineTo(mastX+72,y+61);ctx.lineTo(mastX+8,y+79);ctx.closePath();ctx.fill();
+  ctx.restore();
+}
+
+function drawHarborCrate(crate,index){
+  const x=Math.round(crate.x*TILE-camX+5),y=Math.round(crate.y*TILE-camY+8);
+  ctx.save();ctx.fillStyle='rgba(44,34,23,.22)';ctx.fillRect(x+5,y+32,38,8);
+  ctx.fillStyle=index%2?'#91613b':'#a87143';ctx.fillRect(x,y,42,38);
+  ctx.strokeStyle='#5c3b27';ctx.lineWidth=4;ctx.strokeRect(x+2,y+2,38,34);ctx.beginPath();ctx.moveTo(x+4,y+4);ctx.lineTo(x+38,y+34);ctx.moveTo(x+38,y+4);ctx.lineTo(x+4,y+34);ctx.stroke();ctx.restore();
+}
+
 function npcFacing(npc){
   const dx=player.x-npc.x, dy=player.y-npc.y;
   if(Math.abs(dx)+Math.abs(dy)>2) return npc.face||'down';
@@ -640,6 +704,8 @@ function drawWorld(){
   }
   ctx.globalAlpha=1;
 
+  drawHarborWaterDetails();
+
   // Vegetation Layer Standard 4.0:
   // Any vegetation the player/NPC can walk through is a ground decoration and is ALWAYS
   // rendered below actors. It must never enter the Y-depth queue, otherwise it can briefly
@@ -674,6 +740,10 @@ function drawWorld(){
     renderables.push({y:bench.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.bench,bench.x*TILE-camX-26,bench.y*TILE-camY-8,100,56)});
     renderables.push({y:lamp.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.lamp,lamp.x*TILE-camX+5,lamp.y*TILE-camY-38,38,86)});
   }
+  const harbor=WORLD_DEFINITION.fixedObjects?.harbor;
+  if(harbor?.ticketBooth)renderables.push({y:(harbor.ticketBooth.y+harbor.ticketBooth.h)*TILE,draw:()=>drawHarborTicketBooth(harbor.ticketBooth)});
+  if(harbor?.boat)renderables.push({y:(harbor.boat.y+harbor.boat.h-.5)*TILE,draw:()=>drawHarborBoat(harbor.boat)});
+  (harbor?.crates||[]).forEach((crate,index)=>renderables.push({y:(crate.y+1)*TILE,draw:()=>drawHarborCrate(crate,index)}));
   npcs.forEach(n=>renderables.push({y:n.y*TILE+TILE,draw:()=>drawNPC(n)}));
   renderables.push({y:forestryPlayerDrawDepth(),draw:drawPlayer});
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());

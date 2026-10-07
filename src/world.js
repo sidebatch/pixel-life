@@ -81,6 +81,12 @@ function buildWorldRegion(definition){
   for(const object of [sign,bench,lamp,...rocks]) if(inside(object.x,object.y)) blocked.add(key(object.x,object.y));
   for(let x=marketShop.x;x<marketShop.x+marketShop.w;x++)
     for(let y=marketShop.y;y<marketShop.y+marketShop.h;y++) blocked.add(key(x,y));
+  const harbor=definition.fixedObjects?.harbor;
+  if(harbor?.ticketBooth){
+    for(let x=harbor.ticketBooth.x;x<harbor.ticketBooth.x+harbor.ticketBooth.w;x++)
+      for(let y=harbor.ticketBooth.y;y<harbor.ticketBooth.y+harbor.ticketBooth.h;y++) blocked.add(key(x,y));
+  }
+  for(const crate of harbor?.crates||[]) blocked.add(key(crate.x,crate.y));
   for(const line of definition.treeLines){
     for(let value=line.from;value<=line.to;value+=line.step){
       if(isInGap(value,line.gaps)) continue;
@@ -105,6 +111,13 @@ function buildingForPlayerInteraction(){
 
 function regionExitAt(x,y){
   return (REGION_EXITS[GAME_STATE.regionId]||[]).find(exit=>exit.x===x&&exit.y===y)||null;
+}
+
+function harborFeatureAt(x,y){
+  const booth=WORLD_DEFINITION.fixedObjects?.harbor?.ticketBooth;
+  if(booth&&x>=booth.x&&x<booth.x+booth.w&&y>=booth.y&&y<booth.y+booth.h)
+    return {kind:'ticketBooth',label:'승선권 확인',target:booth};
+  return null;
 }
 
 function enterWorldRegion(exit,options={}){

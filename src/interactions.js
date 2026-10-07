@@ -22,6 +22,8 @@ function resolveWorldInteraction(tile=facingTile()){
   if(exit) return {kind:'exit',label:exit.label,target:exit};
   const npc=npcs.find(n=>n.x===tile.x&&n.y===tile.y);
   if(npc) return {kind:npc.id==='elli'?'market':npc.id==='jun'?'workshopMarket':npc.role==='stylist'?'characterStyle':'npc',label:npc.role==='stylist'?'외형 변경':['elli','jun'].includes(npc.id)?'상점':'대화',target:npc};
+  const harborFeature=harborFeatureAt(tile.x,tile.y);
+  if(harborFeature) return harborFeature;
   if(tile.x===sign.x&&tile.y===sign.y) return {kind:'sign',label:'표지판'};
   const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
   if(tree){
@@ -49,7 +51,8 @@ function activateWorldInteraction(interaction){
     case 'workshopMarket':return openMarket({shop:'workshop'});
     case 'characterStyle':return openCharacterStyle();
     case 'npc':return showDialog(interaction.target.name,interaction.target.dialog);
-    case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
+    case 'ticketBooth':return showDialog('항구 매표소','승선권 노선 · 얕은 바다 / 중간 바다 / 심해 / 빙하 해역\n현재는 모든 항로를 준비 중입니다. 해안 낚시는 바로 이용할 수 있어요.');
+    case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · ← 바람결 해안 항구 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
     case 'tree':return GAME_STATE.appearance?.activeTool==='sword'?startSwordSwing():startTreeChop(interaction.target);
     case 'farm':return openFarmPlot(interaction.target);
     case 'fishing':return startFishing();

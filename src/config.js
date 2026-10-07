@@ -95,7 +95,7 @@ const WORLD_REGIONS = Object.freeze({
   forestTwelve:{id:'forestTwelve',name:'태초 숲 3-3',status:'playable'},
   sunnyFields:{id:'sunnyFields',name:'햇살 농장',status:'playable'},
   riverValley:{id:'riverValley',name:'강 계곡',status:'planned'},
-  coast:{id:'coast',name:'해변과 항구',status:'planned'}
+  coast:{id:'coast',name:'바람결 해안 항구',status:'playable'}
 });
 
 const ACTIVITY_MODULES = Object.freeze({

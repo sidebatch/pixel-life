@@ -118,7 +118,7 @@ assert.deepEqual(clone(fishingContext.__config),{
   castMs:baseline.runtime.castMs,
   minWaitMs:baseline.runtime.minWaitMs,
   maxWaitMs:baseline.runtime.maxWaitMs,
-  temporaryAllFishAtVillagePond:true
+  temporaryAllFishAtVillagePond:false
 },'Fishing timing contract changed');
 assert.equal(fishingContext.__started,true,'Equipped rod must start fishing at reachable water');
 assert.deepEqual(clone(fishingContext.__castState),{

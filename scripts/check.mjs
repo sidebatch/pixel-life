@@ -141,7 +141,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 342, `Expected 342 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 344, `Expected 344 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -342,7 +342,7 @@ vm.createContext(fishContext);
 vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\nglobalThis.__fishData=FISH_DATA;globalThis.__fishRewards=FISH_COLLECTION_REWARDS;`,fishContext);
 const fishData=fishContext.__fishData;
 const fishRewards=fishContext.__fishRewards;
-assert(fishData.length===23,`Expected 23 fish records, found ${fishData.length}`);
+assert(fishData.length===25,`Expected 25 fish records, found ${fishData.length}`);
 assert(new Set(fishData.map(fish=>fish.id)).size===fishData.length,'Fish ids must be unique');
 assert(new Set(fishData.map(fish=>fish.asset)).size===fishData.length,'Fish asset keys must be unique');
 assert(fishRewards.map(reward=>reward.count).join(',')==='5,10,15,19,20','Unexpected fish collection reward thresholds');
@@ -590,7 +590,7 @@ vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/fishin
   `globalThis.__futureCoastPool=getEligibleFishPool({regionId:'coast',habitat:'coast',period:'DAY',weather:'clear'}).map(fish=>fish.id);`+
   `const repeatStreak={fishId:'fish.crucian_carp',count:3};`+
   `globalThis.__weightedBounds=[chooseWeightedFish(pool,0).id,chooseWeightedFish(pool,1).id];`+
-  `globalThis.__repeatPenalty=[getEffectiveFishWeight(pool[0],repeatStreak),chooseWeightedFish(pool,.1,repeatStreak).id];`+
+  `globalThis.__repeatPenalty=[getEffectiveFishWeight(pool[0],repeatStreak),chooseWeightedFish(pool,.15,repeatStreak).id];`+
   `recordFishingSelection('fish.koi');recordFishingSelection('fish.koi');recordFishingSelection('fish.koi');`+
   `recordFishingSelection('fish.goldfish');`+
   `globalThis.__resetStreak={...fishingCatchStreak};`+
@@ -631,20 +631,22 @@ vm.runInContext(`fishingState.phase='idle';GAME_STATE.appearance={activeTool:'ax
 assert(fishingLogicContext.__axeFishing===false&&fishingLogicContext.__axeFishingSafe&&
   fishingLogicContext.__busyFishing===false,
   'Fishing entry point must reject a held axe and an unfinished swing without changing progress');
-assert(fishingLogicContext.__villageReachable.length===fishData.length&&
-  fishingLogicContext.__villageReachable.every(id=>fishData.some(fish=>fish.id===id)),
-  'Every fish must be reachable at the village pond across time and weather conditions');
-assert(fishingLogicContext.__villagePool.includes('fish.flounder')&&
-  fishingLogicContext.__villagePool.includes('fish.minnow')&&
-  !fishingLogicContext.__villagePool.includes('fish.coelacanth')&&
+assert(fishingLogicContext.__villageReachable.length===fishData.filter(fish=>fish.habitat==='pond').length&&
+  fishingLogicContext.__villageReachable.every(id=>fishData.find(fish=>fish.id===id)?.habitat==='pond'),
+  'The village pond must expose every pond fish, and only pond fish, across time and weather conditions');
+assert(fishingLogicContext.__villagePool.includes('fish.bluegill')&&
+  fishingLogicContext.__villagePool.includes('fish.killifish')&&
+  !fishingLogicContext.__villagePool.includes('fish.flounder')&&
+  !fishingLogicContext.__villagePool.includes('fish.minnow')&&
+  !fishingLogicContext.__villagePool.includes('fish.mandarin_fish')&&
   fishingLogicContext.__futureRiverPool.length>0&&fishingLogicContext.__futureCoastPool.length>0&&
   fishingLogicContext.__farmPool.length>0&&
   fishingLogicContext.__farmPool.every(id=>fishData.find(fish=>fish.id===id).habitat==='pond')&&
   fishingLogicContext.__futureRiverPool.every(id=>fishData.find(fish=>fish.id===id).habitat==='river')&&
   fishingLogicContext.__futureCoastPool.every(id=>fishData.find(fish=>fish.id===id).habitat==='coast'),
-  'Temporary village preview must keep weather and future region-specific pools');
+  'Playable habitats must keep their region-specific fish pools');
 assert(fishingLogicContext.__weightedBounds[0]==='fish.crucian_carp','Weighted selection lower bound failed');
-assert(fishingLogicContext.__weightedBounds[1]==='fish.flounder','Weighted selection upper bound failed');
+assert(fishingLogicContext.__weightedBounds[1]==='fish.killifish','Weighted selection upper bound failed');
 assert(fishingLogicContext.__repeatPenalty[0]===17.5,'Three-catch repeat weight was not halved');
 assert(fishingLogicContext.__repeatPenalty[1]==='fish.koi','Repeat penalty did not affect weighted selection');
 assert(fishingLogicContext.__resetStreak.fishId==='fish.goldfish'&&fishingLogicContext.__resetStreak.count===1,
@@ -1937,4 +1939,5 @@ await import('./qa-fishing-expansion-data.mjs');
 await import('./qa-fishing-baseline.mjs');
 await import('./qa-fishing-spots.mjs');
 await import('./qa-fishing-new-three.mjs');
+await import('./qa-fishing-coast.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

@@ -412,12 +412,55 @@ const REGION_WORLDS=Object.freeze({
     trees:[{x:8,y:14},{x:15,y:14},{x:20,y:15},{x:42,y:19},{x:45,y:30},{x:18,y:37}],
     farmPlots:Array.from({length:16},(_,index)=>({id:`farm_${String(index+1).padStart(2,'0')}`,x:15+index%4,y:22+Math.floor(index/4)})),
     exits:[{x:1,y:24,to:'lilacVillage',entry:{x:60,y:24,face:'left'},label:'마을로'}]
+  }),
+  coast:Object.freeze({
+    id:'coast',name:'바람결 해안 항구',tileSize:48,width:64,height:48,
+    terrain:{ground:'#d6bb79',patchA:'#8daa70',patchB:'#efd99a',pathRim:'#9f855b',pathCore:'#ccb587',coast:true},
+    playerSpawn:{x:60,y:24,face:'left'},
+    paths:[
+      {x1:62,y1:24,x2:44,y2:24},{x1:44,y1:20,x2:44,y2:28},
+      {x1:17,y1:27,x2:44,y2:27},{x1:12,y1:21,x2:12,y2:27}
+    ],
+    stoneAreas:[{id:'harbor_square',x:31,y:19,w:16,h:9}],
+    waterAreas:[{id:'windshore_harbor',x:2,y:29,w:60,h:18,fishingHabitat:'coast'}],
+    bridges:[
+      {id:'harbor_main_pier',x1:38,y1:27,x2:38,y2:38},
+      {id:'harbor_side_pier',x1:38,y1:36,x2:47,y2:36}
+    ],
+    fishingSpot:{x:20,y:29},
+    npcs:[
+      {id:'captain_maru',x:38,y:34,homeX:38,homeY:34,name:'선장 마루',role:'captain',sprite:'thomas',scale:1,face:'right',moving:false,wait:1200,roam:0,
+        dialog:'배는 정비를 마쳤어. 항로와 승선권 준비가 끝나면 이 부두에서 얕은 바다부터 출항할 수 있을 거야.'}
+    ],
+    fixedObjects:{
+      rocks:[{x:7,y:23},{x:20,y:20},{x:52,y:20},{x:57,y:27}],
+      harbor:{
+        ticketBooth:{x:34,y:20,w:4,h:3,approach:{x:36,y:23}},
+        boat:{x:41,y:29,w:8,h:7},
+        crates:[{x:32,y:25},{x:43,y:26},{x:46,y:25}]
+      }
+    },
+    decorations:{
+      bushes:[{x:9,y:18,v:0,s:.68},{x:16,y:22,v:1,s:.62},{x:53,y:23,v:0,s:.66}],
+      flowers:[{x:12,y:19,v:0,s:.5},{x:18,y:25,v:1,s:.48},{x:50,y:26,v:0,s:.48}],
+      grassTufts:[{x:6,y:26,s:.31},{x:24,y:24,s:.3},{x:56,y:24,s:.32}],
+      reeds:[{x:10,y:29,s:.37},{x:25,y:29,s:.38},{x:54,y:29,s:.36}]
+    },
+    buildings:[],
+    treeLines:[
+      {axis:'x',from:1,to:62,step:3,fixed:1,gaps:[]},
+      {axis:'y',from:4,to:27,step:3,fixed:1,gaps:[]},
+      {axis:'y',from:4,to:27,step:3,fixed:62,gaps:[[22,26]]}
+    ],
+    trees:[{x:5,y:18},{x:24,y:17},{x:51,y:16},{x:58,y:12}],farmPlots:[],
+    exits:[{x:62,y:24,to:'lilacVillage',entry:{x:3,y:36,face:'right'},label:'마을로'}]
   })
 });
 const REGION_EXITS=Object.freeze({
   lilacVillage:[
     {x:25,y:1,to:'oldForest',entry:{x:25,y:44,face:'up'},label:'숲으로'},
-    {x:62,y:24,to:'sunnyFields',entry:{x:3,y:24,face:'right'},label:'농장으로'}
+    {x:62,y:24,to:'sunnyFields',entry:{x:3,y:24,face:'right'},label:'농장으로'},
+    {x:1,y:36,to:'coast',entry:{x:60,y:24,face:'left'},label:'해안으로'}
   ],
   oldForest:REGION_WORLDS.oldForest.exits,
   deepForest:REGION_WORLDS.deepForest.exits,
@@ -431,5 +474,6 @@ const REGION_EXITS=Object.freeze({
   forestTen:REGION_WORLDS.forestTen.exits,
   forestEleven:REGION_WORLDS.forestEleven.exits,
   forestTwelve:REGION_WORLDS.forestTwelve.exits,
-  sunnyFields:REGION_WORLDS.sunnyFields.exits
+  sunnyFields:REGION_WORLDS.sunnyFields.exits,
+  coast:REGION_WORLDS.coast.exits
 });

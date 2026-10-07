@@ -15,7 +15,7 @@
 
 ### `src/assets.js`
 
-개발용 이미지 경로만 관리한다. 월드·캐릭터·건물과 `FISH_URLS`의 23종 물고기, `FOREST_TREE_URLS`·`FOREST_STUMP_URLS`의 숲 나무/그루터기, `LIFE_ITEM_URLS`의 통나무/씨앗 경로를 한곳에서 선언한다. base64 데이터는 소스에 직접 넣지 않으며 빌드 단계에서만 단일 HTML에 포함한다. 생활 콘텐츠 이미지 규격은 `LIFE_ASSET_STANDARD.md`를 따른다.
+개발용 이미지 경로만 관리한다. 월드·캐릭터·건물과 `FISH_URLS`의 25종 물고기, `FOREST_TREE_URLS`·`FOREST_STUMP_URLS`의 숲 나무/그루터기, `LIFE_ITEM_URLS`의 통나무/씨앗 경로를 한곳에서 선언한다. base64 데이터는 소스에 직접 넣지 않으며 빌드 단계에서만 단일 HTML에 포함한다. 생활 콘텐츠 이미지 규격은 `LIFE_ASSET_STANDARD.md`를 따른다.
 
 ### `src/config.js`
 
@@ -67,7 +67,7 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 ### `src/fishing.js`
 
-낚시의 `idle → casting → waiting → bite → result` 상태 흐름과 지점·시간·날씨 필터, 상대 Weight 선택, 같은 어종 3연속 보정 및 XP·발견 통계 갱신을 담당한다. 캐스팅 순간 `regionId + spotId + habitat + period + weather`를 고정해 진행 중 월드 상태가 바뀌어도 같은 풀을 사용한다. 장착한 낚싯대의 입질 대기 감소, 희귀 이상 Weight 증가와 큰 개체 보정도 최종 선택 단계에서 적용한다. 임시 플래그 `temporaryAllFishAtVillagePond`는 마을 연못의 서식지 조건만 해제하며, 숲의 강과 농장 연못은 각 지점의 풀을 사용한다. 이 임시 플래그는 바닷가와 지역 밸런스가 완성되면 재검토한다. 발견 수가 5/10/15/19/20에 도달하면 데이터에 선언된 보상을 한 번만 자동 지급한다. `?debug&fish=<fish.id>`는 실제 저장·결과 UI를 거치면서 지정 어종의 입질을 즉시 발생시키는 QA 전용 경로다. 실제 출현 중인 어종·설명·보상은 `src/data/fish-data.js`, 10개 서식지와 74종 목표 명단은 `src/data/fishing-habitat-data.js`, 낚시 지점 판정은 `src/fishing-spots.js`, 낚싯대 원본은 `src/data/fishing-gear-data.js`에 둔다.
+낚시의 `idle → casting → waiting → bite → result` 상태 흐름과 지점·시간·날씨 필터, 상대 Weight 선택, 같은 어종 3연속 보정 및 XP·발견 통계 갱신을 담당한다. 캐스팅 순간 `regionId + spotId + habitat + period + weather`를 고정해 진행 중 월드 상태가 바뀌어도 같은 풀을 사용한다. 장착한 낚싯대의 입질 대기 감소, 희귀 이상 Weight 증가와 큰 개체 보정도 최종 선택 단계에서 적용한다. 마을·농장은 연못, 숲은 강, 해안 항구는 해안 풀을 사용한다. 과거 전체 어종을 마을에서 미리 잡게 하던 `temporaryAllFishAtVillagePond`는 해안 개방 뒤 `false`로 고정했다. 발견 수가 5/10/15/19/20에 도달하면 데이터에 선언된 보상을 한 번만 자동 지급한다. `?debug&fish=<fish.id>`는 실제 저장·결과 UI를 거치면서 지정 어종의 입질을 즉시 발생시키는 QA 전용 경로다. 실제 출현 중인 어종·설명·보상은 `src/data/fish-data.js`, 10개 서식지와 74종 목표 명단은 `src/data/fishing-habitat-data.js`, 낚시 지점 판정은 `src/fishing-spots.js`, 낚싯대 원본은 `src/data/fishing-gear-data.js`에 둔다.
 
 ### `src/fishing-spots.js`
 

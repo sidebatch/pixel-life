@@ -28,8 +28,10 @@ FISH_NAMES = [
     "mackerel",
     "horse_mackerel",
     "red_seabream",
+    "rockfish",
     "seabass",
     "flounder",
+    "korean_rockfish",
     "coelacanth",
 ]
 

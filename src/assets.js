@@ -324,7 +324,9 @@ const FISH_URLS = Object.freeze({
   mackerel: 'assets/fishing/mackerel.png',
   horse_mackerel: 'assets/fishing/horse_mackerel.png',
   red_seabream: 'assets/fishing/red_seabream.png',
+  rockfish: 'assets/fishing/rockfish.png',
   seabass: 'assets/fishing/seabass.png',
   flounder: 'assets/fishing/flounder.png',
+  korean_rockfish: 'assets/fishing/korean_rockfish.png',
   coelacanth: 'assets/fishing/coelacanth.png'
 });

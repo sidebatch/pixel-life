@@ -20,7 +20,7 @@ vm.createContext(dataContext);
 vm.runInContext(`${read('src/assets.js')}\n${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n`+
   `globalThis.__fish=FISH_DATA;globalThis.__urls=FISH_URLS;globalThis.__rewards=FISH_COLLECTION_REWARDS;`,dataContext);
 const runtime=clone(dataContext.__fish),urls=clone(dataContext.__urls);
-assert.equal(runtime.length,23,'The live fishing roster must contain 23 species after step 5');
+assert.ok(runtime.length>=23,'The live fishing roster must retain the 23 species introduced through step 5');
 assert.deepEqual(runtime.filter(fish=>expected.some(item=>item.id===fish.id)).map(({emoji,...fish})=>fish),expected,
   'The three existing-map additions differ from the approved runtime contract');
 assert.deepEqual(clone(dataContext.__rewards).map(reward=>reward.count),[5,10,15,19,20],
@@ -60,8 +60,8 @@ assert.ok(pools.farm.includes('fish.bluegill')&&pools.farm.includes('fish.killif
 assert.ok(pools.forest.includes('fish.mandarin_fish')&&!pools.forest.includes('fish.bluegill')&&!pools.forest.includes('fish.killifish'),
   'Forest river must contain only the new river fish');
 assert.ok(expected.every(fish=>!pools.coast.includes(fish.id)),'The new inland fish must not leak into the coast pool');
-assert.ok(expected.every(fish=>pools.village.includes(fish.id)),
-  'The deliberate temporary village preview must continue to include every eligible new fish');
+assert.ok(pools.village.includes('fish.bluegill')&&pools.village.includes('fish.killifish')&&!pools.village.includes('fish.mandarin_fish'),
+  'The village pond must use the real pond pool after the coast becomes playable');
 
 for(const fish of expected){
   let saves=0;
@@ -106,4 +106,4 @@ assert.equal(commerceContext.__inventoryHas,true,'Inventory lookup must include 
 assert.deepEqual(clone(commerceContext.__sale),{inventory:[],count:3,total:63},
   'The three new fish must use the normal deterministic sale path');
 
-console.log('Fishing new-three passed: bluegill, killifish, mandarin fish; catch, assets, pools, save, inventory, sale');
+console.log('Fishing step-5 trio passed: bluegill, killifish, mandarin fish; catch, assets, pools, save, inventory, sale');

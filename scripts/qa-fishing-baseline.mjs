@@ -17,7 +17,7 @@ const dataContext={};
 vm.createContext(dataContext);
 vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n`+
   `globalThis.__fish=FISH_DATA;globalThis.__rewards=FISH_COLLECTION_REWARDS;`+
-  `globalThis.__rods=FISHING_RODS;globalThis.__defaultRod=DEFAULT_FISHING_ROD_ID;`,dataContext);
+  `globalThis.__rods=FISHING_RODS;globalThis.__defaultRod=DEFAULT_FISHING_ROD_ID;globalThis.__habitats=FISHING_HABITATS;`,dataContext);
 
 const fishById=new Map(clone(dataContext.__fish).map(fish=>[fish.id,fish]));
 const actualLegacyFish=baseline.legacyFish.map(expected=>{
@@ -52,9 +52,11 @@ for(const record of baseline.legacyFish){
 }
 
 const html=read('index.html');
-const filters=[...html.matchAll(/data-fish-filter="([^"]+)"/g)].map(match=>match[1]);
-for(const filter of baseline.runtime.filters)
-  assert.ok(filters.includes(filter),`Legacy fish-dex filter disappeared: ${filter}`);
+const categories=[...html.matchAll(/data-fish-category="([^"]+)"/g)].map(match=>match[1]);
+assert.ok(categories.includes('all'),'The fish dex must retain an all-species view');
+const habitatIds=clone(dataContext.__habitats).map(habitat=>habitat.id);
+for(const filter of baseline.runtime.filters.filter(filter=>filter!=='all'))
+  assert.ok(habitatIds.includes(filter),`Legacy fish-dex habitat disappeared: ${filter}`);
 
 const fishingSource=read('src/fishing.js');
 const effectsSource=read('src/fishing-effects.js');

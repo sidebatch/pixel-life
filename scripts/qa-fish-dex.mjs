@@ -1,0 +1,152 @@
+// Mobile browser regression for the two-level fishing collection skeleton.
+import fs from 'node:fs';
+import path from 'node:path';
+import {createRequire} from 'node:module';
+
+const require=createRequire(import.meta.url);
+const {chromium}=require(process.env.PIXEL_LIFE_PLAYWRIGHT||'playwright');
+const base=process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/';
+const output=path.resolve(process.argv[2]||'output/fish-dex-qa');
+fs.mkdirSync(output,{recursive:true});
+
+const browser=await chromium.launch({headless:true,executablePath:process.env.PIXEL_LIFE_CHROME||undefined});
+const errors=[];
+try{
+  const context=await browser.newContext({viewport:{width:393,height:780},isMobile:true,hasTouch:true});
+  const page=await context.newPage();
+  page.on('pageerror',error=>errors.push(error.message));
+  page.on('response',response=>{if(response.status()>=400)errors.push(`${response.status()} ${response.url()}`);});
+  await page.goto(base);
+  try{
+    await page.waitForFunction(()=>typeof openFishDex==='function'&&FISHING_HABITATS.length===10,null,{timeout:60000});
+  }catch(error){
+    throw new Error(`${error.message}\nStartup errors:\n${errors.join('\n')||'(none)'}`);
+  }
+
+  await page.locator('#menuBtn').tap();
+  await page.locator('#openFishDexBtn').tap();
+  const before=await page.evaluate(()=>JSON.stringify({
+    inventory:GAME_STATE.inventory,collections:GAME_STATE.collections.fish,
+    fishing:GAME_STATE.progression.fishing,flags:GAME_STATE.progression.flags,coins:GAME_STATE.progression.coins
+  }));
+  await page.evaluate(()=>{
+    const categories=[...document.querySelectorAll('[data-fish-category]')];
+    const boxes=categories.map(button=>button.getBoundingClientRect());
+    const rows=new Set(boxes.map(box=>Math.round(box.top)));
+    const panel=document.getElementById('fishDexPanel').getBoundingClientRect();
+    if(categories.map(button=>button.textContent.trim()).join('|')!=='전체|내륙|해안|원양'||
+      rows.size!==1||Math.max(...boxes.map(box=>box.width))-Math.min(...boxes.map(box=>box.width))>1||
+      boxes.some(box=>box.left<panel.left||box.right>panel.right))throw new Error('Top category tabs are not a stable four-column row');
+    if(!document.getElementById('fishDexHabitatTabs').hidden)throw new Error('All view should not show habitat tabs');
+    const sections=[...document.querySelectorAll('[data-fish-section]')];
+    if(sections.map(section=>section.dataset.fishSection).join(',')!=='pond,river,coast')
+      throw new Error('All view is not grouped into the three live habitats');
+    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==6||
+      !document.querySelector('[data-fish-section="pond"]')?.classList.contains('open')||
+      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 20')
+      throw new Error('All view must lazily render only the open pond section');
+  });
+  await page.screenshot({path:path.join(output,'393-all-habitats.png')});
+
+  await page.locator('[data-fish-section-toggle="river"]').tap();
+  await page.evaluate(()=>{
+    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==7||
+      document.querySelector('[data-fish-section-toggle="river"]')?.getAttribute('aria-expanded')!=='true'||
+      document.querySelector('[data-fish-section-toggle="pond"]')?.getAttribute('aria-expanded')!=='false')
+      throw new Error('Habitat accordion did not switch lazy cards from pond to river');
+  });
+  await page.locator('#fishDexGrid [data-fish-id]').first().tap();
+  await page.evaluate(()=>{
+    if(!isFishDexDetailOpen()||!document.getElementById('fishDexDetail').textContent.includes('강'))
+      throw new Error('Fish detail did not open from a grouped habitat');
+  });
+  await page.goBack();
+  await page.waitForFunction(()=>isFishDexOpen()&&!isFishDexDetailOpen());
+
+  await page.locator('[data-fish-category="inland"]').tap();
+  await page.evaluate(()=>{
+    const tabs=[...document.querySelectorAll('[data-fish-habitat]')];
+    const boxes=tabs.map(button=>button.getBoundingClientRect());
+    const rows=new Set(boxes.map(box=>Math.round(box.top)));
+    const panel=document.getElementById('fishDexPanel').getBoundingClientRect();
+    if(tabs.map(button=>button.textContent.trim()).join('|')!=='내륙 전체|연못|강|산악 호수|폭포|늪지'||
+      rows.size!==2||boxes.some(box=>box.left<panel.left||box.right>panel.right)||
+      document.querySelectorAll('[data-fish-section]').length!==5||
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==6)
+      throw new Error('Inland two-level filter or three-column habitat layout failed');
+    for(const id of ['mountain_lake','waterfall','swamp']){
+      if(!document.querySelector(`[data-fish-section="${id}"]`)?.textContent.includes('준비 중'))
+        throw new Error(`Future inland habitat is not marked ready-later: ${id}`);
+    }
+  });
+  await page.screenshot({path:path.join(output,'393-inland-grid.png')});
+
+  await page.locator('[data-fish-habitat="river"]').tap();
+  await page.evaluate(()=>{
+    if(document.querySelectorAll('[data-fish-section]').length!==1||
+      document.querySelector('[data-fish-section]')?.dataset.fishSection!=='river'||
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==7)
+      throw new Error('River habitat filter does not show the seven live river fish');
+  });
+  await page.locator('[data-fish-habitat="all"]').tap();
+
+  await page.locator('[data-fish-category="coastal"]').tap();
+  await page.evaluate(()=>{
+    if([...document.querySelectorAll('[data-fish-habitat]')].map(button=>button.textContent.trim()).join('|')!=='해안 전체|바다'||
+      document.querySelectorAll('[data-fish-section]').length!==1||
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==7)
+      throw new Error('Coastal category does not preserve the live coast collection');
+  });
+
+  await page.locator('[data-fish-category="offshore"]').tap();
+  await page.evaluate(()=>{
+    const tabs=[...document.querySelectorAll('[data-fish-habitat]')];
+    const rows=new Set(tabs.map(button=>Math.round(button.getBoundingClientRect().top)));
+    if(tabs.map(button=>button.textContent.trim()).join('|')!=='원양 전체|얕은수심|중간수심|심해지역|빙하'||
+      rows.size!==2||document.querySelectorAll('[data-fish-section]').length!==4||
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==0||
+      !document.querySelector('.fishDexSectionEmpty'))
+      throw new Error('Offshore skeleton should show four empty habitats without fish cards');
+  });
+  await page.locator('[data-fish-habitat="boat_deep"]').tap();
+  await page.evaluate(()=>{
+    const section=document.querySelector('[data-fish-section="boat_deep"]');
+    if(document.querySelectorAll('[data-fish-section]').length!==1||!section?.textContent.includes('목표 8종')||
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==0)
+      throw new Error('Deep-sea placeholder does not preserve its target count');
+  });
+  await page.screenshot({path:path.join(output,'393-offshore-deep.png')});
+
+  await page.locator('[data-fish-category="all"]').tap();
+  await page.setViewportSize({width:320,height:568});
+  await page.evaluate(()=>{
+    const panel=document.getElementById('fishDexPanel').getBoundingClientRect();
+    const categories=[...document.querySelectorAll('[data-fish-category]')];
+    if(new Set(categories.map(button=>Math.round(button.getBoundingClientRect().top))).size!==1)
+      throw new Error('Top categories wrapped at 320px');
+    for(const element of document.querySelectorAll('#fishDexCategoryTabs button,#fishDexGrid [data-fish-section],#fishDexGrid [data-fish-id]')){
+      const box=element.getBoundingClientRect();
+      if(box.left<panel.left-1||box.right>panel.right+1)throw new Error('Fish dex content overflows at 320px');
+    }
+    if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length>7)
+      throw new Error('All view rendered more than one habitat at once');
+  });
+  await page.screenshot({path:path.join(output,'320-all-habitats.png')});
+
+  await page.locator('#fishDexClose').tap();
+  await page.waitForFunction(()=>!isFishDexOpen());
+  const after=await page.evaluate(()=>JSON.stringify({
+    inventory:GAME_STATE.inventory,collections:GAME_STATE.collections.fish,
+    fishing:GAME_STATE.progression.fishing,flags:GAME_STATE.progression.flags,coins:GAME_STATE.progression.coins
+  }));
+  if(after!==before)throw new Error('Browsing the fish dex changed saved gameplay state');
+  if(errors.length)throw new Error(errors.join('\n'));
+
+  const report={categories:['전체','내륙','해안','원양'],habitatGridMaxColumns:3,
+    allSections:['pond','river','coast'],lazyCards:true,liveFish:20,futureHabitats:true,
+    detailHistory:true,viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
+  fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
+  console.log('Fish dex browser QA passed: '+JSON.stringify(report));
+}finally{
+  await browser.close();
+}

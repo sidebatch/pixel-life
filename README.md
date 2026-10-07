@@ -25,6 +25,7 @@ node scripts/serve.mjs
 ```bash
 node scripts/qa-fishing-baseline.mjs
 node scripts/qa-fishing-expansion-data.mjs
+node scripts/qa-fish-dex.mjs
 node scripts/check.mjs
 node scripts/build.mjs
 ```
@@ -101,7 +102,7 @@ dist/index.html      생성되는 독립 실행형 배포 파일
 - 상대 Weight 추첨과 같은 어종 3연속 보정
 - 낚시 XP·레벨, 발견·크기 통계, 로컬 저장·복원
 - 낚시 Lv.1–100·숙련도와 +XP·100% 경험치 바·레벨업 안내 (Lv.21 이후 XP는 임시 밸런스)
-- 전체·연못·강·바다 필터가 있는 물고기 도감
+- `전체 / 내륙 / 해안 / 원양`과 3열 서식지 필터, 접이식 서식지 구역이 있는 물고기 도감
 - 발견 물고기 중앙 상세 팝업과 X·뒤로가기 닫기
 - 물고기 20종 전용 96×96 픽셀 아트
 - 5·10·15·19·20종 도감 누적 보상과 단계별 힌트

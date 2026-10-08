@@ -12,11 +12,11 @@ const ASSET_URLS = Object.freeze({
   flower2: 'assets/world/flower2.png',
   grassTuft: 'assets/world/grassTuft.png',
   reeds: 'assets/world/reeds.png',
-  harborBoat:'assets/harbor/harbor-boat-v1.png',
-  harborTicketBooth:'assets/harbor/harbor-ticket-booth-v1.png',
-  voyageDeck:'assets/harbor/voyage-deck-v1.png',
-  voyageCabin:'assets/harbor/voyage-cabin-v1.png',
-  harborCrate:'assets/harbor/harbor-crate-v1.png'
+  harborBoat:'assets/harbor/harbor-boat-v2.png',
+  harborTicketBooth:'assets/harbor/harbor-ticket-booth-v2.png',
+  voyageDeck:'assets/harbor/voyage-deck-v2.png',
+  voyageCabin:'assets/harbor/voyage-cabin-v2.png',
+  harborCrate:'assets/harbor/harbor-crate-v2.png'
 });
 
 const MENU_ICON_URLS = Object.freeze({

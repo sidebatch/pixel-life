@@ -2,11 +2,13 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
 import {createRequire} from 'node:module';
+import {createHash} from 'node:crypto';
 import {decodePNG,alphaBounds} from './lib/png.mjs';
 const require=createRequire(import.meta.url),{chromium}=require(process.env.PIXEL_LIFE_PLAYWRIGHT||'playwright');
 const base=process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4173/dist/index.html',out=path.resolve(process.argv[2]||'output/harbor-art-qa');
 fs.mkdirSync(out,{recursive:true});
-for(const [id,w,h] of [['harbor-boat-v1',192,168],['harbor-ticket-booth-v1',96,88],['voyage-deck-v1',216,336],['voyage-cabin-v1',144,132],['harbor-crate-v1',32,32]]){
+const spriteSpecs=[['harborBoat','harbor-boat-v2',192,168],['harborTicketBooth','harbor-ticket-booth-v2',96,88],['voyageDeck','voyage-deck-v2',216,336],['voyageCabin','voyage-cabin-v2',144,132],['harborCrate','harbor-crate-v2',32,32]];
+for(const [,id,w,h] of spriteSpecs){
  const image=decodePNG(fs.readFileSync('assets/harbor/'+id+'.png')),bounds=alphaBounds(image);
  assert.equal(image.width,w);assert.equal(image.height,h);assert.ok(bounds.width>0&&bounds.height>0);
  assert.ok(image.data.some((v,i)=>i%4===3&&v===0));assert.ok(fs.existsSync('assets/harbor/source/'+id+'.png'));
@@ -17,8 +19,16 @@ try{
   const context=await browser.newContext({viewport:{width,height:width===393?780:568},isMobile:true,hasTouch:true}),page=await context.newPage();
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url());});
   await page.goto(base);await page.waitForFunction(()=>typeof drawVoyageSea==='function'&&!document.getElementById('startupLoading'));
-  const assets=await page.evaluate(()=>['harborBoat','harborTicketBooth','voyageDeck','voyageCabin','harborCrate'].map(key=>({key,width:imgs[key]?.naturalWidth,loaded:imgs[key]?.complete})));
-  assert.ok(assets.every(a=>a.loaded&&a.width>0));
+  const assets=await page.evaluate(async()=>Promise.all(['harborBoat','harborTicketBooth','voyageDeck','voyageCabin','harborCrate'].map(async key=>{
+   const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(ASSET_URLS[key]));
+   return {key,width:imgs[key]?.naturalWidth,height:imgs[key]?.naturalHeight,loaded:imgs[key]?.complete,sourceHash:Array.from(new Uint8Array(hash),v=>v.toString(16).padStart(2,'0')).join('')};
+  })));
+  for(const [key,id,w,h] of spriteSpecs){
+   const asset=assets.find(a=>a.key===key),url='assets/harbor/'+id+'.png';
+   const sources=[url,'data:image/png;base64,'+fs.readFileSync(url).toString('base64')];
+   assert.ok(asset.loaded);assert.equal(asset.width,w);assert.equal(asset.height,h);
+   assert.ok(sources.some(source=>createHash('sha256').update(source).digest('hex')===asset.sourceHash),'Browser must load the selected v2 art: '+key);
+  }
   await page.evaluate(()=>{
    worldTime.minutes=720;worldTime.debugLocked=true;weatherState.kind='clear';weatherState.debugLocked=true;
    enterWorldRegion(REGION_EXITS.lilacVillage.find(e=>e.to==='coast'));

@@ -4,9 +4,11 @@ import fs from 'node:fs';
 import path from 'node:path';
 import {alphaBounds,blank,blitNearest,crop,decodePNG,encodePNG} from './lib/png.mjs';
 const root=process.cwd(),folder=path.join(root,'assets/harbor');
+const version=process.argv[2]||'v2';
+if(!/^v[12]$/.test(version))throw Error('Expected explicit harbor art version v1 or v2');
 const entries=[
-  ['harbor-boat-v1',192,168],['harbor-ticket-booth-v1',96,88],
-  ['voyage-deck-v1',216,336],['voyage-cabin-v1',144,132],['harbor-crate-v1',32,32]
+  ['harbor-boat-'+version,192,168],['harbor-ticket-booth-'+version,96,88],
+  ['voyage-deck-'+version,216,336],['voyage-cabin-'+version,144,132],['harbor-crate-'+version,32,32]
 ];
 fs.mkdirSync(folder,{recursive:true});
 for(const [id,width,height] of entries){

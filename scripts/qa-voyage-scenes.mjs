@@ -22,6 +22,20 @@ const stats=clone(run(`(()=>{
 })()`));
 assert.equal(stats.total,16384);assert.ok(stats.quietRatio>.1&&stats.quietRatio<.45);assert.ok(stats.durations>100);assert.equal(stats.landmarks,6);
 const paint={save(){},restore(){},translate(){},scale(){},fillRect(){},beginPath(){},ellipse(){},fill(){},drawImage(){},moveTo(){},lineTo(){},stroke(){}};
+// Every decorative fragment must be rasterized on integer pixel cells. Smooth
+// ellipse/path/stroke drawing would bring back the prototype vector appearance.
+let pixelCells=0;
+const pixelPaint={fillRect(x,y,w,h){assert.ok([x,y,w,h].every(Number.isInteger));assert.ok(w>0&&h>0);pixelCells++;},
+  ellipse(){throw Error('Smooth ellipse in pixel sea');},beginPath(){throw Error('Vector path in pixel sea');},stroke(){throw Error('Vector stroke in pixel sea');}};
+const pixelModel={VIEW_W:540,VIEW_H:960,document:{createElement:()=>({getContext:()=>pixelPaint})}};
+vm.createContext(pixelModel);vm.runInContext(source,pixelModel);
+for(const destination of ['shallow','mid','deep','glacier']){
+  pixelModel.destination=destination;
+  vm.runInContext(`(()=>{const pool=voyageScenePool(destination);for(let landmark=0;landmark<pool.landmarks.length;landmark++)for(let mid=0;mid<pool.midObjects.length;mid++){
+    composeVoyageScene({destination,base:0,wave:0,landmark,mid,atmosphere:2,artSeed:42,side:1,density:.8});
+  }})()`,pixelModel);
+}
+assert.ok(pixelCells>10000,'Pixel scenery must paint all four route families');
 let created=0;
 const trip={destination:'shallow',tripSeed:42,remainingMs:600000},motion={matches:false};
 const render={VIEW_W:540,VIEW_H:960,TILE:48,camX:1400,camY:800,ctx:{...paint},

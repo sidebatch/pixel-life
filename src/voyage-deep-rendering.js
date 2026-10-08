@@ -1,54 +1,56 @@
-// Decorative deep-route fragments. They never set gameplay time or weather.
-// Compose once per scene into the same bounded canvases as the other routes.
+// Pixel silhouettes and sparse localized glow, never gameplay weather/time.
 function drawDeepVoyageLandmark(paint,kind,x,y,random,palette){
-  const ellipse=(cx,cy,rx,ry,color)=>{paint.fillStyle=color;paint.beginPath();paint.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);paint.fill();};
+  const polygon=(pts,color)=>voyagePixelPolygon(paint,pts.map(([px,py])=>[x+px,y+py]),color);
   if(kind==='cloudBank'){
-    for(let i=0;i<8;i++){
-      const cx=x-55+i*16,cy=y+random()*17;
-      ellipse(cx,cy,26+random()*14,12+random()*9,'rgba(5,12,26,.48)');
-      ellipse(cx+3,cy-5,20,9,'rgba(68,78,103,.18)');
+    for(let i=0;i<6;i++){
+      const cx=x-55+i*19,cy=y+random()*14;
+      voyagePixelPolygon(paint,[[cx-26,cy+7],[cx-21,cy-3],[cx-8,cy-9],[cx+8,cy-5],[cx+24,cy+2],[cx+17,cy+12],[cx-10,cy+14]],'rgba(10,20,36,.24)');
+      drawVoyageWaveCrest(paint,cx-20,cy+17,30,'rgba(111,139,157,.1)');
     }
   }else if(kind==='giantShadow'){
-    ellipse(x,y,66,18,'rgba(3,10,20,.65)');
-    paint.fillStyle='rgba(3,10,20,.65)';paint.beginPath();paint.moveTo(x-52,y);
-    paint.lineTo(x-91,y-23);paint.lineTo(x-80,y);paint.lineTo(x-91,y+23);paint.lineTo(x-52,y);paint.fill();
-    paint.beginPath();paint.moveTo(x+3,y);paint.lineTo(x-12,y-33);paint.lineTo(x-27,y);paint.fill();
-    ellipse(x+33,y-3,18,3,'rgba(99,146,152,.11)');
+    polygon([[-63,1],[-48,-11],[-25,-15],[3,-12],[27,-9],[51,-3],[65,4],[40,13],[1,18],[-38,14]],'rgba(5,17,29,.45)');
+    polygon([[-47,0],[-83,-22],[-73,0],[-83,21],[-47,9]],'rgba(5,17,29,.4)');
+    polygon([[2,-5],[-11,-32],[-25,-9]],'rgba(5,17,29,.4)');
+    drawVoyageWaveCrest(paint,x+12,y-5,36,'rgba(119,161,159,.12)');
   }else if(kind==='glowBloom'){
-    for(let i=0;i<14;i++)drawDeepVoyageMidObject(paint,'jellyGlow',x+random()*100-50,y+random()*65-32,random,palette);
+    for(let i=0;i<12;i++)drawDeepVoyageMidObject(paint,'jellyGlow',x+random()*100-50,y+random()*65-32,random,palette);
   }else if(kind==='darkCurrent'){
     for(let i=0;i<5;i++){
-      paint.strokeStyle=i%2?'rgba(4,13,26,.45)':'rgba(109,149,167,.15)';paint.lineWidth=4;
-      paint.beginPath();paint.moveTo(x-65,y+i*13);paint.lineTo(x-20,y+i*13-12);
-      paint.lineTo(x+28,y+i*13-7);paint.lineTo(x+70,y+i*13+7);paint.stroke();
+      const color=i%2?'rgba(5,18,32,.24)':'rgba(125,163,170,.14)';
+      drawVoyageWaveCrest(paint,x-62+i%2*14,y+i*14,113,color,i===0);
+      drawVoyageWaveCrest(paint,x-44,y+i*14+6,62,color);
     }
   }else if(kind==='abyssalRidge'){
     for(let i=0;i<6;i++){
-      paint.fillStyle=i%2?'rgba(5,15,27,.44)':'rgba(28,51,63,.42)';
-      paint.beginPath();paint.moveTo(x-62+i*20,y+25);paint.lineTo(x-48+i*20,y-19-random()*30);
-      paint.lineTo(x-25+i*20,y+25);paint.fill();
+      const bx=x-62+i*20,top=y-19-random()*30;
+      voyagePixelPolygon(paint,[[bx,y+25],[bx+14,top],[bx+37,y+25]],'rgba(8,24,34,.4)');
+      voyagePixelPolygon(paint,[[bx+14,top],[bx+17,y+6],[bx+5,y+14]],'rgba(62,85,85,.22)');
+      voyagePixelRect(paint,bx+13,top+8,2,3,'rgba(129,187,173,.25)');
     }
-    for(let i=0;i<9;i++)ellipse(x-58+random()*120,y+10+random()*20,2,1,'rgba(129,202,203,.32)');
+    for(let i=0;i<9;i++)voyagePixelRect(paint,x-58+random()*120,y+10+random()*20,2,2,'rgba(137,200,186,.38)');
   }
 }
 function drawDeepVoyageMidObject(paint,kind,x,y,random,palette){
-  const ellipse=(cx,cy,rx,ry,color)=>{paint.fillStyle=color;paint.beginPath();paint.ellipse(cx,cy,rx,ry,0,0,Math.PI*2);paint.fill();};
   if(kind==='jellyGlow'){
-    ellipse(x,y,13,11,'rgba(113,205,210,.06)');
-    ellipse(x,y,6,4,'rgba(128,220,219,.38)');
-    paint.fillStyle='rgba(190,235,227,.65)';paint.fillRect(x-3,y-2,6,2);
-    paint.strokeStyle='rgba(117,198,207,.35)';paint.lineWidth=1;
-    for(let i=0;i<3;i++){paint.beginPath();paint.moveTo(x-3+i*3,y+3);paint.lineTo(x-4+i*3,y+10);paint.lineTo(x-1+i*3,y+16);paint.stroke();}
+    voyagePixelOval(paint,x,y,10,7,'rgba(108,189,182,.08)');
+    voyagePixelPolygon(paint,[[x-7,y+2],[x-6,y-3],[x-2,y-5],[x+3,y-5],[x+7,y+1]],'rgba(133,199,184,.4)');
+    voyagePixelRect(paint,x-3,y-3,5,2,'rgba(190,228,203,.7)');
+    for(let i=0;i<3;i++){
+      voyagePixelRect(paint,x-4+i*4,y+3,2,6+i%2*2,'rgba(131,189,177,.4)');
+      voyagePixelRect(paint,x-2+i*4,y+9+i%2*2,2,4,'rgba(131,189,177,.3)');
+    }
   }else if(kind==='lanternSchool'){
     for(let i=0;i<5;i++){
-      const cx=x-15+i*7,cy=y+(i%2)*7;
-      ellipse(cx,cy,5,2,'rgba(57,103,126,.45)');
-      paint.fillStyle='rgba(146,220,197,.7)';paint.fillRect(cx+2,cy,2,1);
+      const cx=x-15+i*8,cy=y+(i%2)*8;
+      voyagePixelRect(paint,cx-5,cy,10,2,'rgba(78,119,139,.45)');voyagePixelRect(paint,cx-7,cy-2,2,6,'rgba(78,119,139,.4)');
+      voyagePixelRect(paint,cx+3,cy,2,2,'rgba(168,219,181,.72)');
     }
   }else if(kind==='shadowTrail'){
-    for(let i=0;i<3;i++)ellipse(x+i*8,y+i*11,16-i*3,4,'rgba(1,10,20,.38)');
+    for(let i=0;i<3;i++){
+      const cx=x+i*8,cy=y+i*11;
+      voyagePixelPolygon(paint,[[cx-15,cy],[cx-5,cy-4],[cx+12,cy],[cx+3,cy+5]],'rgba(5,18,30,.35)');
+    }
   }else if(kind==='coldFoam'){
-    paint.fillStyle=palette.light;
-    for(let i=0;i<5;i++)paint.fillRect(x-15+i*7,y+i%2*3,3+random()*4,1);
+    for(let i=0;i<3;i++)drawVoyageWaveCrest(paint,x-16+i*8,y+i%2*6,18,'rgba(145,176,182,.3)',i===0);
   }
 }

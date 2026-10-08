@@ -76,81 +76,156 @@ function syncVoyageScenes(seed,elapsedMs,destination='shallow'){
   }
   return cache;
 }
+// Pixel scenery is painted into the existing half-resolution scene caches.
+// Polygon scanlines and stepped crests avoid smooth vector edges; no tile atlas
+// or extra frame canvases are introduced. All decoration stays non-collidable.
+function voyagePixelRect(paint,x,y,w,h,color){
+  paint.fillStyle=color;
+  paint.fillRect(Math.round(x),Math.round(y),Math.max(1,Math.round(w)),Math.max(1,Math.round(h)));
+}
+function voyagePixelPolygon(paint,points,color){
+  paint.fillStyle=color;
+  const low=Math.floor(Math.min(...points.map(p=>p[1]))),high=Math.ceil(Math.max(...points.map(p=>p[1])));
+  for(let y=low;y<high;y++){
+    const hits=[],scan=y+.5;
+    for(let i=0,j=points.length-1;i<points.length;j=i++){
+      const a=points[j],b=points[i];
+      if((a[1]<=scan&&b[1]>scan)||(b[1]<=scan&&a[1]>scan))hits.push(a[0]+(scan-a[1])*(b[0]-a[0])/(b[1]-a[1]));
+    }
+    hits.sort((a,b)=>a-b);
+    for(let i=0;i+1<hits.length;i+=2){const left=Math.round(hits[i]),right=Math.round(hits[i+1]);if(right>left)paint.fillRect(left,y,right-left,1);}
+  }
+}
+function voyagePixelOval(paint,x,y,rx,ry,color){
+  paint.fillStyle=color;
+  for(let dy=-Math.ceil(ry);dy<ry;dy++){
+    const t=(dy+.5)/ry;if(Math.abs(t)>=1)continue;
+    const half=Math.sqrt(1-t*t)*rx,left=Math.round(x-half),right=Math.round(x+half);
+    if(right>left)paint.fillRect(left,Math.round(y+dy),right-left,1);
+  }
+}
+function voyagePixelLine(paint,x1,y1,x2,y2,color,thickness=2){
+  const steps=Math.max(1,Math.ceil(Math.max(Math.abs(x2-x1),Math.abs(y2-y1))/2));
+  for(let i=0;i<=steps;i++)voyagePixelRect(paint,x1+(x2-x1)*i/steps,y1+(y2-y1)*i/steps,thickness,thickness,color);
+}
+function drawVoyageWaveCrest(paint,x,y,length,color,foam=false){
+  voyagePixelRect(paint,x,y,length*.28,2,color);
+  voyagePixelRect(paint,x+length*.22,y-2,length*.45,2,color);
+  voyagePixelRect(paint,x+length*.64,y,length*.3,2,color);
+  if(foam){voyagePixelRect(paint,x+length*.4,y-4,4,2,color);voyagePixelRect(paint,x+length*.83,y+4,4,2,color);}
+}
+function drawVoyagePalm(paint,x,y,size=1){
+  const polygon=(pts,color)=>voyagePixelPolygon(paint,pts.map(([px,py])=>[x+px*size,y+py*size]),color);
+  polygon([[-3,0],[3,0],[7,-25],[4,-29],[0,-22]],'#71553f');
+  voyagePixelLine(paint,x,y-2,x+4*size,y-23*size,'#b99a62',2);
+  polygon([[4,-24],[-18,-18],[-12,-28],[1,-32],[-12,-41],[0,-39],[7,-32],[19,-38],[27,-31],[13,-29],[28,-21],[15,-19]],'#315e4b');
+  polygon([[3,-29],[-12,-23],[-8,-29],[4,-34],[17,-33],[11,-28],[21,-23],[12,-23]],'#548565');
+  voyagePixelRect(paint,x+2*size,y-33*size,8*size,2,'#87a378');
+}
+function drawShallowVoyageLandmark(paint,kind,x,y,random,palette){
+  const polygon=(pts,color)=>voyagePixelPolygon(paint,pts.map(([px,py])=>[x+px,y+py]),color);
+  if(kind==='reef'){
+    polygon([[-58,4],[-40,-14],[-11,-18],[8,-10],[38,-16],[59,8],[29,30],[-28,24]],'rgba(117,177,162,.25)');
+    for(let i=0;i<8;i++){
+      const rx=x-43+random()*83,ry=y-14+random()*38;
+      voyagePixelPolygon(paint,[[rx-12,ry+6],[rx-8,ry-6],[rx+3,ry-10],[rx+13,ry+4],[rx+5,ry+10]],i%2?'#4e877e':'#5f9788');
+      voyagePixelRect(paint,rx-5,ry-5,10,2,'#85b19b');
+      if(i%3===0){voyagePixelRect(paint,rx,ry-12,4,14,'#b7927a');voyagePixelRect(paint,rx-5,ry-9,12,4,'#cba08b');}
+    }
+    return;
+  }
+  if(kind==='rockArch'){
+    polygon([[-57,26],[-38,15],[26,16],[57,26],[24,35],[-34,35]],'rgba(165,211,197,.22)');
+    polygon([[-34,21],[-36,2],[-31,-12],[-22,-26],[-5,-30],[16,-29],[28,-18],[35,-5],[37,11],[32,24],[17,23],[18,10],[13,-5],[3,-9],[-10,-7],[-16,7],[-18,24]],'#475e61');
+    polygon([[-35,1],[-31,-12],[-22,-26],[-5,-30],[16,-29],[28,-18],[31,-8],[15,-13],[1,-15],[-12,-12],[-21,4],[-24,20],[-34,21]],'#7a9184');
+    polygon([[-22,-26],[-5,-30],[16,-29],[24,-20],[10,-20],[-3,-23],[-17,-18]],'#b1bba0');
+    voyagePixelRect(paint,x+23,y-6,4,22,'#627878');voyagePixelRect(paint,x-23,y+3,6,3,'#a1ae95');
+    voyagePixelLine(paint,x-24,y-13,x-17,y-17,'#586f69');voyagePixelLine(paint,x+15,y-26,x+20,y-16,'#61786e');
+    voyagePixelRect(paint,x-28,y+13,4,3,'#527269');voyagePixelRect(paint,x+25,y+17,6,3,'#527269');
+    drawVoyageWaveCrest(paint,x-46,y+29,38,'#b2d7c7');return;
+  }
+  const breadth=kind==='sandbar'?1.08:.95+random()*.15;
+  const coast=[[-57,5],[-44,-11],[-24,-19],[-3,-17],[17,-25],[41,-13],[57,4],[49,19],[24,27],[-3,23],[-26,28],[-48,19]];
+  const shape=(scale,offsetY,color)=>polygon(coast.map(([px,py])=>[px*scale*breadth,py*scale+offsetY]),color);
+  shape(1.18,7,'rgba(116,192,178,.35)');shape(1.07,4,'#719e91');
+  shape(1,1,'#b29765');shape(.98,-2,palette.sand);shape(.85,-5,'#e3d1a0');
+  if(kind!=='sandbar'){
+    polygon([[-40,-1],[-29,-15],[-8,-13],[16,-19],[34,-8],[37,5],[12,11],[-12,8],[-31,12]],'#3d6f54');
+    polygon([[-32,-6],[-25,-15],[-6,-12],[15,-18],[29,-9],[23,0],[-4,3],[-22,1]],palette.leaf);
+    // A few clustered bushes, not uniform circles or a repeated terrain tile.
+    for(let i=0;i<4;i++){
+      const bx=x-22+i*14,by=y-10+(i%2)*5;
+      voyagePixelPolygon(paint,[[bx-10,by+4],[bx-7,by-5],[bx+2,by-9],[bx+10,by-2],[bx+8,by+5]],'#48785a');
+      voyagePixelRect(paint,bx-4,by-5,8,2,'#8ba274');
+    }
+    if(kind==='palmIsland'){drawVoyagePalm(paint,x-17,y,1);drawVoyagePalm(paint,x+15,y-7,.85);}
+    else{
+      voyagePixelPolygon(paint,[[x+28,y+6],[x+23,y-1],[x+28,y-9],[x+39,y-4],[x+41,y+5]],'#637c72');
+      voyagePixelRect(paint,x+29,y-7,6,2,'#a2b09a');
+    }
+  }
+  for(let i=0;i<8;i++)voyagePixelRect(paint,x-36+random()*75,y+10+random()*8,2+random()*3,2,'#c0a878');
+  drawVoyageWaveCrest(paint,x-46,y+31,34,'#bfdccb');drawVoyageWaveCrest(paint,x+14,y+30,25,'#abcfc0');
+}
 function composeVoyageScene(scene){
   const width=Math.ceil(VIEW_W/2)+48,height=Math.ceil(VIEW_H*.9)+96;
   const make=()=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
   const pool=voyageScenePool(scene.destination);
   const far=make(),mid=make(),f=far.getContext('2d'),m=mid.getContext('2d'),random=voyageRandom(scene.artSeed),palette=pool.palettes[scene.base];
   f.imageSmoothingEnabled=m.imageSmoothingEnabled=false;
-  const ellipse=(context,x,y,rx,ry,color)=>{context.fillStyle=color;context.beginPath();context.ellipse(x,y,rx,ry,0,0,Math.PI*2);context.fill();};
-  // Broad underwater color patches, deliberately non-grid and non-tileable.
-  for(let i=0;i<10;i++)ellipse(f,random()*width,random()*height,35+random()*65,15+random()*36,scene.atmosphere%2?'rgba(150,213,191,.07)':'rgba(7,77,101,.1)');
+  // Low-contrast, irregular current bands replace the conspicuous flat ovals.
+  // They are generated per scene, never looped from a tiled water texture.
+  for(let i=0;i<9;i++){
+    const x=random()*width,y=random()*height,w=30+random()*75,h=7+random()*12;
+    voyagePixelPolygon(f,[[x-w,y],[x-w*.65,y-h],[x-w*.15,y-h*.5],[x+w*.5,y-h],[x+w,y],[x+w*.5,y+h],[x-w*.25,y+h*.5]],
+      scene.atmosphere%2?'rgba(163,214,201,.055)':'rgba(12,52,76,.065)');
+    drawVoyageWaveCrest(f,x-w*.6,y+h+4,w*.8,'rgba(185,219,211,.06)');
+  }
   if(scene.landmark){
     const x=scene.side<0?65+random()*15:width-65-random()*15,y=75+random()*Math.min(height-250,VIEW_H*.25),kind=pool.landmarks[scene.landmark];
-    if(scene.destination==='mid'){
-      drawMidVoyageLandmark(f,kind,x,y,random,palette);
-    }else if(scene.destination==='deep'){
-      drawDeepVoyageLandmark(f,kind,x,y,random,palette);
-    }else if(scene.destination==='glacier'){
-      drawGlacierVoyageLandmark(f,kind,x,y,random,palette);
-    }else if(kind==='reef'){
-      for(let i=0;i<9;i++)ellipse(f,x+random()*90-45,y+random()*65-32,8+random()*17,4+random()*7,'rgba(94,178,148,.55)');
-    }else if(kind==='rockArch'){
-      ellipse(f,x,y+24,51,15,'rgba(204,237,215,.25)');
-      f.fillStyle='#657b78';f.fillRect(x-25,y-16,13,37);f.fillRect(x+14,y-8,15,30);f.fillRect(x-20,y-21,43,12);
-      f.fillStyle='#8c9e8d';f.fillRect(x-19,y-21,37,5);f.fillRect(x-25,y-13,6,8);
-    }else{
-      ellipse(f,x,y+9,61,30,'rgba(137,218,211,.25)');ellipse(f,x,y,49,22,palette.sand);
-      f.fillStyle='rgba(247,233,185,.7)';f.fillRect(x-31,y+12,20,2);f.fillRect(x+4,y+15,25,2);
-      if(kind!=='sandbar'){
-        ellipse(f,x-4,y-7,32,18,palette.leaf);
-        f.fillStyle='#78a776';f.fillRect(x-22,y-18,22,6);f.fillRect(x+4,y-14,19,6);
-        for(let rock=0;rock<4;rock++)ellipse(f,x+random()*62-31,y+random()*16-8,3+random()*4,2+random()*3,'#809583');
-        if(kind==='palmIsland'){
-          for(let i=0;i<3;i++){
-            const px=x-20+i*19,py=y-9-i%2*6;
-            f.fillStyle='#8b7052';f.fillRect(px,py-27,3,25);
-            for(let leaf=0;leaf<5;leaf++)ellipse(f,px+Math.cos(leaf*1.2)*9,py-26+Math.sin(leaf*1.2)*4,11,3,'#347b57');
-          }
-        }
-      }
-    }
+    if(scene.destination==='mid')drawMidVoyageLandmark(f,kind,x,y,random,palette);
+    else if(scene.destination==='deep')drawDeepVoyageLandmark(f,kind,x,y,random,palette);
+    else if(scene.destination==='glacier')drawGlacierVoyageLandmark(f,kind,x,y,random,palette);
+    else drawShallowVoyageLandmark(f,kind,x,y,random,palette);
   }
-  // Atmospheric fragments and the middle-water events are independent of landmarks.
-  for(let i=0;i<scene.atmosphere;i++)ellipse(f,random()*width,random()*height,40+random()*40,7+random()*9,'rgba(203,233,225,.09)');
+  for(let i=0;i<scene.atmosphere;i++){
+    const x=random()*width,y=random()*height;
+    for(let row=0;row<3;row++)drawVoyageWaveCrest(f,x-row*7,y+row*6,32+random()*26,'rgba(200,223,214,.075)');
+  }
   const type=pool.midObjects[scene.mid];
   for(let i=0;i<(type==='none'?0:3+Math.floor(random()*4));i++){
     const x=random()<.5?15+random()*53:width-15-random()*53,y=50+random()*(scene.destination!=='shallow'?Math.min(height-100,VIEW_H*.4):height-100);
-    if(scene.destination==='deep'){
-      drawDeepVoyageMidObject(m,type,x,y,random,palette);
-    }else if(scene.destination==='glacier'){
-      drawGlacierVoyageMidObject(m,type,x,y,random,palette);
-    }else if(type==='dolphins'){
+    if(scene.destination==='deep')drawDeepVoyageMidObject(m,type,x,y,random,palette);
+    else if(scene.destination==='glacier')drawGlacierVoyageMidObject(m,type,x,y,random,palette);
+    else if(type==='dolphins'){
       for(let dolphin=0;dolphin<3;dolphin++){
-        const dx=x+dolphin*10,dy=y+dolphin*13;
-        ellipse(m,dx,dy+4,13,5,'rgba(174,219,224,.18)');ellipse(m,dx,dy,10,4,'#476d82');
-        m.fillStyle='#7e9faf';m.fillRect(dx-5,dy-2,10,2);
-        m.beginPath();m.moveTo(dx-2,dy);m.lineTo(dx-4,dy-9);m.lineTo(dx+4,dy);m.fill();
-        m.fillStyle='#3f6073';m.fillRect(dx+8,dy-1,5,2);m.fillRect(dx-13,dy-4,5,2);m.fillRect(dx-13,dy+2,5,2);
+        const dx=x+dolphin*12,dy=y+dolphin*16;
+        drawVoyageWaveCrest(m,dx-17,dy+8,28,'rgba(191,222,216,.24)');
+        voyagePixelPolygon(m,[[dx-14,dy],[dx-7,dy-5],[dx-4,dy-11],[dx+1,dy-5],[dx+11,dy-2],[dx+16,dy+2],[dx+5,dy+4],[dx-8,dy+3]],'#42677a');
+        voyagePixelRect(m,dx-6,dy-3,12,2,'#8da9af');
+        voyagePixelRect(m,dx-17,dy-4,5,3,'#42677a');voyagePixelRect(m,dx-17,dy+2,5,3,'#42677a');
       }
     }else if(type==='swell'){
-      for(let crest=0;crest<3;crest++){
-        m.strokeStyle=crest===0?'rgba(211,235,237,.62)':'rgba(183,218,232,.32)';m.lineWidth=2;
-        m.beginPath();m.moveTo(x-24,y+crest*9);m.lineTo(x-7,y+crest*9-5);m.lineTo(x+12,y+crest*9-4);m.lineTo(x+27,y+crest*9+1);m.stroke();
-      }
+      for(let crest=0;crest<3;crest++)drawVoyageWaveCrest(m,x-26,y+crest*10,55,crest===0?'rgba(202,225,226,.55)':'rgba(163,201,214,.3)',crest===0);
     }else if(type==='buoys'){
-      ellipse(m,x,y+8,12,4,'rgba(219,245,225,.36)');m.fillStyle=i%2?'#dc9c4c':'#b95b4c';m.fillRect(x-4,y-5,8,12);
-      m.fillStyle='#eee0bd';m.fillRect(x-4,y-1,8,3);m.fillStyle='#3a5966';m.fillRect(x-1,y-17,2,12);
+      drawVoyageWaveCrest(m,x-14,y+12,29,'rgba(217,234,210,.38)');
+      voyagePixelRect(m,x-5,y-5,10,16,'#40555a');
+      voyagePixelRect(m,x-3,y-6,6,14,i%2?'#c49b59':'#b46d54');
+      voyagePixelRect(m,x-3,y-1,6,4,'#e5d6ae');voyagePixelRect(m,x-1,y-17,2,12,'#3f5b64');
+      voyagePixelRect(m,x-3,y-18,6,2,'#d2b67a');
     }else if(type==='coral'){
-      ellipse(m,x,y+3,24,12,'rgba(58,114,122,.35)');
-      for(let branch=0;branch<4;branch++){m.fillStyle=branch%2?'rgba(201,147,116,.32)':'rgba(138,157,108,.4)';m.fillRect(x-16+branch*9,y-7-random()*7,4,14);}
+      voyagePixelOval(m,x,y+6,25,10,'rgba(35,93,104,.2)');
+      for(let branch=0;branch<4;branch++){
+        const bx=x-16+branch*10,by=y-9-random()*7,color=branch%2?'rgba(195,142,118,.43)':'rgba(131,172,135,.5)';
+        voyagePixelRect(m,bx,by,4,18,color);voyagePixelRect(m,bx-4,by+4,12,4,color);
+      }
     }else if(type==='fishSchool'){
-      for(let fish=0;fish<5;fish++)ellipse(m,x+fish*5,y+fish%2*6,5,2,'rgba(23,83,102,.3)');
+      for(let fish=0;fish<5;fish++){const fx=x+fish*7,fy=y+fish%2*7;voyagePixelRect(m,fx,fy,8,2,'rgba(25,71,88,.35)');voyagePixelRect(m,fx-2,fy-2,2,6,'rgba(25,71,88,.35)');}
     }else{
-      m.fillStyle='rgba(220,246,224,.28)';for(let p=0;p<5;p++)m.fillRect(x+p*6,y+p%2*3,7,2);
+      for(let p=0;p<3;p++)drawVoyageWaveCrest(m,x+p*8,y+p%2*6,18,'rgba(215,237,221,.3)',p===0);
     }
   }
-  const waves=Array.from({length:Math.round(140*scene.density)},()=>({x:random(),y:random()*3,length:8+random()*27,phase:random()*6.28}));
+  const waves=Array.from({length:Math.round(120*scene.density)},()=>({x:random(),y:random()*3,length:12+random()*28,phase:random()*6.28}));
   const gulls=scene.landmark===0||scene.destination==='deep'||scene.destination==='glacier'?[]:Array.from({length:2+Math.floor(random()*3)},()=>({x:random(),y:random(),phase:random()*6.28}));
   return {far,mid,waves,gulls};
 }
@@ -166,27 +241,26 @@ function drawVoyageSceneLayers(scene,elapsedMs,opacity,reduced){
   const leftSea=Math.max(0,left),rightSea=Math.max(0,VIEW_W-right);
   const mirror=scene.landmark&&((rightSea>leftSea+48&&scene.side<0)||(leftSea>rightSea+48&&scene.side>0));
   ctx.save();if(mirror){ctx.translate(VIEW_W,0);ctx.scale(-1,1);}
-  ctx.drawImage(layers.far,-48+shiftX*.3,-115+age*3*motion,layers.far.width*2,layers.far.height*2);
+  ctx.drawImage(layers.far,Math.round((-48+shiftX*.3)/2)*2,Math.round((-115+age*3*motion)/2)*2,layers.far.width*2,layers.far.height*2);
   ctx.restore();
-  ctx.drawImage(layers.mid,-48+shiftX*.65,-165+age*10*motion,layers.mid.width*2,layers.mid.height*2);
+  ctx.drawImage(layers.mid,Math.round((-48+shiftX*.65)/2)*2,Math.round((-165+age*10*motion)/2)*2,layers.mid.width*2,layers.mid.height*2);
   const pool=voyageScenePool(scene.destination);
-  ctx.globalAlpha=opacity*(scene.wave===2?.32:.22);ctx.fillStyle=pool.palettes[scene.base].light;
+  ctx.globalAlpha=opacity*(scene.wave===2?.34:.24);
   for(const wave of layers.waves){
     const y=((wave.y*VIEW_H+age*(24+scene.wave*8)*motion)%(VIEW_H*3))-VIEW_H;
     if(y<-20||y>VIEW_H+20)continue;
     const x=wave.x*(VIEW_W+80)-40+shiftX;
-    ctx.fillRect(Math.round(x),Math.round(y),wave.length,2);
+    drawVoyageWaveCrest(ctx,x,y,wave.length,pool.palettes[scene.base].light,scene.wave===3);
     if(scene.destination==='mid'){
-      ctx.fillRect(Math.round(x+wave.length*.3),Math.round(y-4),wave.length*.7,2);
-      ctx.fillRect(Math.round(x+wave.length*.45),Math.round(y-7),wave.length*.35,2);
+      drawVoyageWaveCrest(ctx,x+5,y-6,wave.length*.75,pool.palettes[scene.base].light);
     }
-    if(scene.wave%2)ctx.fillRect(Math.round(x+wave.length*.4),Math.round(y+4),wave.length*.45,2);
+    if(scene.wave%2)voyagePixelRect(ctx,x+wave.length*.4,y+6,wave.length*.35,2,pool.palettes[scene.base].light);
   }
-  ctx.globalAlpha=opacity*.6;ctx.strokeStyle='#e9f0dd';ctx.lineWidth=2;
+  ctx.globalAlpha=opacity*.7;
   for(const gull of layers.gulls){
     const x=(gull.x*(VIEW_W+170)+age*8*motion)%(VIEW_W+170)-85,y=gull.y*VIEW_H+age*2*motion;
     const wing=reduced?3:3+Math.sin(age*3+gull.phase)*2;
-    ctx.beginPath();ctx.moveTo(x-7,y-wing);ctx.lineTo(x,y);ctx.lineTo(x+7,y-wing);ctx.stroke();
+    voyagePixelRect(ctx,x-8,y-wing,6,2,'#dce6d3');voyagePixelRect(ctx,x-3,y-2,6,2,'#dce6d3');voyagePixelRect(ctx,x+3,y-wing,6,2,'#dce6d3');
   }
   ctx.restore();
 }
@@ -201,12 +275,12 @@ function drawVoyageSea(){
   drawVoyageSceneLayers(cache.current,elapsedMs,1-blend,reduced);drawVoyageSceneLayers(cache.next,elapsedMs,blend,reduced);
   const deck=WORLD_DEFINITION.voyageDeck,x=(deck.x+deck.w/2)*TILE-camX,y=(deck.y+deck.h)*TILE-camY;
   // Streaming hull wake, no rocking of the walkable deck or fishing target.
-  ctx.strokeStyle='rgba(217,242,225,.3)';ctx.lineWidth=3;
   const shift=reduced?0:elapsedMs/35%24;
   for(let i=0;i<15;i++){
     const distance=i*24+shift;
-    ctx.globalAlpha=(1-i/15)*.6;ctx.beginPath();ctx.moveTo(x-deck.w*TILE/2-10-distance*.13,y-18+distance);ctx.lineTo(x-deck.w*TILE/2+13,y-7+distance);ctx.stroke();
-    ctx.beginPath();ctx.moveTo(x+deck.w*TILE/2+10+distance*.13,y-18+distance);ctx.lineTo(x+deck.w*TILE/2-13,y-7+distance);ctx.stroke();
+    ctx.globalAlpha=(1-i/15)*.36;
+    drawVoyageWaveCrest(ctx,x-deck.w*TILE/2-22-distance*.13,y-10+distance,32,'#b9d7cc',i%3===0);
+    drawVoyageWaveCrest(ctx,x+deck.w*TILE/2-8+distance*.13,y-10+distance,32,'#b9d7cc',i%3===0);
   }
   ctx.restore();return true;
 }

@@ -122,9 +122,22 @@ function drawVoyagePalm(paint,x,y,size=1){
   polygon([[3,-29],[-12,-23],[-8,-29],[4,-34],[17,-33],[11,-28],[21,-23],[12,-23]],'#548565');
   voyagePixelRect(paint,x+2*size,y-33*size,8*size,2,'#87a378');
 }
+// Marine raster sprites are baked once into the existing far/mid scene layers.
+// Keep the pixel fallback for isolated renderer tests or asset load diagnostics.
+function drawVoyageMarineSprite(paint,key,x,y,w,h,alpha=1){
+  const sprite=typeof imgs!=='undefined'&&imgs[key];
+  if(!sprite?.complete||!sprite.naturalWidth)return false;
+  paint.save();paint.globalAlpha=alpha;
+  paint.drawImage(sprite,Math.round(x-w/2),Math.round(y-h/2),Math.round(w),Math.round(h));
+  paint.restore();return true;
+}
 function drawShallowVoyageLandmark(paint,kind,x,y,random,palette){
   const polygon=(pts,color)=>voyagePixelPolygon(paint,pts.map(([px,py])=>[x+px,y+py]),color);
   if(kind==='reef'){
+    if(drawVoyageMarineSprite(paint,'voyageReef',x,y+4,120,82,.92)){
+      // Keep seeded positions of other scenery identical to the fallback.
+      for(let i=0;i<16;i++)random();return;
+    }
     polygon([[-58,4],[-40,-14],[-11,-18],[8,-10],[38,-16],[59,8],[29,30],[-28,24]],'rgba(117,177,162,.25)');
     for(let i=0;i<8;i++){
       const rx=x-43+random()*83,ry=y-14+random()*38;
@@ -214,6 +227,9 @@ function composeVoyageScene(scene){
       voyagePixelRect(m,x-3,y-1,6,4,'#e5d6ae');voyagePixelRect(m,x-1,y-17,2,12,'#3f5b64');
       voyagePixelRect(m,x-3,y-18,6,2,'#d2b67a');
     }else if(type==='coral'){
+      if(drawVoyageMarineSprite(m,'voyageCoral',x,y,38,38,.82)){
+        for(let branch=0;branch<4;branch++)random();continue;
+      }
       voyagePixelOval(m,x,y+6,25,10,'rgba(35,93,104,.2)');
       for(let branch=0;branch<4;branch++){
         const bx=x-16+branch*10,by=y-9-random()*7,color=branch%2?'rgba(195,142,118,.43)':'rgba(131,172,135,.5)';

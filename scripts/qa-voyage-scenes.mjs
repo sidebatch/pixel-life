@@ -36,6 +36,20 @@ for(const destination of ['shallow','mid','deep','glacier']){
   }})()`,pixelModel);
 }
 assert.ok(pixelCells>10000,'Pixel scenery must paint all four route families');
+const marineCalls=[],marinePaint={...paint,drawImage(sprite,x,y,w,h){
+  assert.ok([x,y,w,h].every(Number.isInteger));marineCalls.push({key:sprite.key,w,h});
+}};
+const marineModel={VIEW_W:540,VIEW_H:960,imgs:{
+  voyageReef:{key:'reef',complete:true,naturalWidth:128},voyageCoral:{key:'coral',complete:true,naturalWidth:48}
+},document:{createElement:()=>({getContext:()=>marinePaint})}};
+vm.createContext(marineModel);vm.runInContext(source,marineModel);
+const marineRecipe="composeVoyageScene({destination:'shallow',base:0,wave:0,landmark:2,mid:2,atmosphere:0,artSeed:42,side:1,density:.8})";
+const marineLayers=vm.runInContext(marineRecipe,marineModel),proceduralLayers=vm.runInContext(marineRecipe,pixelModel);
+assert.deepEqual(clone(marineLayers.waves),clone(proceduralLayers.waves),'Sprite replacement must not reshuffle seeded waves');
+assert.deepEqual(clone(marineLayers.gulls),clone(proceduralLayers.gulls),'Sprite replacement must not reshuffle seeded gulls');
+assert.equal(marineCalls.filter(c=>c.key==='reef').length,1,'Loaded reef must use the raster sprite, not polygon rocks');
+assert.ok(marineCalls.some(c=>c.key==='coral'),'Loaded coral must replace the cross-shaped branches');
+assert.ok(marineCalls.every(c=>c.key==='reef'?c.w===120&&c.h===82:c.w===38&&c.h===38));
 let created=0;
 const trip={destination:'shallow',tripSeed:42,remainingMs:600000},motion={matches:false};
 const render={VIEW_W:540,VIEW_H:960,TILE:48,camX:1400,camY:800,ctx:{...paint},

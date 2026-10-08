@@ -15,7 +15,7 @@
 
 ### `src/assets.js`
 
-개발용 이미지 경로만 관리한다. 월드·캐릭터·건물과 `FISH_URLS`의 25종 물고기, `FOREST_TREE_URLS`·`FOREST_STUMP_URLS`의 숲 나무/그루터기, `LIFE_ITEM_URLS`의 통나무/씨앗 경로를 한곳에서 선언한다. base64 데이터는 소스에 직접 넣지 않으며 빌드 단계에서만 단일 HTML에 포함한다. 생활 콘텐츠 이미지 규격은 `LIFE_ASSET_STANDARD.md`를 따른다.
+개발용 이미지 경로만 관리한다. 월드·캐릭터·건물과 `FISH_URLS`의 32종 물고기, `FOREST_TREE_URLS`·`FOREST_STUMP_URLS`의 숲 나무/그루터기, `LIFE_ITEM_URLS`의 통나무/씨앗 경로를 한곳에서 선언한다. base64 데이터는 소스에 직접 넣지 않으며 빌드 단계에서만 단일 HTML에 포함한다. 생활 콘텐츠 이미지 규격은 `LIFE_ASSET_STANDARD.md`를 따른다.
 
 ### `src/config.js`
 
@@ -27,7 +27,7 @@ Canvas, 프로젝트 메타데이터, 지역 및 Activity Module 목록, 공용 
 
 ### `src/data/region-maps.js` / `src/data/life-content-data.js`
 
-숲·농장의 별도 64×48 맵, 마을과의 양방향 출입구 및 벌목 나무·고정 밭 위치를 선언한다. 벌목 타격/재생 시간, 단계별 밭 확장 비용, 작물 성장·수확·판매 수치는 생활 콘텐츠 데이터로 분리한다. 숲·농장 물가는 낚시 지역과 연결하지만 마을의 전체 어종 임시 미리보기는 유지한다.
+마을·숲 12개·농장·해안 항구·산악 호수의 16개 64×48 맵과 양방향 출입구, 벌목 나무·고정 밭 위치를 선언한다. 산악 호수는 `mountainLake` 지역과 `mountain_lake` 서식지를 구분하고 세 물 영역·설산 능선·부두를 가진다. 벌목 타격/재생 시간, 단계별 밭 확장 비용, 작물 성장·수확·판매 수치는 생활 콘텐츠 데이터로 분리한다. 각 지역의 물가는 실제 서식지 풀을 사용한다.
 
 ### `src/world.js`
 

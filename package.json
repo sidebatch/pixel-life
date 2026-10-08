@@ -16,6 +16,8 @@
     "qa:fishing:new-three": "node scripts/qa-fishing-new-three.mjs",
     "qa:fishing:coast": "node scripts/qa-fishing-coast.mjs",
     "qa:fishing:coast-browser": "node scripts/qa-fishing-coast-browser.mjs",
+    "qa:fishing:lake": "node scripts/qa-fishing-mountain-lake.mjs",
+    "qa:fishing:lake-browser": "node scripts/qa-fishing-mountain-lake-browser.mjs",
     "qa:forestry:tiers": "node scripts/qa-forestry-tier4-10.mjs",
     "qa:forestry:maps": "node scripts/qa-forestry-maps-tier4-10.mjs",
     "qa:forestry:recipes": "node scripts/qa-forestry-recipes.mjs",

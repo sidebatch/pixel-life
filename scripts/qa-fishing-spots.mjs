@@ -21,7 +21,7 @@ const primarySpots=clone(mapContext.__primarySpots);
 const forestIds=['oldForest','deepForest','forestThree','forestFour','forestFive','forestSix','forestSeven',
   'forestEight','forestNine','forestTen','forestEleven','forestTwelve'];
 
-assert.equal(Object.keys(regions).length,15,'Expected village, farm, coast, and twelve playable forest regions');
+assert.equal(Object.keys(regions).length,16,'Expected village, farm, coast, mountain lake, and twelve playable forest regions');
 for(const [regionId,definition] of Object.entries(regions)){
   assert.ok(definition.waterAreas.length>0,`Region has no fishing water: ${regionId}`);
   const ids=new Set();
@@ -39,6 +39,8 @@ assert.ok(regions.sunnyFields.waterAreas.every(area=>area.fishingHabitat==='pond
   'Farm water must preserve the pond pool');
 assert.ok(regions.coast.waterAreas.every(area=>area.fishingHabitat==='coast'),
   'The playable harbor water must use the coast pool');
+assert.ok(regions.mountainLake.waterAreas.every(area=>area.fishingHabitat==='mountain_lake'),
+  'The playable mountain lake must use its own lake pool');
 assert.ok(forestIds.every(id=>regions[id].waterAreas.every(area=>area.fishingHabitat==='river')),
   'Every existing forest water area must preserve the river pool');
 
@@ -100,4 +102,4 @@ assert.deepEqual(clone(runtime.__coastContext),
   {regionId:'mixedHarbor',spotId:'harbor_channel',habitat:'coast',period:'NIGHT',weather:'storm'},
   'A second water area on the same map must select its own habitat pool');
 
-console.log('Fishing spot routing passed: 15 regions, stable spot ids, mixed-habitat map, frozen cast context');
+console.log('Fishing spot routing passed: 16 regions, stable spot ids, mixed-habitat map, frozen cast context');

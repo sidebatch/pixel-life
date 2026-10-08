@@ -192,7 +192,8 @@ const REGION_WORLDS=Object.freeze({
     ],
     farmPlots:[],exits:[
       {x:25,y:1,to:'deepForest',entry:{x:25,y:44,face:'up'},label:'숲 1-2'},
-      {x:25,y:46,to:'lilacVillage',entry:{x:25,y:3,face:'down'},label:'마을로'}
+      {x:25,y:46,to:'lilacVillage',entry:{x:25,y:3,face:'down'},label:'마을로'},
+      {x:1,y:24,to:'mountainLake',entry:{x:60,y:24,face:'left'},label:'산악 호수'}
     ]
   }),
   deepForest:Object.freeze({
@@ -413,6 +414,43 @@ const REGION_WORLDS=Object.freeze({
     farmPlots:Array.from({length:16},(_,index)=>({id:`farm_${String(index+1).padStart(2,'0')}`,x:15+index%4,y:22+Math.floor(index/4)})),
     exits:[{x:1,y:24,to:'lilacVillage',entry:{x:60,y:24,face:'left'},label:'마을로'}]
   }),
+  mountainLake:Object.freeze({
+    id:'mountainLake',name:'여명 산악 호수',tileSize:48,width:64,height:48,
+    terrain:{ground:'#7c9685',patchA:'#466d65',patchB:'#b9c0a2',pathRim:'#6d786c',pathCore:'#b3b29a',waterColor:'#347e98',
+      ridges:[{x:5,y:3,w:11,h:10},{x:44,y:3,w:14,h:10}],
+      hills:[{x:6,y:33,w:10,h:8},{x:48,y:34,w:10,h:9}]},
+    playerSpawn:{x:60,y:24,face:'left'},
+    paths:[
+      {x1:62,y1:24,x2:50,y2:24},{x1:50,y1:24,x2:50,y2:32},
+      {x1:50,y1:32,x2:46,y2:32},{x1:46,y1:32,x2:46,y2:36},
+      {x1:46,y1:36,x2:14,y2:36},{x1:31,y1:36,x2:31,y2:44},
+      {x1:14,y1:36,x2:14,y2:15},{x1:14,y1:15,x2:18,y2:15},
+      {x1:50,y1:24,x2:48,y2:24}
+    ],
+    stoneAreas:[{id:'dawn_lake_overlook',x:29,y:35,w:5,h:3}],
+    waterAreas:[
+      {id:'dawn_lake_main',x:19,y:11,w:23,h:24,cutCorners:true,fishingHabitat:'mountain_lake'},
+      {id:'dawn_lake_west_cove',x:15,y:18,w:8,h:12,cutCorners:true,fishingHabitat:'mountain_lake'},
+      {id:'dawn_lake_east_cove',x:42,y:16,w:6,h:13,cutCorners:true,fishingHabitat:'mountain_lake'}
+    ],
+    bridges:[{id:'dawn_lake_fishing_pier',x1:31,y1:35,x2:31,y2:30}],
+    fishingSpot:{x:32,y:30},npcs:[],buildings:[],farmPlots:[],
+    fixedObjects:{rocks:[{x:17,y:14},{x:44,y:14},{x:49,y:18},{x:12,y:31},{x:37,y:37},{x:55,y:29}]},
+    decorations:{
+      bushes:[{x:12,y:16,v:0,s:.7},{x:52,y:27,v:1,s:.65},{x:25,y:39,v:0,s:.65}],
+      flowers:[{x:27,y:36,v:1,s:.45},{x:34,y:38,v:0,s:.43},{x:13,y:14,v:1,s:.48}],
+      grassTufts:[{x:17,y:32,s:.3},{x:43,y:30,s:.32},{x:50,y:22,s:.28}],
+      reeds:[{x:18,y:16,s:.35},{x:24,y:35,s:.32},{x:48,y:26,s:.34}]
+    },
+    treeLines:[
+      {axis:'x',from:2,to:62,step:3,fixed:1,gaps:[]},
+      {axis:'x',from:2,to:62,step:3,fixed:46,gaps:[[29,33]]},
+      {axis:'y',from:4,to:43,step:3,fixed:1,gaps:[]},
+      {axis:'y',from:4,to:43,step:3,fixed:62,gaps:[[22,26]]}
+    ],
+    trees:[{x:9,y:19},{x:10,y:27},{x:12,y:39},{x:20,y:40},{x:40,y:41},{x:53,y:19},{x:56,y:32}],
+    exits:[{x:62,y:24,to:'oldForest',entry:{x:3,y:24,face:'right'},label:'숲으로'}]
+  }),
   coast:Object.freeze({
     id:'coast',name:'바람결 해안 항구',tileSize:48,width:64,height:48,
     terrain:{ground:'#d6bb79',patchA:'#8daa70',patchB:'#efd99a',pathRim:'#9f855b',pathCore:'#ccb587',coast:true},
@@ -475,5 +513,6 @@ const REGION_EXITS=Object.freeze({
   forestEleven:REGION_WORLDS.forestEleven.exits,
   forestTwelve:REGION_WORLDS.forestTwelve.exits,
   sunnyFields:REGION_WORLDS.sunnyFields.exits,
-  coast:REGION_WORLDS.coast.exits
+  coast:REGION_WORLDS.coast.exits,
+  mountainLake:REGION_WORLDS.mountainLake.exits
 });

@@ -52,7 +52,7 @@ const expected=[
     minSizeCm:18,maxSizeCm:55,basePrice:72,xp:12,weight:20,description:'바위틈을 좋아하는 해안의 터줏대감이다.',introducedVersion:'expansion'}
 ];
 assert.deepEqual(fish.filter(item=>expected.some(candidate=>candidate.id===item.id)).map(({emoji,...item})=>item),expected);
-assert.equal(fish.length,25,'Step 6 must expose 25 live fish');
+assert.ok(fish.length>=25,'The step-6 coast additions must remain live as later habitats are added');
 assert.equal(fish.filter(item=>item.habitat==='coast').length,9,
   'The live coast temporarily has nine fish until coelacanth migrates to deep sea');
 for(const item of expected){
@@ -91,4 +91,4 @@ for(const fish of expected){
 assert.ok(read('src/interactions.js').includes("case 'ticketBooth'")&&read('src/rendering.js').includes('drawHarborBoat'),
   'Ticket placeholder and harbor boat renderer must remain connected');
 
-console.log('Fishing coast passed: reciprocal harbor map, reachable shore/pier/booth/captain, 25 fish, rockfish catches, pools and assets');
+console.log('Fishing coast passed: reciprocal harbor map, reachable shore/pier/booth/captain, rockfish catches, pools and assets');

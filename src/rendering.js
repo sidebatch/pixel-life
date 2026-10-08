@@ -139,12 +139,34 @@ function drawForestWaterfalls(terrain){
     ctx.restore();
   }
 }
+function drawMountainRidges(terrain){
+  for(const ridge of terrain.ridges||[]){
+    const x=ridge.x*TILE-camX,y=ridge.y*TILE-camY,w=ridge.w*TILE,h=ridge.h*TILE;
+    if(x>VIEW_W||y>VIEW_H||x+w<0||y+h<0)continue;
+    ctx.save();
+    ctx.fillStyle='#637c7e';ctx.fillRect(x,y+h*.58,w,h*.42);
+    for(let peak=0;peak<3;peak++){
+      const left=x+peak*w/3,top=y+(peak%2)*h*.15,pw=w*.46;
+      ctx.fillStyle=peak%2?'#788e90':'#8fa1a0';
+      ctx.beginPath();ctx.moveTo(left,y+h);ctx.lineTo(left+pw*.46,top);ctx.lineTo(Math.min(x+w,left+pw),y+h);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#536d72';ctx.beginPath();ctx.moveTo(left+pw*.46,top);ctx.lineTo(left+pw*.55,y+h);ctx.lineTo(Math.min(x+w,left+pw),y+h);ctx.closePath();ctx.fill();
+      ctx.fillStyle='#d9e4df';ctx.beginPath();ctx.moveTo(left+pw*.46,top);ctx.lineTo(left+pw*.3,top+h*.27);ctx.lineTo(left+pw*.45,top+h*.2);ctx.lineTo(left+pw*.53,top+h*.3);ctx.lineTo(left+pw*.6,top+h*.24);ctx.closePath();ctx.fill();
+    }
+    for(let row=0;row<3;row++){
+      ctx.fillStyle=row%2?'#82978c':'#617f74';
+      for(let col=0;col<ridge.w;col++)ctx.fillRect(x+col*TILE,y+h-25+row*8+(col%3)*3,TILE,8);
+    }
+    ctx.restore();
+  }
+}
+
 function drawTerrain(){
   // Movement/collision is still tile based, but the terrain is painted as connected surfaces.
   const terrain=WORLD_DEFINITION.terrain||{};
   ctx.fillStyle=terrain.ground||(FOREST_REGION_SPECIES[GAME_STATE.regionId]?'#538a53':GAME_STATE.regionId==='sunnyFields'?'#91c66a':'#78b85b');
   ctx.fillRect(0,0,VIEW_W,VIEW_H);
   drawForestHills(terrain);
+  drawMountainRidges(terrain);
 
   const x0=Math.max(0,Math.floor(camX/TILE)-2), y0=Math.max(0,Math.floor(camY/TILE)-2);
   const x1=Math.min(MAP_W-1,Math.ceil((camX+VIEW_W)/TILE)+2), y1=Math.min(MAP_H-1,Math.ceil((camY+VIEW_H)/TILE)+2);
@@ -153,7 +175,7 @@ function drawTerrain(){
     const type=tileTypeAt(x,y), wx=x*TILE, wy=y*TILE;
     if(type==='path') drawPathTile(x,y);
     else if(type==='stone') worldRect(wx-1,wy-1,TILE+2,TILE+2,'#9ca2a9');
-    else if(type==='water') worldRect(wx-1,wy-1,TILE+2,TILE+2,'#2b91c9');
+    else if(type==='water') worldRect(wx-1,wy-1,TILE+2,TILE+2,terrain.waterColor||'#2b91c9');
   }
 
   // Large patches cross several movement cells, which visually breaks the grid.

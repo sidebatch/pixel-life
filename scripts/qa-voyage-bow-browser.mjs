@@ -12,6 +12,12 @@ const browser=await chromium.launch({headless:true,executablePath:process.env.PI
 try{
  for(const width of [393,320]){
   const context=await browser.newContext({viewport:{width,height:width===393?780:568},isMobile:true,hasTouch:true}),page=await context.newPage();
+  // Live resources may finish loading after the game is already visible.
+  // Observe restore before the loop, then permit only actual visible-page time.
+  await page.addInitScript(()=>document.addEventListener('DOMContentLoaded',()=>{
+   const trip=typeof activeVoyage==='function'?activeVoyage():null;
+   globalThis.bowInitialRestoredTrip=trip?JSON.parse(JSON.stringify(trip)):null;
+  }));
   page.on('pageerror',e=>errors.push(e.message));page.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url());});
   await page.goto(base);await page.waitForFunction(()=>typeof getWorldCameraTarget==='function'&&!document.getElementById('startupLoading'));
   const asset=await page.evaluate(async()=>{
@@ -80,10 +86,13 @@ try{
    });
    await page.reload();await page.waitForFunction(()=>typeof getWorldCameraTarget==='function'&&!document.getElementById('startupLoading')&&voyageSceneCache.current);
    const restored=await page.evaluate(()=>({trip:{...activeVoyage()},tickets:{...voyageProgress().ticketCounts},coins:GAME_STATE.progression.coins,
-    player:{x:player.x,y:player.y},camera:{x:camX,y:camY}}));
+    player:{x:player.x,y:player.y},camera:{x:camX,y:camY},initialTrip:globalThis.bowInitialRestoredTrip,uptime:performance.now()}));
    assert.deepEqual(restored.player,{x:32,y:20});assert.deepEqual(restored.camera,layout.camera);
    assert.equal(restored.trip.tripSeed,migration.trip.tripSeed);assert.equal(restored.trip.destination,migration.trip.destination);
-   assert.ok(migration.trip.remainingMs-restored.trip.remainingMs<1500);assert.deepEqual(restored.tickets,migration.tickets);assert.equal(restored.coins,migration.coins);
+   assert.equal(restored.initialTrip.remainingMs,migration.trip.remainingMs,'Navigation/offline time must not be charged during restore');
+   const visibleElapsed=migration.trip.remainingMs-restored.trip.remainingMs;
+   assert.ok(visibleElapsed>=0&&visibleElapsed<=restored.uptime+300,'Only new-page visible time may elapse after restore');
+   assert.deepEqual(restored.tickets,migration.tickets);assert.equal(restored.coins,migration.coins);
    routes.push({id,layout,threeRailings:true,cameraFixed:true,legacyMigration:true,tripPreserved:true});
    await page.evaluate(()=>returnFromVoyage());
   }

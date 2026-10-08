@@ -21,7 +21,7 @@ const primarySpots=clone(mapContext.__primarySpots);
 const forestIds=['oldForest','deepForest','forestThree','forestFour','forestFive','forestSix','forestSeven',
   'forestEight','forestNine','forestTen','forestEleven','forestTwelve'];
 
-assert.equal(Object.keys(regions).length,16,'Expected village, farm, coast, mountain lake, and twelve playable forest regions');
+assert.equal(Object.keys(regions).length,17,'Expected village, farm, coast, mountain lake, waterfall valley, and twelve playable forest regions');
 for(const [regionId,definition] of Object.entries(regions)){
   assert.ok(definition.waterAreas.length>0,`Region has no fishing water: ${regionId}`);
   const ids=new Set();
@@ -102,4 +102,4 @@ assert.deepEqual(clone(runtime.__coastContext),
   {regionId:'mixedHarbor',spotId:'harbor_channel',habitat:'coast',period:'NIGHT',weather:'storm'},
   'A second water area on the same map must select its own habitat pool');
 
-console.log('Fishing spot routing passed: 16 regions, stable spot ids, mixed-habitat map, frozen cast context');
+console.log('Fishing spot routing passed: 17 regions, stable spot ids, mixed-habitat map, frozen cast context');

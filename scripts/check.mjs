@@ -141,7 +141,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 351, `Expected 351 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 358, `Expected 358 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -342,7 +342,7 @@ vm.createContext(fishContext);
 vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\nglobalThis.__fishData=FISH_DATA;globalThis.__fishRewards=FISH_COLLECTION_REWARDS;`,fishContext);
 const fishData=fishContext.__fishData;
 const fishRewards=fishContext.__fishRewards;
-assert(fishData.length===32,`Expected 32 fish records, found ${fishData.length}`);
+assert(fishData.length===39,`Expected 39 fish records, found ${fishData.length}`);
 assert(new Set(fishData.map(fish=>fish.id)).size===fishData.length,'Fish ids must be unique');
 assert(new Set(fishData.map(fish=>fish.asset)).size===fishData.length,'Fish asset keys must be unique');
 assert(fishRewards.map(reward=>reward.count).join(',')==='5,10,15,19,20','Unexpected fish collection reward thresholds');
@@ -1941,4 +1941,5 @@ await import('./qa-fishing-spots.mjs');
 await import('./qa-fishing-new-three.mjs');
 await import('./qa-fishing-coast.mjs');
 await import('./qa-fishing-mountain-lake.mjs');
+await import('./qa-fishing-waterfall.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

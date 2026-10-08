@@ -423,7 +423,7 @@ const REGION_WORLDS=Object.freeze({
     paths:[
       {x1:62,y1:24,x2:50,y2:24},{x1:50,y1:24,x2:50,y2:32},
       {x1:50,y1:32,x2:46,y2:32},{x1:46,y1:32,x2:46,y2:36},
-      {x1:46,y1:36,x2:14,y2:36},{x1:31,y1:36,x2:31,y2:44},
+      {x1:46,y1:36,x2:14,y2:36},{x1:31,y1:36,x2:31,y2:46},
       {x1:14,y1:36,x2:14,y2:15},{x1:14,y1:15,x2:18,y2:15},
       {x1:50,y1:24,x2:48,y2:24}
     ],
@@ -449,7 +449,49 @@ const REGION_WORLDS=Object.freeze({
       {axis:'y',from:4,to:43,step:3,fixed:62,gaps:[[22,26]]}
     ],
     trees:[{x:9,y:19},{x:10,y:27},{x:12,y:39},{x:20,y:40},{x:40,y:41},{x:53,y:19},{x:56,y:32}],
-    exits:[{x:62,y:24,to:'oldForest',entry:{x:3,y:24,face:'right'},label:'숲으로'}]
+    exits:[
+      {x:62,y:24,to:'oldForest',entry:{x:3,y:24,face:'right'},label:'숲으로'},
+      {x:31,y:46,to:'waterfallValley',entry:{x:31,y:3,face:'down'},label:'폭포 계곡'}
+    ]
+  }),
+  waterfallValley:Object.freeze({
+    id:'waterfallValley',name:'물안개 폭포 계곡',tileSize:48,width:64,height:48,
+    terrain:{ground:'#638c83',patchA:'#285f61',patchB:'#a2be94',pathRim:'#6d7b67',pathCore:'#b4b694',waterColor:'#258fad',
+      hills:[{x:7,y:6,w:13,h:15},{x:49,y:7,w:11,h:16}],
+      waterfalls:[{x:37,y:17,w:4,h:6,mist:true}]},
+    playerSpawn:{x:31,y:3,face:'down'},
+    paths:[
+      {x1:31,y1:1,x2:31,y2:20},{x1:31,y1:12,x2:34,y2:12},
+      {x1:31,y1:20,x2:27,y2:20},{x1:31,y1:20,x2:36,y2:20},
+      {x1:36,y1:20,x2:36,y2:22},{x1:27,y1:20,x2:27,y2:36},
+      {x1:27,y1:27,x2:29,y2:27},{x1:27,y1:36,x2:36,y2:36},
+      {x1:36,y1:36,x2:36,y2:38},{x1:44,y1:38,x2:50,y2:38},
+      {x1:50,y1:38,x2:50,y2:27},{x1:50,y1:27,x2:47,y2:27}
+    ],
+    stoneAreas:[{id:'mist_pool_landing',x:26,y:25,w:4,h:5},{id:'mist_falls_overlook',x:34,y:21,w:3,h:2}],
+    waterAreas:[
+      {id:'mist_upper_river',x:35,y:6,w:8,h:11,cutCorners:true,fishingHabitat:'river'},
+      {id:'mist_cascade',x:37,y:17,w:4,h:6,fishingHabitat:'waterfall',fishable:false},
+      {id:'mist_falls_pool',x:30,y:23,w:17,h:10,cutCorners:true,fishingHabitat:'waterfall'},
+      {id:'mist_lower_river',x:38,y:33,w:5,h:10,fishingHabitat:'river'}
+    ],
+    bridges:[{id:'mist_river_footbridge',x1:36,y1:38,x2:44,y2:38}],
+    fishingSpot:{x:30,y:27},npcs:[],buildings:[],farmPlots:[],
+    fixedObjects:{rocks:[{x:34,y:9},{x:44,y:18},{x:28,y:22},{x:47,y:33},{x:23,y:37},{x:51,y:24}]},
+    decorations:{
+      bushes:[{x:25,y:18,v:0,s:.75},{x:48,y:24,v:1,s:.7},{x:22,y:32,v:0,s:.7}],
+      flowers:[{x:28,y:31,v:1,s:.45},{x:32,y:35,v:0,s:.48},{x:48,y:38,v:1,s:.44}],
+      grassTufts:[{x:30,y:18,s:.34},{x:25,y:25,s:.32},{x:46,y:37,s:.33}],
+      reeds:[{x:34,y:14,s:.4},{x:29,y:25,s:.38},{x:47,y:29,s:.39},{x:43,y:35,s:.35}]
+    },
+    treeLines:[
+      {axis:'x',from:2,to:62,step:3,fixed:1,gaps:[[29,33]]},
+      {axis:'x',from:2,to:62,step:3,fixed:46,gaps:[]},
+      {axis:'y',from:4,to:43,step:3,fixed:1,gaps:[]},
+      {axis:'y',from:4,to:43,step:3,fixed:62,gaps:[]}
+    ],
+    trees:[{x:12,y:24},{x:20,y:21},{x:22,y:28},{x:18,y:38},{x:31,y:41},{x:54,y:31},{x:51,y:41}],
+    exits:[{x:31,y:1,to:'mountainLake',entry:{x:31,y:44,face:'up'},label:'산악 호수'}]
   }),
   coast:Object.freeze({
     id:'coast',name:'바람결 해안 항구',tileSize:48,width:64,height:48,
@@ -514,5 +556,6 @@ const REGION_EXITS=Object.freeze({
   forestTwelve:REGION_WORLDS.forestTwelve.exits,
   sunnyFields:REGION_WORLDS.sunnyFields.exits,
   coast:REGION_WORLDS.coast.exits,
-  mountainLake:REGION_WORLDS.mountainLake.exits
+  mountainLake:REGION_WORLDS.mountainLake.exits,
+  waterfallValley:REGION_WORLDS.waterfallValley.exits
 });

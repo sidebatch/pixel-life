@@ -39,17 +39,17 @@ try{
       boxes.some(box=>box.left<panel.left||box.right>panel.right))throw new Error('Top category tabs are not a stable four-column row');
     if(!document.getElementById('fishDexHabitatTabs').hidden)throw new Error('All view should not show habitat tabs');
     const sections=[...document.querySelectorAll('[data-fish-section]')];
-    if(sections.map(section=>section.dataset.fishSection).join(',')!=='pond,river,mountain_lake,coast')
-      throw new Error('All view is not grouped into the four live habitats');
+    if(sections.map(section=>section.dataset.fishSection).join(',')!=='pond,river,mountain_lake,coast,waterfall')
+      throw new Error('All view is not grouped into the five live habitats');
     if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==8||
       !document.querySelector('[data-fish-section="pond"]')?.classList.contains('open')||
-      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 32')
+      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 39')
       throw new Error('All view must lazily render only the open pond section');
     renderFishDexReward(20);
     const legacyReward=document.getElementById('fishDexReward');
     if(!legacyReward.textContent.includes('기존 20종 도감 보상 완료')||
-      !legacyReward.textContent.includes('20 / 32'))
-      throw new Error('Legacy 20-fish rewards must not claim the current 32-fish collection is complete');
+      !legacyReward.textContent.includes('20 / 39'))
+      throw new Error('Legacy 20-fish rewards must not claim the current 39-fish collection is complete');
     renderFishDexReward(0);
   });
   await page.screenshot({path:path.join(output,'393-all-habitats.png')});
@@ -80,7 +80,7 @@ try{
       document.querySelectorAll('[data-fish-section]').length!==5||
       document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==8)
       throw new Error('Inland two-level filter or three-column habitat layout failed');
-    for(const id of ['waterfall','swamp']){
+    for(const id of ['swamp']){
       if(!document.querySelector(`[data-fish-section="${id}"]`)?.textContent.includes('준비 중'))
         throw new Error(`Future inland habitat is not marked ready-later: ${id}`);
     }
@@ -103,6 +103,14 @@ try{
       throw new Error('Mountain lake must show its seven live fish instead of a placeholder');
   });
   await page.screenshot({path:path.join(output,'393-mountain-lake.png')});
+  await page.locator('[data-fish-habitat="waterfall"]').tap();
+  await page.evaluate(()=>{
+    if(document.querySelectorAll('[data-fish-section]').length!==1||
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==7||
+      document.querySelector('[data-fish-section="waterfall"]')?.textContent.includes('준비 중'))
+      throw new Error('Waterfall must show its seven live fish instead of a placeholder');
+  });
+  await page.screenshot({path:path.join(output,'393-waterfall.png')});
 
   await page.locator('[data-fish-category="coastal"]').tap();
   await page.evaluate(()=>{
@@ -157,8 +165,8 @@ try{
   if(errors.length)throw new Error(errors.join('\n'));
 
   const report={categories:['전체','내륙','해안','원양'],habitatGridMaxColumns:3,
-    allSections:['pond','river','mountain_lake','coast'],lazyCards:true,liveFish:32,futureHabitats:true,
-    detailHistory:true,legacyRewardProgress:'20 / 32',viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
+    allSections:['pond','river','mountain_lake','coast','waterfall'],lazyCards:true,liveFish:39,futureHabitats:true,
+    detailHistory:true,legacyRewardProgress:'20 / 39',viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log('Fish dex browser QA passed: '+JSON.stringify(report));
 }finally{

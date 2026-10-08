@@ -136,6 +136,13 @@ function drawForestWaterfalls(terrain){
       const bx=x+(bubble*37)%(w+7)-4;
       ctx.fillRect(bx,y+h-12+(bubble%3)*5,12+(bubble%3)*5,4);
     }
+    if(fall.mist){
+      for(let cloud=0;cloud<7;cloud++){
+        const drift=Math.sin(tNow/1300+cloud)*8;
+        ctx.fillStyle='rgba(218,252,246,.1)';
+        ctx.beginPath();ctx.ellipse(x-18+cloud*(w+36)/6+drift,y+h+12+(cloud%3)*13,36+(cloud%3)*10,13+(cloud%2)*8,0,0,Math.PI*2);ctx.fill();
+      }
+    }
     ctx.restore();
   }
 }

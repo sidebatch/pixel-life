@@ -15,7 +15,8 @@ const FISHING_HABITAT_BY_REGION=Object.freeze({
   sunnyFields:FISH_HABITATS.POND,
   riverValley:FISH_HABITATS.RIVER,
   coast:FISH_HABITATS.COAST,
-  mountainLake:FISH_HABITATS.MOUNTAIN_LAKE
+  mountainLake:FISH_HABITATS.MOUNTAIN_LAKE,
+  waterfallValley:FISH_HABITATS.RIVER
 });
 
 function fishingAreaContainsTile(area,tile){

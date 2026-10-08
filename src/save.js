@@ -288,7 +288,8 @@ function createSaveData(){
         fishing:GAME_STATE.progression.fishing,
         logging:GAME_STATE.progression.logging,
         forestry:GAME_STATE.progression.forestry,
-        swords:GAME_STATE.progression.swords
+        swords:GAME_STATE.progression.swords,
+        voyage:GAME_STATE.progression.voyage
       }
     }
   };
@@ -321,11 +322,16 @@ function applySaveData(saveData){
   if(GAME_STATE.appearance.activeTool==='axe'&&savedAxe?.maxDurability&&
     GAME_STATE.progression.forestry.durabilityByAxeId[savedAxe.id]===0) GAME_STATE.appearance.activeTool='none';
   GAME_STATE.progression.swords=normalizeSavedSwordProgress(savedState.progression?.swords);
+  if(typeof normalizeSavedVoyageProgress==='function'){
+    GAME_STATE.progression.voyage=normalizeSavedVoyageProgress(savedState.progression?.voyage);
+    restoreSavedVoyageLocation();
+  }
   return true;
 }
 
 function saveGame(){
   try{
+    if(typeof checkpointVoyageTime==='function')checkpointVoyageTime();
     localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(createSaveData()));
     return true;
   }catch(error){

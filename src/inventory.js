@@ -229,6 +229,12 @@ function renderInventorySupplies(){
       {type:'crop',id:crop.id,icon:crop.icon,name:crop.name}
     ])
   ].map(item=>({...item,count:lifeItemCount(item.type,item.id)})).filter(item=>item.count>0);
+  if(typeof voyageProgress==='function'){
+    for(const route of VOYAGE_ROUTES){
+      const count=voyageProgress().ticketCounts[route.id];
+      if(count)entries.push({type:'ticket',id:route.id,icon:'🎟️',name:route.ticketName,count});
+    }
+  }
   document.getElementById('inventorySummary').textContent=`보유 재료 ${entries.reduce((sum,item)=>sum+item.count,0)}개`;
   document.getElementById('inventoryScroll').innerHTML=entries.length?
     `<div class="inventoryItemGrid">${entries.map(item=>inventoryItemCardMarkup({name:item.name,count:item.count,

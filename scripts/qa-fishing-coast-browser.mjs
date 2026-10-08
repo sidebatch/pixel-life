@@ -41,10 +41,10 @@ try{
     camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));
     camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));interact();
   });
-  const ticketText=await page.locator('#dialogText').textContent();
+  const ticketText=await page.locator('#harborRoutes').textContent();
   if(!ticketText.includes('얕은 바다')||!ticketText.includes('중간 바다')||!ticketText.includes('심해')||
-    !ticketText.includes('빙하 해역')||!ticketText.includes('준비 중'))throw new Error('Ticket booth placeholder does not list all four planned routes');
-  await page.locator('#dialogNext').tap();
+    !ticketText.includes('빙하 해역')||!ticketText.includes('준비 중'))throw new Error('Ticket booth does not list all four routes');
+  await page.locator('#harborClose').tap();
 
   const saved=await page.evaluate(()=>{
     GAME_STATE.regionId='coast';player.x=42;player.y=25;player.face='down';return saveGame();

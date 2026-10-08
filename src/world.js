@@ -51,7 +51,9 @@ function buildWorldRegion(definition){
   waterSet.forEach(tile=>blocked.add(tile));
   for(const ridge of definition.terrain?.ridges||[]) addAreaToSet(ridge,blocked);
   definition.bridges.forEach(segment=>addSegmentToSet(segment,bridgeSet));
+  (definition.bridgeAreas||[]).forEach(area=>addAreaToSet(area,bridgeSet));
   bridgeSet.forEach(tile=>{waterSet.delete(tile);blocked.delete(tile);});
+  if(definition.voyageDeck?.cabin)addAreaToSet(definition.voyageDeck.cabin,blocked);
 
   definition.npcs.forEach((source,index)=>{
     const n={...source};

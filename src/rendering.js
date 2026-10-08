@@ -272,6 +272,7 @@ function drawTerrain(){
   drawSwampWaterDetails(terrain);
 
   bridgeSet.forEach(k=>{
+    if(WORLD_DEFINITION.voyageDeck)return;
     const [x,y]=k.split(',').map(Number);
     ctx.drawImage(imgs.bridge,Math.round(x*TILE-camX-1),Math.round(y*TILE-camY-1),TILE+2,TILE+2);
   });
@@ -757,6 +758,7 @@ function drawWorld(){
   ctx.globalAlpha=1;
 
   drawHarborWaterDetails();
+  drawVoyageDeck();
 
   // Vegetation Layer Standard 4.0:
   // Any vegetation the player/NPC can walk through is a ground decoration and is ALWAYS
@@ -777,6 +779,7 @@ function drawWorld(){
   // Buildings participate in the SAME Y-sort as trees/actors.
   // Building Standard 3.0: the depth line is independent from sprite size and door position.
   const renderables=[];
+  if(WORLD_DEFINITION.voyageDeck)renderables.push({y:(WORLD_DEFINITION.voyageDeck.cabin.y+WORLD_DEFINITION.voyageDeck.cabin.h)*TILE,draw:drawVoyageCabin});
   buildings.forEach(b=>{
     const localDepth=(b.depthLine ?? b.h);
     renderables.push({y:(b.y+localDepth)*TILE,draw:()=>drawBuilding(b)});

@@ -5,6 +5,7 @@ function refreshCharacterPreviewVisibility(){
   for(const panel of document.querySelectorAll('[data-character-preview-panel]'))panel.hidden=hidden;
 }
 function loop(now){
+  updateVoyage(now);
   tNow=now;const dt=Math.min(40,now-last);last=now;
   updateWorldTime(dt);updateWeather();updateWorldClockUI();
   update(dt);updateLifeContentUi(now);drawWorld();refreshContext();refreshCharacterPreviewVisibility();requestAnimationFrame(loop);

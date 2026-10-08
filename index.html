@@ -25,6 +25,12 @@
       <b>게임 준비 중</b>
       <small>처음 한 번은 그림을 준비하느라 잠시 걸릴 수 있어요.</small>
     </div>
+    <div id="voyageHud" class="voyageHud" hidden><span>⚓ 운항 <b id="voyageTimer">10:00</b></span><small id="voyageNotice" role="status" aria-live="polite"></small></div>
+    <div id="voyageBoarding" class="voyageBoarding" hidden role="status">⚓<b>얕은 바다로 출항합니다</b><small>승선권 1장을 사용했어요</small></div>
+    <section id="harborPanel" class="harborPanel" role="dialog" aria-modal="true" aria-labelledby="harborTitle" aria-hidden="true">
+      <header><h2 id="harborTitle">항구 매표소</h2><button id="harborClose" type="button" aria-label="매표소 닫기">×</button></header>
+      <p id="harborHint"></p><div id="harborRoutes"></div><p id="harborStatus" role="status" aria-live="polite"></p>
+    </section>
     <div class="hud">
       <div class="topbar">
         <div class="locationPill glass">
@@ -243,6 +249,7 @@
   <script src="src/data/life-content-data.js"></script>
   <script src="src/data/tree-dex-data.js"></script>
   <script src="src/data/sword-data.js"></script>
+  <script src="src/data/voyage-data.js"></script>
   <script src="src/world-time.js"></script>
   <script src="src/weather.js"></script>
   <script src="src/config.js"></script>
@@ -255,6 +262,7 @@
   <script src="src/sword.js"></script>
   <script src="src/debug.js"></script>
   <script src="src/rendering.js"></script>
+  <script src="src/voyage-rendering.js"></script>
   <script src="src/character.js"></script>
   <script src="src/interactions.js"></script>
   <script src="src/fishing-effects.js"></script>
@@ -267,6 +275,7 @@
   <script src="src/inventory.js"></script>
   <script src="src/market.js"></script>
   <script src="src/character-style.js"></script>
+  <script src="src/voyage.js"></script>
   <script src="src/pwa.js"></script>
   <script src="src/main.js"></script>
   <!-- /build:scripts -->

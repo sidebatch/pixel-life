@@ -19,6 +19,7 @@ const scriptFiles = [
   'src/data/life-content-data.js',
   'src/data/tree-dex-data.js',
   'src/data/sword-data.js',
+  'src/data/voyage-data.js',
   'src/world-time.js',
   'src/weather.js',
   'src/config.js',
@@ -31,6 +32,7 @@ const scriptFiles = [
   'src/sword.js',
   'src/debug.js',
   'src/rendering.js',
+  'src/voyage-rendering.js',
   'src/character.js',
   'src/interactions.js',
   'src/fishing-effects.js',
@@ -43,6 +45,7 @@ const scriptFiles = [
   'src/inventory.js',
   'src/market.js',
   'src/character-style.js',
+  'src/voyage.js',
   'src/pwa.js',
   'src/main.js'
 ];
@@ -1943,4 +1946,5 @@ await import('./qa-fishing-coast.mjs');
 await import('./qa-fishing-mountain-lake.mjs');
 await import('./qa-fishing-waterfall.mjs');
 await import('./qa-fishing-swamp.mjs');
+await import('./qa-voyage.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

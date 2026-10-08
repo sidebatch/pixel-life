@@ -98,7 +98,8 @@ const WORLD_REGIONS = Object.freeze({
   coast:{id:'coast',name:'바람결 해안 항구',status:'playable'},
   mountainLake:{id:'mountainLake',name:'여명 산악 호수',status:'playable'},
   waterfallValley:{id:'waterfallValley',name:'물안개 폭포 계곡',status:'playable'},
-  reedSwamp:{id:'reedSwamp',name:'그늘 갈대 늪',status:'playable'}
+  reedSwamp:{id:'reedSwamp',name:'그늘 갈대 늪',status:'playable'},
+  boatShallow:{id:'boatShallow',name:'얕은 바다 · 어선',status:'playable'}
 });
 
 const ACTIVITY_MODULES = Object.freeze({
@@ -124,7 +125,8 @@ const GAME_STATE = {
     fishing:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:DEFAULT_FISHING_ROD_ID,purchasedRodIds:[DEFAULT_FISHING_ROD_ID]},
     logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},
     forestry:{axeId:DEFAULT_FORESTRY_AXE_ID,ownedAxeIds:[DEFAULT_FORESTRY_AXE_ID],durabilityByAxeId:{}},
-    swords:{swordId:DEFAULT_SWORD_ID,ownedSwordIds:[DEFAULT_SWORD_ID]}
+    swords:{swordId:DEFAULT_SWORD_ID,ownedSwordIds:[DEFAULT_SWORD_ID]},
+    voyage:typeof normalizeSavedVoyageProgress==='function'?normalizeSavedVoyageProgress():null
   },
   activity:{active:null}
 };

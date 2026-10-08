@@ -532,6 +532,16 @@ const REGION_WORLDS=Object.freeze({
     trees:[{x:4,y:12},{x:13,y:7},{x:22,y:7},{x:43,y:6},{x:57,y:17},{x:55,y:40},{x:11,y:40},{x:17,y:45}],
     exits:[{x:36,y:1,to:'waterfallValley',entry:{x:36,y:44,face:'up'},label:'폭포 계곡'}]
   }),
+  boatShallow:Object.freeze({
+    id:'boatShallow',name:'얕은 바다 · 어선',tileSize:48,width:64,height:48,
+    terrain:{ground:'#278fa8',waterColor:'#278fa8',patchA:'#1c789b',patchB:'#7ed7c5'},
+    playerSpawn:{x:32,y:26,face:'down'},
+    voyageDeck:{x:28,y:18,w:9,h:14,cabin:{x:30,y:19,w:5,h:4}},
+    paths:[],stoneAreas:[],waterAreas:[{id:'shallow_open_sea',x:0,y:0,w:64,h:48,fishingHabitat:'boat_shallow'}],
+    bridges:[],bridgeAreas:[{x:28,y:18,w:9,h:14}],fishingSpot:{x:37,y:27},
+    npcs:[{id:'captain_at_sea',x:32,y:24,homeX:32,homeY:24,name:'선장 마루',role:'voyageCaptain',sprite:'thomas',scale:1,face:'down',moving:false,wait:1200,roam:0}],
+    buildings:[],fixedObjects:{},decorations:{bushes:[],flowers:[],grassTufts:[],reeds:[]},treeLines:[],trees:[],farmPlots:[],exits:[]
+  }),
   coast:Object.freeze({
     id:'coast',name:'바람결 해안 항구',tileSize:48,width:64,height:48,
     terrain:{ground:'#d6bb79',patchA:'#8daa70',patchB:'#efd99a',pathRim:'#9f855b',pathCore:'#ccb587',coast:true},
@@ -549,7 +559,7 @@ const REGION_WORLDS=Object.freeze({
     fishingSpot:{x:20,y:29},
     npcs:[
       {id:'captain_maru',x:38,y:34,homeX:38,homeY:34,name:'선장 마루',role:'captain',sprite:'thomas',scale:1,face:'right',moving:false,wait:1200,roam:0,
-        dialog:'배는 정비를 마쳤어. 항로와 승선권 준비가 끝나면 이 부두에서 얕은 바다부터 출항할 수 있을 거야.'}
+        dialog:'얕은 바다로 출항할 준비가 됐어. 승선권을 확인해 볼까?'}
     ],
     fixedObjects:{
       rocks:[{x:7,y:23},{x:20,y:20},{x:52,y:20},{x:57,y:27}],
@@ -597,5 +607,6 @@ const REGION_EXITS=Object.freeze({
   coast:REGION_WORLDS.coast.exits,
   mountainLake:REGION_WORLDS.mountainLake.exits,
   waterfallValley:REGION_WORLDS.waterfallValley.exits,
-  reedSwamp:REGION_WORLDS.reedSwamp.exits
+  reedSwamp:REGION_WORLDS.reedSwamp.exits,
+  boatShallow:REGION_WORLDS.boatShallow.exits
 });

@@ -188,13 +188,16 @@ function useVillageReturnItem(){
   const previousRegion=GAME_STATE.regionId;
   const previousLocation={x:player.x,y:player.y,face:player.face};
   const previousInventory=JSON.parse(JSON.stringify(GAME_STATE.inventory));
+  const previousTrip=GAME_STATE.progression.voyage?.activeTrip;
   if(!removeLifeItem('consumable',VILLAGE_RETURN_ITEM.id,1)||
     !enterWorldRegion({to:'lilacVillage',entry:{x:25,y:3,face:'down'}},{skipSave:true})){
     GAME_STATE.inventory=previousInventory;
     return false;
   }
+  if(GAME_STATE.progression.voyage)GAME_STATE.progression.voyage.activeTrip=null;
   if(!saveGame()){
     GAME_STATE.inventory=previousInventory;
+    if(GAME_STATE.progression.voyage)GAME_STATE.progression.voyage.activeTrip=previousTrip;
     enterWorldRegion({to:previousRegion,entry:previousLocation},{skipSave:true});
     return false;
   }

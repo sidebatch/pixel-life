@@ -8,7 +8,7 @@ const node=id=>{
   if(!nodes.has(id))nodes.set(id,{textContent:'',innerHTML:'',hidden:true,classList:{add(){},remove(){},toggle(){}},setAttribute(){},addEventListener(){},focus(){}});
   return nodes.get(id);
 };
-const runtime={Math,clearTimeout(){},lifeUi:{toastTimer:null},performance:{now:()=>now},document:{visibilityState:'visible',getElementById:node,addEventListener:(name,fn)=>listeners[name]=fn},
+const runtime={Math,clearTimeout(){},lifeUi:{toastTimer:null},performance:{now:()=>now},document:{visibilityState:'visible',getElementById:node,querySelector:()=>node('boardingTitle'),addEventListener:(name,fn)=>listeners[name]=fn},
   window:{history:{state:{},replaceState(){}},addEventListener:(name,fn)=>listeners[name]=fn},
   GAME_STATE:{regionId:'coast',progression:{coins:3000},playerLocation:null},
   WORLD_DEFINITION:{},REGION_WORLDS:{coast:{id:'coast'},boatShallow:{id:'boatShallow',voyageDeck:{}}},
@@ -70,7 +70,7 @@ assert.equal(runtime.GAME_STATE.regionId,'boatShallow');assert.equal(progress().
 failSave=false;now+=2100;run('updateVoyage()');assert.equal(runtime.GAME_STATE.regionId,'coast');assert.equal(trip(),null);
 // Save normalization rejects malformed counts, routes, and seeds, and restores expired trips at harbor.
 const normalized=clone(run("normalizeSavedVoyageProgress({ticketCounts:{shallow:2.9,mid:-2,deep:'9',glacier:Infinity},unlockedRouteIds:['mid','shallow','fake'],activeTrip:{destination:'shallow',remainingMs:60000000,tripSeed:42}})"));
-assert.deepEqual(normalized.ticketCounts,{shallow:2,mid:0,deep:0,glacier:0});assert.deepEqual(normalized.unlockedRouteIds,['shallow']);assert.equal(normalized.activeTrip.remainingMs,600000);
+assert.deepEqual(normalized.ticketCounts,{shallow:2,mid:0,deep:0,glacier:0});assert.deepEqual(normalized.unlockedRouteIds,['shallow','mid']);assert.equal(normalized.activeTrip.remainingMs,600000);
 assert.equal(run("normalizeSavedVoyageProgress({activeTrip:{destination:'shallow',remainingMs:1,tripSeed:-1}}).activeTrip"),null);
 assert.equal(run("normalizeSavedVoyageProgress({activeTrip:{destination:'deep',remainingMs:1,tripSeed:1}}).activeTrip"),null);
 for(const pending of [false,true]){

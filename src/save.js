@@ -323,7 +323,7 @@ function applySaveData(saveData){
     GAME_STATE.progression.forestry.durabilityByAxeId[savedAxe.id]===0) GAME_STATE.appearance.activeTool='none';
   GAME_STATE.progression.swords=normalizeSavedSwordProgress(savedState.progression?.swords);
   if(typeof normalizeSavedVoyageProgress==='function'){
-    GAME_STATE.progression.voyage=normalizeSavedVoyageProgress(savedState.progression?.voyage);
+    GAME_STATE.progression.voyage=normalizeSavedVoyageProgress(savedState.progression?.voyage,voyageUnlockEvidence());
     restoreSavedVoyageLocation();
   }
   return true;
@@ -332,6 +332,7 @@ function applySaveData(saveData){
 function saveGame(){
   try{
     if(typeof checkpointVoyageTime==='function')checkpointVoyageTime();
+    if(typeof syncVoyageUnlocks==='function')syncVoyageUnlocks();
     localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(createSaveData()));
     return true;
   }catch(error){

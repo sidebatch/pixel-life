@@ -5,6 +5,7 @@ const harborUi={open:false};
 
 function voyageProgress(){
   if(!GAME_STATE.progression.voyage)GAME_STATE.progression.voyage=normalizeSavedVoyageProgress();
+  syncVoyageUnlocks();
   return GAME_STATE.progression.voyage;
 }
 function activeVoyage(){return voyageProgress().activeTrip;}
@@ -98,6 +99,7 @@ function departVoyage(routeId){
     closeHarbor({fromHistory:true});clearVoyageOverlayHistory();clearMovement();
     clearTimeout(lifeUi.toastTimer);document.getElementById('lifeToast').classList.remove('show','belowSkill');
     voyageClock.boardingUntil=performance.now()+700;
+    document.querySelector('#voyageBoarding b').textContent=`${route.name}로 출항합니다`;
     setVoyageNotice('난간에서 낚시 · 선장에게 조기 귀항');
     document.getElementById('voyageBoarding').hidden=false;
   }
@@ -141,13 +143,15 @@ function renderHarbor(){
     '<button type="button" class="harborReturn" data-voyage-return>항구로 돌아가기</button>':
     VOYAGE_ROUTES.map(route=>{
       const unlocked=route.available&&progress.unlockedRouteIds.includes(route.id),count=progress.ticketCounts[route.id];
-      return `<section class="harborRoute"><h3>${route.name}<span>${unlocked?`${route.durationMs/60000}분 · ${count}장 보유`:'준비 중'}</span></h3>${unlocked?
+      const evidence=voyageUnlockEvidence();
+      const lockedHint=route.id==='mid'?`낚시 Lv.${route.unlockLevel} 또는 얕은 바다 ${route.unlockShallowSpecies}종 발견으로 해금 · 현재 Lv.${evidence.fishingLevel} / ${Math.min(route.unlockShallowSpecies,evidence.shallowSpecies)}종`:'항로를 준비하고 있어요.';
+      return `<section class="harborRoute" data-voyage-route="${route.id}"><h3>${route.name}<span>${unlocked?`${route.durationMs/60000}분 · ${count}장 보유`:route.available?'잠김':'준비 중'}</span></h3>${unlocked?
         `<p>승선권 1장 · ${route.price.toLocaleString()}코인</p><div class="harborActions"><button type="button" data-ticket-buy="${route.id}" data-quantity="1" ${GAME_STATE.progression.coins<route.price?'disabled':''}>1장 구매</button><button type="button" data-ticket-buy="${route.id}" data-quantity="5" ${GAME_STATE.progression.coins<route.price*5?'disabled':''}>5장 구매</button><button type="button" data-voyage-depart="${route.id}" ${count<1?'disabled':''}>출항</button></div>`:
-        '<p>항로를 준비하고 있어요.</p>'}</section>`;
+        `<p>${lockedHint}</p>`}</section>`;
     }).join('');
 }
 function openHarbor(options={}){
-  if(harborUi.open||isFishingActive()||isVoyageBoarding()||!['coast','boatShallow'].includes(GAME_STATE.regionId))return false;
+  if(harborUi.open||isFishingActive()||isVoyageBoarding()||!(GAME_STATE.regionId==='coast'||WORLD_DEFINITION.voyageDeck))return false;
   toggleMenu(false);clearMovement();harborUi.open=true;menuOpen=true;
   document.getElementById('harborStatus').textContent='';renderHarbor();
   const panel=document.getElementById('harborPanel');panel.classList.add('show');panel.setAttribute('aria-hidden','false');

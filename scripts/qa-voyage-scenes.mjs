@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-const source=fs.readFileSync('src/voyage-scenes.js','utf8');
+const source=fs.readFileSync('src/voyage-scenes.js','utf8')+'\n'+fs.readFileSync('src/voyage-mid-rendering.js','utf8');
 const model={};vm.createContext(model);vm.runInContext(source,model);
 const run=code=>vm.runInContext(code,model),clone=value=>JSON.parse(JSON.stringify(value));
 const stats=clone(run(`(()=>{
@@ -43,4 +43,26 @@ const normal=vm.runInContext('voyageSceneCache.current.sceneSignature',render);
 motion.matches=true;draw();assert.equal(vm.runInContext('voyageSceneCache.current.sceneSignature',render),normal,'Reduced motion cannot alter fish conditions or the voyage timeline');
 vm.runInContext('releaseVoyageScenes()',render);assert.equal(vm.runInContext('voyageSceneCache.composites.size',render),0);
 draw();assert.equal(vm.runInContext('voyageSceneCache.current.sceneSignature',render),normal);
+// The same seed on a different route must not reuse shallow palette/landmarks.
+render.VOYAGE_ROUTE_BY_ID.set('mid',{durationMs:600000});trip.destination='mid';trip.remainingMs=550000;draw();
+assert.equal(vm.runInContext('voyageSceneCache.current.destination',render),'mid');
+assert.notEqual(vm.runInContext('voyageSceneCache.current.sceneSignature',render),normal);
+assert.equal(vm.runInContext('voyageSceneCache.composites.size',render),2);
+const midStats=clone(run(`(()=>{
+  const landmarks=new Set(),midObjects=new Set();let total=0;
+  for(let seed=0;seed<128;seed++){
+    const generator=createVoyageSceneGenerator(seed,'mid'),recent=[];let previous=null;
+    for(let index=0;index<64;index++){
+      const scene=nextVoyageScene(generator),pool=voyageScenePool(scene.destination);
+      if(recent.includes(scene.sceneSignature)||scene.majorSignature===previous)throw Error('Mid scene repeat');
+      if(voyageSceneAt(seed,scene.startMs+1,'mid').sceneSignature!==scene.sceneSignature)throw Error('Mid reconstruction mismatch');
+      landmarks.add(pool.landmarks[scene.landmark]);midObjects.add(pool.midObjects[scene.mid]);total++;
+      recent.push(scene.sceneSignature);if(recent.length>6)recent.shift();previous=scene.majorSignature;
+    }
+  }
+  return {total,landmarks:[...landmarks],midObjects:[...midObjects]};
+})()`));
+assert.equal(midStats.total,8192);assert.ok(midStats.landmarks.includes('freighter')&&midStats.landmarks.includes('swellBank'));
+assert.ok(midStats.midObjects.includes('dolphins'));assert.ok(!midStats.landmarks.includes('reef')&&!midStats.midObjects.includes('coral'));
 console.log('Voyage scenes passed: '+JSON.stringify({...stats,deterministicRestore:true,boundedCanvasCache:true,noFrameAllocation:true,reducedMotion:true}));
+console.log('Mid scenes passed: '+JSON.stringify({...midStats,routeCacheIsolation:true}));

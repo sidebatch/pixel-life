@@ -18,7 +18,8 @@ const FISHING_HABITAT_BY_REGION=Object.freeze({
   mountainLake:FISH_HABITATS.MOUNTAIN_LAKE,
   waterfallValley:FISH_HABITATS.RIVER,
   reedSwamp:FISH_HABITATS.SWAMP,
-  boatShallow:FISH_HABITATS.BOAT_SHALLOW
+  boatShallow:FISH_HABITATS.BOAT_SHALLOW,
+  boatMid:FISH_HABITATS.BOAT_MID
 });
 
 function fishingAreaContainsTile(area,tile){

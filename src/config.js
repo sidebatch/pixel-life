@@ -99,7 +99,8 @@ const WORLD_REGIONS = Object.freeze({
   mountainLake:{id:'mountainLake',name:'여명 산악 호수',status:'playable'},
   waterfallValley:{id:'waterfallValley',name:'물안개 폭포 계곡',status:'playable'},
   reedSwamp:{id:'reedSwamp',name:'그늘 갈대 늪',status:'playable'},
-  boatShallow:{id:'boatShallow',name:'얕은 바다 · 어선',status:'playable'}
+  boatShallow:{id:'boatShallow',name:'얕은 바다 · 어선',status:'playable'},
+  boatMid:{id:'boatMid',name:'중간 바다 · 어선',status:'playable'}
 });
 
 const ACTIVITY_MODULES = Object.freeze({

@@ -135,6 +135,17 @@ function forestFrontierRegion(id,number,layout){
     farmPlots:[],exits:forestFrontierExits(id)
   });
 }
+const SHARED_VOYAGE_DECK=Object.freeze({x:28,y:18,w:9,h:14,cabin:Object.freeze({x:30,y:19,w:5,h:4})});
+function defineVoyageRegion(id,name,habitat,spotId,waterColor){
+  return Object.freeze({id,name,tileSize:48,width:64,height:48,
+    terrain:{ground:waterColor,waterColor,patchA:'#1c789b',patchB:'#7ed7c5'},
+    playerSpawn:{x:32,y:26,face:'down'},voyageDeck:SHARED_VOYAGE_DECK,
+    paths:[],stoneAreas:[],waterAreas:[{id:spotId,x:0,y:0,w:64,h:48,fishingHabitat:habitat}],
+    bridges:[],bridgeAreas:[{x:28,y:18,w:9,h:14}],fishingSpot:{x:37,y:27},
+    npcs:[{id:'captain_at_sea',x:32,y:24,homeX:32,homeY:24,name:'선장 마루',role:'voyageCaptain',sprite:'thomas',scale:1,face:'down',moving:false,wait:1200,roam:0}],
+    buildings:[],fixedObjects:{},decorations:{bushes:[],flowers:[],grassTufts:[],reeds:[]},treeLines:[],trees:[],farmPlots:[],exits:[]
+  });
+}
 const REGION_WORLDS=Object.freeze({
   lilacVillage:VILLAGE_WORLD_DEFINITION,
   oldForest:Object.freeze({
@@ -532,16 +543,8 @@ const REGION_WORLDS=Object.freeze({
     trees:[{x:4,y:12},{x:13,y:7},{x:22,y:7},{x:43,y:6},{x:57,y:17},{x:55,y:40},{x:11,y:40},{x:17,y:45}],
     exits:[{x:36,y:1,to:'waterfallValley',entry:{x:36,y:44,face:'up'},label:'폭포 계곡'}]
   }),
-  boatShallow:Object.freeze({
-    id:'boatShallow',name:'얕은 바다 · 어선',tileSize:48,width:64,height:48,
-    terrain:{ground:'#278fa8',waterColor:'#278fa8',patchA:'#1c789b',patchB:'#7ed7c5'},
-    playerSpawn:{x:32,y:26,face:'down'},
-    voyageDeck:{x:28,y:18,w:9,h:14,cabin:{x:30,y:19,w:5,h:4}},
-    paths:[],stoneAreas:[],waterAreas:[{id:'shallow_open_sea',x:0,y:0,w:64,h:48,fishingHabitat:'boat_shallow'}],
-    bridges:[],bridgeAreas:[{x:28,y:18,w:9,h:14}],fishingSpot:{x:37,y:27},
-    npcs:[{id:'captain_at_sea',x:32,y:24,homeX:32,homeY:24,name:'선장 마루',role:'voyageCaptain',sprite:'thomas',scale:1,face:'down',moving:false,wait:1200,roam:0}],
-    buildings:[],fixedObjects:{},decorations:{bushes:[],flowers:[],grassTufts:[],reeds:[]},treeLines:[],trees:[],farmPlots:[],exits:[]
-  }),
+  boatShallow:defineVoyageRegion('boatShallow','얕은 바다 · 어선','boat_shallow','shallow_open_sea','#278fa8'),
+  boatMid:defineVoyageRegion('boatMid','중간 바다 · 어선','boat_mid','mid_open_sea','#246a96'),
   coast:Object.freeze({
     id:'coast',name:'바람결 해안 항구',tileSize:48,width:64,height:48,
     terrain:{ground:'#d6bb79',patchA:'#8daa70',patchB:'#efd99a',pathRim:'#9f855b',pathCore:'#ccb587',coast:true},
@@ -608,5 +611,6 @@ const REGION_EXITS=Object.freeze({
   mountainLake:REGION_WORLDS.mountainLake.exits,
   waterfallValley:REGION_WORLDS.waterfallValley.exits,
   reedSwamp:REGION_WORLDS.reedSwamp.exits,
-  boatShallow:REGION_WORLDS.boatShallow.exits
+  boatShallow:REGION_WORLDS.boatShallow.exits,
+  boatMid:REGION_WORLDS.boatMid.exits
 });

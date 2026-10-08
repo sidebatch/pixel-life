@@ -9,7 +9,7 @@ const REGION_MUSIC_TRACKS=Object.freeze({
   forestThree:'woodland',forestFour:'woodland',forestFive:'woodland',forestSix:'woodland',
   forestSeven:'woodland',forestEight:'woodland',forestNine:'woodland',forestTen:'woodland',
   forestEleven:'woodland',forestTwelve:'woodland',sunnyFields:'lakeside',coast:'lakeside',mountainLake:'lakeside',
-  waterfallValley:'lakeside',reedSwamp:'woodland',boatShallow:'lakeside'
+  waterfallValley:'lakeside',reedSwamp:'woodland',boatShallow:'lakeside',boatMid:'woodland'
 });
 const REGION_MUSIC_VOLUME=.3;
 const REGION_MUSIC_MUTE_KEY='pixel-life.music-muted.v1';

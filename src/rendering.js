@@ -471,6 +471,10 @@ function drawHarborWaterDetails(){
 function drawHarborTicketBooth(booth){
   const x=Math.round(booth.x*TILE-camX),ground=Math.round((booth.y+booth.h)*TILE-camY);
   const width=booth.w*TILE,height=154;
+  if(imgs.harborTicketBooth){
+    ctx.save();ctx.fillStyle='rgba(49,42,31,.20)';ctx.beginPath();ctx.ellipse(x+width/2,ground-2,width*.46,13,0,0,Math.PI*2);ctx.fill();
+    ctx.drawImage(imgs.harborTicketBooth,x,ground-176,width,176);ctx.restore();return;
+  }
   ctx.save();
   ctx.fillStyle='rgba(49,42,31,.2)';ctx.beginPath();ctx.ellipse(x+width/2,ground-2,width*.46,13,0,0,Math.PI*2);ctx.fill();
   ctx.fillStyle='#765137';ctx.fillRect(x+12,ground-height+26,width-24,height-30);
@@ -489,6 +493,10 @@ function drawHarborTicketBooth(booth){
 function drawHarborBoat(boat){
   const x=Math.round(boat.x*TILE-camX),y=Math.round(boat.y*TILE-camY);
   const width=boat.w*TILE,height=boat.h*TILE;
+  if(imgs.harborBoat){
+    ctx.save();ctx.fillStyle='rgba(7,34,51,.26)';ctx.beginPath();ctx.ellipse(x+width*.5,y+height*.80,width*.47,height*.16,0,0,Math.PI*2);ctx.fill();
+    ctx.drawImage(imgs.harborBoat,x,y,width,height);ctx.restore();return;
+  }
   ctx.save();
   ctx.fillStyle='rgba(7,34,51,.32)';ctx.beginPath();ctx.ellipse(x+width*.48,y+height*.58,width*.52,height*.34,0,0,Math.PI*2);ctx.fill();
   ctx.beginPath();ctx.moveTo(x+12,y+height*.18);ctx.lineTo(x+width*.72,y+10);ctx.lineTo(x+width-3,y+height*.5);ctx.lineTo(x+width*.72,y+height-12);ctx.lineTo(x+12,y+height*.82);ctx.closePath();
@@ -507,6 +515,9 @@ function drawHarborBoat(boat){
 
 function drawHarborCrate(crate,index){
   const x=Math.round(crate.x*TILE-camX+5),y=Math.round(crate.y*TILE-camY+8);
+  if(imgs.harborCrate){
+    ctx.save();ctx.fillStyle='rgba(44,34,23,.18)';ctx.fillRect(x+4,y+32,40,8);ctx.drawImage(imgs.harborCrate,x-2,y-4,44,44);ctx.restore();return;
+  }
   ctx.save();ctx.fillStyle='rgba(44,34,23,.22)';ctx.fillRect(x+5,y+32,38,8);
   ctx.fillStyle=index%2?'#91613b':'#a87143';ctx.fillRect(x,y,42,38);
   ctx.strokeStyle='#5c3b27';ctx.lineWidth=4;ctx.strokeRect(x+2,y+2,38,34);ctx.beginPath();ctx.moveTo(x+4,y+4);ctx.lineTo(x+38,y+34);ctx.moveTo(x+38,y+4);ctx.lineTo(x+4,y+34);ctx.stroke();ctx.restore();

@@ -43,7 +43,7 @@ try{
   });
   const ticketText=await page.locator('#harborRoutes').textContent();
   if(!ticketText.includes('얕은 바다')||!ticketText.includes('중간 바다')||!ticketText.includes('심해')||
-    !ticketText.includes('빙하 해역')||!ticketText.includes('준비 중'))throw new Error('Ticket booth does not list all four routes');
+    !ticketText.includes('빙하 해역')||!ticketText.includes('잠김'))throw new Error('Ticket booth does not list all four routes');
   await page.locator('#harborClose').tap();
 
   const saved=await page.evaluate(()=>{

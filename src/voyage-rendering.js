@@ -1,7 +1,16 @@
-// Shared code-native deck geometry; sailing scenery lives in voyage-scenes.js.
+// Raster harbor sprites share the unchanged deck/cabin gameplay footprint.
+// The geometric fallback is kept only for isolated rendering tests/load diagnostics.
 function drawVoyageDeck(){
   const deck=WORLD_DEFINITION.voyageDeck;if(!deck)return;
   const x=deck.x*TILE-camX,y=deck.y*TILE-camY,w=deck.w*TILE,h=deck.h*TILE;
+  if(imgs.voyageDeck){
+    ctx.save();ctx.fillStyle='rgba(8,38,55,.32)';ctx.fillRect(x-10,y+12,w+20,h+12);
+    // Solid footing remains under any transparent trim; no collision changes.
+    ctx.fillStyle='#796448';ctx.fillRect(x+4,y+4,w-8,h-8);
+    // Nine-slice the painted perimeter so the wooden floor reaches the existing
+    // standing tiles. Bulky fenders must not shrink the usable-looking floor.
+    drawVoyageDeckSprite(imgs.voyageDeck,x,y,w,h);ctx.restore();return;
+  }
   ctx.save();
   // Hull shadow and a continuous deck, not a repeated bridge tile.
   ctx.fillStyle='rgba(8,49,62,.4)';ctx.fillRect(x-13,y+18,w+26,h+14);
@@ -29,6 +38,10 @@ function drawVoyageDeck(){
 function drawVoyageCabin(){
   const cabin=WORLD_DEFINITION.voyageDeck?.cabin;if(!cabin)return;
   const x=cabin.x*TILE-camX,y=cabin.y*TILE-camY,w=cabin.w*TILE,h=cabin.h*TILE;
+  if(imgs.voyageCabin){
+    ctx.save();ctx.fillStyle='rgba(24,32,39,.22)';ctx.fillRect(x+8,y+15,w,h);
+    ctx.drawImage(imgs.voyageCabin,x,y+h-220,w,220);drawVoyageCollectionFlag(x,y,w,h);ctx.restore();return;
+  }
   ctx.save();
   ctx.fillStyle='rgba(24,32,39,.27)';ctx.fillRect(x+10,y+20,w,h);
   ctx.fillStyle='#d9ddcb';ctx.fillRect(x,y,w,h);
@@ -40,6 +53,18 @@ function drawVoyageCabin(){
   ctx.fillStyle='#a2c8c8';ctx.fillRect(x+w/2-17,y+h-62,34,26);
   ctx.fillStyle='#e4c074';ctx.fillRect(x+w/2+13,y+h-21,4,5);
   ctx.fillStyle='#b7beb0';ctx.fillRect(x+8,y+h-9,w-16,9);
+  drawVoyageCollectionFlag(x,y,w,h);
+  ctx.restore();
+}
+function drawVoyageDeckSprite(image,x,y,w,h){
+  const sx=[0,30,186,216],sy=[0,18,314,336];
+  const dx=[x,x+16,x+w-16,x+w],dy=[y,y+16,y+h-16,y+h];
+  for(let row=0;row<3;row++)for(let column=0;column<3;column++){
+    ctx.drawImage(image,sx[column],sy[row],sx[column+1]-sx[column],sy[row+1]-sy[row],
+      dx[column],dy[row],dx[column+1]-dx[column],dy[row+1]-dy[row]);
+  }
+}
+function drawVoyageCollectionFlag(x,y,w,h){
   if(typeof hasFishVoyageRewardFlag==='function'&&hasFishVoyageRewardFlag()){
     // Keep the ornament below the fixed voyage HUD at the normal fishing view.
     const fx=x+w-15,fy=y+h-20;
@@ -47,5 +72,4 @@ function drawVoyageCabin(){
     ctx.fillStyle='#26788d';ctx.beginPath();ctx.moveTo(fx+3,fy-39);ctx.lineTo(fx+38,fy-34);ctx.lineTo(fx+29,fy-22);ctx.lineTo(fx+38,fy-10);ctx.lineTo(fx+3,fy-16);ctx.fill();
     ctx.strokeStyle='#d4efde';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fx+9,fy-27);ctx.lineTo(fx+17,fy-24);ctx.lineTo(fx+25,fy-27);ctx.stroke();
   }
-  ctx.restore();
 }

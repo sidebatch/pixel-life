@@ -167,6 +167,28 @@ function drawMountainRidges(terrain){
   }
 }
 
+function drawSwampWaterDetails(terrain){
+  if(!terrain.swamp)return;
+  ctx.save();
+  for(const [index,pad] of (terrain.lilyPads||[]).entries()){
+    if(!waterSet.has(key(pad.x,pad.y)))continue;
+    const x=Math.round((pad.x+.5)*TILE-camX),y=Math.round((pad.y+.5)*TILE-camY);
+    if(x<-90||y<-40||x>VIEW_W+90||y>VIEW_H+40)continue;
+    ctx.fillStyle='rgba(28,45,34,.3)';ctx.beginPath();ctx.ellipse(x+3,y+4,17,7,0,0,Math.PI*2);ctx.fill();
+    for(let leaf=0;leaf<3;leaf++){
+      const px=x+leaf*9-9,py=y+(leaf%2)*5;
+      ctx.fillStyle=leaf%2?'#667c4d':'#738952';ctx.beginPath();ctx.ellipse(px,py,12,6,0,0,Math.PI*1.8);ctx.fill();
+      ctx.fillStyle='#455e40';ctx.fillRect(px-2,py-1,8,2);
+    }
+    const ripple=(tNow/170+index*7)%32;
+    ctx.strokeStyle='rgba(168,188,145,.16)';ctx.lineWidth=2;
+    ctx.beginPath();ctx.ellipse(x-21,y+12,5+ripple/3,2+ripple/8,0,0,Math.PI*2);ctx.stroke();
+    ctx.fillStyle='rgba(190,207,168,.08)';
+    ctx.beginPath();ctx.ellipse(x+Math.sin(tNow/2100+index)*15,y-19,57,11,0,0,Math.PI*2);ctx.fill();
+  }
+  ctx.restore();
+}
+
 function drawTerrain(){
   // Movement/collision is still tile based, but the terrain is painted as connected surfaces.
   const terrain=WORLD_DEFINITION.terrain||{};
@@ -247,6 +269,7 @@ function drawTerrain(){
   ctx.restore();
 
   drawForestWaterfalls(terrain);
+  drawSwampWaterDetails(terrain);
 
   bridgeSet.forEach(k=>{
     const [x,y]=k.split(',').map(Number);

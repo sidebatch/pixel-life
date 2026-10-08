@@ -465,7 +465,7 @@ const REGION_WORLDS=Object.freeze({
       {x1:31,y1:20,x2:27,y2:20},{x1:31,y1:20,x2:36,y2:20},
       {x1:36,y1:20,x2:36,y2:22},{x1:27,y1:20,x2:27,y2:36},
       {x1:27,y1:27,x2:29,y2:27},{x1:27,y1:36,x2:36,y2:36},
-      {x1:36,y1:36,x2:36,y2:38},{x1:44,y1:38,x2:50,y2:38},
+      {x1:36,y1:36,x2:36,y2:46},{x1:44,y1:38,x2:50,y2:38},
       {x1:50,y1:38,x2:50,y2:27},{x1:50,y1:27,x2:47,y2:27}
     ],
     stoneAreas:[{id:'mist_pool_landing',x:26,y:25,w:4,h:5},{id:'mist_falls_overlook',x:34,y:21,w:3,h:2}],
@@ -486,12 +486,51 @@ const REGION_WORLDS=Object.freeze({
     },
     treeLines:[
       {axis:'x',from:2,to:62,step:3,fixed:1,gaps:[[29,33]]},
-      {axis:'x',from:2,to:62,step:3,fixed:46,gaps:[]},
+      {axis:'x',from:2,to:62,step:3,fixed:46,gaps:[[34,38]]},
       {axis:'y',from:4,to:43,step:3,fixed:1,gaps:[]},
       {axis:'y',from:4,to:43,step:3,fixed:62,gaps:[]}
     ],
     trees:[{x:12,y:24},{x:20,y:21},{x:22,y:28},{x:18,y:38},{x:31,y:41},{x:54,y:31},{x:51,y:41}],
-    exits:[{x:31,y:1,to:'mountainLake',entry:{x:31,y:44,face:'up'},label:'산악 호수'}]
+    exits:[
+      {x:31,y:1,to:'mountainLake',entry:{x:31,y:44,face:'up'},label:'산악 호수'},
+      {x:36,y:46,to:'reedSwamp',entry:{x:36,y:3,face:'down'},label:'갈대 늪'}
+    ]
+  }),
+  reedSwamp:Object.freeze({
+    id:'reedSwamp',name:'그늘 갈대 늪',tileSize:48,width:64,height:48,
+    terrain:{ground:'#59654d',patchA:'#2b433b',patchB:'#8b8b58',pathRim:'#34433b',pathCore:'#898361',waterColor:'#4e665b',swamp:true,
+      lilyPads:[{x:14,y:20},{x:22,y:27},{x:25,y:16},{x:31,y:22},{x:35,y:26},{x:43,y:15},{x:48,y:22},{x:51,y:30},{x:23,y:38},{x:38,y:39},{x:45,y:40}]},
+    playerSpawn:{x:36,y:3,face:'down'},
+    paths:[
+      {x1:36,y1:1,x2:36,y2:17},{x1:36,y1:17,x2:29,y2:17},
+      {x1:29,y1:17,x2:29,y2:34},{x1:29,y1:34,x2:38,y2:34},
+      {x1:36,y1:15,x2:38,y2:15},{x1:38,y1:15,x2:38,y2:34}
+    ],
+    stoneAreas:[],
+    waterAreas:[
+      {id:'shade_swamp_west',x:7,y:13,w:22,h:20,cutCorners:true,fishingHabitat:'swamp'},
+      {id:'shade_swamp_middle',x:30,y:19,w:8,h:10,cutCorners:true,fishingHabitat:'swamp'},
+      {id:'shade_swamp_east',x:39,y:9,w:17,h:27,cutCorners:true,fishingHabitat:'swamp'},
+      {id:'shade_swamp_deep',x:18,y:35,w:31,h:8,cutCorners:true,fishingHabitat:'swamp'}
+    ],
+    bridges:[{id:'shade_swamp_boardwalk',x1:33,y1:34,x2:33,y2:40}],
+    fishingSpot:{x:28,y:24},npcs:[],buildings:[],farmPlots:[],
+    fixedObjects:{rocks:[{x:34,y:11},{x:24,y:9},{x:57,y:23},{x:16,y:34},{x:51,y:39}]},
+    decorations:{
+      bushes:[{x:27,y:10,v:1,s:.75},{x:34,y:16,v:0,s:.7},{x:14,y:11,v:1,s:.65},{x:51,y:37,v:0,s:.75}],
+      flowers:[{x:35,y:6,v:1,s:.36},{x:30,y:33,v:1,s:.35}],
+      grassTufts:[{x:32,y:11,s:.35},{x:29,y:31,s:.32},{x:37,y:31,s:.3},{x:57,y:37,s:.38}],
+      reeds:[{x:29,y:21,s:.4},{x:29,y:28,s:.39},{x:38,y:18,s:.4},{x:38,y:27,s:.4},{x:18,y:34,s:.45},
+        {x:26,y:34,s:.42},{x:42,y:36,s:.45},{x:50,y:34,s:.4},{x:11,y:13,s:.4},{x:8,y:25,s:.44}]
+    },
+    treeLines:[
+      {axis:'x',from:2,to:62,step:3,fixed:1,gaps:[[34,38]]},
+      {axis:'x',from:2,to:62,step:3,fixed:46,gaps:[]},
+      {axis:'y',from:4,to:43,step:3,fixed:1,gaps:[]},
+      {axis:'y',from:4,to:43,step:3,fixed:62,gaps:[]}
+    ],
+    trees:[{x:4,y:12},{x:13,y:7},{x:22,y:7},{x:43,y:6},{x:57,y:17},{x:55,y:40},{x:11,y:40},{x:17,y:45}],
+    exits:[{x:36,y:1,to:'waterfallValley',entry:{x:36,y:44,face:'up'},label:'폭포 계곡'}]
   }),
   coast:Object.freeze({
     id:'coast',name:'바람결 해안 항구',tileSize:48,width:64,height:48,
@@ -557,5 +596,6 @@ const REGION_EXITS=Object.freeze({
   sunnyFields:REGION_WORLDS.sunnyFields.exits,
   coast:REGION_WORLDS.coast.exits,
   mountainLake:REGION_WORLDS.mountainLake.exits,
-  waterfallValley:REGION_WORLDS.waterfallValley.exits
+  waterfallValley:REGION_WORLDS.waterfallValley.exits,
+  reedSwamp:REGION_WORLDS.reedSwamp.exits
 });

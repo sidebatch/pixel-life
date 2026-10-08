@@ -110,7 +110,7 @@ const FISHING_TARGET_ROSTER=Object.freeze([
   defineFishingTargetFish('fish.giant_squid','대왕오징어','boat_deep','legendary',['NIGHT'],['storm'],'폭풍우 치는 밤 심해에서만 떠오르는 바다의 괴물이다.'),
 
   defineFishingTargetFish('fish.toothfish','메로','glacier','uncommon',null,null,'남극의 차가운 심해를 누비는 고급 생선이다.'),
-  defineFishingTargetFish('fish.snow_smelt','설빙어','glacier','common',['DAY'],null,'낮의 빙하 호수에 은빛으로 반짝이는 작은 물고기다.'),
+  defineFishingTargetFish('fish.snow_smelt','설빙어','glacier','common',['DAY'],null,'낮의 빙하 해역에 은빛으로 반짝이는 작은 물고기다.'),
   defineFishingTargetFish('fish.glacier_trout','빙하송어','glacier','uncommon',null,['clear'],'맑은 날 빙하수에 푸르게 빛나는 송어다.'),
   defineFishingTargetFish('fish.polar_cod','극지대구','glacier','rare',null,null,'극지방의 차가운 물을 견디는 강인한 대구다.'),
   defineFishingTargetFish('fish.greenland_shark','그린란드상어','glacier','rare',null,null,'오랜 세월 차가운 빙하 바다를 떠도는 거대한 상어다.'),

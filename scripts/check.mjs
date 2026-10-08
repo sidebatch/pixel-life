@@ -36,6 +36,7 @@ const scriptFiles = [
   'src/voyage-scenes.js',
   'src/voyage-mid-rendering.js',
   'src/voyage-deep-rendering.js',
+  'src/voyage-glacier-rendering.js',
   'src/character.js',
   'src/interactions.js',
   'src/fishing-effects.js',
@@ -147,7 +148,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 386, `Expected 386 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 393, `Expected 393 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -348,7 +349,7 @@ vm.createContext(fishContext);
 vm.runInContext(`${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\nglobalThis.__fishData=FISH_DATA;globalThis.__fishRewards=FISH_COLLECTION_REWARDS;`,fishContext);
 const fishData=fishContext.__fishData;
 const fishRewards=fishContext.__fishRewards;
-assert(fishData.length===67,`Expected 67 fish records, found ${fishData.length}`);
+assert(fishData.length===74,`Expected 74 fish records, found ${fishData.length}`);
 assert(new Set(fishData.map(fish=>fish.id)).size===fishData.length,'Fish ids must be unique');
 assert(new Set(fishData.map(fish=>fish.asset)).size===fishData.length,'Fish asset keys must be unique');
 assert(fishRewards.map(reward=>reward.count).join(',')==='5,10,15,19,20','Unexpected fish collection reward thresholds');
@@ -1956,4 +1957,6 @@ await import('./qa-fishing-mid.mjs');
 await import('./qa-voyage-mid.mjs');
 await import('./qa-voyage-deep.mjs');
 await import('./qa-fishing-deep.mjs');
+await import('./qa-voyage-glacier.mjs');
+await import('./qa-fishing-glacier.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

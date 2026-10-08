@@ -101,7 +101,8 @@ const WORLD_REGIONS = Object.freeze({
   reedSwamp:{id:'reedSwamp',name:'그늘 갈대 늪',status:'playable'},
   boatShallow:{id:'boatShallow',name:'얕은 바다 · 어선',status:'playable'},
   boatMid:{id:'boatMid',name:'중간 바다 · 어선',status:'playable'},
-  boatDeep:{id:'boatDeep',name:'심해 · 어선',status:'playable'}
+  boatDeep:{id:'boatDeep',name:'심해 · 어선',status:'playable'},
+  boatGlacier:{id:'boatGlacier',name:'빙하 해역 · 어선',status:'playable'}
 });
 
 const ACTIVITY_MODULES = Object.freeze({

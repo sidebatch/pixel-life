@@ -21,7 +21,13 @@ const VOYAGE_SCENE_POOLS=Object.freeze({
     {water:'#192c46',deep:'#0e1b31',light:'#7a90bb'},
     {water:'#152f3b',deep:'#0a202c',light:'#78adae'},
     {water:'#222c48',deep:'#111b31',light:'#9295bb'}
-  ],landmarks:['open','cloudBank','giantShadow','glowBloom','darkCurrent','abyssalRidge'],midObjects:['none','jellyGlow','lanternSchool','shadowTrail','coldFoam']}
+  ],landmarks:['open','cloudBank','giantShadow','glowBloom','darkCurrent','abyssalRidge'],midObjects:['none','jellyGlow','lanternSchool','shadowTrail','coldFoam']},
+  glacier:{palettes:[
+    {water:'#477b92',deep:'#315a76',light:'#d0e6e8'},
+    {water:'#527e98',deep:'#345b78',light:'#dbe9f0'},
+    {water:'#3d7e85',deep:'#2b606c',light:'#cae5df'},
+    {water:'#536f91',deep:'#38516f',light:'#d8dded'}
+  ],landmarks:['open','iceberg','iceShelf','auroraVeil','snowBank','iceArch'],midObjects:['none','iceFloes','crystalWake','snowFlurry','iceShards']}
 });
 function voyageScenePool(destination='shallow'){return VOYAGE_SCENE_POOLS[destination]||VOYAGE_SCENE_POOLS.shallow;}
 function voyageRandom(seed){
@@ -85,6 +91,8 @@ function composeVoyageScene(scene){
       drawMidVoyageLandmark(f,kind,x,y,random,palette);
     }else if(scene.destination==='deep'){
       drawDeepVoyageLandmark(f,kind,x,y,random,palette);
+    }else if(scene.destination==='glacier'){
+      drawGlacierVoyageLandmark(f,kind,x,y,random,palette);
     }else if(kind==='reef'){
       for(let i=0;i<9;i++)ellipse(f,x+random()*90-45,y+random()*65-32,8+random()*17,4+random()*7,'rgba(94,178,148,.55)');
     }else if(kind==='rockArch'){
@@ -115,6 +123,8 @@ function composeVoyageScene(scene){
     const x=random()<.5?15+random()*53:width-15-random()*53,y=50+random()*(scene.destination!=='shallow'?Math.min(height-100,VIEW_H*.4):height-100);
     if(scene.destination==='deep'){
       drawDeepVoyageMidObject(m,type,x,y,random,palette);
+    }else if(scene.destination==='glacier'){
+      drawGlacierVoyageMidObject(m,type,x,y,random,palette);
     }else if(type==='dolphins'){
       for(let dolphin=0;dolphin<3;dolphin++){
         const dx=x+dolphin*10,dy=y+dolphin*13;
@@ -141,7 +151,7 @@ function composeVoyageScene(scene){
     }
   }
   const waves=Array.from({length:Math.round(140*scene.density)},()=>({x:random(),y:random()*3,length:8+random()*27,phase:random()*6.28}));
-  const gulls=scene.landmark===0||scene.destination==='deep'?[]:Array.from({length:2+Math.floor(random()*3)},()=>({x:random(),y:random(),phase:random()*6.28}));
+  const gulls=scene.landmark===0||scene.destination==='deep'||scene.destination==='glacier'?[]:Array.from({length:2+Math.floor(random()*3)},()=>({x:random(),y:random(),phase:random()*6.28}));
   return {far,mid,waves,gulls};
 }
 function drawVoyageSceneLayers(scene,elapsedMs,opacity,reduced){

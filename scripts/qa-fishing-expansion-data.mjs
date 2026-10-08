@@ -126,10 +126,11 @@ const promotedExpansionIds=['fish.bluegill','fish.killifish','fish.mandarin_fish
   'fish.damselfish','fish.wrasse','fish.filefish','fish.striped_damsel','fish.barred_knifejaw','fish.black_seabream','fish.cuttlefish',
   'fish.spanish_mackerel','fish.yellowtail','fish.amberjack','fish.marlin','fish.sevenband_grouper','fish.bluefin_tuna','fish.deep_octopus',
   'fish.blobfish','fish.anglerfish','fish.deep_eel','fish.vampire_squid','fish.deep_shark','fish.ghost_shark','fish.giant_squid',
+  'fish.toothfish','fish.snow_smelt','fish.glacier_trout','fish.polar_cod','fish.greenland_shark','fish.arctic_char','fish.aurora_smelt',
   'fish.rockfish','fish.korean_rockfish'];
-assert.equal(runtime.length,67,'Step 13 must expose the original 20 fish and forty-seven expansion additions');
+assert.equal(runtime.length,74,'Step 14 must expose all 74 planned fish');
 assert.deepEqual(runtime.filter(fish=>fish.introducedVersion==='expansion').map(fish=>fish.id),promotedExpansionIds,
-  'Only the forty-seven approved fish may be promoted through step 13');
+  'Only the fifty-four approved fish must be promoted through step 14');
 const targetById=new Map(target.map(fish=>[fish.id,fish]));
 for(const fish of runtime){
   const planned=targetById.get(fish.id);
@@ -149,4 +150,4 @@ assert.ok(!dexSource.includes('FISH_DESCRIPTIONS'),'Fish descriptions must not r
 assert.ok(dexSource.includes("fish.description||'도감에 기록된 물고기입니다.'"),
   'Fish dex details must read descriptions from fish data');
 
-console.log('Fishing expansion data passed: 3 groups, 10 habitats, 74 target species, 67 live species');
+console.log('Fishing expansion data passed: 3 groups, 10 habitats, 74 target species, 74 live species');

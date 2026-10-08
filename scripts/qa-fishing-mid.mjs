@@ -33,7 +33,7 @@ for(const row of pool.rows){
   for(const id of ['fish.sevenband_grouper','fish.deep_octopus'])assert.equal(row.ids.includes(id),row.period==='NIGHT');
   assert.ok(row.coast.every(id=>!row.ids.includes(id)));
 }
-assert.equal(pool.access.length,67);assert.ok(pool.access.every(f=>f.rod==='rod.basic'&&f.weight>0&&f.selected===f.id));
+assert.equal(pool.access.length,74);assert.ok(pool.access.every(f=>f.rod==='rod.basic'&&f.weight>0&&f.selected===f.id));
 const caught=[];
 for(const f of fish){
   let saves=0;
@@ -51,4 +51,4 @@ assert.deepEqual(clone(save.inventory).map(f=>f.id),fish.map(f=>f.id));assert.de
 const commerce={};vm.createContext(commerce);
 run(commerce,['src/data/fishing-habitat-data.js','src/data/fish-data.js','src/market.js','src/inventory.js'],`globalThis.sale=planFishSale(new Map(${JSON.stringify(caught.map(f=>[f.id,1]))}),${JSON.stringify(caught)});`);
 assert.deepEqual(clone(commerce.sale),{inventory:[],count:7,total:caught.reduce((sum,f)=>sum+f.price,0)});
-console.log('Mid fishing passed: seven images, 12 condition pools, real weighted catches, inventory/collection/save/sale, basic rod access to all 67 fish');
+console.log('Mid fishing passed: seven images, 12 condition pools, real weighted catches, inventory/collection/save/sale, basic rod access to all 74 fish');

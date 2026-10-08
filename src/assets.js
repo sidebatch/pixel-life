@@ -370,5 +370,12 @@ const FISH_URLS = Object.freeze({
   deep_shark: 'assets/fishing/deep_shark.png',
   ghost_shark: 'assets/fishing/ghost_shark.png',
   giant_squid: 'assets/fishing/giant_squid.png',
+  toothfish: 'assets/fishing/toothfish.png',
+  snow_smelt: 'assets/fishing/snow_smelt.png',
+  glacier_trout: 'assets/fishing/glacier_trout.png',
+  polar_cod: 'assets/fishing/polar_cod.png',
+  greenland_shark: 'assets/fishing/greenland_shark.png',
+  arctic_char: 'assets/fishing/arctic_char.png',
+  aurora_smelt: 'assets/fishing/aurora_smelt.png',
   coelacanth: 'assets/fishing/coelacanth.png'
 });

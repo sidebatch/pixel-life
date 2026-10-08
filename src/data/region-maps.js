@@ -546,6 +546,7 @@ const REGION_WORLDS=Object.freeze({
   boatShallow:defineVoyageRegion('boatShallow','얕은 바다 · 어선','boat_shallow','shallow_open_sea','#278fa8'),
   boatMid:defineVoyageRegion('boatMid','중간 바다 · 어선','boat_mid','mid_open_sea','#246a96'),
   boatDeep:defineVoyageRegion('boatDeep','심해 · 어선','boat_deep','deep_open_sea','#142b43'),
+  boatGlacier:defineVoyageRegion('boatGlacier','빙하 해역 · 어선','glacier','glacier_open_sea','#477b92'),
   coast:Object.freeze({
     id:'coast',name:'바람결 해안 항구',tileSize:48,width:64,height:48,
     terrain:{ground:'#d6bb79',patchA:'#8daa70',patchB:'#efd99a',pathRim:'#9f855b',pathCore:'#ccb587',coast:true},
@@ -614,5 +615,6 @@ const REGION_EXITS=Object.freeze({
   reedSwamp:REGION_WORLDS.reedSwamp.exits,
   boatShallow:REGION_WORLDS.boatShallow.exits,
   boatMid:REGION_WORLDS.boatMid.exits,
-  boatDeep:REGION_WORLDS.boatDeep.exits
+  boatDeep:REGION_WORLDS.boatDeep.exits,
+  boatGlacier:REGION_WORLDS.boatGlacier.exits
 });

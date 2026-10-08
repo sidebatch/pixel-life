@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-const source=fs.readFileSync('src/voyage-scenes.js','utf8')+'\n'+fs.readFileSync('src/voyage-mid-rendering.js','utf8')+'\n'+fs.readFileSync('src/voyage-deep-rendering.js','utf8');
+const source=fs.readFileSync('src/voyage-scenes.js','utf8')+'\n'+fs.readFileSync('src/voyage-mid-rendering.js','utf8')+'\n'+fs.readFileSync('src/voyage-deep-rendering.js','utf8')+'\n'+fs.readFileSync('src/voyage-glacier-rendering.js','utf8');
 const model={};vm.createContext(model);vm.runInContext(source,model);
 const run=code=>vm.runInContext(code,model),clone=value=>JSON.parse(JSON.stringify(value));
 const stats=clone(run(`(()=>{
@@ -93,3 +93,29 @@ const beforeDeepFrames=created;
 for(let frame=0;frame<120;frame++){trip.remainingMs-=16;draw();}
 assert.equal(created,beforeDeepFrames);
 console.log('Deep scenes passed: '+JSON.stringify({...deepStats,routeCacheIsolation:true,noFrameAllocation:true}));
+
+render.VOYAGE_ROUTE_BY_ID.set('glacier',{durationMs:600000});trip.destination='glacier';trip.remainingMs=550000;draw();
+assert.equal(vm.runInContext('voyageSceneCache.current.destination',render),'glacier');
+const glacierStats=clone(run(`(()=>{
+  const landmarks=new Set(),midObjects=new Set();let total=0;
+  for(let seed=0;seed<128;seed++){
+    const first=createVoyageSceneGenerator(seed,'glacier'),again=createVoyageSceneGenerator(seed,'glacier'),recent=[];let previous=null;
+    for(let i=0;i<64;i++){
+      const scene=nextVoyageScene(first),pool=voyageScenePool('glacier');
+      if(JSON.stringify(scene)!==JSON.stringify(nextVoyageScene(again)))throw Error('Glacier determinism failed');
+      if(recent.includes(scene.sceneSignature)||scene.majorSignature===previous)throw Error('Glacier scene repeats');
+      if(voyageSceneAt(seed,scene.startMs+1,'glacier').sceneSignature!==scene.sceneSignature)throw Error('Glacier reconstruction differs');
+      landmarks.add(pool.landmarks[scene.landmark]);midObjects.add(pool.midObjects[scene.mid]);total++;
+      recent.push(scene.sceneSignature);if(recent.length>6)recent.shift();previous=scene.majorSignature;
+    }
+  }
+  return {total,landmarks:[...landmarks],midObjects:[...midObjects]};
+})()`));
+assert.equal(glacierStats.total,8192);
+assert.ok(['iceberg','auroraVeil','snowBank'].every(kind=>glacierStats.landmarks.includes(kind)));
+assert.ok(glacierStats.midObjects.includes('iceFloes')&&!glacierStats.midObjects.includes('jellyGlow'));
+assert.ok(!glacierStats.landmarks.includes('freighter')&&!glacierStats.landmarks.includes('giantShadow'));
+const beforeGlacierFrames=created;
+for(let frame=0;frame<120;frame++){trip.remainingMs-=16;draw();}
+assert.equal(created,beforeGlacierFrames);assert.equal(vm.runInContext('voyageSceneCache.composites.size',render),2);
+console.log('Glacier scenes passed: '+JSON.stringify({...glacierStats,routeCacheIsolation:true,noFrameAllocation:true}));

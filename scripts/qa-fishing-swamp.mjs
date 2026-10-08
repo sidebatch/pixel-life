@@ -71,7 +71,7 @@ for(const row of pool.contexts){
   assert.equal(row.ids.includes('fish.swamp_king_eel'),row.period==='NIGHT'&&row.weather==='storm');
   assert.ok(row.river.includes('fish.minnow')&&row.river.every(id=>!row.ids.includes(id)));
 }
-assert.equal(pool.basicAccess.length,46);
+assert.equal(pool.basicAccess.length,53);
 assert.ok(pool.basicAccess.every(row=>row.rod==='rod.basic'&&row.weight>0&&row.selected===row.id),
   'Basic rod at Lv.1 must retain a positive real selection interval for every live species');
 
@@ -103,4 +103,4 @@ const commerce={};vm.createContext(commerce);
 run(commerce,['src/data/fishing-habitat-data.js','src/data/fish-data.js','src/market.js','src/inventory.js'],
   `globalThis.sale=planFishSale(new Map(${JSON.stringify(caught.map(f=>[f.id,1]))}),${JSON.stringify(caught)});`);
 assert.deepEqual(clone(commerce.sale),{inventory:[],count:7,total:caught.reduce((sum,f)=>sum+f.price,0)});
-console.log('Swamp passed: reciprocal route, four spots, narrow banks/boardwalk, 12 conditions, seven catches/assets/save/sale; basic rod can select all 46 fish');
+console.log('Swamp passed: reciprocal route, four spots, narrow banks/boardwalk, 12 conditions, seven catches/assets/save/sale; basic rod can select all 53 fish');

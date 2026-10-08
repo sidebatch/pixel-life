@@ -79,12 +79,12 @@ for(const pending of [false,true]){
 }
 run("GAME_STATE.regionId='boatShallow';GAME_STATE.progression.voyage=normalizeSavedVoyageProgress({activeTrip:{destination:'shallow',remainingMs:123456,tripSeed:42}});restoreSavedVoyageLocation()");
 assert.equal(runtime.GAME_STATE.regionId,'boatShallow');assert.equal(trip().remainingMs,123456);assert.equal(trip().tripSeed,42);
-// Native pool is intentionally absent until Step 11; the trial cannot leak legendary coast fish.
+// The real shallow pool has replaced the Step 10 trial; coast fish cannot leak in.
 const fishContext={GAME_STATE:{regionId:'boatShallow',progression:{fishing:{equippedRodId:'rod.basic'}}}};
 vm.createContext(fishContext);
 vm.runInContext(['src/data/fishing-habitat-data.js','src/data/fish-data.js','src/data/fishing-gear-data.js','src/data/voyage-data.js','src/fishing.js'].map(read).join('\n'),fishContext);
 for(const period of ['DAWN','DAY','DUSK','NIGHT'])for(const weather of ['clear','rain','storm']){
   const pool=clone(vm.runInContext(`getEligibleFishPool({regionId:'boatShallow',spotId:'shallow_open_sea',habitat:'boat_shallow',period:'${period}',weather:'${weather}'}).map(fish=>fish.id)`,fishContext));
-  assert.ok(pool.includes('fish.sardine'));assert.ok(pool.every(id=>['fish.sardine','fish.mackerel','fish.horse_mackerel'].includes(id)));
+  assert.ok(pool.includes('fish.damselfish'));assert.ok(pool.every(id=>['fish.damselfish','fish.wrasse','fish.filefish','fish.striped_damsel','fish.barred_knifejaw','fish.black_seabream','fish.cuttlefish'].includes(id)));
 }
-console.log('Voyage passed: tickets, purchase/departure/return rollback, visible clock, hidden resume, menu time, all four fishing phases, retry, legacy/invalid/expired restore, 12 trial pools');
+console.log('Voyage passed: tickets, purchase/departure/return rollback, visible clock, hidden resume, menu time, all four fishing phases, retry, legacy/invalid/expired restore, 12 shallow pools');

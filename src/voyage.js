@@ -59,6 +59,7 @@ function updateVoyage(now=performance.now()){
     }
   }
   updateVoyageHud();
+  if(!activeVoyage()&&typeof releaseVoyageScenes==='function'&&voyageSceneCache.key!==null)releaseVoyageScenes();
 }
 function refreshHarborCoins(){document.getElementById('coinCount').textContent=GAME_STATE.progression.coins.toLocaleString();}
 function buyVoyageTickets(routeId,quantity=1){

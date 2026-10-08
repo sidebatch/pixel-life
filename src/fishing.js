@@ -54,11 +54,6 @@ function fishMatchesContext(fish,context){
 }
 
 function getEligibleFishPool(context=getFishingContext()){
-  // Step 10 trial only. Native offshore fish replace this automatically in Step 11.
-  if(context.habitat==='boat_shallow'&&typeof VOYAGE_TRIAL_FISH_IDS!=='undefined'&&
-    !FISH_DATA.some(fish=>fish.habitat==='boat_shallow')){
-    return FISH_DATA.filter(fish=>VOYAGE_TRIAL_FISH_IDS.includes(fish.id)&&fishMatchesContext(fish,{...context,habitat:'coast'}));
-  }
   return FISH_DATA.filter(fish=>fishMatchesContext(fish,context));
 }
 

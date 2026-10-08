@@ -740,14 +740,15 @@ function drawWeatherEffects(){
 function drawWorld(){
   ctx.clearRect(0,0,VIEW_W,VIEW_H);
   // Visual terrain is blended independently from the reliable tile movement/collision logic.
-  drawTerrain();
+  const voyageSea=typeof drawVoyageSea==='function'&&WORLD_DEFINITION.voyageDeck&&drawVoyageSea();
+  if(!voyageSea)drawTerrain();
   drawFarmGround();
   drawRegionExits();
 
   // Water shimmer travels across the whole pond instead of restarting in every cell.
   ctx.globalAlpha=.18+.06*Math.sin(tNow/430);
   ctx.fillStyle='#c8f6ff';
-  for(let wy=Math.floor(camY/30)*30;wy<camY+VIEW_H+30;wy+=30){
+  for(let wy=Math.floor(camY/30)*30;!voyageSea&&wy<camY+VIEW_H+30;wy+=30){
     for(let wx=Math.floor(camX/72)*72;wx<camX+VIEW_W+72;wx+=72){
       const tx=Math.floor(wx/TILE),ty=Math.floor(wy/TILE);
       if(waterSet.has(key(tx,ty))){

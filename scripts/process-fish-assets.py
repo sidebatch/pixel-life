@@ -1,5 +1,6 @@
 from pathlib import Path
 from math import ceil
+import argparse
 
 from PIL import Image, ImageDraw
 
@@ -45,6 +46,13 @@ FISH_NAMES = [
     "electric_eel",
     "arowana",
     "swamp_king_eel",
+    "damselfish",
+    "wrasse",
+    "filefish",
+    "striped_damsel",
+    "barred_knifejaw",
+    "black_seabream",
+    "cuttlefish",
     "sardine",
     "mackerel",
     "horse_mackerel",
@@ -95,9 +103,15 @@ def build_contact_sheet(sprites: dict[str, Image.Image]) -> None:
 
 
 def main() -> None:
+    parser = argparse.ArgumentParser(description="Normalize fish assets without rewriting unrelated sprites")
+    parser.add_argument("--only", nargs="+", choices=FISH_NAMES)
+    selected = set(parser.parse_args().only or FISH_NAMES)
     OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
     sprites = {}
     for name in FISH_NAMES:
+        if name not in selected:
+            sprites[name] = Image.open(OUTPUT_DIR / f"{name}.png").convert("RGBA")
+            continue
         source_path = SOURCE_DIR / f"{name}.png"
         if not source_path.exists():
             raise FileNotFoundError(source_path)
@@ -105,7 +119,7 @@ def main() -> None:
         sprite.save(OUTPUT_DIR / f"{name}.png", optimize=True)
         sprites[name] = sprite
     build_contact_sheet(sprites)
-    print(f"Processed {len(sprites)} fish sprites at 96x96")
+    print(f"Processed {len(selected)} fish sprites at 96x96; contact sheet contains {len(sprites)}")
 
 
 if __name__ == "__main__":

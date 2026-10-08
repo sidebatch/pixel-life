@@ -105,7 +105,7 @@ try{
       fishingState.phase='waiting';activeVoyage().remainingMs=0;updateVoyage();
       updateFishing(7000);handleFishingAction();
       return {phase:fishingState.phase,id:fishingState.result.fishId,region:GAME_STATE.regionId};
-    });assert.equal(catchState.phase,'result');assert.equal(catchState.region,'boatShallow');assert.ok(['fish.sardine','fish.mackerel','fish.horse_mackerel'].includes(catchState.id));
+    });assert.equal(catchState.phase,'result');assert.equal(catchState.region,'boatShallow');assert.ok(['fish.damselfish','fish.wrasse','fish.filefish','fish.striped_damsel','fish.barred_knifejaw','fish.black_seabream','fish.cuttlefish'].includes(catchState.id));
     await page.locator('#dialogNext').tap();assert.equal(await page.evaluate(()=>GAME_STATE.regionId),'coast');
     await page.evaluate(()=>departVoyage('shallow'));await page.waitForFunction(()=>document.getElementById('voyageBoarding').hidden);
     const failedReturn=await page.evaluate(()=>{

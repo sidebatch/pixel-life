@@ -7,7 +7,6 @@ const VOYAGE_ROUTES=Object.freeze([
 ]);
 const VOYAGE_ROUTE_BY_ID=new Map(VOYAGE_ROUTES.map(route=>[route.id,route]));
 const VOYAGE_HARBOR_ENTRY=Object.freeze({x:38,y:33,face:'down'});
-const VOYAGE_TRIAL_FISH_IDS=Object.freeze(['fish.sardine','fish.mackerel','fish.horse_mackerel']);
 
 function normalizeSavedVoyageProgress(raw){
   const source=raw&&typeof raw==='object'?raw:{};

@@ -39,17 +39,17 @@ try{
       boxes.some(box=>box.left<panel.left||box.right>panel.right))throw new Error('Top category tabs are not a stable four-column row');
     if(!document.getElementById('fishDexHabitatTabs').hidden)throw new Error('All view should not show habitat tabs');
     const sections=[...document.querySelectorAll('[data-fish-section]')];
-    if(sections.map(section=>section.dataset.fishSection).join(',')!=='pond,river,mountain_lake,coast,waterfall,swamp')
-      throw new Error('All view is not grouped into the six live habitats');
+    if(sections.map(section=>section.dataset.fishSection).join(',')!=='pond,river,mountain_lake,coast,waterfall,swamp,boat_shallow')
+      throw new Error('All view is not grouped into the seven live habitats');
     if(document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==8||
       !document.querySelector('[data-fish-section="pond"]')?.classList.contains('open')||
-      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 46')
+      document.getElementById('fishDexProgress').textContent.trim()!=='0 / 53')
       throw new Error('All view must lazily render only the open pond section');
     renderFishDexReward(20);
     const legacyReward=document.getElementById('fishDexReward');
     if(!legacyReward.textContent.includes('기존 20종 도감 보상 완료')||
-      !legacyReward.textContent.includes('20 / 46'))
-      throw new Error('Legacy 20-fish rewards must not claim the current 46-fish collection is complete');
+      !legacyReward.textContent.includes('20 / 53'))
+      throw new Error('Legacy 20-fish rewards must not claim the current 53-fish collection is complete');
     renderFishDexReward(0);
   });
   await page.screenshot({path:path.join(output,'393-all-habitats.png')});
@@ -135,9 +135,9 @@ try{
     const rows=new Set(tabs.map(button=>Math.round(button.getBoundingClientRect().top)));
     if(tabs.map(button=>button.textContent.trim()).join('|')!=='원양 전체|얕은수심|중간수심|심해지역|빙하'||
       rows.size!==2||document.querySelectorAll('[data-fish-section]').length!==4||
-      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==0||
-      !document.querySelector('.fishDexSectionEmpty'))
-      throw new Error('Offshore skeleton should show four empty habitats without fish cards');
+      document.querySelectorAll('#fishDexGrid [data-fish-id]').length!==7||
+      !['boat_mid','boat_deep','glacier'].every(id=>document.querySelector(`[data-fish-section="${id}"]`)?.textContent.includes('준비 중')))
+      throw new Error('Offshore should show the seven shallow fish and three future habitats');
   });
   await page.locator('[data-fish-habitat="boat_deep"]').tap();
   await page.evaluate(()=>{
@@ -174,8 +174,8 @@ try{
   if(errors.length)throw new Error(errors.join('\n'));
 
   const report={categories:['전체','내륙','해안','원양'],habitatGridMaxColumns:3,
-    allSections:['pond','river','mountain_lake','coast','waterfall','swamp'],lazyCards:true,liveFish:46,futureHabitats:true,
-    detailHistory:true,legacyRewardProgress:'20 / 46',viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
+    allSections:['pond','river','mountain_lake','coast','waterfall','swamp','boat_shallow'],lazyCards:true,liveFish:53,futureHabitats:true,
+    detailHistory:true,legacyRewardProgress:'20 / 53',viewports:['393x780','320x568'],stateUnchanged:true,browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
   console.log('Fish dex browser QA passed: '+JSON.stringify(report));
 }finally{

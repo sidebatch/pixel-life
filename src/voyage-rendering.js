@@ -1,4 +1,4 @@
-// Shared code-native deck geometry. Route scenery is expanded independently in Step 11.
+// Shared code-native deck geometry; sailing scenery lives in voyage-scenes.js.
 function drawVoyageDeck(){
   const deck=WORLD_DEFINITION.voyageDeck;if(!deck)return;
   const x=deck.x*TILE-camX,y=deck.y*TILE-camY,w=deck.w*TILE,h=deck.h*TILE;

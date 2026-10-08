@@ -125,10 +125,11 @@ const promotedExpansionIds=['fish.bluegill','fish.killifish','fish.mandarin_fish
   'fish.swamp_eel','fish.swamp_catfish','fish.piranha','fish.black_ghost','fish.electric_eel','fish.arowana','fish.swamp_king_eel',
   'fish.damselfish','fish.wrasse','fish.filefish','fish.striped_damsel','fish.barred_knifejaw','fish.black_seabream','fish.cuttlefish',
   'fish.spanish_mackerel','fish.yellowtail','fish.amberjack','fish.marlin','fish.sevenband_grouper','fish.bluefin_tuna','fish.deep_octopus',
+  'fish.blobfish','fish.anglerfish','fish.deep_eel','fish.vampire_squid','fish.deep_shark','fish.ghost_shark','fish.giant_squid',
   'fish.rockfish','fish.korean_rockfish'];
-assert.equal(runtime.length,60,'Step 12 must expose the original 20 fish and forty expansion additions');
+assert.equal(runtime.length,67,'Step 13 must expose the original 20 fish and forty-seven expansion additions');
 assert.deepEqual(runtime.filter(fish=>fish.introducedVersion==='expansion').map(fish=>fish.id),promotedExpansionIds,
-  'Only the forty approved fish may be promoted through step 12');
+  'Only the forty-seven approved fish may be promoted through step 13');
 const targetById=new Map(target.map(fish=>[fish.id,fish]));
 for(const fish of runtime){
   const planned=targetById.get(fish.id);
@@ -140,10 +141,7 @@ for(const fish of runtime){
   assert.deepEqual(fish.weather,planned.weather,`Live fish weather differs from target: ${fish.id}`);
   assert.equal(fish.description,planned.description,`Live fish description differs from target: ${fish.id}`);
   assert.equal(fish.introducedVersion,planned.introducedVersion,`Live fish version marker differs from target: ${fish.id}`);
-  if(fish.id==='fish.coelacanth'){
-    assert.equal(fish.habitat,'coast','Coelacanth must stay live at the coast until the deep-sea migration step');
-    assert.equal(planned.habitat,'boat_deep','Coelacanth target habitat must be the deep-sea route');
-  }else assert.equal(fish.habitat,planned.habitat,`Live fish habitat differs from target: ${fish.id}`);
+  assert.equal(fish.habitat,planned.habitat,`Live fish habitat differs from target: ${fish.id}`);
 }
 
 const dexSource=read('src/fish-dex.js');
@@ -151,4 +149,4 @@ assert.ok(!dexSource.includes('FISH_DESCRIPTIONS'),'Fish descriptions must not r
 assert.ok(dexSource.includes("fish.description||'도감에 기록된 물고기입니다.'"),
   'Fish dex details must read descriptions from fish data');
 
-console.log('Fishing expansion data passed: 3 groups, 10 habitats, 74 target species, 60 live species');
+console.log('Fishing expansion data passed: 3 groups, 10 habitats, 74 target species, 67 live species');

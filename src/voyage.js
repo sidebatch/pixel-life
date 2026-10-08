@@ -144,7 +144,7 @@ function renderHarbor(){
     VOYAGE_ROUTES.map(route=>{
       const unlocked=route.available&&progress.unlockedRouteIds.includes(route.id),count=progress.ticketCounts[route.id];
       const evidence=voyageUnlockEvidence();
-      const lockedHint=route.id==='mid'?`낚시 Lv.${route.unlockLevel} 또는 얕은 바다 ${route.unlockShallowSpecies}종 발견으로 해금 · 현재 Lv.${evidence.fishingLevel} / ${Math.min(route.unlockShallowSpecies,evidence.shallowSpecies)}종`:'항로를 준비하고 있어요.';
+      const lockedHint=route.id==='mid'?`낚시 Lv.${route.unlockLevel} 또는 얕은 바다 ${route.unlockShallowSpecies}종 발견으로 해금 · 현재 Lv.${evidence.fishingLevel} / ${Math.min(route.unlockShallowSpecies,evidence.shallowSpecies)}종`:route.id==='deep'?`낚시 Lv.${route.unlockLevel} 또는 중간 바다 ${route.unlockMidSpecies}종 발견으로 해금 · 현재 Lv.${evidence.fishingLevel} / ${Math.min(route.unlockMidSpecies,evidence.midSpecies)}종`:'항로를 준비하고 있어요.';
       return `<section class="harborRoute" data-voyage-route="${route.id}"><h3>${route.name}<span>${unlocked?`${route.durationMs/60000}분 · ${count}장 보유`:route.available?'잠김':'준비 중'}</span></h3>${unlocked?
         `<p>승선권 1장 · ${route.price.toLocaleString()}코인</p><div class="harborActions"><button type="button" data-ticket-buy="${route.id}" data-quantity="1" ${GAME_STATE.progression.coins<route.price?'disabled':''}>1장 구매</button><button type="button" data-ticket-buy="${route.id}" data-quantity="5" ${GAME_STATE.progression.coins<route.price*5?'disabled':''}>5장 구매</button><button type="button" data-voyage-depart="${route.id}" ${count<1?'disabled':''}>출항</button></div>`:
         `<p>${lockedHint}</p>`}</section>`;

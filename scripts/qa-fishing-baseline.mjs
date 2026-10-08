@@ -25,7 +25,12 @@ const actualLegacyFish=baseline.legacyFish.map(expected=>{
   assert.ok(fish,`Legacy fish id disappeared: ${expected[0]}`);
   return baseline.fishFields.map(field=>fish[field]??null);
 });
-assert.deepEqual(actualLegacyFish,baseline.legacyFish,'Legacy fish data changed without a baseline migration');
+// Step 13 explicitly authorizes only the coelacanth habitat migration.
+// Keep the historical baseline immutable and compare every other field exactly.
+const migratedLegacyFish=baseline.legacyFish.map(record=>record.map((value,index)=>
+  record[0]==='fish.coelacanth'&&baseline.fishFields[index]==='habitat'?'boat_deep':value));
+assert.deepEqual(actualLegacyFish,migratedLegacyFish,'Legacy fish data changed outside the approved habitat migration');
+assert.equal(baseline.legacyFish.find(record=>record[0]==='fish.coelacanth')[baseline.fishFields.indexOf('habitat')],'coast');
 
 const rodsById=new Map(clone(dataContext.__rods).map(rod=>[rod.id,rod]));
 const actualLegacyRods=baseline.legacyRods.map(expected=>{

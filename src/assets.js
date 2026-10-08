@@ -363,5 +363,12 @@ const FISH_URLS = Object.freeze({
   seabass: 'assets/fishing/seabass.png',
   flounder: 'assets/fishing/flounder.png',
   korean_rockfish: 'assets/fishing/korean_rockfish.png',
+  blobfish: 'assets/fishing/blobfish.png',
+  anglerfish: 'assets/fishing/anglerfish.png',
+  deep_eel: 'assets/fishing/deep_eel.png',
+  vampire_squid: 'assets/fishing/vampire_squid.png',
+  deep_shark: 'assets/fishing/deep_shark.png',
+  ghost_shark: 'assets/fishing/ghost_shark.png',
+  giant_squid: 'assets/fishing/giant_squid.png',
   coelacanth: 'assets/fishing/coelacanth.png'
 });

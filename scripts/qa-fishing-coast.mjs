@@ -53,8 +53,8 @@ const expected=[
 ];
 assert.deepEqual(fish.filter(item=>expected.some(candidate=>candidate.id===item.id)).map(({emoji,...item})=>item),expected);
 assert.ok(fish.length>=25,'The step-6 coast additions must remain live as later habitats are added');
-assert.equal(fish.filter(item=>item.habitat==='coast').length,9,
-  'The live coast temporarily has nine fish until coelacanth migrates to deep sea');
+assert.equal(fish.filter(item=>item.habitat==='coast').length,8,
+  'The coast must have eight fish after the approved coelacanth migration');
 for(const item of expected){
   const file=`assets/fishing/${item.asset}.png`,bytes=fs.readFileSync(path.join(root,file));
   assert.equal(urls[item.asset],file);assert.equal(bytes.readUInt32BE(16),96);assert.equal(bytes.readUInt32BE(20),96);assert.equal(bytes[25],6);

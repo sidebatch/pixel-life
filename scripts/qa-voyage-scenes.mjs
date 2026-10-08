@@ -1,7 +1,7 @@
 import fs from 'node:fs';
 import vm from 'node:vm';
 import assert from 'node:assert/strict';
-const source=fs.readFileSync('src/voyage-scenes.js','utf8')+'\n'+fs.readFileSync('src/voyage-mid-rendering.js','utf8');
+const source=fs.readFileSync('src/voyage-scenes.js','utf8')+'\n'+fs.readFileSync('src/voyage-mid-rendering.js','utf8')+'\n'+fs.readFileSync('src/voyage-deep-rendering.js','utf8');
 const model={};vm.createContext(model);vm.runInContext(source,model);
 const run=code=>vm.runInContext(code,model),clone=value=>JSON.parse(JSON.stringify(value));
 const stats=clone(run(`(()=>{
@@ -66,3 +66,30 @@ assert.equal(midStats.total,8192);assert.ok(midStats.landmarks.includes('freight
 assert.ok(midStats.midObjects.includes('dolphins'));assert.ok(!midStats.landmarks.includes('reef')&&!midStats.midObjects.includes('coral'));
 console.log('Voyage scenes passed: '+JSON.stringify({...stats,deterministicRestore:true,boundedCanvasCache:true,noFrameAllocation:true,reducedMotion:true}));
 console.log('Mid scenes passed: '+JSON.stringify({...midStats,routeCacheIsolation:true}));
+
+render.VOYAGE_ROUTE_BY_ID.set('deep',{durationMs:600000});trip.destination='deep';trip.remainingMs=550000;draw();
+assert.equal(vm.runInContext('voyageSceneCache.current.destination',render),'deep');
+assert.equal(vm.runInContext('voyageSceneCache.composites.size',render),2);
+const deepStats=clone(run(`(()=>{
+  const landmarks=new Set(),midObjects=new Set();let total=0;
+  for(let seed=0;seed<128;seed++){
+    const first=createVoyageSceneGenerator(seed,'deep'),again=createVoyageSceneGenerator(seed,'deep'),recent=[];let previous=null;
+    for(let i=0;i<64;i++){
+      const scene=nextVoyageScene(first),pool=voyageScenePool('deep');
+      if(JSON.stringify(scene)!==JSON.stringify(nextVoyageScene(again)))throw Error('Deep determinism failed');
+      if(recent.includes(scene.sceneSignature)||scene.majorSignature===previous)throw Error('Deep scene repeats');
+      if(voyageSceneAt(seed,scene.startMs+1,'deep').sceneSignature!==scene.sceneSignature)throw Error('Deep reconnect differs');
+      landmarks.add(pool.landmarks[scene.landmark]);midObjects.add(pool.midObjects[scene.mid]);total++;
+      recent.push(scene.sceneSignature);if(recent.length>6)recent.shift();previous=scene.majorSignature;
+    }
+  }
+  return {total,landmarks:[...landmarks],midObjects:[...midObjects]};
+})()`));
+assert.equal(deepStats.total,8192);
+assert.ok(['cloudBank','giantShadow','glowBloom'].every(kind=>deepStats.landmarks.includes(kind)));
+assert.ok(deepStats.midObjects.includes('jellyGlow')&&!deepStats.midObjects.includes('dolphins'));
+assert.ok(!deepStats.landmarks.includes('reef')&&!deepStats.landmarks.includes('freighter'));
+const beforeDeepFrames=created;
+for(let frame=0;frame<120;frame++){trip.remainingMs-=16;draw();}
+assert.equal(created,beforeDeepFrames);
+console.log('Deep scenes passed: '+JSON.stringify({...deepStats,routeCacheIsolation:true,noFrameAllocation:true}));

@@ -15,7 +15,13 @@ const VOYAGE_SCENE_POOLS=Object.freeze({
     {water:'#286f9e',deep:'#195780',light:'#8dbccc'},
     {water:'#316a99',deep:'#224976',light:'#97b8d1'},
     {water:'#237791',deep:'#185669',light:'#94c9d1'}
-  ],landmarks:['open','freighter','trawler','sailboat','swellBank','distantShip'],midObjects:['none','dolphins','swell','fishSchool','foam']}
+  ],landmarks:['open','freighter','trawler','sailboat','swellBank','distantShip'],midObjects:['none','dolphins','swell','fishSchool','foam']},
+  deep:{palettes:[
+    {water:'#142b43',deep:'#081b30',light:'#6990a7'},
+    {water:'#192c46',deep:'#0e1b31',light:'#7a90bb'},
+    {water:'#152f3b',deep:'#0a202c',light:'#78adae'},
+    {water:'#222c48',deep:'#111b31',light:'#9295bb'}
+  ],landmarks:['open','cloudBank','giantShadow','glowBloom','darkCurrent','abyssalRidge'],midObjects:['none','jellyGlow','lanternSchool','shadowTrail','coldFoam']}
 });
 function voyageScenePool(destination='shallow'){return VOYAGE_SCENE_POOLS[destination]||VOYAGE_SCENE_POOLS.shallow;}
 function voyageRandom(seed){
@@ -77,6 +83,8 @@ function composeVoyageScene(scene){
     const x=scene.side<0?65+random()*15:width-65-random()*15,y=75+random()*Math.min(height-250,VIEW_H*.25),kind=pool.landmarks[scene.landmark];
     if(scene.destination==='mid'){
       drawMidVoyageLandmark(f,kind,x,y,random,palette);
+    }else if(scene.destination==='deep'){
+      drawDeepVoyageLandmark(f,kind,x,y,random,palette);
     }else if(kind==='reef'){
       for(let i=0;i<9;i++)ellipse(f,x+random()*90-45,y+random()*65-32,8+random()*17,4+random()*7,'rgba(94,178,148,.55)');
     }else if(kind==='rockArch'){
@@ -104,8 +112,10 @@ function composeVoyageScene(scene){
   for(let i=0;i<scene.atmosphere;i++)ellipse(f,random()*width,random()*height,40+random()*40,7+random()*9,'rgba(203,233,225,.09)');
   const type=pool.midObjects[scene.mid];
   for(let i=0;i<(type==='none'?0:3+Math.floor(random()*4));i++){
-    const x=random()<.5?15+random()*53:width-15-random()*53,y=50+random()*(scene.destination==='mid'?Math.min(height-100,VIEW_H*.4):height-100);
-    if(type==='dolphins'){
+    const x=random()<.5?15+random()*53:width-15-random()*53,y=50+random()*(scene.destination!=='shallow'?Math.min(height-100,VIEW_H*.4):height-100);
+    if(scene.destination==='deep'){
+      drawDeepVoyageMidObject(m,type,x,y,random,palette);
+    }else if(type==='dolphins'){
       for(let dolphin=0;dolphin<3;dolphin++){
         const dx=x+dolphin*10,dy=y+dolphin*13;
         ellipse(m,dx,dy+4,13,5,'rgba(174,219,224,.18)');ellipse(m,dx,dy,10,4,'#476d82');
@@ -131,7 +141,7 @@ function composeVoyageScene(scene){
     }
   }
   const waves=Array.from({length:Math.round(140*scene.density)},()=>({x:random(),y:random()*3,length:8+random()*27,phase:random()*6.28}));
-  const gulls=scene.landmark===0?[]:Array.from({length:2+Math.floor(random()*3)},()=>({x:random(),y:random(),phase:random()*6.28}));
+  const gulls=scene.landmark===0||scene.destination==='deep'?[]:Array.from({length:2+Math.floor(random()*3)},()=>({x:random(),y:random(),phase:random()*6.28}));
   return {far,mid,waves,gulls};
 }
 function drawVoyageSceneLayers(scene,elapsedMs,opacity,reduced){

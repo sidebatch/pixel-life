@@ -280,7 +280,7 @@ function createSaveData(){
       inventory:GAME_STATE.inventory,
       appearance:GAME_STATE.appearance,
       world:GAME_STATE.world,
-      collections:{fish:GAME_STATE.collections.fish,trees:GAME_STATE.collections.trees,
+      collections:{fish:GAME_STATE.collections.fish,fishRewards:GAME_STATE.collections.fishRewards,trees:GAME_STATE.collections.trees,
         treeMilestones:GAME_STATE.collections.treeMilestones},
       progression:{
         coins:GAME_STATE.progression.coins,
@@ -307,6 +307,7 @@ function applySaveData(saveData){
   GAME_STATE.appearance=normalizeSavedAppearance(savedState.appearance);
   GAME_STATE.world=normalizeSavedLifeWorld(savedState.world);
   GAME_STATE.collections.fish=normalizeSavedFishCollections(savedState.collections?.fish);
+  if(typeof normalizeSavedFishDexRewards==='function')GAME_STATE.collections.fishRewards=normalizeSavedFishDexRewards(savedState.collections?.fishRewards,GAME_STATE.collections.fish);
   GAME_STATE.collections.trees=normalizeSavedTreeCollections(savedState.collections?.trees,savedState.world,GAME_STATE.inventory);
   GAME_STATE.collections.treeMilestones=normalizeSavedTreeMilestones(savedState.collections?.treeMilestones,GAME_STATE.collections.trees);
   GAME_STATE.progression.coins=Math.max(0,Math.floor(saveFiniteNumber(savedState.progression?.coins,GAME_STATE.progression.coins)));
@@ -333,6 +334,7 @@ function saveGame(){
   try{
     if(typeof checkpointVoyageTime==='function')checkpointVoyageTime();
     if(typeof syncVoyageUnlocks==='function')syncVoyageUnlocks();
+    if(typeof syncFishDexRewards==='function')syncFishDexRewards();
     localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(createSaveData()));
     return true;
   }catch(error){

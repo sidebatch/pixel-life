@@ -20,7 +20,10 @@ scripts = scripts.replace(assetPattern, (_match, quote, relativePath) => {
 });
 
 let html = sourceHtml;
-const css = read('styles/game.css');
+const styleBlock=sourceHtml.match(/<!-- build:styles -->([\s\S]*?)<!-- \/build:styles -->/)?.[1]||'';
+const styleFiles=[...styleBlock.matchAll(/<link rel="stylesheet" href="([^"]+)"\s*\/>/g)].map(match=>match[1]);
+if(!styleFiles.length)throw new Error('No source styles found in the build block');
+const css = styleFiles.map(read).join('\n');
 html = html.replace(
   /<!-- build:styles -->[\s\S]*?<!-- \/build:styles -->/,
   `<!-- standalone styles -->\n<style>\n${css}</style>`

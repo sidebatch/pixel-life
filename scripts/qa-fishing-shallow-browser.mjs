@@ -1,3 +1,4 @@
+import {acknowledgeFishRewardCards} from './lib/fish-reward-browser.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -67,7 +68,7 @@ try{
       const result=await page.evaluate(()=>({id:fishingState.result?.fishId,rod:fishingState.result?.rodId,record:GAME_STATE.collections.fish[fishingState.result?.fishId]?.count}));
       assert.deepEqual(result,{id,rod:'rod.basic',record:1});caught.push(result);
       await page.waitForFunction(()=>document.querySelector('.fishingResultFish')?.complete&&document.querySelector('.fishingResultFish')?.naturalWidth>0);
-      await page.screenshot({path:path.join(output,`${width}-${id.slice(5)}-result.png`)});await page.locator('#dialogNext').tap();
+      await page.screenshot({path:path.join(output,`${width}-${id.slice(5)}-result.png`)});await page.locator('#dialogNext').tap();await acknowledgeFishRewardCards(page);
     }
     await page.evaluate(()=>saveGame());await page.reload();await page.waitForFunction(()=>typeof drawVoyageSea==='function'&&!document.getElementById('startupLoading'));
     const savedFish=await page.evaluate(()=>({inventory:GAME_STATE.inventory.filter(f=>SAVE_FISH_BY_ID.get(f.id)?.habitat==='boat_shallow').length,

@@ -1,3 +1,4 @@
+import {acknowledgeFishRewardCards} from './lib/fish-reward-browser.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -80,7 +81,7 @@ try{
     await page.waitForFunction(()=>document.querySelector('.fishingResultFish')?.complete&&document.querySelector('.fishingResultFish')?.naturalWidth>0);
     if(id==='fish.swamp_king_eel')await page.screenshot({path:path.join(output,'393-swamp-king-eel-storm-result.png')});
     caught.push(result.id);
-    await page.locator('#dialogNext').tap();
+    await page.locator('#dialogNext').tap();await acknowledgeFishRewardCards(page);
     await page.waitForFunction(()=>fishingState.phase==='idle'&&!dialogOpen);
   }
   assert.equal(await page.evaluate(()=>saveGame()),true);

@@ -1,3 +1,4 @@
+import {acknowledgeFishRewardCards} from './lib/fish-reward-browser.mjs';
 import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -55,7 +56,7 @@ try{
         const roll=(pool.slice(0,i).reduce((sum,f)=>sum+getEffectiveFishWeight(f),0)+getEffectiveFishWeight(pool[i])/2)/total,original=Math.random;
         try{Math.random=()=>roll;handleFishingAction();}finally{Math.random=original;}
         if(fishingState.result.fishId!==id)throw Error('Wrong unlock species');
-      },id);await page.locator('#dialogNext').tap();
+      },id);await page.locator('#dialogNext').tap();await acknowledgeFishRewardCards(page);
     }
     const unlocked=await page.evaluate(()=>({level:GAME_STATE.progression.fishing.level,deep:voyageProgress().unlockedRouteIds.includes('deep'),saved:JSON.parse(localStorage.getItem(SAVE_CONFIG.key)).state.progression.voyage.unlockedRouteIds.includes('deep')}));
     assert.deepEqual(unlocked,{level:1,deep:true,saved:true});
@@ -125,7 +126,7 @@ try{
       const result=await page.evaluate(()=>({id:fishingState.result?.fishId,rod:fishingState.result?.rodId,record:GAME_STATE.collections.fish[fishingState.result?.fishId]?.count}));
       assert.deepEqual(result,{id,rod:'rod.basic',record:1});caught.push(result);
       await page.waitForFunction(()=>document.querySelector('.fishingResultFish')?.complete&&document.querySelector('.fishingResultFish')?.naturalWidth>0);
-      await page.screenshot({path:path.join(output,`${width}-${id.slice(5)}-result.png`)});await page.locator('#dialogNext').tap();
+      await page.screenshot({path:path.join(output,`${width}-${id.slice(5)}-result.png`)});await page.locator('#dialogNext').tap();await acknowledgeFishRewardCards(page);
     }
     await page.evaluate(()=>saveGame());await page.reload();await page.waitForFunction(()=>typeof drawVoyageSea==='function'&&!document.getElementById('startupLoading'));
     const savedFish=await page.evaluate(()=>({inventory:GAME_STATE.inventory.filter(f=>SAVE_FISH_BY_ID.get(f.id)?.habitat==='boat_deep').length,
@@ -151,7 +152,7 @@ try{
       activeVoyage().remainingMs=0;updateVoyage();
     });
     assert.equal(await page.evaluate(()=>GAME_STATE.regionId),'boatDeep');assert.equal(await page.evaluate(()=>activeVoyage().returnPending),true);
-    await page.locator('#dialogNext').tap();assert.equal(await page.evaluate(()=>GAME_STATE.regionId),'coast');
+    await page.locator('#dialogNext').tap();await acknowledgeFishRewardCards(page);assert.equal(await page.evaluate(()=>GAME_STATE.regionId),'coast');
     await page.evaluate(()=>departVoyage('deep'));await page.waitForFunction(()=>!isVoyageBoarding());
     await page.evaluate(()=>{
       GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';startFishing();

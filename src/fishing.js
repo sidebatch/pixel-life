@@ -205,6 +205,7 @@ function applyFishCollectionRewards(){
     const coinCount=document.getElementById('coinCount');
     if(coinCount) coinCount.textContent=Number(GAME_STATE.progression.coins||0).toLocaleString();
   }
+  if(typeof syncFishDexRewards==='function')syncFishDexRewards();
   return {discovered,unlocked,messages,xpGained};
 }
 

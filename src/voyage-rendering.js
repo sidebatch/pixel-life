@@ -40,5 +40,12 @@ function drawVoyageCabin(){
   ctx.fillStyle='#a2c8c8';ctx.fillRect(x+w/2-17,y+h-62,34,26);
   ctx.fillStyle='#e4c074';ctx.fillRect(x+w/2+13,y+h-21,4,5);
   ctx.fillStyle='#b7beb0';ctx.fillRect(x+8,y+h-9,w-16,9);
+  if(typeof hasFishVoyageRewardFlag==='function'&&hasFishVoyageRewardFlag()){
+    // Keep the ornament below the fixed voyage HUD at the normal fishing view.
+    const fx=x+w-15,fy=y+h-20;
+    ctx.fillStyle='#d8bd80';ctx.fillRect(fx,fy-40,3,59);
+    ctx.fillStyle='#26788d';ctx.beginPath();ctx.moveTo(fx+3,fy-39);ctx.lineTo(fx+38,fy-34);ctx.lineTo(fx+29,fy-22);ctx.lineTo(fx+38,fy-10);ctx.lineTo(fx+3,fy-16);ctx.fill();
+    ctx.strokeStyle='#d4efde';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(fx+9,fy-27);ctx.lineTo(fx+17,fy-24);ctx.lineTo(fx+25,fy-27);ctx.stroke();
+  }
   ctx.restore();
 }

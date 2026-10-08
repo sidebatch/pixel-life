@@ -72,6 +72,7 @@ function interact(){
   showDialog('SYSTEM','조사할 것이 없다.');
 }
 function pressB(){
+  if(typeof isFishRewardRevealOpen==='function'&&isFishRewardRevealOpen())return;
   if(typeof isTreeDiscoveryOpen==='function'&&isTreeDiscoveryOpen()) return;
   if(typeof isSkillLevelUpVisible==='function'&&isSkillLevelUpVisible()) dismissSkillLevelUp();
   else if(typeof isCharacterStyleOpen==='function'&&isCharacterStyleOpen()) closeCharacterStyle();
@@ -108,6 +109,7 @@ if(window.history.state?.pixelLifeOverlay){
 }
 
 window.addEventListener('popstate',()=>{
+  if(typeof isFishRewardRevealOpen==='function'&&isFishRewardRevealOpen()){pushGameOverlayHistory('fish-reward');return;}
   const layer=window.history.state?.pixelLifeOverlay;
   if(layer==='harbor'){openHarbor({fromHistory:true});return;}
   if(typeof isHarborOpen==='function'&&isHarborOpen())closeHarbor({fromHistory:true});

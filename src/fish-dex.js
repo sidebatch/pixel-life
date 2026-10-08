@@ -38,22 +38,23 @@ function fishDexConditionText(values,labels,fallback){
 }
 
 function renderFishDexReward(discovered){
-  const rewardPanel=document.getElementById('fishDexReward');
-  const nextReward=FISH_COLLECTION_REWARDS.find(reward=>discovered<reward.count);
-  if(!nextReward){
-    rewardPanel.className='fishDexReward complete';
-    const complete=discovered===FISH_DATA.length;
-    rewardPanel.innerHTML=`<div><small>${complete?'CURRENT COLLECTION COMPLETE':'LEGACY REWARDS COMPLETE'}</small><b>🏆 강태공 · 기존 20종 도감 보상 완료</b></div><span>${discovered} / ${FISH_DATA.length}</span>`;
-    return;
-  }
-  const progress=Math.min(100,discovered/nextReward.count*100);
-  rewardPanel.className='fishDexReward';
-  rewardPanel.innerHTML=`<div><small>다음 도감 보상 · ${nextReward.count}종</small><b>🎁 ${nextReward.label}</b><i><span style="width:${progress}%"></span></i></div><span>${discovered} / ${nextReward.count}</span>`;
+  const panel=document.getElementById('fishDexReward');
+  const legacy=FISH_COLLECTION_REWARDS.find(reward=>discovered<reward.count);
+  const cosmetic=typeof FISH_DEX_MILESTONES==='undefined'?null:FISH_DEX_MILESTONES.find(reward=>discovered<reward.count);
+  const next=legacy||cosmetic;
+  const title=typeof fishDexActiveTitle==='function'?fishDexActiveTitle():null;
+  panel.className='fishDexReward'+(next?'':' complete');
+  const heading=legacy?'다음 도감 보상 · '+next.count+'종':next?'기존 20종 도감 보상 완료 · 다음 '+next.count+'종':'기존 20종 도감 보상 완료';
+  const label=next?(next.label||next.name):'세계의 강태공 · 74종 도감 완성';
+  const progress=next?'<i><span style="width:'+Math.min(100,discovered/next.count*100)+'%"></span></i>':'';
+  panel.innerHTML='<div><small>'+heading+'</small><b>'+label+'</b>'+
+    (title?'<em class="fishDexTitleBadge">칭호 · '+title+'</em>':'')+progress+
+    '</div><span>'+discovered+' / '+(legacy?legacy.count:FISH_DATA.length)+'</span>';
 }
 
 function fishDexUndiscoveredHint(fish,habitat,period,weather){
   const flags=GAME_STATE.progression.flags||{};
-  const remaining=FISH_DATA.length-getDiscoveredFishCount();
+  const remaining=FISH_DATA.filter(item=>item.habitat===fish.habitat&&!getFishDexRecord(item.id)).length;
   const finalClue=flags.finalFishClue===true&&remaining===1;
   const highRarity=['rare','heroic','legendary'].includes(fish.rarity);
   if(highRarity&&!flags.rareFishHints&&!finalClue){
@@ -136,13 +137,14 @@ function renderFishDexSections(){
     const fish=FISH_DATA.filter(item=>item.habitat===habitat.id);
     const discovered=fish.filter(item=>getFishDexRecord(item.id)).length;
     const open=habitat.id===fishDexState.openHabitatId;
+    const graduated=typeof getFishDexRewardState==='function'&&getFishDexRewardState().habitatIds.includes(habitat.id);
     const progress=fish.length?`${discovered} / ${fish.length}종`:`목표 ${habitat.targetSpeciesCount}종 · 준비 중`;
     const body=!open?'':fish.length?
       `<div class="fishDexSectionBody"><div class="fishDexSectionGrid">${fish.map(fishDexCardMarkup).join('')}</div></div>`:
       '<div class="fishDexSectionBody"><p class="fishDexSectionEmpty">아직 이 서식지에서 만날 수 있는 물고기가 없습니다.<br>지역이 열리면 도감 카드가 추가됩니다.</p></div>';
-    return `<section class="fishDexHabitatSection ${open?'open':''}" data-fish-section="${habitat.id}">
+    return `<section class="fishDexHabitatSection ${open?'open':''} ${graduated?'fish-habitat-graduated':''}" data-fish-section="${habitat.id}">
       <button type="button" class="fishDexSectionToggle" data-fish-section-toggle="${habitat.id}" aria-expanded="${String(open)}">
-        <span><b>${habitat.label}</b><small>${progress}</small></span><i aria-hidden="true">⌄</i>
+        <span><b>${habitat.label}</b><small>${progress}</small></span>${graduated?'<em class="fishHabitatSeal" aria-label="서식지 졸업 도장">✓</em>':''}<i aria-hidden="true">⌄</i>
       </button>${body}
     </section>`;
   }).join('');
@@ -160,6 +162,10 @@ function renderFishDexSections(){
 }
 
 function renderFishDex(){
+  if(typeof syncFishDexRewards==='function')syncFishDexRewards();
+  const panel=document.getElementById('fishDexPanel');
+  panel.classList.remove('fish-reward-wave','fish-reward-aurora');
+  if(typeof fishDexRewardFrame==='function'&&fishDexRewardFrame())panel.classList.add(fishDexRewardFrame());
   const discovered=FISH_DATA.filter(fish=>getFishDexRecord(fish.id)).length;
   document.getElementById('fishDexProgress').textContent=`${discovered} / ${FISH_DATA.length}`;
   renderFishDexReward(discovered);
@@ -211,6 +217,7 @@ function openFishDex(options={}){
   panel.classList.add('show');
   panel.setAttribute('aria-hidden','false');
   if(!options.fromHistory) pushGameOverlayHistory('fish-dex');
+  if(typeof updateFishRewardReveal==='function')updateFishRewardReveal();
 }
 
 function closeFishDex(options={}){

@@ -119,7 +119,7 @@ const GAME_STATE = {
   playerLocation:null,
   inventory:[],
   world:{trees:{},plots:{}},
-  collections:{fish:{},trees:{},treeMilestones:{unlockedIds:[],revealedIds:[]}},
+  collections:{fish:{},fishRewards:typeof normalizeSavedFishDexRewards==='function'?normalizeSavedFishDexRewards({schemaVersion:1},{}):null,trees:{},treeMilestones:{unlockedIds:[],revealedIds:[]}},
   appearance:{bodyId:'body.starter',hairId:'hair.brown',backpackId:'pack.traveler',
     outfitId:DEFAULT_OUTFIT_ID,ownedOutfitIds:[DEFAULT_OUTFIT_ID,...TEMPORARY_OUTFIT_IDS],ownedBackpackIds:['pack.traveler',...TEMPORARY_BACKPACK_IDS],activeTool:'axe'},
   progression:{

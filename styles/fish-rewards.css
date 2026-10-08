@@ -1,0 +1,27 @@
+/* Cosmetic fish rewards follow the existing code-native collection UI. */
+.fishDexTitleBadge{display:block;margin-top:4px;color:#a6e9df;font-size:9px;font-style:normal;font-weight:850}
+.fishDexPanel.fish-reward-wave{border:2px solid #90cfd9;box-shadow:inset 0 0 0 3px #2b667766,0 0 22px #89dae129,0 22px 70px #0009}
+.fishDexPanel.fish-reward-wave .fishDexHeader{background:repeating-linear-gradient(165deg,#68c7d409 0 10px,#c1edf311 10px 12px)}
+.fishDexPanel.fish-reward-aurora{border:2px solid #a8f3d6;box-shadow:inset 0 0 0 2px #aba3f755,0 0 26px #80e7d342,0 22px 70px #0009;animation:fishAuroraFrame 6s ease-in-out infinite}
+.fishDexPanel.fish-reward-aurora .fishDexHeader{background:linear-gradient(110deg,#88d7d522,#c2a3eb22,#b8efc61c)}
+.fishHabitatSeal{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;margin-left:auto;margin-right:9px;border:2px double #b1ead9;border-radius:50%;color:#c1f7e6;background:#2f806444;font-size:16px;font-style:normal;transform:rotate(-12deg)}
+.fish-habitat-graduated{border-color:#98d8c655!important}
+.fishRewardOverlay{position:absolute;z-index:39;inset:0;display:none;align-items:center;justify-content:center;padding:18px;pointer-events:auto}
+.fishRewardOverlay.show{display:flex}
+.fishRewardBackdrop{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#6fdac133,#020f1bea 70%);backdrop-filter:blur(4px)}
+.fishRewardCard{position:relative;width:min(100%,350px);max-height:calc(100% - 20px);overflow-y:auto;padding:23px 19px 19px;border:2px solid #a8e7df;border-radius:25px;background:linear-gradient(155deg,#315f6a,#16373f 60%,#122831);box-shadow:0 24px 80px #000a;text-align:center}
+.fishRewardOverlay.show .fishRewardCard{animation:fishRewardAppear .45s ease-out both}
+#fishRewardEyebrow{display:inline-block;border-radius:99px;padding:5px 9px;color:#153e43;background:#bcece2;font-size:8px;font-weight:950;letter-spacing:.12em}
+#fishRewardIcon{display:grid;place-items:center;width:110px;height:110px;margin:18px auto 13px;border:3px double #a4e1dc;border-radius:50%;background:radial-gradient(circle,#8cdbca33,#183b49);color:#dbfff1;font:900 58px system-ui;transform:rotate(-8deg)}
+#fishRewardProgress{color:#a7d9dd;font-size:11px}
+.fishRewardCard h2{margin:4px 0;color:#f4ffe9;font-size:25px;line-height:1.2}
+#fishRewardDescription{margin:14px auto;max-width:285px;color:#d0e5e5;font-size:12px;line-height:1.65}
+#fishRewardStatus{min-height:15px;margin:8px 0;color:#ffdfa4;font-size:11px}
+#fishRewardClaim{width:100%;min-height:48px;border:1px solid #cbf2dd;border-radius:14px;background:linear-gradient(#c6ecdd,#86cdbb);color:#163d39;font:950 14px system-ui}
+#fishRewardClaim:focus-visible{outline:3px solid #fff3b6;outline-offset:3px}
+.fishRewardOverlay.aurora .fishRewardCard{border-color:#b8f4dc;background:linear-gradient(145deg,#3f526f,#28474c,#2c3c5b);animation:fishAuroraFrame 6s ease-in-out infinite}
+.fishRewardOverlay.flagReward #fishRewardIcon{border-radius:7px 30px 30px 7px;border-left:5px solid #e3c57a;color:#e9e0a2;background:#246b80}
+@keyframes fishRewardAppear{from{opacity:0;transform:translateY(16px) scale(.94)}to{opacity:1;transform:none}}
+@keyframes fishAuroraFrame{0%,100%{border-color:#a8f3d6;box-shadow:inset 0 0 0 2px #a8e8d844,0 0 22px #79dcbc3c,0 22px 70px #0009}50%{border-color:#c5b8f5;box-shadow:inset 0 0 0 2px #baa8eb44,0 0 28px #ada0dc3c,0 22px 70px #0009}}
+@media (prefers-reduced-motion:reduce){.fishDexPanel.fish-reward-aurora,.fishRewardOverlay.show .fishRewardCard{animation:none}}
+@media (max-height:600px){.fishRewardCard{padding:15px}.fishRewardCard h2{font-size:23px}#fishRewardIcon{width:82px;height:82px;margin:11px auto;font-size:42px}#fishRewardDescription{margin:10px auto}}

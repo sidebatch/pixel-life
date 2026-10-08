@@ -6,6 +6,7 @@ function refreshCharacterPreviewVisibility(){
 }
 function loop(now){
   updateVoyage(now);
+  updateFishRewardReveal();
   tNow=now;const dt=Math.min(40,now-last);last=now;
   updateWorldTime(dt);updateWeather();updateWorldClockUI();
   update(dt);updateLifeContentUi(now);drawWorld();refreshContext();refreshCharacterPreviewVisibility();requestAnimationFrame(loop);

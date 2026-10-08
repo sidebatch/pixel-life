@@ -106,6 +106,7 @@ function departVoyage(routeId){
   voyageClock.busy=false;updateVoyageHud();return saved;
 }
 function closeVoyageOverlays(){
+  if(typeof suspendFishRewardReveal==='function')suspendFishRewardReveal();
   closeHarbor({fromHistory:true});
   closeInventory({fromHistory:true});closeFishDex({fromHistory:true});closeTreeDex({fromHistory:true});
   closeMarket({fromHistory:true});closeFarmPlot({fromHistory:true});closeCharacterStyle({fromHistory:true});

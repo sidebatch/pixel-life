@@ -14,6 +14,7 @@
 <title>Pixel Life</title>
   <!-- build:styles -->
   <link rel="stylesheet" href="styles/game.css" />
+  <link rel="stylesheet" href="styles/fish-rewards.css" />
   <!-- /build:styles -->
 </head>
 <body>
@@ -166,6 +167,18 @@
           <section class="fishDexDetail treeDexDetail" id="treeDexDetail"></section>
         </div>
       </div>
+      <div id="fishRewardOverlay" class="fishRewardOverlay" role="dialog" aria-modal="true" aria-labelledby="fishRewardTitle" aria-hidden="true">
+        <div class="fishRewardBackdrop" aria-hidden="true"></div>
+        <article class="fishRewardCard">
+          <small id="fishRewardEyebrow"></small>
+          <strong id="fishRewardIcon" aria-hidden="true"></strong>
+          <p id="fishRewardProgress"></p>
+          <h2 id="fishRewardTitle"></h2>
+          <p id="fishRewardDescription"></p>
+          <p id="fishRewardStatus" role="status"></p>
+          <button id="fishRewardClaim" type="button">보상 받기</button>
+        </article>
+      </div>
       <div id="treeDiscoveryOverlay" class="treeDiscoveryOverlay" role="dialog" aria-modal="true" aria-labelledby="treeDiscoveryTitle" aria-hidden="true">
         <div class="treeDiscoveryBackdrop" aria-hidden="true"></div>
         <article id="treeDiscoveryCard" class="treeDiscoveryCard">
@@ -244,6 +257,7 @@
   <script src="src/data/fishing-habitat-data.js"></script>
   <script src="src/fishing-spots.js"></script>
   <script src="src/data/fish-data.js"></script>
+  <script src="src/data/fish-reward-data.js"></script>
   <script src="src/data/fishing-gear-data.js"></script>
   <script src="src/data/life-skill-data.js"></script>
   <script src="src/data/life-content-data.js"></script>
@@ -252,6 +266,7 @@
   <script src="src/data/voyage-data.js"></script>
   <script src="src/world-time.js"></script>
   <script src="src/weather.js"></script>
+  <script src="src/fish-collection-rewards.js"></script>
   <script src="src/config.js"></script>
   <script src="src/life-skills.js"></script>
   <script src="src/save.js"></script>
@@ -274,6 +289,7 @@
   <script src="src/fishing.js"></script>
   <script src="src/skill-ui.js"></script>
   <script src="src/fish-dex.js"></script>
+  <script src="src/fish-reward-ui.js"></script>
   <script src="src/tree-dex.js"></script>
   <script src="src/fishing-gear.js"></script>
   <script src="src/inventory.js"></script>

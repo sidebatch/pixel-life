@@ -93,7 +93,7 @@ try{
       const info=await page.evaluate(count=>{
         GAME_STATE.collections.fish=Object.fromEntries(FISH_DATA.slice(0,count).map(f=>[f.id,{count:1,minSizeCm:f.minSizeCm,maxSizeCm:f.minSizeCm,totalSizeCm:f.minSizeCm}]));
         GAME_STATE.collections.fishRewards=normalizeSavedFishDexRewards(null,GAME_STATE.collections.fish);
-        player.x=36;player.y=27;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;
+        player.x=35;player.y=21;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;
         activeVoyage().tripSeed=42;activeVoyage().remainingMs=594000;voyageClock.last=performance.now();worldTime.minutes=720;worldTime.debugLocked=true;weatherState.kind='clear';weatherState.debugLocked=true;
         const original=ctx.fill;let flagPaints=0;ctx.fill=function(...args){if(this.fillStyle==='#26788d')flagPaints++;return original.apply(this,args);};
         try{drawWorld();}finally{ctx.fill=original;}
@@ -118,7 +118,7 @@ try{
       GAME_STATE.collections.fishRewards=normalizeSavedFishDexRewards(null,GAME_STATE.collections.fish);saveGame();
     });await page.waitForFunction(()=>!isVoyageBoarding());
     await page.evaluate(()=>{
-      GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';worldTime.minutes=1320;worldTime.debugLocked=true;weatherState.kind='clear';weatherState.debugLocked=true;
+      GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';worldTime.minutes=1320;worldTime.debugLocked=true;weatherState.kind='clear';weatherState.debugLocked=true;
       if(!startFishing())throw Error('Final catch could not start');updateFishing(320);updateFishing(7000);
       const pool=getEligibleFishPool(fishingState.context),i=pool.findIndex(f=>f.id==='fish.aurora_smelt'),total=pool.reduce((sum,f)=>sum+getEffectiveFishWeight(f),0);
       const roll=(pool.slice(0,i).reduce((sum,f)=>sum+getEffectiveFishWeight(f),0)+getEffectiveFishWeight(pool[i])/2)/total,original=Math.random;

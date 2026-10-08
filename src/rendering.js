@@ -749,6 +749,9 @@ function drawWeatherEffects(){
 }
 
 function drawWorld(){
+  if(WORLD_DEFINITION.voyageDeck?.view==='bow'){
+    const camera=getWorldCameraTarget();camX=camera.x;camY=camera.y;
+  }
   ctx.clearRect(0,0,VIEW_W,VIEW_H);
   // Visual terrain is blended independently from the reliable tile movement/collision logic.
   const voyageSea=typeof drawVoyageSea==='function'&&WORLD_DEFINITION.voyageDeck&&drawVoyageSea();

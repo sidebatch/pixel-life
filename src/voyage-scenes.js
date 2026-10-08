@@ -195,7 +195,8 @@ function composeVoyageScene(scene){
     drawVoyageWaveCrest(f,x-w*.6,y+h+4,w*.8,'rgba(185,219,211,.06)');
   }
   if(scene.landmark){
-    const x=scene.side<0?65+random()*15:width-65-random()*15,y=75+random()*Math.min(height-250,VIEW_H*.25),kind=pool.landmarks[scene.landmark];
+    // Landmarks hug the screen edges. Their outer halves may pass off camera.
+    const x=scene.side<0?45+random()*12:width-45-random()*12,y=75+random()*Math.min(height-250,VIEW_H*.25),kind=pool.landmarks[scene.landmark];
     if(scene.destination==='mid')drawMidVoyageLandmark(f,kind,x,y,random,palette);
     else if(scene.destination==='deep')drawDeepVoyageLandmark(f,kind,x,y,random,palette);
     else if(scene.destination==='glacier')drawGlacierVoyageLandmark(f,kind,x,y,random,palette);
@@ -207,7 +208,8 @@ function composeVoyageScene(scene){
   }
   const type=pool.midObjects[scene.mid];
   for(let i=0;i<(type==='none'?0:3+Math.floor(random()*4));i++){
-    const x=random()<.5?15+random()*53:width-15-random()*53,y=50+random()*(scene.destination!=='shallow'?Math.min(height-100,VIEW_H*.4):height-100);
+    random();const left=(i+(scene.side<0?0:1))%2===0;
+    const x=left?18+random()*35:width-18-random()*35,y=20+random()*VIEW_H*.35;
     if(scene.destination==='deep')drawDeepVoyageMidObject(m,type,x,y,random,palette);
     else if(scene.destination==='glacier')drawGlacierVoyageMidObject(m,type,x,y,random,palette);
     else if(type==='dolphins'){
@@ -251,15 +253,10 @@ function drawVoyageSceneLayers(scene,elapsedMs,opacity,reduced){
   const boatX=(WORLD_DEFINITION.voyageDeck.x+WORLD_DEFINITION.voyageDeck.w/2)*TILE-camX;
   const shiftX=(boatX-VIEW_W/2)*.2,motion=reduced ? .18 : 1;
   ctx.save();ctx.globalAlpha=opacity;
-  // Keep distant landmarks in the exposed sea when a railing fills half the view.
-  // This projection is decorative only; deck/actors/water collision never move.
-  const deck=WORLD_DEFINITION.voyageDeck,left=deck.x*TILE-camX,right=(deck.x+deck.w)*TILE-camX;
-  const leftSea=Math.max(0,left),rightSea=Math.max(0,VIEW_W-right);
-  const mirror=scene.landmark&&((rightSea>leftSea+48&&scene.side<0)||(leftSea>rightSea+48&&scene.side>0));
-  ctx.save();if(mirror){ctx.translate(VIEW_W,0);ctx.scale(-1,1);}
-  ctx.drawImage(layers.far,Math.round((-48+shiftX*.3)/2)*2,Math.round((-115+age*3*motion)/2)*2,layers.far.width*2,layers.far.height*2);
-  ctx.restore();
-  ctx.drawImage(layers.mid,Math.round((-48+shiftX*.65)/2)*2,Math.round((-165+age*10*motion)/2)*2,layers.mid.width*2,layers.mid.height*2);
+  // Constant vertical parallax on both sides, independent of actor movement.
+  // Do not fit or mirror an entire landmark into view: frame/deck clipping is natural.
+  ctx.drawImage(layers.far,Math.round((-48+shiftX*.3)/2)*2,Math.round((-160+age*26*motion)/2)*2,layers.far.width*2,layers.far.height*2);
+  ctx.drawImage(layers.mid,Math.round((-48+shiftX*.65)/2)*2,Math.round((-220+age*46*motion)/2)*2,layers.mid.width*2,layers.mid.height*2);
   const pool=voyageScenePool(scene.destination);
   ctx.globalAlpha=opacity*(scene.wave===2?.34:.24);
   for(const wave of layers.waves){
@@ -289,7 +286,7 @@ function drawVoyageSea(){
   ctx.save();ctx.fillStyle=pool.palettes[cache.current.base].water;ctx.fillRect(0,0,VIEW_W,VIEW_H);
   if(blend>0){ctx.globalAlpha=blend;ctx.fillStyle=pool.palettes[cache.next.base].water;ctx.fillRect(0,0,VIEW_W,VIEW_H);ctx.globalAlpha=1;}
   drawVoyageSceneLayers(cache.current,elapsedMs,1-blend,reduced);drawVoyageSceneLayers(cache.next,elapsedMs,blend,reduced);
-  const deck=WORLD_DEFINITION.voyageDeck,x=(deck.x+deck.w/2)*TILE-camX,y=(deck.y+deck.h)*TILE-camY;
+  const deck=WORLD_DEFINITION.voyageDeck,x=(deck.x+deck.w/2)*TILE-camX,y=(deck.view==='bow'?deck.y+2:deck.y+deck.h)*TILE-camY;
   // Streaming hull wake, no rocking of the walkable deck or fishing target.
   const shift=reduced?0:elapsedMs/35%24;
   for(let i=0;i<15;i++){

@@ -52,15 +52,15 @@ try{
    },id);await page.waitForFunction(()=>!isVoyageBoarding());
    const pose=await page.evaluate(id=>{
     const route=VOYAGE_ROUTE_BY_ID.get(id);
-    player.x=32;player.y=26;player.face='down';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;
+    player.x=32;player.y=20;player.face='up';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;
     activeVoyage().tripSeed=42;activeVoyage().remainingMs=594000;voyageClock.last=performance.now();drawWorld();
-    return {id,region:GAME_STATE.regionId,habitat:WORLD_DEFINITION.waterAreas[0].fishingHabitat,deck:WORLD_DEFINITION.voyageDeck,cabinBlocked:blocked.has('32,20'),floorWalkable:!blocked.has('32,26'),coins:GAME_STATE.progression.coins,price:route.price};
+    return {id,region:GAME_STATE.regionId,habitat:WORLD_DEFINITION.waterAreas[0].fishingHabitat,deck:WORLD_DEFINITION.voyageDeck,cabinBlocked:blocked.has('32,28'),floorWalkable:!blocked.has('32,20'),coins:GAME_STATE.progression.coins,price:route.price};
    },id);
-   assert.deepEqual(pose.deck,{x:28,y:18,w:9,h:14,cabin:{x:30,y:19,w:5,h:4}});
+   assert.deepEqual(pose.deck,{x:29,y:18,w:7,h:14,view:'bow',walkAreas:[{x:31,y:18,w:3,h:1},{x:30,y:19,w:5,h:1},{x:29,y:20,w:7,h:5}],cabin:{x:30,y:28,w:5,h:4}});
    assert.equal(pose.cabinBlocked,true);assert.equal(pose.floorWalkable,true);assert.equal(pose.coins,50000-pose.price);
    await page.screenshot({path:path.join(out,width+'-'+id+'-deck.png')});
    const fishable=await page.evaluate(()=>{
-    GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
+    GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
     camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;drawWorld();const spot=getFishingSpotInFront();
     if(!startFishing())throw Error('Raster deck prevented fishing');finishFishing();
     return spot.fishingHabitat;
@@ -72,5 +72,5 @@ try{
   reports.push({width,assets,routes,harborInteractions:true});await context.close();
  }
  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({reports,errors},null,2));
- console.log('Harbor art browser passed: '+JSON.stringify({viewports:reports.map(r=>r.width),fiveAssets:true,fourRoutes:true,unchangedDeckCollision:true,unchangedFishing:true,errors}));
+ console.log('Harbor art browser passed: '+JSON.stringify({viewports:reports.map(r=>r.width),fiveAssets:true,fourRoutes:true,sharedBowCollision:true,unchangedFishing:true,errors}));
 }finally{await browser.close();}

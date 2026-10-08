@@ -1,8 +1,9 @@
-// Raster harbor sprites share the unchanged deck/cabin gameplay footprint.
+// Fixed bow composition uses a tapered forward walking area; aft hull is cropped.
 // The geometric fallback is kept only for isolated rendering tests/load diagnostics.
 function drawVoyageDeck(){
   const deck=WORLD_DEFINITION.voyageDeck;if(!deck)return;
   const x=deck.x*TILE-camX,y=deck.y*TILE-camY,w=deck.w*TILE,h=deck.h*TILE;
+  if(deck.view==='bow'){drawVoyageBowDeck(x,y,w,h);return;}
   if(imgs.voyageDeck){
     ctx.save();ctx.fillStyle='rgba(8,38,55,.32)';ctx.fillRect(x-10,y+12,w+20,h+12);
     // Solid footing remains under any transparent trim; no collision changes.
@@ -36,6 +37,7 @@ function drawVoyageDeck(){
   ctx.restore();
 }
 function drawVoyageCabin(){
+  if(WORLD_DEFINITION.voyageDeck?.view==='bow')return;
   const cabin=WORLD_DEFINITION.voyageDeck?.cabin;if(!cabin)return;
   const x=cabin.x*TILE-camX,y=cabin.y*TILE-camY,w=cabin.w*TILE,h=cabin.h*TILE;
   if(imgs.voyageCabin){
@@ -55,6 +57,27 @@ function drawVoyageCabin(){
   ctx.fillStyle='#b7beb0';ctx.fillRect(x+8,y+h-9,w-16,9);
   drawVoyageCollectionFlag(x,y,w,h);
   ctx.restore();
+}
+function drawVoyageBowDeck(x,y,w,h){
+  ctx.save();
+  if(imgs.voyageBow){
+    // Compress exterior fenders/rail trim so existing edge-tile centers stay on wood.
+    ctx.drawImage(imgs.voyageBow,0,0,24,336,x,y,16,h);
+    ctx.drawImage(imgs.voyageBow,24,0,120,336,x+16,y,w-32,h);
+    ctx.drawImage(imgs.voyageBow,144,0,24,336,x+w-16,y,16,h);
+  }
+  else{
+    ctx.beginPath();ctx.moveTo(x+w/2-72,y);ctx.lineTo(x+w/2+72,y);ctx.lineTo(x+w-48,y+48);
+    ctx.lineTo(x+w,y+96);ctx.lineTo(x+w,y+h);ctx.lineTo(x,y+h);ctx.lineTo(x,y+96);ctx.lineTo(x+48,y+48);ctx.closePath();
+    ctx.fillStyle='#b57f43';ctx.fill();ctx.save();ctx.clip();
+    for(let row=0;row<h;row+=24){ctx.fillStyle=row%48?'#ab753f':'#bd884c';ctx.fillRect(x,y+row,w,22);}
+    ctx.restore();ctx.strokeStyle='#345b61';ctx.lineWidth=10;ctx.stroke();
+  }
+  // A low aft rope marks the limit of the visible forward deck, not open water.
+  const ropeY=y+7*TILE-4;ctx.strokeStyle='#c9b88b';ctx.lineWidth=3;
+  ctx.beginPath();ctx.moveTo(x+10,ropeY);ctx.lineTo(x+w/2,ropeY+5);ctx.lineTo(x+w-10,ropeY);ctx.stroke();
+  ctx.fillStyle='#6d5840';ctx.fillRect(x+8,ropeY-11,5,22);ctx.fillRect(x+w-13,ropeY-11,5,22);
+  drawVoyageCollectionFlag(x+w/2-72,y,144,48);ctx.restore();
 }
 function drawVoyageDeckSprite(image,x,y,w,h){
   const sx=[0,30,186,216],sy=[0,18,314,336];

@@ -53,6 +53,12 @@ function buildWorldRegion(definition){
   definition.bridges.forEach(segment=>addSegmentToSet(segment,bridgeSet));
   (definition.bridgeAreas||[]).forEach(area=>addAreaToSet(area,bridgeSet));
   bridgeSet.forEach(tile=>{waterSet.delete(tile);blocked.delete(tile);});
+  if(definition.voyageDeck?.view==='bow'){
+    const deck=definition.voyageDeck,aftStart=Math.max(...deck.walkAreas.map(a=>a.y+a.h));
+    for(let x=deck.x;x<deck.x+deck.w;x++)for(let y=aftStart;y<deck.y+deck.h;y++){
+      waterSet.delete(key(x,y));blocked.add(key(x,y));
+    }
+  }
   if(definition.voyageDeck?.cabin)addAreaToSet(definition.voyageDeck.cabin,blocked);
 
   definition.npcs.forEach((source,index)=>{
@@ -123,6 +129,13 @@ function harborFeatureAt(x,y){
   return null;
 }
 
+function getWorldCameraTarget(){
+  const deck=WORLD_DEFINITION.voyageDeck;
+  const targetX=deck?.view==='bow'?(deck.x+deck.w/2)*TILE-VIEW_W/2:player.px-VIEW_W/2;
+  const targetY=deck?.view==='bow'?deck.y*TILE-VIEW_H*.52:player.py-VIEW_H/2;
+  return {x:Math.max(0,Math.min(Math.max(0,WORLD_W-VIEW_W),targetX)),
+    y:Math.max(0,Math.min(Math.max(0,WORLD_H-VIEW_H),targetY))};
+}
 function enterWorldRegion(exit,options={}){
   if(!exit||!REGION_WORLDS[exit.to]) return false;
   clearMovement();
@@ -132,8 +145,7 @@ function enterWorldRegion(exit,options={}){
   player.x=arrival.x;player.y=arrival.y;player.face=arrival.face||'down';
   player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
   player.moving=false;player.t=0;
-  camX=Math.max(0,Math.min(WORLD_W-VIEW_W,player.px-VIEW_W/2));
-  camY=Math.max(0,Math.min(WORLD_H-VIEW_H,player.py-VIEW_H/2));
+  const camera=getWorldCameraTarget();camX=camera.x;camY=camera.y;
   updateWorldClockUI();
   if(typeof syncRegionMusic==='function')syncRegionMusic();
   if(!options.skipSave)saveGame();

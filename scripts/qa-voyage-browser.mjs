@@ -34,15 +34,15 @@ try{
     assert.equal(await page.evaluate(()=>departVoyage('shallow')),false,'Duplicate departure must not spend another ticket');
     const deck=await page.evaluate(()=>{
       GAME_STATE.appearance.activeTool='rod';
-      player.x=36;player.y=27;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
+      player.x=35;player.y=21;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
       camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;drawWorld();
-      return {spot:getFishingSpotInFront(),collision:isBlocked(37,27),cabin:isBlocked(32,20),left:bridgeSet.has(key(28,27)),bottom:bridgeSet.has(key(32,31))};
+      return {spot:getFishingSpotInFront(),collision:isBlocked(36,21),cabin:isBlocked(32,28),left:bridgeSet.has(key(29,21)),bottom:bridgeSet.has(key(32,24))};
     });
     assert.equal(deck.spot.fishingHabitat,'boat_shallow');assert.equal(deck.spot.spotId,'shallow_open_sea');
     assert.ok(deck.collision&&deck.cabin&&deck.left&&deck.bottom);
     await page.screenshot({path:path.join(output,`${width}-boat-deck.png`)});
     // Back navigation closes the captain dialog without changing destination.
-    await page.evaluate(()=>{player.x=32;player.y=25;player.face='up';interact();});
+    await page.evaluate(()=>{player.x=32;player.y=21;player.face='down';interact();});
     assert.ok(await page.locator('[data-voyage-return]').isVisible());
     await page.goBack();assert.equal(await page.evaluate(()=>isHarborOpen()),false);
     // A visible bag does not stop the real monotonic clock.
@@ -84,7 +84,7 @@ try{
       await page.evaluate(()=>departVoyage('shallow'));
       await page.waitForFunction(()=>document.getElementById('voyageBoarding').hidden);
       const pending=await page.evaluate(phase=>{
-        GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
+        GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
         const started=startFishing();fishingState.phase=phase==='result'?'bite':phase;
         if(phase==='result')handleFishingAction();
         activeVoyage().remainingMs=0;updateVoyage();
@@ -101,7 +101,7 @@ try{
     await page.evaluate(()=>{voyageProgress().ticketCounts.shallow=3;departVoyage('shallow');});
     await page.waitForFunction(()=>document.getElementById('voyageBoarding').hidden);
     const catchState=await page.evaluate(()=>{
-      GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';startFishing();
+      GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';startFishing();
       fishingState.phase='waiting';activeVoyage().remainingMs=0;updateVoyage();
       updateFishing(7000);handleFishingAction();
       return {phase:fishingState.phase,id:fishingState.result.fishId,region:GAME_STATE.regionId};

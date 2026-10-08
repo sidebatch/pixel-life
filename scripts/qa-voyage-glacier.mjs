@@ -10,7 +10,7 @@ const context={Math,clearTimeout(){},lifeUi:{toastTimer:null},performance:{now:(
   GAME_STATE:{regionId:'coast',collections:{fish:{}},progression:{coins:40000,fishing:{level:1,equippedRodId:'rod.basic'}},appearance:{activeTool:'rod'}},
   WORLD_DEFINITION:{},player:{x:36,y:23,face:'up'},menuOpen:false,dialogOpen:false,isFishingActive:()=>phase!=='idle',
   clearMovement(){},toggleMenu(){},pushGameOverlayHistory(){},leaveGameOverlayHistory(){},closeInventory(){},closeFishDex(){},closeTreeDex(){},closeMarket(){},closeFarmPlot(){},closeCharacterStyle(){},isSkillLevelUpVisible:()=>false,showLifeToast(){},
-  enterWorldRegion(exit){context.GAME_STATE.regionId=exit.to;vm.runInContext(`WORLD_DEFINITION=REGION_WORLDS['${exit.to}']`,context);Object.assign(context.player,exit.entry||{x:32,y:26,face:'down'});return true;},
+  enterWorldRegion(exit){context.GAME_STATE.regionId=exit.to;vm.runInContext(`WORLD_DEFINITION=REGION_WORLDS['${exit.to}']`,context);Object.assign(context.player,exit.entry||{x:32,y:20,face:'up'});return true;},
   saveGame(){vm.runInContext('checkpointVoyageTime();syncVoyageUnlocks()',context);if(fail)return false;saved=clone(context.GAME_STATE);return true;}
 };vm.createContext(context);
 vm.runInContext(['src/data/world-map.js','src/data/region-maps.js','src/data/fishing-habitat-data.js','src/data/fish-data.js','src/data/voyage-data.js','src/voyage.js'].map(read).join('\n'),context);

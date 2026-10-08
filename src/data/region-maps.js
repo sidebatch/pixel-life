@@ -135,14 +135,18 @@ function forestFrontierRegion(id,number,layout){
     farmPlots:[],exits:forestFrontierExits(id)
   });
 }
-const SHARED_VOYAGE_DECK=Object.freeze({x:28,y:18,w:9,h:14,cabin:Object.freeze({x:30,y:19,w:5,h:4})});
+const VOYAGE_BOW_WALK_AREAS=Object.freeze([
+  Object.freeze({x:31,y:18,w:3,h:1}),Object.freeze({x:30,y:19,w:5,h:1}),Object.freeze({x:29,y:20,w:7,h:5})
+]);
+const SHARED_VOYAGE_DECK=Object.freeze({x:29,y:18,w:7,h:14,view:'bow',walkAreas:VOYAGE_BOW_WALK_AREAS,
+  cabin:Object.freeze({x:30,y:28,w:5,h:4})});
 function defineVoyageRegion(id,name,habitat,spotId,waterColor){
   return Object.freeze({id,name,tileSize:48,width:64,height:48,
     terrain:{ground:waterColor,waterColor,patchA:'#1c789b',patchB:'#7ed7c5'},
-    playerSpawn:{x:32,y:26,face:'down'},voyageDeck:SHARED_VOYAGE_DECK,
+    playerSpawn:{x:32,y:20,face:'up'},voyageDeck:SHARED_VOYAGE_DECK,
     paths:[],stoneAreas:[],waterAreas:[{id:spotId,x:0,y:0,w:64,h:48,fishingHabitat:habitat}],
-    bridges:[],bridgeAreas:[{x:28,y:18,w:9,h:14}],fishingSpot:{x:37,y:27},
-    npcs:[{id:'captain_at_sea',x:32,y:24,homeX:32,homeY:24,name:'선장 마루',role:'voyageCaptain',sprite:'thomas',scale:1,face:'down',moving:false,wait:1200,roam:0}],
+    bridges:[],bridgeAreas:VOYAGE_BOW_WALK_AREAS,fishingSpot:{x:36,y:21},
+    npcs:[{id:'captain_at_sea',x:32,y:22,homeX:32,homeY:22,name:'선장 마루',role:'voyageCaptain',sprite:'thomas',scale:1,face:'up',moving:false,wait:1200,roam:0}],
     buildings:[],fixedObjects:{},decorations:{bushes:[],flowers:[],grassTufts:[],reeds:[]},treeLines:[],trees:[],farmPlots:[],exits:[]
   });
 }

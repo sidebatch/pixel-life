@@ -31,7 +31,7 @@ try{
     await page.waitForFunction(()=>!isVoyageBoarding());
     for(const id of ['fish.damselfish','fish.filefish','fish.barred_knifejaw']){
       await page.evaluate(id=>{
-        GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';
+        GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';
         worldTime.minutes=12*60;worldTime.debugLocked=true;weatherState.kind='clear';weatherState.debugLocked=true;
         if(!startFishing())throw Error('Shallow unlock cast failed');updateFishing(320);updateFishing(7000);
         const pool=getEligibleFishPool(fishingState.context),i=pool.findIndex(f=>f.id===id),total=pool.reduce((sum,f)=>sum+getEffectiveFishWeight(f),0);
@@ -51,7 +51,7 @@ try{
     assert.equal(await page.evaluate(()=>document.querySelector('#voyageBoarding b').textContent),'중간 바다로 출항합니다');
     assert.equal(await page.evaluate(()=>REGION_MUSIC_TRACKS.boatMid),'woodland');
     await page.evaluate(()=>{
-      GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
+      GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
       camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;activeVoyage().tripSeed=42;
       worldTime.minutes=12*60;worldTime.debugLocked=true;weatherState.kind='clear';weatherState.debugLocked=true;updateWorldClockUI();drawWorld();
     });
@@ -65,7 +65,7 @@ try{
         activeVoyage().remainingMs=600000-time;voyageClock.last=performance.now();drawWorld();
         return {signature:voyageSceneCache.current.sceneSignature,cached:voyageSceneCache.composites.size,built:voyageSceneCache.built,player:{x:player.x,y:player.y},spot:getFishingSpotInFront()?.fishingHabitat};
       },time);
-      assert.equal(scene.cached,2);assert.deepEqual(scene.player,{x:36,y:27});assert.equal(scene.spot,'boat_mid');signatures.push(scene.signature);
+      assert.equal(scene.cached,2);assert.deepEqual(scene.player,{x:35,y:21});assert.equal(scene.spot,'boat_mid');signatures.push(scene.signature);
       await page.screenshot({path:path.join(output,`${width}-sailing-${kind}-${time}.png`)});
     }
     assert.equal(new Set(signatures).size,signatures.length);
@@ -89,7 +89,7 @@ try{
     await page.reload();await page.waitForFunction(()=>typeof drawVoyageSea==='function'&&!document.getElementById('startupLoading')&&voyageSceneCache.current);
     const resumed=await page.evaluate(()=>({region:GAME_STATE.regionId,seed:activeVoyage().tripSeed,signature:voyageSceneCache.current.sceneSignature}));
     assert.equal(resumed.region,'boatMid');assert.equal(resumed.seed,snapshot.seed);assert.equal(resumed.signature,snapshot.signature);
-    await page.evaluate(()=>{GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;});
+    await page.evaluate(()=>{GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;});
     const ids=await page.evaluate(()=>FISH_DATA.filter(f=>f.habitat==='boat_mid').map(f=>f.id)),caught=[];
     for(const id of ids){
       await page.evaluate(id=>{
@@ -124,7 +124,7 @@ try{
       closeMarket({fromHistory:true});enterWorldRegion(REGION_EXITS.lilacVillage.find(e=>e.to==='coast'));departVoyage('mid');
     });await page.waitForFunction(()=>!isVoyageBoarding());
     await page.evaluate(()=>{
-      GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';
+      GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';
       if(!startFishing())throw Error('Mid expiry cast failed');updateFishing(320);updateFishing(7000);handleFishingAction();
       activeVoyage().remainingMs=0;updateVoyage();
     });
@@ -132,7 +132,7 @@ try{
     await page.locator('#dialogNext').tap();await acknowledgeFishRewardCards(page);assert.equal(await page.evaluate(()=>GAME_STATE.regionId),'coast');
     await page.evaluate(()=>departVoyage('mid'));await page.waitForFunction(()=>!isVoyageBoarding());
     await page.evaluate(()=>{
-      GAME_STATE.appearance.activeTool='rod';player.x=36;player.y=27;player.face='right';startFishing();
+      GAME_STATE.appearance.activeTool='rod';player.x=35;player.y=21;player.face='right';startFishing();
       activeVoyage().remainingMs=0;updateVoyage();globalThis.midOriginalStorageSet=Storage.prototype.setItem;
       Storage.prototype.setItem=function(){throw Error('QA mid return failure');};
     });

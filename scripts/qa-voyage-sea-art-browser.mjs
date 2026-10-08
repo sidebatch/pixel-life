@@ -24,7 +24,7 @@ try{
    },id);
    await page.waitForFunction(()=>!isVoyageBoarding());
    const shots=await page.evaluate(id=>{
-    player.x=36;player.y=27;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;
+    player.x=35;player.y=21;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;
     GAME_STATE.appearance.activeTool='rod';activeVoyage().tripSeed=42;
     const generator=createVoyageSceneGenerator(42,id),found=new Map();
     for(let i=0;i<24;i++){const scene=nextVoyageScene(generator),kind=voyageScenePool(id).landmarks[scene.landmark];if(!found.has(kind)&&scene.startMs<550000)found.set(kind,{kind,time:scene.startMs+6000});}

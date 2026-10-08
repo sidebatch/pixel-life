@@ -18,7 +18,8 @@ const ASSET_URLS = Object.freeze({
   voyageCabin:'assets/harbor/voyage-cabin-v2.png',
   harborCrate:'assets/harbor/harbor-crate-v2.png',
   voyageReef:'assets/voyage/voyage-reef-v1.png',
-  voyageCoral:'assets/voyage/voyage-coral-v1.png'
+  voyageCoral:'assets/voyage/voyage-coral-v1.png',
+  voyageBow:'assets/voyage/voyage-bow-v1.png'
 });
 
 const MENU_ICON_URLS = Object.freeze({

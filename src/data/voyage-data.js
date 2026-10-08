@@ -64,5 +64,12 @@ function restoreSavedVoyageLocation(){
   }else if(trip&&GAME_STATE.regionId!==VOYAGE_ROUTE_BY_ID.get(trip.destination).regionId){
     progress.activeTrip=null;
     if(onDeck){GAME_STATE.regionId='coast';GAME_STATE.playerLocation={...VOYAGE_HARBOR_ENTRY};}
+  }else if(onDeck&&trip){
+    const definition=REGION_WORLDS[GAME_STATE.regionId],location=GAME_STATE.playerLocation;
+    if(definition.voyageDeck?.view==='bow'){
+      const onForwardDeck=location&&definition.bridgeAreas.some(a=>location.x>=a.x&&location.x<a.x+a.w&&location.y>=a.y&&location.y<a.y+a.h);
+      const occupied=location&&definition.npcs.some(n=>n.x===location.x&&n.y===location.y);
+      if(!onForwardDeck||occupied)GAME_STATE.playerLocation={...definition.playerSpawn};
+    }
   }
 }

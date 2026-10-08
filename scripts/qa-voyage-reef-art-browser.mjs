@@ -38,9 +38,9 @@ try{
    globalThis.marineRasterCalls={reef:0,coral:0};const original=CanvasRenderingContext2D.prototype.drawImage;
    CanvasRenderingContext2D.prototype.drawImage=function(...args){if(args[0]===imgs.voyageReef)marineRasterCalls.reef++;if(args[0]===imgs.voyageCoral)marineRasterCalls.coral++;return original.apply(this,args);};
    activeVoyage().tripSeed=seed;activeVoyage().remainingMs=593000;voyageClock.last=performance.now();
-   player.x=36;player.y=18;player.face='up';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
+   player.x=32;player.y=18;player.face='up';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
    camX=player.px-VIEW_W/2;camY=player.py-VIEW_H/2;worldTime.minutes=640;worldTime.debugLocked=true;weatherState.kind='clear';weatherState.debugLocked=true;
-   releaseVoyageScenes();updateWorldClockUI();drawWorld();return {...marineRasterCalls,seed,walkable:!blocked.has('36,18'),habitat:getFishingSpotInFront()?.fishingHabitat};
+   releaseVoyageScenes();updateWorldClockUI();drawWorld();return {...marineRasterCalls,seed,walkable:!blocked.has('32,18'),habitat:getFishingSpotInFront()?.fishingHabitat};
   });
   assert.ok(raster.reef>0&&raster.coral>0);assert.equal(raster.walkable,true);assert.equal(raster.habitat,'boat_shallow');
   await page.screenshot({path:path.join(out,width+'-reef-clear-top.png')});

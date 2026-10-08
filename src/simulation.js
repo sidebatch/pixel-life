@@ -121,11 +121,9 @@ function update(dt){
   }else if(!fishingLocked){
     const d=preferredDir(); if(d) tryMove(d);
   }
-  const targetX=player.px-VIEW_W/2, targetY=player.py-VIEW_H/2;
-  const maxX=Math.max(0,WORLD_W-VIEW_W), maxY=Math.max(0,WORLD_H-VIEW_H);
-  const tx=Math.max(0,Math.min(maxX,targetX)), ty=Math.max(0,Math.min(maxY,targetY));
-  camX += (tx-camX)*Math.min(1,dt*.008);
-  camY += (ty-camY)*Math.min(1,dt*.008);
+  const camera=getWorldCameraTarget();
+  if(WORLD_DEFINITION.voyageDeck?.view==='bow'){camX=camera.x;camY=camera.y;}
+  else{camX += (camera.x-camX)*Math.min(1,dt*.008);camY += (camera.y-camY)*Math.min(1,dt*.008);}
 }
 
 function hash2(x,y){

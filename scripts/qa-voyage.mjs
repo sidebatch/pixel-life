@@ -15,7 +15,7 @@ const runtime={Math,clearTimeout(){},lifeUi:{toastTimer:null},performance:{now:(
   player:{x:36,y:23,face:'up'},menuOpen:false,dialogOpen:false,
   isFishingActive:()=>phase!=='idle',clearMovement(){},toggleMenu(){},pushGameOverlayHistory(){},leaveGameOverlayHistory(){},
   closeInventory(){},closeFishDex(){},closeTreeDex(){},closeMarket(){},closeFarmPlot(){},closeCharacterStyle(){},isSkillLevelUpVisible:()=>false,showLifeToast(){},
-  enterWorldRegion(exit){runtime.GAME_STATE.regionId=exit.to;runtime.WORLD_DEFINITION=runtime.REGION_WORLDS[exit.to];Object.assign(runtime.player,exit.entry||{x:32,y:26,face:'down'});return true;},
+  enterWorldRegion(exit){runtime.GAME_STATE.regionId=exit.to;runtime.WORLD_DEFINITION=runtime.REGION_WORLDS[exit.to];Object.assign(runtime.player,exit.entry||{x:32,y:20,face:'up'});return true;},
   saveGame(){vm.runInContext('checkpointVoyageTime()',runtime);if(failSave)return false;saved=JSON.parse(JSON.stringify(runtime.GAME_STATE));return true;}
 };
 vm.createContext(runtime);

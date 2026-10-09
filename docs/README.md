@@ -15,12 +15,13 @@
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
 | 벌목 현재 수치 | [`FORESTRY_BALANCE.md`](FORESTRY_BALANCE.md) | 나무 HP·XP·가격·도끼 피해의 현재 임시값과 이력 |
-| 벌목 10단계 | [`FORESTRY_10_STAGE_DESIGN.md`](FORESTRY_10_STAGE_DESIGN.md) | 도끼 10종, 숲 확장, 향후 내구력·수리·소프트 난이도 |
+| 벌목 10단계 | [`FORESTRY_10_STAGE_DESIGN.md`](FORESTRY_10_STAGE_DESIGN.md) | 도끼 10종·숲·내구력·수리, 도끼 제한 유지 결정과 과거 설계 구분 |
 | 나무 50종 | [`FORESTRY_TREE_CATALOG.md`](FORESTRY_TREE_CATALOG.md) | 수종 ID·이름·구간·이미지 계약·적용 상태 |
 | 밸런스 계산 | [`FORESTRY_10_STAGE_BALANCE_SIMULATION.md`](FORESTRY_10_STAGE_BALANCE_SIMULATION.md) | 타수·수익·수리 후보값과 자동 시뮬레이션 기준 |
-| 낚시 현재 구현 | [`FISHING_PLAN.md`](FISHING_PLAN.md) | 현재 20종·6개 낚싯대·도감·보상·상점 |
+| 낚시 기본 계약 | [`FISHING_PLAN.md`](FISHING_PLAN.md) | 현재 74종·10낚싯대·내구도·도감/저장 계약과 v0.1 역사 기준 |
 | 낚시 호환 기준선 | [`FISHING_BASELINE_V1.json`](FISHING_BASELINE_V1.json) | 확장 중 보존할 기존 20종·6개 낚싯대·보상·저장·획득 계약 |
 | 낚시 74종 확장 | [`FISHING_74_EXPANSION_DESIGN.md`](FISHING_74_EXPANSION_DESIGN.md) | 코드 데이터와 자동 검증으로 연결된 10개 서식지·정정 로스터, 배·저장·단계별 구현 |
+| 낚시 경제·수리 | [`FISHING_BALANCE_SIMULATION.md`](FISHING_BALANCE_SIMULATION.md) | 수리 빈도 보정·실제 로직 표본·성장과 항로 수익·측정 전제 |
 | 생활 성장 | [`LIFE_SKILL_PROGRESSION.md`](LIFE_SKILL_PROGRESSION.md) | Lv.1–100과 숙련도의 공통 원칙 |
 | 장기 콘텐츠 | [`LONG_TERM_CONTENT_DESIGN.md`](LONG_TERM_CONTENT_DESIGN.md) | 아직 구현하지 않은 장기 방향과 현재 구현의 경계 |
 | 월드·UI | [`02_WORLD_UI_AND_SYSTEM_STANDARD.md`](02_WORLD_UI_AND_SYSTEM_STANDARD.md) | 모바일 화면, 이동, 상호작용, UI 기준 |
@@ -38,6 +39,13 @@
 - 임시 밸런스: 나무 HP·XP·판매가, 도끼 피해·코인·목재 수량
 - 보류: 낮은 도끼의 상위 나무 도전은 넣지 않고 현행 최소 도끼 제한 유지
 - 다음 작업: Android 대표 구간에서 실제 이동·선택과 마을 수리 왕복 시간을 재고 최대 내구도 주기를 조정
+
+## 현재 낚시와 다음 개발 후보 (2026-10-09)
+
+- 완료: 물고기 74종·10서식지·낚싯대 10종·승선권 4항로·표시 중 10분 운항·비반복 바다 연출·도감/졸업/꾸미기·마을 부분 수리·기존 저장 호환. 기본 낚싯대는 무한이며 유료 장비의 획득 마모는 내륙·해안 1 / 바다 6·8·10·12다.
+- 다음 개발 추천: 농사 스킬 분류/성장 설계 → 농사 도구·작물 도감/보상 → 요리 최소 루프. 직업 의상·주거·의뢰·전투는 별도 선택/장기 후보이며 승인 없이 구현하지 않는다.
+- 농사는 작물 10종·4×4 밭의 초기 4칸/개별 구매·심기·오프라인 성장·수확/판매/저장까지 있다. 농사 XP·낫·작물 도감은 아직 없다. 이미 있는 밭 구매를 새 기능으로 착각하지 않는다.
+- Android 체감과 설치 앱 비행기 모드 확인은 사용자 결정에 따라 나중에 한다. 상세 우선순위와 승인 경계는 [`HANDOFF.md`](HANDOFF.md)의 최신 `다음 작업 안내`를 따른다.
 
 ## 새 세션 시작 명령
 

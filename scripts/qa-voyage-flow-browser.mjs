@@ -65,12 +65,20 @@ try{
     for(let elapsed=0;elapsed<600000;elapsed+=1000){
      const prior=new Map([...voyageSceneCache.objects].map(([id,o])=>[id,{o,r:voyageSceneryRect(o,elapsed-1000)}]));
      syncVoyageScenes(seed,elapsed,destination);
-     if(elapsed>0)for(const [id,{o,r}] of prior){if(o.spawnMs<=elapsed-1000&&r.y+r.h>0&&r.y<VIEW_H&&o.exitMs>elapsed){check(voyageSceneCache.objects.get(id)===o,'Visible decoration disappeared');observations++;}}
+     if(elapsed>0)for(const [id,{o,r}] of prior){if(o.spawnMs<=elapsed-1000&&r.y+r.h>0&&r.y<VIEW_H&&o.exitMs>elapsed){
+      check(voyageSceneCache.objects.get(id)===o,'Visible decoration disappeared');
+      check(voyageSceneryRect(o,elapsed).y-r.y===voyageSurfaceDistance(elapsed)-voyageSurfaceDistance(elapsed-1000),'Surface object overtook/drifted relative to its neighbors');observations++;
+     }}
      maxObjects=Math.max(maxObjects,voyageSceneCache.objects.size);maxBytes=Math.max(maxBytes,[...voyageSceneCache.objects.values()].reduce((n,o)=>n+o.canvas.width*o.canvas.height*4,0));
     }
     check(maxObjects<=32&&maxBytes<2*1024*1024,'Unbounded artwork memory');check(observations>100,'Temporal sample must include visible scenery');
+    // Fractional frame times must share the exact same pixel-grid step too.
+    let pairs=0;for(const a of voyageSceneCache.objects.values())for(const b of voyageSceneCache.objects.values())if(a.id<b.id&&a.side===b.side){
+     const t=Math.max(a.spawnMs,b.spawnMs)+1000,gap=voyageSceneryRect(a,t).y-voyageSceneryRect(b,t).y;
+     for(const delta of [16.7,33.4,100.25,2000.75])check(voyageSceneryRect(a,t+delta).y-voyageSceneryRect(b,t+delta).y===gap,'Fractional frames change object separation');pairs++;
+    }check(pairs>0,'Pairwise drift test must exercise side neighbors');
     activeVoyage().tripSeed=20;activeVoyage().remainingMs=576000;voyageClock.last=performance.now();releaseVoyageScenes();drawWorld();
-    return {tested,maxObjects,maxBytes,observations};
+    return {tested,maxObjects,maxBytes,observations,pairs,noOvertaking:true};
    },destination);
    await page.screenshot({path:path.join(out,width+'-'+destination+'-passing.png')});
    const normal=await page.evaluate(()=>{const t=24000;return [...voyageSceneCache.objects.values()].map(o=>({id:o.id,...voyageSceneryRect(o,t)}));});
@@ -82,5 +90,5 @@ try{
   await context.close();
  }
  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({reports,errors},null,2));
- console.log('Voyage continuous flow passed: '+JSON.stringify({viewports:[393,320],landmarkVariants:reports.reduce((n,r)=>n+r.tested.length,0),fourRoutes:true,pixelRowEntryExit:true,noSolidFade:true,sceneBoundaryRetention:true,clearHullCorridor:true,deterministicRestore:true,boundedSprites:true,errors}));
+ console.log('Voyage continuous flow passed: '+JSON.stringify({viewports:[393,320],landmarkVariants:reports.reduce((n,r)=>n+r.tested.length,0),fourRoutes:true,pixelRowEntryExit:true,noSolidFade:true,noOvertaking:true,sceneBoundaryRetention:true,clearHullCorridor:true,deterministicRestore:true,boundedSprites:true,errors}));
 }finally{await browser.close();}

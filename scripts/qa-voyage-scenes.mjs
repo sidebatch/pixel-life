@@ -163,8 +163,10 @@ for(const destination of ['shallow','mid','deep','glacier']){
       const info=vm.runInContext(`(()=>{
         const before=new Map([...voyageSceneCache.objects].map(([id,o])=>[id,{o,r:voyageSceneryRect(o,flowElapsed-1000)}]));
         syncVoyageScenes(flowSeed,flowElapsed,flowDestination);let retained=0;
+        const surfaceStep=voyageSurfaceDistance(flowElapsed)-voyageSurfaceDistance(flowElapsed-1000);
         for(const [id,{o,r}] of before)if(o.spawnMs<=flowElapsed-1000&&r.y+r.h>0&&r.y<VIEW_H&&o.exitMs>flowElapsed){
           if(voyageSceneCache.objects.get(id)!==o)throw Error('Visible object discarded at scene transition');retained++;
+          if(voyageSceneryRect(o,flowElapsed).y-r.y!==surfaceStep)throw Error('Surface objects drift/overtake each other');
         }
         for(const o of voyageSceneCache.objects.values()){
           const birth=voyageSceneryRect(o,o.spawnMs),exit=voyageSceneryRect(o,o.exitMs-1);
@@ -181,4 +183,4 @@ for(const destination of ['shallow','mid','deep','glacier']){
   }
 }
 assert.ok(observed>10000);
-console.log('Continuous scenery passed: '+JSON.stringify({observed,allFourRoutes:true,topBottomClipping:true,noVisibleRetirement:true,hullCorridorClear:true,restore:true,maxSpriteBytes:2097152}));
+console.log('Continuous scenery passed: '+JSON.stringify({observed,allFourRoutes:true,topBottomClipping:true,noVisibleRetirement:true,noOvertaking:true,hullCorridorClear:true,restore:true,maxSpriteBytes:2097152}));

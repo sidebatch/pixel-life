@@ -66,7 +66,7 @@ try{
      return {farDelta:b.y-a.y,midDelta:d.y-c.y,sides:objects.filter(o=>o.layer==='mid').map(o=>o.side),
       safe:objects.every(o=>{const r=voyageSceneryRect(o,time);return o.side<0?r.x+r.w<=102-6:r.x>=438+6;})};
     });assert.ok(motion.sides.includes(-1)&&motion.sides.includes(1),'Both side lanes must have scenery');
-    assert.ok(motion.farDelta>0&&motion.midDelta>motion.farDelta);assert.ok(motion.safe,'Solid objects must never intrude into the boat corridor');
+    assert.ok(motion.farDelta>0);assert.equal(motion.midDelta,motion.farDelta,'Shared surface scenery must not overtake');assert.ok(motion.safe,'Solid objects must never intrude into the boat corridor');
     await page.evaluate(()=>{weatherState.kind='rain';updateWorldClockUI();drawWorld();});
     await page.screenshot({path:path.join(out,width+'-shallow-rain.png')});await page.evaluate(()=>weatherState.kind='clear');
    }

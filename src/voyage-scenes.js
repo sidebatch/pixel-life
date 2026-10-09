@@ -55,6 +55,10 @@ function voyageSceneAt(seed,elapsedMs,destination='shallow'){
   return scene;
 }
 // Scene metadata can rotate, but every solid decoration has its own lifetime.
+// One shared surface displacement: fixed objects cannot overtake each other.
+// Snap the distance once, not each object's age, to avoid relative pixel jitter.
+const VOYAGE_SURFACE_SPEED=34;
+function voyageSurfaceDistance(elapsedMs){return Math.floor(elapsedMs/1000*VOYAGE_SURFACE_SPEED/2)*2;}
 const voyageSceneCache={key:null,generator:null,current:null,next:null,composites:new Map(),objects:new Map(),built:0,lastElapsed:-1};
 const voyageMotionQuery=typeof window!=='undefined'?window.matchMedia?.('(prefers-reduced-motion: reduce)'):null;
 function releaseVoyageScenes(){
@@ -197,9 +201,10 @@ function composeVoyageScene(scene){
     const paint=canvas.getContext('2d');paint.imageSmoothingEnabled=false;
     paintObject(paint,canvas.width/2,layer==='far'?88:32);
     const scale=layer==='far'?.8:1.4,w=Math.round(canvas.width*scale),h=Math.round(canvas.height*scale);
-    const speed=layer==='far'?26:46,inset=8+Math.round(random()*12);
+    const speed=VOYAGE_SURFACE_SPEED,inset=8+Math.round(random()*12);
+    const originY=Math.ceil((h+2)/2)*2+voyageSurfaceDistance(spawnMs);
     objects.push({id:`${scene.index}:${objects.length}`,sceneIndex:scene.index,layer,side,canvas,w,h,inset,spawnMs,
-      exitMs:spawnMs+(VIEW_H+h+4)/speed*1000,speed});
+      exitMs:(originY+Math.ceil(VIEW_H/2)*2+2)/speed*1000,speed,originY});
   };
   if(scene.landmark){
     const kind=pool.landmarks[scene.landmark];
@@ -257,7 +262,7 @@ function voyageSceneryRect(object,elapsedMs){
   // Entire sprite bounds stay outside the hull corridor, including above its bow.
   // Oversized outer portions are allowed to crop at the left/right frame edges.
   const x=object.side<0?boatLeft-object.inset-object.w:boatRight+object.inset;
-  const y=Math.floor((-object.h-2+(elapsedMs-object.spawnMs)/1000*object.speed)/2)*2;
+  const y=voyageSurfaceDistance(elapsedMs)-object.originY;
   return {x:Math.round(x/2)*2,y,w:object.w,h:object.h};
 }
 function drawVoyageScenery(elapsedMs){

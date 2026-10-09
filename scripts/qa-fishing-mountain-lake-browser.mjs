@@ -82,13 +82,13 @@ try{
   assert.equal(restored.region,'mountainLake');assert.equal(restored.x,31);assert.equal(restored.y,30);assert.ok(restored.safe);
   assert.deepEqual(restored.ids,ids);assert.equal(restored.inventory,7);
   await page.locator('#menuBtn').tap();await page.locator('#openFishDexBtn').tap();
-  await page.locator('[data-fish-category="inland"]').tap();await page.locator('[data-fish-habitat="mountain_lake"]').tap();
-  assert.equal(await page.locator('#fishDexGrid .fishDexCard.discovered').count(),7);
+  await page.locator('[data-fish-category="inland"]').tap();
+  assert.equal(await page.evaluate(habitat=>FISH_DATA.filter(f=>f.habitat===habitat).filter(f=>document.querySelector('#fishDexGrid [data-fish-id="'+f.id+'"]')?.classList.contains('discovered')).length,'mountain_lake'),7);
   await page.screenshot({path:path.join(output,'393-lake-discovered-dex.png')});
   await page.setViewportSize({width:320,height:568});
   const overflow=await page.evaluate(()=>{
     const panel=document.getElementById('fishDexPanel').getBoundingClientRect();
-    return [...document.querySelectorAll('#fishDexGrid [data-fish-id],#fishDexHabitatTabs button')].some(e=>{
+    return [...document.querySelectorAll('#fishDexGrid [data-fish-id],#fishDexCategoryTabs button')].some(e=>{
       const box=e.getBoundingClientRect();return box.left<panel.left-1||box.right>panel.right+1;
     });
   });

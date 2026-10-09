@@ -4,7 +4,7 @@ const FISH_DEX_LABELS=Object.freeze({
   weather:{clear:'맑음',rain:'비',storm:'폭풍'}
 });
 
-const fishDexState={open:false,detailOpen:false,category:'all',habitat:null,openHabitatId:null,selectedFishId:null};
+const fishDexState={open:false,detailOpen:false,category:'all',rewardsOpen:false,selectedFishId:null};
 
 function isFishDexOpen(){ return fishDexState.open; }
 function isFishDexDetailOpen(){ return fishDexState.detailOpen; }
@@ -14,22 +14,9 @@ function getFishDexRecord(fishId){
 }
 
 function fishDexList(){
-  if(fishDexState.habitat) return FISH_DATA.filter(fish=>fish.habitat===fishDexState.habitat);
   if(fishDexState.category==='all') return FISH_DATA;
   const habitatIds=new Set((FISHING_HABITATS_BY_GROUP[fishDexState.category]||[]).map(habitat=>habitat.id));
   return FISH_DATA.filter(fish=>habitatIds.has(fish.habitat));
-}
-
-function fishDexVisibleHabitats(){
-  if(fishDexState.habitat){
-    const habitat=FISHING_HABITAT_BY_ID.get(fishDexState.habitat);
-    return habitat?[habitat]:[];
-  }
-  if(fishDexState.category==='all'){
-    const liveHabitats=new Set(FISH_DATA.map(fish=>fish.habitat));
-    return FISHING_HABITATS.filter(habitat=>liveHabitats.has(habitat.id));
-  }
-  return FISHING_HABITATS_BY_GROUP[fishDexState.category]||[];
 }
 
 function fishDexConditionText(values,labels,fallback){
@@ -97,68 +84,43 @@ function renderFishDexDetail(fish){
 function fishDexCardMarkup(fish){
   const found=!!getFishDexRecord(fish.id);
   return `<button type="button" class="fishDexCard ${found?'discovered':'undiscovered'} rarity-${fish.rarity}" data-fish-id="${fish.id}" aria-label="${found?`${fish.name} · ${FISH_RARITY_LABELS[fish.rarity]}`:'미발견 물고기'}" aria-haspopup="dialog">
-    <span class="fishDexCardIcon">${found?`<img src="${getFishImageUrl(fish)}" alt="">`:'?'}</span>
+    <span class="fishDexCardIcon">${found?`<img src="${getFishImageUrl(fish)}" alt="" loading="lazy" decoding="async">`:'?'}</span>
     <b>${found?fish.name:'???'}</b>
-    ${found?'':'<small>미발견</small>'}
   </button>`;
 }
 
-function renderFishDexHabitatTabs(){
-  const tabs=document.getElementById('fishDexHabitatTabs');
-  if(fishDexState.category==='all'){
-    tabs.hidden=true;
-    tabs.replaceChildren();
-    return;
-  }
-  const group=FISHING_HABITAT_GROUPS.find(item=>item.id===fishDexState.category);
-  const habitats=FISHING_HABITATS_BY_GROUP[fishDexState.category]||[];
-  tabs.hidden=false;
-  tabs.innerHTML=[
-    `<button type="button" role="tab" aria-selected="${String(fishDexState.habitat===null)}" aria-controls="fishDexScroll" data-fish-habitat="all" class="${fishDexState.habitat===null?'active':''}">${group?.label||''} 전체</button>`,
-    ...habitats.map(habitat=>`<button type="button" role="tab" aria-selected="${String(fishDexState.habitat===habitat.id)}" aria-controls="fishDexScroll" data-fish-habitat="${habitat.id}" class="${fishDexState.habitat===habitat.id?'active':''}">${habitat.shortLabel}</button>`)
-  ].join('');
-  tabs.querySelectorAll('[data-fish-habitat]').forEach(button=>{
-    button.addEventListener('click',()=>{
-      fishDexState.habitat=button.dataset.fishHabitat==='all'?null:button.dataset.fishHabitat;
-      fishDexState.openHabitatId=fishDexState.habitat;
-      fishDexState.selectedFishId=null;
-      renderFishDex();
-    });
-  });
-}
-
-function renderFishDexSections(){
-  const sections=fishDexVisibleHabitats();
-  if(!sections.some(habitat=>habitat.id===fishDexState.openHabitatId)){
-    fishDexState.openHabitatId=(sections.find(habitat=>FISH_DATA.some(fish=>fish.habitat===habitat.id))||sections[0])?.id||null;
-  }
+function renderFishDexGrid(){
   const container=document.getElementById('fishDexGrid');
-  container.innerHTML=sections.map(habitat=>{
-    const fish=FISH_DATA.filter(item=>item.habitat===habitat.id);
-    const discovered=fish.filter(item=>getFishDexRecord(item.id)).length;
-    const open=habitat.id===fishDexState.openHabitatId;
-    const graduated=typeof getFishDexRewardState==='function'&&getFishDexRewardState().habitatIds.includes(habitat.id);
-    const progress=fish.length?`${discovered} / ${fish.length}종`:`목표 ${habitat.targetSpeciesCount}종 · 준비 중`;
-    const body=!open?'':fish.length?
-      `<div class="fishDexSectionBody"><div class="fishDexSectionGrid">${fish.map(fishDexCardMarkup).join('')}</div></div>`:
-      '<div class="fishDexSectionBody"><p class="fishDexSectionEmpty">아직 이 서식지에서 만날 수 있는 물고기가 없습니다.<br>지역이 열리면 도감 카드가 추가됩니다.</p></div>';
-    return `<section class="fishDexHabitatSection ${open?'open':''} ${graduated?'fish-habitat-graduated':''}" data-fish-section="${habitat.id}">
-      <button type="button" class="fishDexSectionToggle" data-fish-section-toggle="${habitat.id}" aria-expanded="${String(open)}">
-        <span><b>${habitat.label}</b><small>${progress}</small></span>${graduated?'<em class="fishHabitatSeal" aria-label="서식지 졸업 도장">✓</em>':''}<i aria-hidden="true">⌄</i>
-      </button>${body}
-    </section>`;
-  }).join('');
-  container.querySelectorAll('[data-fish-section-toggle]').forEach(button=>{
-    button.addEventListener('click',()=>{
-      const habitatId=button.dataset.fishSectionToggle;
-      if(fishDexState.openHabitatId===habitatId) return;
-      fishDexState.openHabitatId=habitatId;
-      renderFishDexSections();
-    });
-  });
+  container.innerHTML=fishDexList().map(fishDexCardMarkup).join('');
   container.querySelectorAll('[data-fish-id]').forEach(button=>{
     button.addEventListener('click',()=>openFishDexDetail(button.dataset.fishId));
   });
+}
+function renderFishDexRewardsList(){
+  const discovered=getDiscoveredFishCount(),state=getFishDexRewardState();
+  const row=(label,description,status)=>`<li><div><b>${label}</b><small>${description}</small></div><span>${status}</span></li>`;
+  const legacy=FISH_COLLECTION_REWARDS.map(reward=>row(reward.count+'종',reward.label,discovered>=reward.count?'달성':'미달성')).join('');
+  const milestones=FISH_DEX_MILESTONES.map(reward=>row(reward.count+'종',reward.name,state.milestoneIds.includes(reward.id)?'달성':'미달성')).join('');
+  const habitats=FISHING_HABITATS.map(habitat=>{
+    const species=FISH_DATA.filter(fish=>fish.habitat===habitat.id),found=species.filter(fish=>getFishDexRecord(fish.id)).length;
+    return `<li><div><b>${habitat.label}</b><small>${found} / ${species.length}종 발견</small></div>${state.habitatIds.includes(habitat.id)?'<em class="fishHabitatSeal" aria-label="서식지 졸업 도장">✓</em>':'<span>미완성</span>'}</li>`;
+  }).join('');
+  document.getElementById('fishDexRewardsList').innerHTML='<h3>발견 보상</h3><ul>'+legacy+milestones+'</ul><h3>서식지 완성</h3><ul>'+habitats+'</ul>';
+}
+function isFishDexRewardsOpen(){return fishDexState.rewardsOpen;}
+function openFishDexRewards(options={}){
+  if(!fishDexState.open||fishDexState.detailOpen||isFishDexRewardsOpen())return;
+  renderFishDexReward(getDiscoveredFishCount());renderFishDexRewardsList();fishDexState.rewardsOpen=true;
+  const modal=document.getElementById('fishDexRewardsModal');modal.classList.add('show');modal.setAttribute('aria-hidden','false');modal.removeAttribute('inert');
+  document.getElementById('fishDexRewardsClose').focus();
+  if(!options.fromHistory)pushGameOverlayHistory('fish-dex-rewards');
+}
+function closeFishDexRewards(options={}){
+  if(!isFishDexRewardsOpen())return;
+  fishDexState.rewardsOpen=false;const modal=document.getElementById('fishDexRewardsModal');
+  modal.classList.remove('show');modal.setAttribute('aria-hidden','true');modal.setAttribute('inert','');
+  document.getElementById('fishDexRewardsBtn').focus({preventScroll:true});
+  if(!options.fromHistory)leaveGameOverlayHistory('fish-dex-rewards');
 }
 
 function renderFishDex(){
@@ -174,13 +136,13 @@ function renderFishDex(){
     button.classList.toggle('active',active);
     button.setAttribute('aria-selected',String(active));
   });
-  renderFishDexHabitatTabs();
-  renderFishDexSections();
+  renderFishDexGrid();
+  if(isFishDexRewardsOpen())renderFishDexRewardsList();
 }
 
 function openFishDexDetail(fishId,options={}){
   const fish=FISH_DATA.find(item=>item.id===fishId);
-  if(!fish||!fishDexState.open) return;
+  if(!fish||!fishDexState.open||isFishDexRewardsOpen()) return;
   fishDexState.selectedFishId=fishId;
   fishDexState.detailOpen=true;
   renderFishDexDetail(fish);
@@ -221,6 +183,7 @@ function openFishDex(options={}){
 }
 
 function closeFishDex(options={}){
+  if(isFishDexRewardsOpen())closeFishDexRewards({fromHistory:true});
   if(fishDexState.detailOpen) closeFishDexDetail({fromHistory:true});
   fishDexState.open=false;
   menuOpen=false;
@@ -233,11 +196,19 @@ function closeFishDex(options={}){
 document.getElementById('openFishDexBtn').addEventListener('click',openFishDex);
 document.getElementById('fishDexClose').addEventListener('click',closeFishDex);
 document.getElementById('fishDexModalClose').addEventListener('click',closeFishDexDetail);
+document.getElementById('fishDexRewardsBtn').addEventListener('click',openFishDexRewards);
+document.getElementById('fishDexRewardsClose').addEventListener('click',closeFishDexRewards);
+document.getElementById('fishDexRewardsModal').addEventListener('click',event=>{
+  if(event.target.classList.contains('fishDexModalBackdrop'))closeFishDexRewards();
+});
+document.getElementById('fishDexRewardsModal').addEventListener('keydown',event=>{
+  if(event.key==='Escape'){event.preventDefault();event.stopPropagation();closeFishDexRewards();}
+  else if(event.key==='Tab'){event.preventDefault();event.stopPropagation();document.getElementById('fishDexRewardsClose').focus();}
+});
 document.querySelectorAll('[data-fish-category]').forEach(button=>{
   button.addEventListener('click',()=>{
     fishDexState.category=button.dataset.fishCategory;
-    fishDexState.habitat=null;
-    fishDexState.openHabitatId=null;
+    document.getElementById('fishDexScroll').scrollTop=0;
     fishDexState.selectedFishId=null;
     renderFishDex();
   });

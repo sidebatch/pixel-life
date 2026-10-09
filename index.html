@@ -123,8 +123,8 @@
       </div>
       <div id="fishDexPanel" class="fishDexPanel" aria-label="물고기 도감" aria-hidden="true">
         <div class="fishDexHeader">
-          <div><span>FISH COLLECTION</span><h2>물고기 도감</h2></div>
-          <div class="fishDexHeaderRight"><b id="fishDexProgress">0 / 46</b><button id="fishDexClose" type="button" aria-label="도감 닫기">×</button></div>
+          <div><span>FISH COLLECTION</span><div class="fishDexTitleRow"><h2>물고기 도감</h2><b id="fishDexProgress">0 / 74</b></div></div>
+          <div class="fishDexHeaderRight"><button id="fishDexClose" type="button" aria-label="도감 닫기">×</button></div>
         </div>
         <div class="fishDexTabs" id="fishDexCategoryTabs" role="tablist" aria-label="도감 대분류">
           <button type="button" role="tab" aria-selected="true" aria-controls="fishDexScroll" data-fish-category="all" class="active">전체</button>
@@ -132,10 +132,20 @@
           <button type="button" role="tab" aria-selected="false" aria-controls="fishDexScroll" data-fish-category="coastal">해안</button>
           <button type="button" role="tab" aria-selected="false" aria-controls="fishDexScroll" data-fish-category="offshore">원양</button>
         </div>
-        <div class="fishDexHabitatTabs" id="fishDexHabitatTabs" role="tablist" aria-label="도감 서식지" hidden></div>
-        <div class="fishDexReward" id="fishDexReward" aria-live="polite"></div>
         <div class="fishDexScroll" id="fishDexScroll" role="tabpanel">
-          <div class="fishDexSections" id="fishDexGrid"></div>
+          <div class="fishDexGrid" id="fishDexGrid"></div>
+        </div>
+        <div class="fishDexActions"><button id="fishDexRewardsBtn" type="button" aria-haspopup="dialog">보상 보기</button></div>
+      </div>
+      <div id="fishDexRewardsModal" class="fishDexModal" role="dialog" aria-modal="true" aria-labelledby="fishDexRewardsTitle" aria-hidden="true" inert>
+        <div class="fishDexModalBackdrop"></div>
+        <div class="fishDexModalSheet">
+          <button id="fishDexRewardsClose" type="button" aria-label="도감 보상 닫기">×</button>
+          <section class="fishDexRewardReview">
+            <h2 id="fishDexRewardsTitle">도감 보상</h2>
+            <div class="fishDexReward" id="fishDexReward"></div>
+            <div id="fishDexRewardsList"></div>
+          </section>
         </div>
       </div>
       <div id="fishDexModal" class="fishDexModal" role="dialog" aria-modal="true" aria-label="물고기 정보" aria-hidden="true">

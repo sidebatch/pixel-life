@@ -87,6 +87,7 @@ function pressB(){
   else if(dialogOpen) closeDialog();
   else if(typeof isHarborOpen==='function'&&isHarborOpen())closeHarbor();
   else if(typeof isInventoryDetailOpen==='function'&&isInventoryDetailOpen()) closeInventoryDetail();
+  else if(typeof isFishDexRewardsOpen==='function'&&isFishDexRewardsOpen()) closeFishDexRewards();
   else if(typeof isFishDexDetailOpen==='function'&&isFishDexDetailOpen()) closeFishDexDetail();
   else if(typeof isFishDexOpen==='function'&&isFishDexOpen()) closeFishDex();
   else if(typeof isTreeDexDetailOpen==='function'&&isTreeDexDetailOpen()) closeTreeDexDetail();
@@ -137,6 +138,12 @@ window.addEventListener('popstate',()=>{
     renderInventory();openInventoryDetail(type,id,{fromHistory:true});return;
   }
   if(isInventoryDetailOpen())closeInventoryDetail({fromHistory:true});
+  if(layer==='fish-dex-rewards'){
+    if(!isFishDexOpen())openFishDex({fromHistory:true});
+    if(!isFishDexRewardsOpen())openFishDexRewards({fromHistory:true});
+    return;
+  }
+  if(isFishDexRewardsOpen())closeFishDexRewards({fromHistory:true});
   if(layer==='fish-detail'){
     if(!isFishDexOpen()) openFishDex({fromHistory:true});
     if(!isFishDexDetailOpen()) openFishDexDetail(window.history.state.fishId,{fromHistory:true});

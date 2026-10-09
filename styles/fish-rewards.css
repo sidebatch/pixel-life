@@ -1,11 +1,25 @@
 /* Cosmetic fish rewards follow the existing code-native collection UI. */
+.fishDexTitleRow{display:flex;align-items:center;gap:9px;margin-top:2px}
+.fishDexTitleRow>b{font-size:11px;font-weight:850;color:#a5ddd0;white-space:nowrap}
+#fishDexCategoryTabs button{min-height:40px}
+.fishDexActions{display:flex;flex:none;justify-content:flex-end;padding:8px 14px 12px;border-top:1px solid #ffffff0c}
+.fishDexActions button{min-height:40px;padding:6px 13px;border:1px solid #b8d9c32e;border-radius:11px;background:#ffffff08;color:#c5dfd2;font:800 11px system-ui}
+.fishDexRewardReview{min-height:0;overflow-y:auto;padding:0 14px 18px;overscroll-behavior:contain}
+.fishDexRewardReview h2{margin:0 0 14px;font-size:22px;color:#edfff6}
+.fishDexRewardReview h3{margin:17px 0 8px;font-size:12px;color:#c1e3d5}
+.fishDexRewardReview .fishDexReward{margin:0}
+.fishDexRewardReview ul{padding:0;margin:0;list-style:none}
+.fishDexRewardReview li{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 2px;border-bottom:1px solid #ffffff10}
+.fishDexRewardReview li>div{min-width:0}.fishDexRewardReview li b,.fishDexRewardReview li small{display:block}
+.fishDexRewardReview li b{font-size:11px;color:#e0f4eb}.fishDexRewardReview li small{margin-top:3px;font-size:10px;line-height:1.45;color:#9fbdb0}
+.fishDexRewardReview li>span{flex:none;font-size:9px;color:#aac9bb}.fishDexRewardReview .fishHabitatSeal{margin:0}
+.fishDexActions button:focus-visible{outline:2px solid #dff5c9;outline-offset:2px}
 .fishDexTitleBadge{display:block;margin-top:4px;color:#a6e9df;font-size:9px;font-style:normal;font-weight:850}
 .fishDexPanel.fish-reward-wave{border:2px solid #90cfd9;box-shadow:inset 0 0 0 3px #2b667766,0 0 22px #89dae129,0 22px 70px #0009}
 .fishDexPanel.fish-reward-wave .fishDexHeader{background:repeating-linear-gradient(165deg,#68c7d409 0 10px,#c1edf311 10px 12px)}
 .fishDexPanel.fish-reward-aurora{border:2px solid #a8f3d6;box-shadow:inset 0 0 0 2px #aba3f755,0 0 26px #80e7d342,0 22px 70px #0009;animation:fishAuroraFrame 6s ease-in-out infinite}
 .fishDexPanel.fish-reward-aurora .fishDexHeader{background:linear-gradient(110deg,#88d7d522,#c2a3eb22,#b8efc61c)}
 .fishHabitatSeal{display:grid;place-items:center;flex:0 0 29px;width:29px;height:29px;margin-left:auto;margin-right:9px;border:2px double #b1ead9;border-radius:50%;color:#c1f7e6;background:#2f806444;font-size:16px;font-style:normal;transform:rotate(-12deg)}
-.fish-habitat-graduated{border-color:#98d8c655!important}
 .fishRewardOverlay{position:absolute;z-index:39;inset:0;display:none;align-items:center;justify-content:center;padding:18px;pointer-events:auto}
 .fishRewardOverlay.show{display:flex}
 .fishRewardBackdrop{position:absolute;inset:0;background:radial-gradient(circle at 50% 42%,#6fdac133,#020f1bea 70%);backdrop-filter:blur(4px)}

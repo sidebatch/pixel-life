@@ -34,8 +34,11 @@ try{
     const migrated=await page.evaluate(()=>({state:getFishDexRewardState(),pending:pendingFishDexReward(),coins:GAME_STATE.progression.coins,stock:GAME_STATE.inventory.find(f=>f.id==='fish.coelacanth'),title:fishDexActiveTitle()}));
     assert.equal(migrated.state.milestoneIds.length,5);assert.equal(migrated.state.habitatIds.length,10);assert.equal(migrated.pending,null);assert.equal(migrated.coins,999);assert.equal(migrated.title,'세계의 강태공');
     assert.deepEqual([migrated.stock.quantity,migrated.stock.sizeCm,migrated.stock.price],[3,132.7,1478]);
-    await page.evaluate(()=>openFishDex());assert.equal(await page.locator('.fishHabitatSeal').count(),10);
+    await page.evaluate(()=>openFishDex());assert.equal(await page.locator('#fishDexPanel .fishHabitatSeal').count(),0);
+    await page.locator('#fishDexRewardsBtn').tap();assert.equal(await page.locator('.fishHabitatSeal').count(),10);
+    assert.equal(await page.evaluate(()=>isFishDexRewardsOpen()),true);
     await page.screenshot({path:path.join(out,width+'-legacy-quiet.png')});
+    await page.locator('#fishDexRewardsClose').tap();await page.waitForFunction(()=>!isFishDexRewardsOpen());
     const milestones=[];
     for(const count of [30,40,50,60,74]){
       await page.evaluate(count=>{
@@ -56,7 +59,7 @@ try{
       assert.equal(await page.evaluate(()=>JSON.stringify({coins:GAME_STATE.progression.coins,inventory:GAME_STATE.inventory,fishing:GAME_STATE.progression.fishing,flags:GAME_STATE.progression.flags})),before);
       const frame=await page.evaluate(()=>({wave:document.getElementById('fishDexPanel').classList.contains('fish-reward-wave'),aurora:document.getElementById('fishDexPanel').classList.contains('fish-reward-aurora')}));
       if(count===40)assert.equal(frame.wave,true);if(count===74)assert.equal(frame.aurora,true);
-      const overflow=await page.evaluate(()=>{const b=document.getElementById('fishDexPanel').getBoundingClientRect();return [...document.querySelectorAll('#fishDexGrid [data-fish-section],#fishDexCategoryTabs button')].some(el=>{const r=el.getBoundingClientRect();return r.left<b.left-1||r.right>b.right+1;});});assert.equal(overflow,false);
+      const overflow=await page.evaluate(()=>{const b=document.getElementById('fishDexPanel').getBoundingClientRect();return [...document.querySelectorAll('#fishDexGrid [data-fish-id],#fishDexCategoryTabs button')].some(el=>{const r=el.getBoundingClientRect();return r.left<b.left-1||r.right>b.right+1;});});assert.equal(overflow,false);
     }
     // A modern save with earned but unacknowledged rewards keeps all 15 cards.
     await page.evaluate(()=>{closeFishDex({fromHistory:true});clearVoyageOverlayHistory();GAME_STATE.collections.fishRewards=normalizeSavedFishDexRewards({schemaVersion:1},GAME_STATE.collections.fish);saveGame();});

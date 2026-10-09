@@ -73,10 +73,10 @@ try{
     await page.evaluate(()=>saveGame());await page.reload();await page.waitForFunction(()=>typeof drawVoyageSea==='function'&&!document.getElementById('startupLoading'));
     const savedFish=await page.evaluate(()=>({inventory:GAME_STATE.inventory.filter(f=>SAVE_FISH_BY_ID.get(f.id)?.habitat==='boat_shallow').length,
       records:FISH_DATA.filter(f=>f.habitat==='boat_shallow'&&GAME_STATE.collections.fish[f.id]?.count===1).length}));assert.deepEqual(savedFish,{inventory:7,records:7});
-    await page.locator('#menuBtn').tap();await page.locator('#openFishDexBtn').tap();await page.locator('[data-fish-category="offshore"]').tap();await page.locator('[data-fish-habitat="boat_shallow"]').tap();
-    assert.equal(await page.locator('#fishDexGrid .fishDexCard.discovered').count(),7);
+    await page.locator('#menuBtn').tap();await page.locator('#openFishDexBtn').tap();await page.locator('[data-fish-category="offshore"]').tap();
+    assert.equal(await page.evaluate(habitat=>FISH_DATA.filter(f=>f.habitat===habitat).filter(f=>document.querySelector('#fishDexGrid [data-fish-id="'+f.id+'"]')?.classList.contains('discovered')).length,'boat_shallow'),7);
     const overflow=await page.evaluate(()=>{
-      const panel=document.getElementById('fishDexPanel').getBoundingClientRect();return [...document.querySelectorAll('#fishDexGrid [data-fish-id],#fishDexHabitatTabs button')].some(e=>{const b=e.getBoundingClientRect();return b.left<panel.left-1||b.right>panel.right+1;});
+      const panel=document.getElementById('fishDexPanel').getBoundingClientRect();return [...document.querySelectorAll('#fishDexGrid [data-fish-id],#fishDexCategoryTabs button')].some(e=>{const b=e.getBoundingClientRect();return b.left<panel.left-1||b.right>panel.right+1;});
     });assert.equal(overflow,false);await page.screenshot({path:path.join(output,`${width}-shallow-dex.png`)});await page.locator('#fishDexClose').tap();
     const sale=await page.evaluate(()=>{
       if(!returnFromVoyage())throw Error('Could not return to harbor');enterWorldRegion(REGION_EXITS.coast.find(e=>e.to==='lilacVillage'));openMarket();

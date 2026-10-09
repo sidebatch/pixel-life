@@ -151,7 +151,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 401, `Expected 401 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 409, `Expected 409 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -364,7 +364,7 @@ vm.runInContext(`${read('src/data/fishing-gear-data.js')}\n`+
   `globalThis.__rods=FISHING_RODS;globalThis.__defaultRod=DEFAULT_FISHING_ROD_ID;`,fishingGearContext);
 const fishingRods=fishingGearContext.__rods;
 assert(fishingRods.map(rod=>rod.id).join(',')===
-  'rod.basic,rod.sturdy,rod.steel,rod.expert,rod.master_angler,rod.deepwater','Unexpected fishing rod progression');
+  'rod.basic,rod.sturdy,rod.steel,rod.expert,rod.master_angler,rod.deepwater,rod.tidal,rod.tempest,rod.abyssal,rod.aurora','Unexpected fishing rod progression');
 assert(fishingGearContext.__defaultRod==='rod.basic','Unexpected default fishing rod');
 assert(fishingRods.every((rod,index)=>index===0||rod.waitReduction>=fishingRods[index-1].waitReduction),
   'Fishing rod wait bonuses must not decrease');
@@ -1727,8 +1727,8 @@ marketContext.getEquippedFishingRod=()=>fishingRods[0];
 marketContext.isFishingRodUnlocked=(rod)=>rod?.id==='rod.basic'||marketContext.GAME_STATE.progression.fishing.purchasedRodIds.includes(rod?.id);
 marketContext.canPurchaseFishingRod=()=>false;
 vm.runInContext(`${read('src/data/fishing-gear-data.js')}\n${read('src/fishing-gear.js')}\nrenderRodMarket();`,marketContext);
-assert((seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===6&&
-  ['rod.sturdy','rod.steel','rod.expert','rod.deepwater'].every(id=>seedMarketNodes.marketList.innerHTML.includes(`data-rod-id="${id}"`))&&
+assert((seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===10&&
+  ['rod.sturdy','rod.steel','rod.expert','rod.deepwater','rod.tidal','rod.tempest','rod.abyssal','rod.aurora'].every(id=>seedMarketNodes.marketList.innerHTML.includes(`data-rod-id="${id}"`))&&
   seedMarketNodes.marketList.innerHTML.includes('강태공의 낚싯대')&&
   seedMarketNodes.marketList.innerHTML.includes('도감 보상')&&
   seedMarketNodes.marketList.innerHTML.includes('붕어 ×25')&&
@@ -1966,4 +1966,5 @@ await import('./qa-fish-rewards.mjs');
 await import('./qa-discovery-feedback.mjs');
 await import('./qa-startup-progress.mjs');
 await import('./qa-fishing-balance.mjs');
+await import('./qa-fishing-rod-expansion.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

@@ -3,7 +3,7 @@ import {fishingRuntime,balanceReport,routeRegressions,poolModel,expectedFishPric
 import {simulateTrips,simulateGearProgression} from './lib/fishing-progression.mjs';
 
 const r=fishingRuntime(71),report=balanceReport();
-assert.equal(report.rows.length,720);assert.equal(report.legendRows.length,36);
+assert.equal(report.rows.length,1200);assert.equal(report.legendRows.length,60);
 assert.equal(report.maxLevelXp,106690);
 for(const row of report.rows){
   assert(row.probabilities.length>0);assert(Math.abs(row.probabilities.reduce((sum,p)=>sum+p.initial,0)-1)<1e-10);
@@ -42,8 +42,13 @@ const trips=simulateTrips({samples:8});assert(trips.every(trip=>trip.losses===0&
 for(let seed=1;seed<=16;seed++){
   const progress=simulateGearProgression(seed);
   assert(progress.complete,`Progression hung for seed ${seed}`);
-  assert.equal(progress.milestones.at(-1).rodId,'rod.deepwater');
+  assert.equal(progress.milestones.at(-1).rodId,'rod.aurora');
   assert(progress.glacier.level<100&&progress.milestones.at(-1).level<100);
-  assert(progress.totalXp<report.maxLevelXp*.65,'Current gear consumed the future rod growth budget');
+  assert(progress.totalXp<report.maxLevelXp,'Final rod must be ready before Lv.100');
 }
-console.log('Fishing balance passed: 720 pools, real repeat/size math, 0/3/8s input sensitivity, positive tickets, 36 legendary contexts, 192 dynamic trips, 16 growth seeds');
+for(const overheadSeconds of [0,8])for(let seed=1;seed<=4;seed++){
+  const progress=simulateGearProgression(seed,{overheadSeconds});
+  assert(progress.complete&&progress.milestones.at(-1).level<100&&progress.totalXp<report.maxLevelXp,
+    `Input sensitivity reached Lv.100 before final rod: ${overheadSeconds}s / seed ${seed}`);
+}
+console.log('Fishing balance passed: 1200 pools, real repeat/size math, 0/3/8s input sensitivity, positive tickets, 60 legendary contexts, 320 dynamic trips, 24 ten-rod growth seeds');

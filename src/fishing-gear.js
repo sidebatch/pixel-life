@@ -21,6 +21,7 @@ function canPurchaseFishingRod(rod,state=GAME_STATE){
   return rod?.id===nextFishingRodForSale(state)?.id&&
     state.progression.fishing.level>=rod.unlockLevel&&
     (!rod.requiresMasterRod||isFishingRodUnlocked(FISHING_ROD_BY_ID.get('rod.master_angler'),state))&&
+    (!rod.requiresRodId||isFishingRodUnlocked(FISHING_ROD_BY_ID.get(rod.requiresRodId),state))&&
     state.progression.coins>=rod.coins&&
     Boolean(planFishingRodTrade(rod,state.inventory));
 }

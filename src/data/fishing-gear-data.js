@@ -35,7 +35,31 @@ const FISHING_RODS=Object.freeze([
     id:'rod.deepwater',name:'심해 낚싯대',icon:'🌊',asset:'deepwater',unlockLevel:25,requiresMasterRod:true,
     coins:45000,fishCost:Object.freeze({'fish.golden_koi':5,'fish.rainbow_trout':12,'fish.flounder':12}),
     waitReduction:.30,rareWeightBonus:.45,sizeBonus:.20,
-    description:'도감 완성 후에도 낚시를 이어간 강태공을 위한 최상위 장비.'
+    description:'도감 완성 후에도 낚시를 이어간 강태공을 위한 심해 탐색 장비.'
+  }),
+  defineFishingRod({
+    id:'rod.tidal',name:'조류 낚싯대',englishName:'Tide Rod',icon:'🌊',asset:'tidal',unlockLevel:35,requiresRodId:'rod.deepwater',
+    coins:80000,fishCost:Object.freeze({'fish.damselfish':40,'fish.filefish':30,'fish.barred_knifejaw':12}),
+    waitReduction:.35,rareWeightBonus:.50,sizeBonus:.22,
+    description:'조류를 따라 빠르게 입질을 받아내는 원양 낚싯대.'
+  }),
+  defineFishingRod({
+    id:'rod.tempest',name:'폭풍 낚싯대',englishName:'Tempest Rod',icon:'⛈️',asset:'tempest',unlockLevel:45,requiresRodId:'rod.tidal',
+    coins:150000,fishCost:Object.freeze({'fish.spanish_mackerel':55,'fish.yellowtail':35,'fish.marlin':15}),
+    waitReduction:.40,rareWeightBonus:.60,sizeBonus:.25,
+    description:'짧은 대기와 높아진 희귀어 반응으로 거친 바다를 공략하는 장비.'
+  }),
+  defineFishingRod({
+    id:'rod.abyssal',name:'심연 낚싯대',englishName:'Abyss Rod',icon:'🔮',asset:'abyssal',unlockLevel:55,requiresRodId:'rod.tempest',
+    coins:250000,fishCost:Object.freeze({'fish.blobfish':45,'fish.ghost_shark':35,'fish.anglerfish':25,'fish.vampire_squid':25}),
+    waitReduction:.45,rareWeightBonus:.65,sizeBonus:.28,
+    description:'심해의 긴 탐색을 빠른 입질과 큰 개체로 보답하는 낚싯대.'
+  }),
+  defineFishingRod({
+    id:'rod.aurora',name:'극광 낚싯대',englishName:'Aurora Rod',icon:'❄️',asset:'aurora',unlockLevel:65,requiresRodId:'rod.abyssal',
+    coins:380000,fishCost:Object.freeze({'fish.toothfish':60,'fish.polar_cod':35,'fish.greenland_shark':25,'fish.glacier_trout':40}),
+    waitReduction:.50,rareWeightBonus:.70,sizeBonus:.30,
+    description:'빙하를 넘어 오래 낚아 온 탐험가를 위한 최상위 낚싯대.'
   })
 ]);
 

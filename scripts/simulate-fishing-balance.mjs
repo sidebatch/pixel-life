@@ -1,4 +1,4 @@
-import {balanceReport,routeRegressions} from './lib/fishing-balance.mjs';
+import {fishingRuntime,balanceReport,routeRegressions} from './lib/fishing-balance.mjs';
 import fs from 'node:fs';
 import path from 'node:path';
 import {simulateTrips,simulateGearProgression,simulateDexTour,quantile} from './lib/fishing-progression.mjs';
@@ -10,7 +10,7 @@ const tourSamples=Number(process.argv.find(a=>a.startsWith('--tour-samples='))?.
 if(!Number.isInteger(samples)||samples<1||samples>1024||!Number.isInteger(tourSamples)||tourSamples<1||tourSamples>128)
   throw new Error('Samples must be 1–1024; tour samples must be 1–128');
 if(process.argv.includes('--sessions')){
-  if(!process.argv.includes('--json'))console.log(`Simulating ${24*samples} visible-time trips…`);
+  if(!process.argv.includes('--json'))console.log(`Simulating ${4*fishingRuntime().FISHING_RODS.length*samples} visible-time trips…`);
   report.trips=simulateTrips({samples,overheadSeconds:overhead});
   if(!process.argv.includes('--json'))console.log(`Simulating ${samples} recipe-farming progressions…`);
   report.progression=Array.from({length:samples},(_,i)=>simulateGearProgression(i+1,{overheadSeconds:overhead}));
@@ -33,8 +33,9 @@ else{
  if(report.progression){
    console.log('Dynamic trips:',JSON.stringify(report.trips.filter(row=>row.rodId==='rod.basic')));
    console.log('Progression:',JSON.stringify({completed:report.progression.filter(r=>r.complete).length,
-     deepestRodLevelMedian:quantile(report.progression.map(r=>r.milestones.at(-1)?.level||100),.5),
-     deepestRodLevelP90:quantile(report.progression.map(r=>r.milestones.at(-1)?.level||100),.9),
+     finalRodId:report.progression[0].milestones.at(-1)?.rodId,
+     finalRodLevelMedian:quantile(report.progression.map(r=>r.milestones.at(-1)?.level||100),.5),
+     finalRodLevelP90:quantile(report.progression.map(r=>r.milestones.at(-1)?.level||100),.9),
      glacierLevelMedian:quantile(report.progression.map(r=>r.glacier?.level||100),.5),
      minutesMedian:quantile(report.progression.map(r=>r.minutes),.5),
      maxXp:Math.max(...report.progression.map(r=>r.totalXp))}));

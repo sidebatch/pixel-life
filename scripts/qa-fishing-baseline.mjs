@@ -38,7 +38,12 @@ const actualLegacyRods=baseline.legacyRods.map(expected=>{
   assert.ok(rod,`Legacy rod id disappeared: ${expected[0]}`);
   return baseline.rodFields.map(field=>rod[field]??(field==='requiresMasterReward'||field==='requiresMasterRod'?false:null));
 });
-assert.deepEqual(actualLegacyRods,baseline.legacyRods,'Legacy rod data changed without a baseline migration');
+// Step 17 adds four higher rods. Only replace the now-obsolete "highest tier"
+// wording of deepwater; all six identities, recipes and effects stay frozen.
+const expandedLegacyRods=baseline.legacyRods.map(record=>record.map((value,index)=>
+  record[0]==='rod.deepwater'&&baseline.rodFields[index]==='description'?
+    '도감 완성 후에도 낚시를 이어간 강태공을 위한 심해 탐색 장비.':value));
+assert.deepEqual(actualLegacyRods,expandedLegacyRods,'Legacy rod data changed outside the approved description update');
 assert.deepEqual(clone(dataContext.__rewards),baseline.collectionRewards,'The original 5/10/15/19/20 rewards changed');
 assert.equal(dataContext.__defaultRod,baseline.runtime.defaultRodId,'Default rod id changed');
 

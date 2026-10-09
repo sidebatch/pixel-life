@@ -237,9 +237,11 @@ function renderRodMarket(){
     const reward=rod.requiresMasterReward;
     const levelReady=reward||GAME_STATE.progression.fishing.level>=rod.unlockLevel;
     const masterReady=!rod.requiresMasterRod||isFishingRodUnlocked(FISHING_ROD_BY_ID.get('rod.master_angler'));
+    const previousRod=FISHING_ROD_BY_ID.get(rod.requiresRodId);
     const missing=[];
     if(!levelReady) missing.push(`낚시 Lv.${rod.unlockLevel} 필요`);
     if(!masterReady) missing.push('도감 20종 완성 필요');
+    if(previousRod&&!isFishingRodUnlocked(previousRod)) missing.push(`${previousRod.name} 구매 필요`);
     for(const [id,count] of Object.entries(rod.fishCost||{})){
       const short=count-lifeItemCount('fish',id);
       if(short>0) missing.push(`${MARKET_FISH_BY_ID.get(id).name} ${short}마리`);

@@ -5,21 +5,22 @@ export const PERIODS=['DAWN','DAY','DUSK','NIGHT'];
 export const WEATHERS=['clear','rain','storm'];
 export function fishingRuntime(seed=1){
   let randomState=seed>>>0;
+  let saveSucceeds=true;
   const math=Object.create(Math);math.random=()=>{
     randomState=(Math.imul(randomState,1664525)+1013904223)>>>0;return randomState/4294967296;
   };
   const state={regionId:'lilacVillage',inventory:[],collections:{fish:{}},progression:{coins:0,flags:{},
     fishing:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']},
     voyage:{ticketCounts:{},unlockedRouteIds:['shallow'],activeTrip:null}},appearance:{activeTool:'rod'}};
-  const sandbox={Math:math,GAME_STATE:state,saveGame:()=>true};vm.createContext(sandbox);
+  const sandbox={Math:math,GAME_STATE:state,saveGame:()=>saveSucceeds};vm.createContext(sandbox);
   const files=['data/fishing-habitat-data.js','data/fish-data.js','data/fishing-gear-data.js','data/life-skill-data.js',
     'life-skills.js','world-time.js','weather.js','data/voyage-data.js','fishing.js','fishing-gear.js'];
   vm.runInContext(files.map(file=>fs.readFileSync(new URL('../../src/'+file,import.meta.url),'utf8')).join('\n')+
     '\nglobalThis.runtime={FISH_DATA,FISHING_RODS,VOYAGE_ROUTES,FISHING_HABITATS,FISHING_CONFIG,WORLD_TIME_CONFIG,WEATHER_CONFIG,'+
     'worldTime,weatherState,fishingState,fishingCatchStreak,getWorldTimePeriod,getWeatherKind,updateWeather,'+
     'getEligibleFishPool,getEffectiveFishWeight,getFishingBiteDelay,applyFishingRodSizeBonus,calculateFishPrice,'+
-    'createFishingCatch,chooseWeightedFish,recordFishingSelection,canPurchaseFishingRod,purchaseFishingRod,lifeSkillTotalXpForLevel,syncVoyageUnlocks};',sandbox);
-  return {...sandbox.runtime,state,random:math.random};
+    'createFishingCatch,chooseWeightedFish,recordFishingSelection,canPurchaseFishingRod,purchaseFishingRod,equipFishingRod,lifeSkillTotalXpForLevel,syncVoyageUnlocks};',sandbox);
+  return {...sandbox.runtime,state,random:math.random,setSaveResult(value){saveSucceeds=value;}};
 }
 
 // Three repeat states per fish: run of 1, 2, or >=3. Repeats beyond 3 keep the

@@ -115,7 +115,11 @@ const FISHING_ROD_URLS = Object.freeze({
   steel:'assets/fishing/rods/steel.png',
   expert:'assets/fishing/rods/expert.png',
   deepwater:'assets/fishing/rods/deepwater.png',
-  master_angler:'assets/fishing/rods/master_angler.png'
+  master_angler:'assets/fishing/rods/master_angler.png',
+  tidal:'assets/fishing/rods/tidal.png',
+  tempest:'assets/fishing/rods/tempest.png',
+  abyssal:'assets/fishing/rods/abyssal.png',
+  aurora:'assets/fishing/rods/aurora.png'
 });
 const FORESTRY_CHOP_PLAYER_URL='assets/forestry/chop/player-v2.png';
 const CHARACTER_POLISH_ICON_URLS=Object.freeze({
@@ -193,7 +197,11 @@ const CHARACTER_TOOL_URLS=Object.freeze({
   'rod.steel':'assets/player/rig-v1/tools/rod-steel.png',
   'rod.expert':'assets/player/rig-v1/tools/rod-expert.png',
   'rod.master_angler':'assets/player/rig-v1/tools/rod-master_angler.png',
-  'rod.deepwater':'assets/player/rig-v1/tools/rod-deepwater.png'
+  'rod.deepwater':'assets/player/rig-v1/tools/rod-deepwater.png',
+  'rod.tidal':'assets/player/rig-v1/tools/rod-tidal.png',
+  'rod.tempest':'assets/player/rig-v1/tools/rod-tempest.png',
+  'rod.abyssal':'assets/player/rig-v1/tools/rod-abyssal.png',
+  'rod.aurora':'assets/player/rig-v1/tools/rod-aurora.png'
 });
 const SWORD_TOOL_URLS=Object.freeze({
   'sword.basic':'assets/player/sword-v1/basic.png'

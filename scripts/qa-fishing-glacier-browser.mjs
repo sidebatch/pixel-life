@@ -18,7 +18,9 @@ try{
       GAME_STATE.progression.fishing={...lifeSkillProgressFromTotal('fishing',lifeSkillTotalXpForLevel('fishing',45)),equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']};
       GAME_STATE.inventory=[
         {type:'fish',id:'fish.coelacanth',name:'실러캔스',rarity:'legendary',sizeCm:103.2,price:1270,quantity:1},
-        {type:'fish',id:'fish.coelacanth',name:'실러캔스',rarity:'legendary',sizeCm:179.8,price:2130,quantity:2}
+        {type:'fish',id:'fish.coelacanth',name:'실러캔스',rarity:'legendary',sizeCm:179.8,price:2130,quantity:2},
+        {type:'fish',id:'fish.toothfish',name:'메로',rarity:'uncommon',sizeCm:100,price:190,quantity:1},
+        {type:'fish',id:'fish.snow_smelt',name:'설빙어',rarity:'common',sizeCm:15,price:75,quantity:2}
       ];
       GAME_STATE.collections.fish['fish.coelacanth']={name:'실러캔스',rarity:'legendary',count:3,minSizeCm:103.2,maxSizeCm:179.8,totalSizeCm:462.8};
       globalThis.glacierLegacySnapshot={inventory:GAME_STATE.inventory,record:GAME_STATE.collections.fish['fish.coelacanth']};
@@ -28,6 +30,9 @@ try{
     assert.equal(await page.evaluate(()=>voyageProgress().unlockedRouteIds.includes('glacier')),true,'Legacy Lv.45 save must receive its route');
     const migrated=await page.evaluate(()=>({
       inventory:GAME_STATE.inventory.filter(f=>f.id==='fish.coelacanth').map(({id,sizeCm,price,quantity})=>({id,sizeCm,price,quantity})),
+      storedGlacierPrices:GAME_STATE.inventory.filter(f=>['fish.toothfish','fish.snow_smelt'].includes(f.id)).map(f=>f.price),
+      storedGlacierSale:planFishSale(new Map([['fish.toothfish',1],['fish.snow_smelt',2]])).total,
+      newGlacierPrices:['fish.toothfish','fish.snow_smelt'].map(id=>FISH_DATA.find(f=>f.id===id).basePrice),
       record:GAME_STATE.collections.fish['fish.coelacanth'],
       habitat:FISH_DATA.find(f=>f.id==='fish.coelacanth').habitat,
       coast:getEligibleFishPool({habitat:'coast',period:'NIGHT',weather:'storm'}).map(f=>f.id)
@@ -36,6 +41,8 @@ try{
       {id:'fish.coelacanth',sizeCm:103.2,price:1270,quantity:1},
       {id:'fish.coelacanth',sizeCm:179.8,price:2130,quantity:2}
     ]);
+    assert.deepEqual(migrated.storedGlacierPrices,[190,75]);assert.equal(migrated.storedGlacierSale,340);
+    assert.deepEqual(migrated.newGlacierPrices,[280,160]);
     for(const [key,value] of Object.entries({count:3,minSizeCm:103.2,maxSizeCm:179.8,totalSizeCm:462.8}))assert.equal(migrated.record[key],value);
     assert.equal(migrated.habitat,'boat_deep');assert.ok(!migrated.coast.includes('fish.coelacanth'));
     await page.evaluate(()=>{

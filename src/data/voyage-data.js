@@ -1,4 +1,5 @@
-// Initial test route prices/durations; final economy is assessed with offshore fish.
+// Step-16 baseline: all routes keep a ten-minute visible-time voyage. Normal
+// catches cover these ticket costs without needing a heroic/legendary fish.
 const VOYAGE_ROUTES=Object.freeze([
   Object.freeze({id:'shallow',name:'얕은 바다',ticketName:'얕은 바다 승선권',regionId:'boatShallow',habitat:'boat_shallow',price:300,durationMs:600000,available:true}),
   Object.freeze({id:'mid',name:'중간 바다',ticketName:'중간 바다 승선권',regionId:'boatMid',habitat:'boat_mid',price:900,durationMs:600000,available:true,unlockLevel:15,unlockShallowSpecies:3}),

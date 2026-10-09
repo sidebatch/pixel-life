@@ -58,13 +58,13 @@ const render={VIEW_W:540,VIEW_H:960,TILE:48,camX:1400,camY:800,ctx:{...paint},
   window:{matchMedia:()=>motion},document:{createElement(){created++;return {width:0,height:0,getContext:()=>({...paint})};}}};
 vm.createContext(render);vm.runInContext(source,render);
 const draw=()=>vm.runInContext('drawVoyageSea()',render);
-assert.equal(draw(),true);assert.equal(created,4);
+assert.equal(draw(),true);const initialCanvases=created;
 for(let frame=0;frame<240;frame++){trip.remainingMs-=16;draw();}
-assert.equal(created,4,'Steady frames must reuse precomposed layers, not allocate canvases');
+assert.equal(created,initialCanvases,'Steady frames must reuse object sprites, not allocate canvases');
 for(let elapsed=20000;elapsed<600000;elapsed+=20000){
   trip.remainingMs=600000-elapsed;draw();
   const info=vm.runInContext(`({signature:voyageSceneCache.current.sceneSignature,expected:voyageSceneAt(42,${elapsed}).sceneSignature,
-    cached:voyageSceneCache.composites.size,bytes:[...voyageSceneCache.composites.values()].reduce((sum,layer)=>sum+(layer.far.width*layer.far.height+layer.mid.width*layer.mid.height)*4,0)})`,render);
+    cached:voyageSceneCache.composites.size,bytes:[...voyageSceneCache.objects.values()].reduce((sum,o)=>sum+o.canvas.width*o.canvas.height*4,0)})`,render);
   assert.equal(info.signature,info.expected);assert.equal(info.cached,2);assert.ok(info.bytes<8*1024*1024);
 }
 const normal=vm.runInContext('voyageSceneCache.current.sceneSignature',render);
@@ -147,3 +147,38 @@ const beforeGlacierFrames=created;
 for(let frame=0;frame<120;frame++){trip.remainingMs-=16;draw();}
 assert.equal(created,beforeGlacierFrames);assert.equal(vm.runInContext('voyageSceneCache.composites.size',render),2);
 console.log('Glacier scenes passed: '+JSON.stringify({...glacierStats,routeCacheIsolation:true,noFrameAllocation:true}));
+
+// Protect object lifetimes independently of the 16–30 second palette scenes.
+// All decorations, not only the largest landmark, must survive transitions.
+render.WORLD_DEFINITION.voyageDeck={x:29,y:18,w:7,h:14,view:'bow'};render.camX=1290;
+let observed=0;
+for(const destination of ['shallow','mid','deep','glacier']){
+  trip.destination=destination;
+  render.VOYAGE_ROUTE_BY_ID.set(destination,{durationMs:600000});
+  for(let seed=0;seed<4;seed++){
+    render.flowSeed=seed;render.flowDestination=destination;
+    vm.runInContext('releaseVoyageScenes()',render);
+    for(let elapsed=0;elapsed<600000;elapsed+=1000){
+      render.flowElapsed=elapsed;
+      const info=vm.runInContext(`(()=>{
+        const before=new Map([...voyageSceneCache.objects].map(([id,o])=>[id,{o,r:voyageSceneryRect(o,flowElapsed-1000)}]));
+        syncVoyageScenes(flowSeed,flowElapsed,flowDestination);let retained=0;
+        for(const [id,{o,r}] of before)if(o.spawnMs<=flowElapsed-1000&&r.y+r.h>0&&r.y<VIEW_H&&o.exitMs>flowElapsed){
+          if(voyageSceneCache.objects.get(id)!==o)throw Error('Visible object discarded at scene transition');retained++;
+        }
+        for(const o of voyageSceneCache.objects.values()){
+          const birth=voyageSceneryRect(o,o.spawnMs),exit=voyageSceneryRect(o,o.exitMs-1);
+          if(birth.y+birth.h>0||exit.y<VIEW_H)throw Error('Scenery born/retired inside viewport');
+          if(o.side<0?birth.x+birth.w>96:birth.x<444)throw Error('Scenery enters hull corridor');
+        }
+        return {retained,count:voyageSceneCache.objects.size,bytes:[...voyageSceneCache.objects.values()].reduce((n,o)=>n+o.canvas.width*o.canvas.height*4,0)};
+      })()`,render);
+      observed+=info.retained;assert.ok(info.count<=32);assert.ok(info.bytes<2*1024*1024);
+    }
+    const snapshot=()=>clone(vm.runInContext('[...voyageSceneCache.objects.values()].map(o=>({id:o.id,spawnMs:o.spawnMs,...voyageSceneryRect(o,flowElapsed)}))',render));
+    const prior=snapshot();vm.runInContext('releaseVoyageScenes();syncVoyageScenes(flowSeed,flowElapsed,flowDestination)',render);
+    assert.deepEqual(snapshot(),prior,'Reload must reconstruct surviving objects, including previous scenes');
+  }
+}
+assert.ok(observed>10000);
+console.log('Continuous scenery passed: '+JSON.stringify({observed,allFourRoutes:true,topBottomClipping:true,noVisibleRetirement:true,hullCorridorClear:true,restore:true,maxSpriteBytes:2097152}));

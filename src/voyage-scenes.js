@@ -54,31 +54,40 @@ function voyageSceneAt(seed,elapsedMs,destination='shallow'){
   while(scene.endMs<=Math.max(0,elapsedMs))scene=nextVoyageScene(generator);
   return scene;
 }
-const voyageSceneCache={key:null,generator:null,current:null,next:null,composites:new Map(),built:0};
+// Scene metadata can rotate, but every solid decoration has its own lifetime.
+const voyageSceneCache={key:null,generator:null,current:null,next:null,composites:new Map(),objects:new Map(),built:0,lastElapsed:-1};
 const voyageMotionQuery=typeof window!=='undefined'?window.matchMedia?.('(prefers-reduced-motion: reduce)'):null;
 function releaseVoyageScenes(){
-  for(const layers of voyageSceneCache.composites.values())for(const canvas of [layers.far,layers.mid]){canvas.width=1;canvas.height=1;}
-  voyageSceneCache.composites.clear();voyageSceneCache.key=null;voyageSceneCache.current=null;voyageSceneCache.next=null;voyageSceneCache.generator=null;
+  for(const object of voyageSceneCache.objects.values()){object.canvas.width=1;object.canvas.height=1;}
+  voyageSceneCache.objects.clear();voyageSceneCache.composites.clear();voyageSceneCache.key=null;
+  voyageSceneCache.current=null;voyageSceneCache.next=null;voyageSceneCache.generator=null;voyageSceneCache.lastElapsed=-1;
 }
 function syncVoyageScenes(seed,elapsedMs,destination='shallow'){
   const cache=voyageSceneCache,key=`${destination}:${seed}:${VIEW_W}:${VIEW_H}`;
-  if(cache.key!==key||elapsedMs<(cache.current?.startMs||0)){
+  if(cache.key!==key||elapsedMs<cache.lastElapsed){
     releaseVoyageScenes();cache.key=key;cache.generator=createVoyageSceneGenerator(seed,destination);
     cache.current=nextVoyageScene(cache.generator);cache.next=nextVoyageScene(cache.generator);
   }
-  while(elapsedMs>=cache.current.endMs){cache.current=cache.next;cache.next=nextVoyageScene(cache.generator);}
-  for(const [index,layers] of cache.composites)if(index!==cache.current.index&&index!==cache.next.index){
-    layers.far.width=layers.mid.width=1;layers.far.height=layers.mid.height=1;cache.composites.delete(index);
+  const retain=scene=>{
+    if(cache.composites.has(scene.index))return;
+    // Reconstruct only scenes whose objects could still be crossing the screen.
+    if(scene.endMs+50000<elapsedMs)return;
+    const layers=composeVoyageScene(scene);
+    cache.composites.set(scene.index,layers);cache.built++;
+    for(const object of layers.objects)if(object.exitMs>elapsedMs)cache.objects.set(object.id,object);
+    else{object.canvas.width=1;object.canvas.height=1;}
+  };
+  while(elapsedMs>=cache.current.endMs){retain(cache.current);cache.current=cache.next;cache.next=nextVoyageScene(cache.generator);}
+  retain(cache.current);retain(cache.next);
+  // Discard metadata, not visible artwork. Canvas retirement is below the frame.
+  for(const index of cache.composites.keys())if(index!==cache.current.index&&index!==cache.next.index)cache.composites.delete(index);
+  for(const [id,object] of cache.objects)if(elapsedMs>=object.exitMs){
+    object.canvas.width=1;object.canvas.height=1;cache.objects.delete(id);
   }
-  // The next whole scene is precomposed outside the visible game canvas.
-  for(const scene of [cache.current,cache.next])if(!cache.composites.has(scene.index)){
-    cache.composites.set(scene.index,composeVoyageScene(scene));cache.built++;
-  }
-  return cache;
+  cache.lastElapsed=elapsedMs;return cache;
 }
-// Pixel scenery is painted into the existing half-resolution scene caches.
-// Polygon scanlines and stepped crests avoid smooth vector edges; no tile atlas
-// or extra frame canvases are introduced. All decoration stays non-collidable.
+// Pixel artwork is composed once into compact, independently retained sprites.
+// No per-frame canvases, smooth vector edges, or decorative collisions.
 function voyagePixelRect(paint,x,y,w,h,color){
   paint.fillStyle=color;
   paint.fillRect(Math.round(x),Math.round(y),Math.max(1,Math.round(w)),Math.max(1,Math.round(h)));
@@ -122,7 +131,7 @@ function drawVoyagePalm(paint,x,y,size=1){
   polygon([[3,-29],[-12,-23],[-8,-29],[4,-34],[17,-33],[11,-28],[21,-23],[12,-23]],'#548565');
   voyagePixelRect(paint,x+2*size,y-33*size,8*size,2,'#87a378');
 }
-// Marine raster sprites are baked once into the existing far/mid scene layers.
+// Marine raster sprites are baked once into individual scenery sprites.
 // Keep the pixel fallback for isolated renderer tests or asset load diagnostics.
 function drawVoyageMarineSprite(paint,key,x,y,w,h,alpha=1){
   const sprite=typeof imgs!=='undefined'&&imgs[key];
@@ -181,71 +190,87 @@ function drawShallowVoyageLandmark(paint,kind,x,y,random,palette){
   drawVoyageWaveCrest(paint,x-46,y+31,34,'#bfdccb');drawVoyageWaveCrest(paint,x+14,y+30,25,'#abcfc0');
 }
 function composeVoyageScene(scene){
-  const width=Math.ceil(VIEW_W/2)+48,height=Math.ceil(VIEW_H*.9)+96;
-  const make=()=>{const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;return canvas;};
-  const pool=voyageScenePool(scene.destination);
-  const far=make(),mid=make(),f=far.getContext('2d'),m=mid.getContext('2d'),random=voyageRandom(scene.artSeed),palette=pool.palettes[scene.base];
-  f.imageSmoothingEnabled=m.imageSmoothingEnabled=false;
-  // Low-contrast, irregular current bands replace the conspicuous flat ovals.
-  // They are generated per scene, never looped from a tiled water texture.
-  for(let i=0;i<9;i++){
-    const x=random()*width,y=random()*height,w=30+random()*75,h=7+random()*12;
-    voyagePixelPolygon(f,[[x-w,y],[x-w*.65,y-h],[x-w*.15,y-h*.5],[x+w*.5,y-h],[x+w,y],[x+w*.5,y+h],[x-w*.25,y+h*.5]],
-      scene.atmosphere%2?'rgba(163,214,201,.055)':'rgba(12,52,76,.065)');
-    drawVoyageWaveCrest(f,x-w*.6,y+h+4,w*.8,'rgba(185,219,211,.06)');
-  }
+  const pool=voyageScenePool(scene.destination),random=voyageRandom(scene.artSeed),palette=pool.palettes[scene.base],objects=[];
+  const makeObject=(layer,side,spawnMs,paintObject)=>{
+    const canvas=document.createElement('canvas');
+    canvas.width=layer==='far'?192:80;canvas.height=layer==='far'?176:80;
+    const paint=canvas.getContext('2d');paint.imageSmoothingEnabled=false;
+    paintObject(paint,canvas.width/2,layer==='far'?88:32);
+    const scale=layer==='far'?.8:1.4,w=Math.round(canvas.width*scale),h=Math.round(canvas.height*scale);
+    const speed=layer==='far'?26:46,inset=8+Math.round(random()*12);
+    objects.push({id:`${scene.index}:${objects.length}`,sceneIndex:scene.index,layer,side,canvas,w,h,inset,spawnMs,
+      exitMs:spawnMs+(VIEW_H+h+4)/speed*1000,speed});
+  };
   if(scene.landmark){
-    // Landmarks hug the screen edges. Their outer halves may pass off camera.
-    const x=scene.side<0?45+random()*12:width-45-random()*12,y=75+random()*Math.min(height-250,VIEW_H*.25),kind=pool.landmarks[scene.landmark];
-    if(scene.destination==='mid')drawMidVoyageLandmark(f,kind,x,y,random,palette);
-    else if(scene.destination==='deep')drawDeepVoyageLandmark(f,kind,x,y,random,palette);
-    else if(scene.destination==='glacier')drawGlacierVoyageLandmark(f,kind,x,y,random,palette);
-    else drawShallowVoyageLandmark(f,kind,x,y,random,palette);
+    const kind=pool.landmarks[scene.landmark];
+    makeObject('far',scene.side,(scene.startMs||0)+1000+random()*3000,(paint,x,y)=>{
+      if(scene.destination==='mid')drawMidVoyageLandmark(paint,kind,x,y,random,palette);
+      else if(scene.destination==='deep')drawDeepVoyageLandmark(paint,kind,x,y,random,palette);
+      else if(scene.destination==='glacier')drawGlacierVoyageLandmark(paint,kind,x,y,random,palette);
+      else drawShallowVoyageLandmark(paint,kind,x,y,random,palette);
+    });
   }
-  for(let i=0;i<scene.atmosphere;i++){
-    const x=random()*width,y=random()*height;
-    for(let row=0;row<3;row++)drawVoyageWaveCrest(f,x-row*7,y+row*6,32+random()*26,'rgba(200,223,214,.075)');
-  }
-  const type=pool.midObjects[scene.mid];
-  for(let i=0;i<(type==='none'?0:3+Math.floor(random()*4));i++){
-    random();const left=(i+(scene.side<0?0:1))%2===0;
-    const x=left?18+random()*35:width-18-random()*35,y=20+random()*VIEW_H*.35;
-    if(scene.destination==='deep')drawDeepVoyageMidObject(m,type,x,y,random,palette);
-    else if(scene.destination==='glacier')drawGlacierVoyageMidObject(m,type,x,y,random,palette);
-    else if(type==='dolphins'){
-      for(let dolphin=0;dolphin<3;dolphin++){
-        const dx=x+dolphin*12,dy=y+dolphin*16;
-        drawVoyageWaveCrest(m,dx-17,dy+8,28,'rgba(191,222,216,.24)');
-        voyagePixelPolygon(m,[[dx-14,dy],[dx-7,dy-5],[dx-4,dy-11],[dx+1,dy-5],[dx+11,dy-2],[dx+16,dy+2],[dx+5,dy+4],[dx-8,dy+3]],'#42677a');
-        voyagePixelRect(m,dx-6,dy-3,12,2,'#8da9af');
-        voyagePixelRect(m,dx-17,dy-4,5,3,'#42677a');voyagePixelRect(m,dx-17,dy+2,5,3,'#42677a');
+  const type=pool.midObjects[scene.mid],count=type==='none'?0:3+Math.floor(random()*3);
+  for(let i=0;i<count;i++){
+    const side=(i+(scene.side<0?0:1))%2===0?-1:1;
+    makeObject('mid',side,(scene.startMs||0)+3000+i*3500+random()*1500,(m,x,y)=>{
+      if(scene.destination==='deep')drawDeepVoyageMidObject(m,type,x,y,random,palette);
+      else if(scene.destination==='glacier')drawGlacierVoyageMidObject(m,type,x,y,random,palette);
+      else if(type==='dolphins'){
+        for(let dolphin=0;dolphin<3;dolphin++){
+          const dx=x+dolphin*12,dy=y+dolphin*16;
+          drawVoyageWaveCrest(m,dx-17,dy+8,28,'rgba(191,222,216,.24)');
+          voyagePixelPolygon(m,[[dx-14,dy],[dx-7,dy-5],[dx-4,dy-11],[dx+1,dy-5],[dx+11,dy-2],[dx+16,dy+2],[dx+5,dy+4],[dx-8,dy+3]],'#42677a');
+          voyagePixelRect(m,dx-6,dy-3,12,2,'#8da9af');
+          voyagePixelRect(m,dx-17,dy-4,5,3,'#42677a');voyagePixelRect(m,dx-17,dy+2,5,3,'#42677a');
+        }
+      }else if(type==='swell'){
+        for(let crest=0;crest<3;crest++)drawVoyageWaveCrest(m,x-26,y+crest*10,55,crest===0?'rgba(202,225,226,.55)':'rgba(163,201,214,.3)',crest===0);
+      }else if(type==='buoys'){
+        drawVoyageWaveCrest(m,x-14,y+12,29,'rgba(217,234,210,.38)');
+        voyagePixelRect(m,x-5,y-5,10,16,'#40555a');
+        voyagePixelRect(m,x-3,y-6,6,14,i%2?'#c49b59':'#b46d54');
+        voyagePixelRect(m,x-3,y-1,6,4,'#e5d6ae');voyagePixelRect(m,x-1,y-17,2,12,'#3f5b64');
+        voyagePixelRect(m,x-3,y-18,6,2,'#d2b67a');
+      }else if(type==='coral'){
+        if(drawVoyageMarineSprite(m,'voyageCoral',x,y,38,38,.82)){
+          for(let branch=0;branch<4;branch++)random();return;
+        }
+        voyagePixelOval(m,x,y+6,25,10,'rgba(35,93,104,.2)');
+        for(let branch=0;branch<4;branch++){
+          const bx=x-16+branch*10,by=y-9-random()*7,color=branch%2?'rgba(195,142,118,.43)':'rgba(131,172,135,.5)';
+          voyagePixelRect(m,bx,by,4,18,color);voyagePixelRect(m,bx-4,by+4,12,4,color);
+        }
+      }else if(type==='fishSchool'){
+        for(let fish=0;fish<5;fish++){const fx=x+fish*7,fy=y+fish%2*7;voyagePixelRect(m,fx,fy,8,2,'rgba(25,71,88,.35)');voyagePixelRect(m,fx-2,fy-2,2,6,'rgba(25,71,88,.35)');}
+      }else{
+        for(let p=0;p<3;p++)drawVoyageWaveCrest(m,x+p*8,y+p%2*6,18,'rgba(215,237,221,.3)',p===0);
       }
-    }else if(type==='swell'){
-      for(let crest=0;crest<3;crest++)drawVoyageWaveCrest(m,x-26,y+crest*10,55,crest===0?'rgba(202,225,226,.55)':'rgba(163,201,214,.3)',crest===0);
-    }else if(type==='buoys'){
-      drawVoyageWaveCrest(m,x-14,y+12,29,'rgba(217,234,210,.38)');
-      voyagePixelRect(m,x-5,y-5,10,16,'#40555a');
-      voyagePixelRect(m,x-3,y-6,6,14,i%2?'#c49b59':'#b46d54');
-      voyagePixelRect(m,x-3,y-1,6,4,'#e5d6ae');voyagePixelRect(m,x-1,y-17,2,12,'#3f5b64');
-      voyagePixelRect(m,x-3,y-18,6,2,'#d2b67a');
-    }else if(type==='coral'){
-      if(drawVoyageMarineSprite(m,'voyageCoral',x,y,38,38,.82)){
-        for(let branch=0;branch<4;branch++)random();continue;
-      }
-      voyagePixelOval(m,x,y+6,25,10,'rgba(35,93,104,.2)');
-      for(let branch=0;branch<4;branch++){
-        const bx=x-16+branch*10,by=y-9-random()*7,color=branch%2?'rgba(195,142,118,.43)':'rgba(131,172,135,.5)';
-        voyagePixelRect(m,bx,by,4,18,color);voyagePixelRect(m,bx-4,by+4,12,4,color);
-      }
-    }else if(type==='fishSchool'){
-      for(let fish=0;fish<5;fish++){const fx=x+fish*7,fy=y+fish%2*7;voyagePixelRect(m,fx,fy,8,2,'rgba(25,71,88,.35)');voyagePixelRect(m,fx-2,fy-2,2,6,'rgba(25,71,88,.35)');}
-    }else{
-      for(let p=0;p<3;p++)drawVoyageWaveCrest(m,x+p*8,y+p%2*6,18,'rgba(215,237,221,.3)',p===0);
-    }
+    });
   }
   const waves=Array.from({length:Math.round(120*scene.density)},()=>({x:random(),y:random()*3,length:12+random()*28,phase:random()*6.28}));
   const gulls=scene.landmark===0||scene.destination==='deep'||scene.destination==='glacier'?[]:Array.from({length:2+Math.floor(random()*3)},()=>({x:random(),y:random(),phase:random()*6.28}));
-  return {far,mid,waves,gulls};
+  return {objects,waves,gulls};
+}
+function voyageSceneryRect(object,elapsedMs){
+  const deck=WORLD_DEFINITION.voyageDeck,boatLeft=deck.x*TILE-camX,boatRight=(deck.x+deck.w)*TILE-camX;
+  // Entire sprite bounds stay outside the hull corridor, including above its bow.
+  // Oversized outer portions are allowed to crop at the left/right frame edges.
+  const x=object.side<0?boatLeft-object.inset-object.w:boatRight+object.inset;
+  const y=Math.floor((-object.h-2+(elapsedMs-object.spawnMs)/1000*object.speed)/2)*2;
+  return {x:Math.round(x/2)*2,y,w:object.w,h:object.h};
+}
+function drawVoyageScenery(elapsedMs){
+  ctx.save();ctx.globalAlpha=1;
+  // Keep solid scenery speed stable when reduced-motion is toggled. Otherwise
+  // changing speed against scene age teleports islands. Only waves/gulls reduce.
+  for(const layer of ['far','mid'])for(const object of voyageSceneCache.objects.values()){
+    if(object.layer!==layer||elapsedMs<object.spawnMs)continue;
+    const rect=voyageSceneryRect(object,elapsedMs);
+    if(rect.y+rect.h<=0||rect.y>=VIEW_H)continue;
+    ctx.drawImage(object.canvas,rect.x,rect.y,rect.w,rect.h);
+  }
+  ctx.restore();
 }
 function drawVoyageSceneLayers(scene,elapsedMs,opacity,reduced){
   if(opacity<=0)return;
@@ -253,10 +278,6 @@ function drawVoyageSceneLayers(scene,elapsedMs,opacity,reduced){
   const boatX=(WORLD_DEFINITION.voyageDeck.x+WORLD_DEFINITION.voyageDeck.w/2)*TILE-camX;
   const shiftX=(boatX-VIEW_W/2)*.2,motion=reduced ? .18 : 1;
   ctx.save();ctx.globalAlpha=opacity;
-  // Constant vertical parallax on both sides, independent of actor movement.
-  // Do not fit or mirror an entire landmark into view: frame/deck clipping is natural.
-  ctx.drawImage(layers.far,Math.round((-48+shiftX*.3)/2)*2,Math.round((-160+age*26*motion)/2)*2,layers.far.width*2,layers.far.height*2);
-  ctx.drawImage(layers.mid,Math.round((-48+shiftX*.65)/2)*2,Math.round((-220+age*46*motion)/2)*2,layers.mid.width*2,layers.mid.height*2);
   const pool=voyageScenePool(scene.destination);
   ctx.globalAlpha=opacity*(scene.wave===2?.34:.24);
   for(const wave of layers.waves){
@@ -286,6 +307,7 @@ function drawVoyageSea(){
   ctx.save();ctx.fillStyle=pool.palettes[cache.current.base].water;ctx.fillRect(0,0,VIEW_W,VIEW_H);
   if(blend>0){ctx.globalAlpha=blend;ctx.fillStyle=pool.palettes[cache.next.base].water;ctx.fillRect(0,0,VIEW_W,VIEW_H);ctx.globalAlpha=1;}
   drawVoyageSceneLayers(cache.current,elapsedMs,1-blend,reduced);drawVoyageSceneLayers(cache.next,elapsedMs,blend,reduced);
+  drawVoyageScenery(elapsedMs);
   const deck=WORLD_DEFINITION.voyageDeck,x=(deck.x+deck.w/2)*TILE-camX,y=(deck.view==='bow'?deck.y+2:deck.y+deck.h)*TILE-camY;
   // Streaming hull wake, no rocking of the walkable deck or fishing target.
   const shift=reduced?0:elapsedMs/35%24;

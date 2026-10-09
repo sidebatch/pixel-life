@@ -60,19 +60,13 @@ try{
    const aftSpot=await page.evaluate(()=>{player.x=32;player.y=24;player.face='down';return getFishingSpotInFront();});assert.equal(aftSpot,null,'Aft ship body is not fishing water');
    if(id==='shallow'){
     const motion=await page.evaluate(()=>{
-     drawWorld();const scene=voyageSceneCache.current,layers=voyageSceneCache.composites.get(scene.index),calls=[],original=CanvasRenderingContext2D.prototype.drawImage;
-     CanvasRenderingContext2D.prototype.drawImage=function(...args){if(this===ctx&&(args[0]===layers.far||args[0]===layers.mid))calls.push({layer:args[0]===layers.far?'far':'mid',x:args[1],y:args[2],w:args[3]});return original.apply(this,args);};
-     try{drawVoyageSceneLayers(scene,scene.startMs+4000,1,false);drawVoyageSceneLayers(scene,scene.startMs+6000,1,false);
-      drawVoyageSceneLayers(scene,scene.startMs+4000,1,true);drawVoyageSceneLayers(scene,scene.startMs+6000,1,true);
-     }finally{CanvasRenderingContext2D.prototype.drawImage=original;}
-     const data=layers.mid.getContext('2d').getImageData(0,0,layers.mid.width,layers.mid.height),third=Math.floor(data.width/3);let left=0,right=0;
-     for(let y=0;y<data.height;y++)for(let x=0;x<data.width;x++){if(data.data[(y*data.width+x)*4+3]>0){if(x<third)left++;if(x>=data.width-third)right++;}}
-     return {calls,left,right};
-    });assert.ok(motion.left>20&&motion.right>20,'Both side lanes must have scenery');
-    assert.ok(motion.calls[2].y>motion.calls[0].y&&motion.calls[3].y>motion.calls[1].y);
-    assert.ok(motion.calls[3].y-motion.calls[1].y>motion.calls[2].y-motion.calls[0].y);
-    assert.ok(motion.calls[6].y-motion.calls[4].y<motion.calls[2].y-motion.calls[0].y);
-    assert.ok(motion.calls.every(c=>c.x<0&&c.x+c.w>540),'Layer edges should be naturally clipped, not fitted');
+     drawWorld();const objects=[...voyageSceneCache.objects.values()],far=objects.find(o=>o.layer==='far'),mid=objects.find(o=>o.layer==='mid');
+     if(!far||!mid)throw Error('Representative seed must contain both depth layers');
+     const time=10000,a=voyageSceneryRect(far,time),b=voyageSceneryRect(far,time+2000),c=voyageSceneryRect(mid,time),d=voyageSceneryRect(mid,time+2000);
+     return {farDelta:b.y-a.y,midDelta:d.y-c.y,sides:objects.filter(o=>o.layer==='mid').map(o=>o.side),
+      safe:objects.every(o=>{const r=voyageSceneryRect(o,time);return o.side<0?r.x+r.w<=102-6:r.x>=438+6;})};
+    });assert.ok(motion.sides.includes(-1)&&motion.sides.includes(1),'Both side lanes must have scenery');
+    assert.ok(motion.farDelta>0&&motion.midDelta>motion.farDelta);assert.ok(motion.safe,'Solid objects must never intrude into the boat corridor');
     await page.evaluate(()=>{weatherState.kind='rain';updateWorldClockUI();drawWorld();});
     await page.screenshot({path:path.join(out,width+'-shallow-rain.png')});await page.evaluate(()=>weatherState.kind='clear');
    }

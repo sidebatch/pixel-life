@@ -64,7 +64,6 @@ function treeDexWorldProgress(world){
 }
 
 function treeDexImage(species){return FOREST_TREE_URLS[species];}
-function treeDexLogImage(species){return LIFE_ITEM_URLS[`${species}Log`];}
 
 function renderTreeDexSummary(discovered){
   const percent=Math.round(discovered/FOREST_SPECIES.length*100);
@@ -99,8 +98,7 @@ function renderTreeDexDetail(tree){
       <div><span>벤 횟수</span><b>${record.count.toLocaleString()}그루</b></div>
       <div><span>벌목 경험치</span><b>${forestryTreeXp(tree).toLocaleString()} XP</b></div>
       <div><span>목재 판매가</span><b>${tree.logPrice.toLocaleString()}코인</b></div>
-    </div>
-    <div class="treeDexWood"><img src="${treeDexLogImage(tree.species)}" alt=""><span><small>획득 목재</small><b>${tree.name} 목재 · 0~3개</b></span></div>`;
+    </div>`;
 }
 
 function treeDexNextWorldTeaser(){

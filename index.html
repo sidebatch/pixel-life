@@ -22,9 +22,10 @@
   <div id="gameShell">
     <canvas id="game" width="540" height="960"></canvas>
     <div id="startupLoading" class="startupLoading" role="status" aria-live="polite">
-      <span class="startupLoadingSpinner" aria-hidden="true"></span>
       <b>게임 준비 중</b>
-      <small>처음 한 번은 그림을 준비하느라 잠시 걸릴 수 있어요.</small>
+      <div id="startupProgress" class="startupProgress" role="progressbar" aria-label="게임 준비" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><span id="startupProgressFill"></span></div>
+      <span id="startupPercent" class="startupPercent" aria-hidden="true">0%</span>
+      <small id="startupError" hidden></small>
     </div>
     <div id="voyageHud" class="voyageHud" hidden><span>⚓ 운항 <b id="voyageTimer">10:00</b></span><small id="voyageNotice" role="status" aria-live="polite"></small></div>
     <div id="voyageBoarding" class="voyageBoarding" hidden role="status">⚓<b>얕은 바다로 출항합니다</b><small>승선권 1장을 사용했어요</small></div>
@@ -114,7 +115,7 @@
           </button>
           <button class="menuCard menuCardTreeDex" id="openTreeDexBtn" type="button">
             <span class="menuCardIcon" aria-hidden="true"><img id="menuTreeDexIcon" alt=""></span>
-            <span class="menuCardCopy"><b>나무 도감</b><small>완전히 벤 나무가 기록돼요</small></span>
+            <span class="menuCardCopy"><b>나무 도감</b></span>
           </button>
         </div>
         <button class="menuInstallButton" id="installAppBtn" type="button" hidden aria-hidden="true">📲 홈 화면에 설치</button>

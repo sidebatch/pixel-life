@@ -192,13 +192,14 @@ function getCharacterOutfitImages(id){
   return (!CHARACTER_WALK_PREVIEW_ENABLED||characterWalkPreview!=='original')&&characterOutfitPreviewImgs[id]||characterOutfitImgs[id];
 }
 function loadImage(src){ return new Promise((resolve,reject)=>{const i=new Image();i.onload=()=>resolve(i);i.onerror=reject;i.src=src;}); }
-async function loadImageMap(target, urls, optional=false){
+async function loadImageMap(target, urls, optional=false, onSettled=()=>{}){
   await Promise.all(Object.entries(urls).map(async ([key,url])=>{
     try{ target[key]=await loadImage(url); }
     catch(err){
       if(!optional) throw new Error(`Required asset failed to load: ${key}`,{cause:err});
       console.warn('Optional asset failed to load:',key,err);
     }
+    onSettled();
   }));
 }
 // Code-native palette variants for rig QA. Alpha/geometry are copied exactly;
@@ -245,23 +246,30 @@ function setCharacterBodyPreview(sex){
   if(!CHARACTER_BODY_PREVIEW_ENABLED||!['male','female'].includes(sex))return false;
   characterBodyPreview=sex;return true;
 }
-async function loadAll(){
-  await Promise.all([
-    loadImageMap(imgs,ASSET_URLS),
-    loadImageMap(imgs,BUILDING_URLS),
-    loadImageMap(fishImgs,FISH_URLS),
-    loadImageMap(forestTreeImgs,FOREST_TREE_URLS),
-    loadImageMap(forestStumpImgs,FOREST_STUMP_URLS),
-    loadImageMap(characterLayerImgs,CHARACTER_LAYER_URLS),
+async function loadAll(onProgress=()=>{}){
+  const imageMaps=[
+    [imgs,ASSET_URLS],
+    [imgs,BUILDING_URLS],
+    [fishImgs,FISH_URLS],
+    [forestTreeImgs,FOREST_TREE_URLS],
+    [forestStumpImgs,FOREST_STUMP_URLS],
+    [characterLayerImgs,CHARACTER_LAYER_URLS],
     ...(CHARACTER_MASTER_PREVIEW_ENABLED||CHARACTER_RIA_NECK_PREVIEW_ENABLED?
-      [loadImageMap(characterBaselineLegacyImgs,CHARACTER_BASELINE_LEGACY_URLS)]:[]),
-    loadImageMap(characterToolImgs,CHARACTER_TOOL_URLS),
-    loadImageMap(characterToolImgs,SWORD_TOOL_URLS),
-    loadImageMap(lifeItemImgs,LIFE_ITEM_URLS),
-    loadImageMap(matureCropImgs,MATURE_CROP_URLS),
-    loadImageMap(youngCropImgs,YOUNG_CROP_URLS),
-    loadImageMap(npcImgs,NPC_SHEET_URLS,true)
-  ]);
+      [[characterBaselineLegacyImgs,CHARACTER_BASELINE_LEGACY_URLS]]:[]),
+    [characterToolImgs,CHARACTER_TOOL_URLS],
+    [characterToolImgs,SWORD_TOOL_URLS],
+    [lifeItemImgs,LIFE_ITEM_URLS],
+    [matureCropImgs,MATURE_CROP_URLS],
+    [youngCropImgs,YOUNG_CROP_URLS],
+    [npcImgs,NPC_SHEET_URLS,true]
+  ];
+  const outfits=CHARACTER_OUTFITS.filter(outfit=>outfit.id!==DEFAULT_OUTFIT_ID&&outfit.renderMode!=='palette-test');
+  const total=imageMaps.reduce((sum,[,urls])=>sum+Object.keys(urls).length,0)+outfits.length*3+
+    Object.values(CHARACTER_WARDROBE_PREVIEW_URLS).reduce((sum,urls)=>sum+Object.keys(urls).length,0)+1;
+  let completed=0;
+  const advance=()=>onProgress(++completed,total);
+  onProgress(0,total);
+  await Promise.all(imageMaps.map(([target,urls,optional])=>loadImageMap(target,urls,optional,advance)));
   characterOutfitImgs[DEFAULT_OUTFIT_ID]={
     walk:characterLayerImgs.walkOutfit,chop:characterLayerImgs.chopOutfit,fish:characterLayerImgs.fishOutfit
   };
@@ -270,23 +278,23 @@ async function loadAll(){
   prepareCharacterTrialSet();
   validateCharacterRigAssets();
   // Every future outfit must provide all three pose atlases, not one static icon.
-  for(const outfit of CHARACTER_OUTFITS){
-    if(outfit.id===DEFAULT_OUTFIT_ID)continue;
-    if(outfit.renderMode==='palette-test')continue;
+  for(const outfit of outfits){
     const images={};
     for(const pose of ['walk','chop','fish']){
       if(!outfit.layers?.[pose])throw new Error(`Missing ${pose} art for ${outfit.id}`);
       const image=await loadImage(outfit.layers[pose]),expected=CHARACTER_RIG.poses[pose].columns*CHARACTER_RIG.cell;
       if(image.width!==expected||image.height!==384)throw new Error(`Wrong outfit atlas for ${outfit.id}: ${pose}`);
       images[pose]=image;
+      advance();
     }
     characterOutfitImgs[outfit.id]=images;
   }
   for(const [id,urls] of Object.entries(CHARACTER_WARDROBE_PREVIEW_URLS)){
     const images={};
-    await loadImageMap(images,urls);
+    await loadImageMap(images,urls,false,advance);
     for(const [pose,image] of Object.entries(images))if(image.width!==CHARACTER_RIG.poses[pose].columns*96||image.height!==384)
       throw new Error(`Wrong corrected wardrobe atlas: ${id}/${pose}`);
     characterOutfitPreviewImgs[id]=images;
   }
+  advance();
 }

@@ -147,7 +147,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   ['openInventoryBtn','openFishDexBtn','openTreeDexBtn','menuBagIcon','menuFishDexIcon','menuTreeDexIcon','menuDismiss','closeMenu'].every(id=>menuMarkup.includes(`id="${id}"`))&&
   !menuMarkup.includes('openFishingGearBtn')&&!html.includes('id="fishingGearPanel"')&&
   !menuMarkup.includes('디펜스')&&!menuMarkup.includes('마을 북쪽 숲')&&
-  (menuMarkup.match(/<img /g)||[]).length===3&&(menuMarkup.match(/<small>/g)||[]).length===1,
+  (menuMarkup.match(/<img /g)||[]).length===3&&!menuMarkup.includes('<small>'),
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
@@ -1964,4 +1964,5 @@ await import('./qa-voyage-glacier.mjs');
 await import('./qa-fishing-glacier.mjs');
 await import('./qa-fish-rewards.mjs');
 await import('./qa-discovery-feedback.mjs');
+await import('./qa-startup-progress.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

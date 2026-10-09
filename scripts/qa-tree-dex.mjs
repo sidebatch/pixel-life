@@ -109,7 +109,7 @@ try{
     const text=document.getElementById('treeDexDetail').textContent;
     if(!text.includes('참나무')||!text.includes('새싹의 숲')||!text.includes('2그루')||
       !text.includes('벌목 경험치')||!text.includes('1 XP')||!text.includes('목재 판매가')||
-      !text.includes('참나무 목재 · 0~3개')||
+      text.includes('획득 목재')||document.querySelector('.treeDexWood')||
       text.includes('나무 체력')||text.includes('단계')||text.includes('기본 도끼')||text.includes('오래된 숲'))
       throw new Error('Discovered tree detail is not concise');
   });

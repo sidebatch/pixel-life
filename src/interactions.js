@@ -7,15 +7,21 @@ function showDialog(speaker,text){
   document.getElementById('dialogText').textContent=text;
   document.getElementById('dialog').classList.add('show');
 }
-function closeDialog(){
+function closeDialog(options={}){
+  const wasDiscovery=typeof isFishDiscoveryOpen==='function'&&isFishDiscoveryOpen();
+  if(wasDiscovery&&!options.confirmDiscovery)return false;
   const wasFishingResult=typeof isFishingResult==='function'&&isFishingResult();
   if(typeof clearFishingRarityEffect==='function') clearFishingRarityEffect();
-  if(wasFishingResult&&typeof cancelSkillXpFeedback==='function') cancelSkillXpFeedback();
+  if(wasDiscovery)hideFishDiscoveryReveal();
   dialogOpen=false;
   const dialog=document.getElementById('dialog');
   dialog.classList.remove('show','fishingResult','firstDiscovery');
   delete dialog.dataset.rarity;
   if(wasFishingResult) finishFishingResult();
+  if(wasDiscovery){
+    if(typeof updateFishRewardReveal==='function')updateFishRewardReveal();
+    if(typeof flushPendingSkillXpFeedback==='function')flushPendingSkillXpFeedback();
+  }
 }
 function resolveWorldInteraction(tile=facingTile()){
   const exit=regionExitAt(tile.x,tile.y);
@@ -60,6 +66,7 @@ function activateWorldInteraction(interaction){
   }
 }
 function interact(){
+  if(typeof isFishDiscoveryOpen==='function'&&isFishDiscoveryOpen())return;
   if(typeof isVoyageBoarding==='function'&&isVoyageBoarding())return;
   if(isChoppingTree()) return;
   if(menuOpen) return;
@@ -72,6 +79,7 @@ function interact(){
   showDialog('SYSTEM','조사할 것이 없다.');
 }
 function pressB(){
+  if(typeof isFishDiscoveryOpen==='function'&&isFishDiscoveryOpen())return;
   if(typeof isFishRewardRevealOpen==='function'&&isFishRewardRevealOpen())return;
   if(typeof isTreeDiscoveryOpen==='function'&&isTreeDiscoveryOpen()) return;
   if(typeof isSkillLevelUpVisible==='function'&&isSkillLevelUpVisible()) dismissSkillLevelUp();
@@ -109,6 +117,8 @@ if(window.history.state?.pixelLifeOverlay){
 }
 
 window.addEventListener('popstate',()=>{
+  if(typeof isFishDiscoveryOpen==='function'&&isFishDiscoveryOpen())return;
+  if(typeof isTreeDiscoveryOpen==='function'&&isTreeDiscoveryOpen())return;
   if(typeof isFishRewardRevealOpen==='function'&&isFishRewardRevealOpen()){pushGameOverlayHistory('fish-reward');return;}
   const layer=window.history.state?.pixelLifeOverlay;
   if(layer==='harbor'){openHarbor({fromHistory:true});return;}
@@ -255,7 +265,11 @@ fishingCancelButton?.addEventListener('click',e=>{
   if(typeof isFishingActive==='function'&&isFishingActive()) finishFishing();
 });
 document.getElementById('dialogClose').addEventListener('click',closeDialog);
-document.getElementById('dialogNext').addEventListener('click',closeDialog);
+document.getElementById('dialogNext').addEventListener('click',()=>closeDialog({confirmDiscovery:true}));
+document.getElementById('fishDiscoveryOverlay').addEventListener('keydown',event=>{
+  if(event.key!=='Escape'&&event.key!=='Tab')return;
+  event.preventDefault();event.stopPropagation();document.getElementById('dialogNext').focus();
+});
 document.getElementById('dialog').addEventListener('pointerdown',e=>{
   if(e.target.id!=='dialogClose'&&!e.target.closest('#dialogNext')&&dialogOpen&&!e.currentTarget.classList.contains('fishingResult')) closeDialog();
 });

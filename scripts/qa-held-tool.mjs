@@ -92,7 +92,7 @@ try{
     fishingState.biteDelay=0;updateFishing(0);handleFishingAction();
     if(!isFishingResult()||GAME_STATE.inventory.length!==count+1||GAME_STATE.progression.fishing.totalXp<=xp)
       throw new Error('Equipped rod catch/XP failed');
-    closeDialog();
+    closeDialog({confirmDiscovery:true});
     GAME_STATE.regionId='oldForest';buildWorldRegion(REGION_WORLDS.oldForest);
     const tree=trees.find(t=>t.x>8&&t.y>10&&t.y<38&&FORESTRY_TREES[t.species].tier===1&&!blocked.has(key(t.x-1,t.y)));
     if(!tree)throw new Error('No beginner tree');

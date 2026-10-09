@@ -1,4 +1,14 @@
-const skillFeedbackState={token:0,hideTimer:null,overlayTimer:null};
+const skillFeedbackState={token:0,hideTimer:null,overlayTimer:null,pending:null};
+function isSkillXpDiscoveryBlocked(){
+  return (typeof isTreeDiscoveryOpen==='function'&&isTreeDiscoveryOpen())||
+    (typeof isFishDiscoveryOpen==='function'&&isFishDiscoveryOpen())||
+    (typeof isFishRewardRevealOpen==='function'&&isFishRewardRevealOpen());
+}
+function flushPendingSkillXpFeedback(){
+  if(!skillFeedbackState.pending||isSkillXpDiscoveryBlocked())return false;
+  const args=skillFeedbackState.pending;skillFeedbackState.pending=null;
+  showSkillXpFeedback(...args);return true;
+}
 
 function skillCardMarkup(skillId,snapshot=lifeSkillProgressSnapshot(skillId)){
   const skill=LIFE_SKILLS[skillId];
@@ -48,6 +58,7 @@ function dismissSkillLevelUp(options={}){
 }
 
 function cancelSkillXpFeedback(){
+  skillFeedbackState.pending=null;
   skillFeedbackState.token++;
   clearTimeout(skillFeedbackState.hideTimer);
   document.getElementById('skillXPToast')?.classList.remove('show');
@@ -81,6 +92,11 @@ function skillFeedbackPause(ms){return new Promise(resolve=>setTimeout(resolve,m
 async function showSkillXpFeedback(skillId,before,after,gained,currentReward=''){
   const toast=document.getElementById('skillXPToast');
   if(!toast||!gained) return;
+  if(isSkillXpDiscoveryBlocked()){
+    cancelSkillXpFeedback();
+    skillFeedbackState.pending=[skillId,{...before},{...after},gained,currentReward];
+    return;
+  }
   const token=++skillFeedbackState.token;
   clearTimeout(skillFeedbackState.hideTimer);
   toast.innerHTML=`<div class="skillToastGain">+${gained} XP</div>${skillCardMarkup(skillId,before)}`;

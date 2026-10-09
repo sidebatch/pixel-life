@@ -46,6 +46,7 @@ function claimFishRewardReveal(){
   suspendFishRewardReveal();
   if(isFishDexOpen())renderFishDex();
   if(!updateFishRewardReveal()){
+    if(typeof flushPendingSkillXpFeedback==='function')flushPendingSkillXpFeedback();
     leaveGameOverlayHistory('fish-reward');
     document.getElementById(isFishDexOpen()?'fishDexClose':'btnA')?.focus({preventScroll:true});
   }

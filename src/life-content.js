@@ -267,8 +267,8 @@ function hitResourceTree(tree){
   lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,cut:nextHp===0,until:performance.now()+650};
   if(completed){
     if(logs&&nextDurability!==0)showLifeToast(`${FOREST_WOOD[tree.species]} +${logs}개${firstDiscovery?' · 새 나무 도감!':''}`,{belowSkill:true});
-    showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
     if(firstDiscovery&&typeof showTreeDiscoveryReveal==='function')showTreeDiscoveryReveal(tree.species);
+    showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
   }
   if(nextDurability===0){
     if(typeof playAxeBreakSound==='function')playAxeBreakSound();

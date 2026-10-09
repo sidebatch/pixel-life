@@ -243,6 +243,7 @@ function closeTreeDiscoveryReveal(){
   treeDexState.returnMenuOpen=false;
   if(treeDexState.open)renderTreeDex();
   document.getElementById('btnA')?.focus({preventScroll:true});
+  if(typeof flushPendingSkillXpFeedback==='function')flushPendingSkillXpFeedback();
   return true;
 }
 

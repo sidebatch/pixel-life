@@ -21,6 +21,15 @@ const fishingDebugFishId=fishingDebugParams?.has('debug')?fishingDebugParams.get
 
 function isFishingActive(){ return fishingState.phase !== 'idle'; }
 function isFishingResult(){ return fishingState.phase === 'result'; }
+function isFishDiscoveryOpen(){return typeof document!=='undefined'&&document.getElementById('fishDiscoveryOverlay')?.classList.contains('show')===true;}
+function hideFishDiscoveryReveal(){
+  if(!isFishDiscoveryOpen())return false;
+  const overlay=document.getElementById('fishDiscoveryOverlay'),dialog=document.getElementById('dialog');
+  overlay.classList.remove('show');overlay.setAttribute('aria-hidden','true');overlay.setAttribute('inert','');
+  overlay.parentElement.insertBefore(dialog,overlay.nextSibling);
+  dialog.querySelectorAll(':scope > .treeDiscoveryEyebrow,:scope > .treeDiscoveryArt,:scope > .treeDiscoveryWorld').forEach(element=>element.remove());
+  dialog.classList.remove('treeDiscoveryCard');return true;
+}
 
 function fishingWaterInFront(){
   const t=facingTile();
@@ -231,6 +240,10 @@ function startFishing(){
 }
 
 function finishFishing(){
+  const wasDiscovery=hideFishDiscoveryReveal();
+  if(wasDiscovery){
+    dialogOpen=false;document.getElementById('dialog').classList.remove('show','fishingResult','firstDiscovery');
+  }
   if(fishingState.phase!=='result'){
     stopFishingSound('cast');
     stopFishingSound('bite');
@@ -243,6 +256,7 @@ function finishFishing(){
   fishingState.context=null;
   if(GAME_STATE.activity.active==='fishing') GAME_STATE.activity.active=null;
   if(typeof activeVoyage==='function'&&activeVoyage()?.returnPending)returnFromVoyage();
+  if(wasDiscovery&&typeof flushPendingSkillXpFeedback==='function')flushPendingSkillXpFeedback();
 }
 
 function finishFishingResult(){ finishFishing(); }
@@ -316,16 +330,32 @@ function showFishingResult(){
   copy.className='fishingResultCopy';
   copy.textContent=resultCopy;
   layout.append(image,copy);
-  const skillCard=document.createElement('div');
-  skillCard.className='fishingResultSkill';
-  skillCard.innerHTML=skillCardMarkup('fishing',r.progression.before);
-  document.getElementById('dialogText').replaceChildren(layout,skillCard);
+  document.getElementById('dialogText').replaceChildren(layout);
   const dialog=document.getElementById('dialog');
   dialog.classList.add('fishingResult');
   dialog.classList.toggle('firstDiscovery',r.firstDiscovery);
   dialog.dataset.rarity=r.rarity;
+  if(r.firstDiscovery){
+    const overlay=document.getElementById('fishDiscoveryOverlay');
+    dialog.classList.add('treeDiscoveryCard');overlay.append(dialog);
+    const eyebrow=document.createElement('span');eyebrow.className='treeDiscoveryEyebrow';eyebrow.textContent='NEW FISH DISCOVERED';
+    const art=document.createElement('div');art.className='treeDiscoveryArt';art.append(document.createElement('span'),image);
+    const habitat=document.createElement('p');habitat.className='treeDiscoveryWorld';habitat.textContent=FISHING_HABITAT_BY_ID.get(fish.habitat)?.label||'물고기 도감';
+    const description=document.createElement('p');description.className='treeDiscoveryDescription';description.textContent=fish.description||'새로운 물고기가 도감에 기록되었습니다.';
+    // Keep the original title/image/confirmation hooks for existing result consumers.
+    const heading=document.querySelector('#dialog .dialogTop');heading.before(eyebrow,art,habitat);
+    document.getElementById('dialogText').replaceChildren(description);
+    if(r.rewards.messages.length){
+      const note=document.createElement('p');note.className='fishingDiscoveryRewards';note.textContent=r.rewards.messages.join('\n');
+      document.getElementById('dialogText').append(note);
+    }
+    overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');overlay.removeAttribute('inert');
+    document.getElementById('dialogNext').focus();
+  }
   playFishingCatchSound();
-  showFishingRarityEffect(dialog,r.rarity);
+  // First discovery uses the shared card flip. Rare repeat catches keep their effects.
+  if(!r.firstDiscovery)showFishingRarityEffect(dialog,r.rarity);
+  else if(typeof playFishingRaritySound==='function')playFishingRaritySound(r.rarity);
   showSkillXpFeedback('fishing',r.progression.before,r.progression.after,r.progression.gained,
     fishingNewRodText(r.progression.before.level,r.progression.level));
 }

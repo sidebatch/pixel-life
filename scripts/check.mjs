@@ -1963,4 +1963,5 @@ await import('./qa-fishing-deep.mjs');
 await import('./qa-voyage-glacier.mjs');
 await import('./qa-fishing-glacier.mjs');
 await import('./qa-fish-rewards.mjs');
+await import('./qa-discovery-feedback.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

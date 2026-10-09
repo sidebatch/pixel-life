@@ -65,8 +65,11 @@ for(const filter of baseline.runtime.filters.filter(filter=>filter!=='all'))
 
 const fishingSource=read('src/fishing.js');
 const effectsSource=read('src/fishing-effects.js');
-for(const className of baseline.runtime.resultClasses)
+// 2026-10-08 explicitly approved shared Logging-style XP feedback: remove only
+// the duplicate inline Fishing skill card, not the historical baseline itself.
+for(const className of baseline.runtime.resultClasses.filter(name=>name!=='fishingResultSkill'))
   assert.ok(fishingSource.includes(className),`Fishing result contract disappeared: ${className}`);
+assert.ok(!fishingSource.includes("skillCard.className='fishingResultSkill'"),'Result must not duplicate the common XP toast');
 for(const effect of baseline.runtime.requiredEffects)
   assert.ok(fishingSource.includes(`${effect}(`)||effectsSource.includes(`function ${effect}(`),`Fishing effect disappeared: ${effect}`);
 

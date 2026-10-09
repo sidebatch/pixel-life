@@ -41,8 +41,8 @@ try{
     return {source,to,steps:steps.length,x:player.x,y:player.y,face:player.face};
    };
   });
-  const itinerary=['oldForest','deepForest','oldForest','forestThree','oldForest','forestFour','oldForest',
-   'forestFive','forestSix','forestSeven','forestEight','forestNine','forestEight','forestSeven','forestSix','forestFive','oldForest',
+  const itinerary=['oldForest','forestSeven','oldForest','forestEight','oldForest','forestNine','oldForest',
+   'deepForest','forestThree','forestFour','forestFive','forestSix','forestFive','forestFour','forestThree','deepForest','oldForest',
    'mountainLake','oldForest','lilacVillage','forestTen','forestEleven','forestTwelve','forestEleven','forestTen','lilacVillage'];
   const journeys=[];
   for(const to of itinerary){
@@ -51,31 +51,40 @@ try{
     await page.waitForTimeout(80);await page.screenshot({path:path.join(out,width+'-'+to+'-arrival.png')});
    }
   }
-  // Boundary destination labels must match both village entrances and branch junctions.
-  for(const [name,to,x,y] of [['village-south','lilacVillage',25,44],['village-north','lilacVillage',25,3],['first-north-fork','oldForest',20,3],['first-west','oldForest',3,36],['first-east','oldForest',60,40]]){
-   await page.evaluate(({to,x,y})=>{enterWorldRegion({to,entry:{x,y,face:'down'}},{skipSave:true});const camera=getWorldCameraTarget();camX=camera.x;camY=camera.y;},{to,x,y});
-   const guides=await page.evaluate(()=>getNearbyForestExitGuides());
-   assert(guides.length>0,'Nearby destination guide must remain readable');
-   assert(guides.every(g=>g.x-g.width/2>=8&&g.x+g.width/2<=540-8&&g.y>=160&&g.y<=540));
-   assert(await page.evaluate(()=>{
-    const canvasRect=document.getElementById('game').getBoundingClientRect();
-    const controls=['joystick','btnA','settingsBtn','menuBtn'].map(id=>document.getElementById(id)?.getBoundingClientRect()).filter(Boolean);
-    return getNearbyForestExitGuides().every(g=>{
-     const left=canvasRect.left+(g.x-g.width/2)/540*canvasRect.width,right=canvasRect.left+(g.x+g.width/2)/540*canvasRect.width;
-     const top=canvasRect.top+(g.y-16)/960*canvasRect.height,bottom=canvasRect.top+(g.y+16)/960*canvasRect.height;
-     return controls.every(c=>right<=c.left||left>=c.right||bottom<=c.top||top>=c.bottom);
-    });
-   }),'Destination labels cannot hide underneath mobile controls');
-   if(name==='first-north-fork')assert.deepEqual(guides.map(g=>g.to).sort(),['deepForest','lilacVillage']);
-   await page.waitForTimeout(80);await page.screenshot({path:path.join(out,width+'-'+name+'.png')});
+  assert(await page.evaluate(()=>typeof getNearbyForestExitGuides==='undefined'&&typeof drawForestExitGuides==='undefined'),'Floating route UI must be removed');
+  assert.deepEqual(await page.evaluate(()=>[imgs.routeSign.naturalWidth,imgs.routeSign.naturalHeight]),[144,111]);
+  let postsRead=0;
+  for(const id of ['lilacVillage','oldForest','deepForest','forestThree','forestFour','forestFive','forestSix','forestSeven','forestEight','forestNine','forestTen','forestEleven','forestTwelve']){
+   const count=await page.evaluate(id=>{
+    enterWorldRegion({to:id,entry:REGION_WORLDS[id].playerSpawn},{skipSave:true});
+    const before=JSON.stringify({coins:GAME_STATE.progression.coins,inventory:GAME_STATE.inventory,collections:GAME_STATE.collections});
+    for(const post of routeSigns){
+     const option=[['up',0,1],['down',0,-1],['left',1,0],['right',-1,0]].find(([,dx,dy])=>!isBlocked(post.x+dx,post.y+dy));
+     if(!option)throw Error('No reading position '+post.id);
+     player.x=post.x+option[1];player.y=post.y+option[2];player.px=player.x*TILE+24;player.py=player.y*TILE+24;player.face=option[0];player.moving=false;
+     const interaction=resolveWorldInteraction();
+     if(interaction?.kind!=='routeSign'||interaction.target.id!==post.id)throw Error('Wrong sign interaction');
+     activateWorldInteraction(interaction);
+     if(!dialogOpen||document.getElementById('dialogText').textContent!==post.arrow+' '+post.label)throw Error('Wrong sign text');
+     closeDialog();tryMove(option[0]);if(player.moving)throw Error('Player walked through wooden post');
+    }
+    if(JSON.stringify({coins:GAME_STATE.progression.coins,inventory:GAME_STATE.inventory,collections:GAME_STATE.collections})!==before)throw Error('Reading signs changed progress');
+    return routeSigns.length;
+   },id);postsRead+=count;
   }
-  for(const y of [4,39]){
-   assert(await page.evaluate(y=>{
-    enterWorldRegion({to:'lilacVillage',entry:{x:25,y,face:'down'}},{skipSave:true});
+  assert.equal(postsRead,27);
+  for(const [id,to] of [['lilacVillage','oldForest'],['lilacVillage','forestTen'],['oldForest','forestSeven'],['oldForest','forestEight'],['oldForest','forestNine'],['oldForest','deepForest']]){
+   const start=await page.evaluate(({id,to})=>{
+    enterWorldRegion({to:id,entry:REGION_WORLDS[id].playerSpawn},{skipSave:true});
+    const post=routeSigns.find(s=>s.to===to),point={x:post.x+2,y:post.y+1};
+    if(isBlocked(point.x,point.y)){point.x=post.x;point.y=post.y+2;}
+    if(isBlocked(point.x,point.y))throw Error('Screenshot approach blocked');
+    player.x=point.x;player.y=point.y;player.px=point.x*TILE+24;player.py=point.y*TILE+24;player.moving=false;
     const camera=getWorldCameraTarget();camX=camera.x;camY=camera.y;
-    const ax=player.px-camX,ay=player.py-camY;
-    return getNearbyForestExitGuides().every(g=>g.x+g.width/2<=ax-38||g.x-g.width/2>=ax+38||g.y+16<=ay-82||g.y-16>=ay+12);
-   },y),'Clamped destination badge cannot cover the walking character');
+    return {x:post.x,y:post.y};
+   },{id,to});
+   await page.waitForTimeout(80);await page.screenshot({path:path.join(out,width+'-'+id+'-'+to+'-sign.png')});
+   const fixed=await page.evaluate(to=>{const s=routeSigns.find(s=>s.to===to);return {x:s.x,y:s.y};},to);assert.deepEqual(fixed,start);
   }
   // Existing partial/chopped tree and equipment/XP/collection records survive routing and reload.
   const saved=await page.evaluate(()=>{
@@ -97,6 +106,15 @@ try{
    logging:GAME_STATE.progression.logging,forestry:GAME_STATE.progression.forestry,record:GAME_STATE.collections.trees.oak})),saved);
   assert.deepEqual(await page.evaluate(()=>[getTreeState(trees.find(t=>t.id==='forest_tree_01')).hp,getTreeState(trees.find(t=>t.id==='forest_tree_02')).hp]),[50,0]);
   assert.deepEqual(await page.evaluate(()=>[GAME_STATE.regionId,player.x,player.y]),['oldForest',25,3]);
+  await page.evaluate(()=>{
+   const legacy=createSaveData(),post=routeSigns[0];
+   legacy.state.location={regionId:'oldForest',x:post.x,y:post.y,face:'down'};
+   localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(legacy));
+  });
+  await page.reload({timeout:60000});await ready(page);
+  assert.deepEqual(await page.evaluate(()=>[GAME_STATE.regionId,player.x,player.y]),['oldForest',25,3]);
+  assert.equal(await page.evaluate(()=>JSON.stringify({coins:GAME_STATE.progression.coins,inventory:GAME_STATE.inventory,
+   logging:GAME_STATE.progression.logging,forestry:GAME_STATE.progression.forestry,record:GAME_STATE.collections.trees.oak})),saved);
   // The final ordinary forest and all three fantasy forests keep the prior tool restrictions.
   const gates=await page.evaluate(()=>['forestNine','forestTen','forestEleven','forestTwelve'].map(id=>{
    enterWorldRegion({to:id,entry:REGION_WORLDS[id].playerSpawn},{skipSave:true});
@@ -105,7 +123,7 @@ try{
    if(accepted||getTreeState(tree).hp!==hp)throw Error('Lower axe accepted in '+id);
    return id;
   }));
-  reports.push({width,journeys,gates,legacySave:true});console.log(width+'px forest routes passed: '+journeys.length+' actual walks, save intact, tool limits retained');
+  reports.push({width,journeys,gates,postsRead,legacySave:true,postLocationFallback:true});console.log(width+'px forest routes passed: '+journeys.length+' actual walks, 27 planted signs/read/collision, save intact/post fallback, tool limits retained');
   await context.close();
  }
  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({reports,errors},null,2));

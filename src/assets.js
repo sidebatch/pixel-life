@@ -4,6 +4,7 @@ const ASSET_URLS = Object.freeze({
   treeStage24: 'assets/world/treeStage24.png',
   rock: 'assets/world/rock.png',
   sign: 'assets/world/sign.png',
+  routeSign: 'assets/world/route-sign-v1.png',
   bench: 'assets/world/bench.png',
   lamp: 'assets/world/lamp.png',
   bush1: 'assets/world/bush1.png',

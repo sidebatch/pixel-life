@@ -85,32 +85,32 @@ const FOREST_ROUTE_EXITS=Object.freeze({
   ],
   oldForest:[
     {x:25,y:1,to:'lilacVillage',entry:{x:25,y:44,face:'up'},label:'마을로'},
-    {x:14,y:1,to:'deepForest',entry:{x:25,y:44,face:'up'},label:'숲 1-2'},
-    {x:1,y:36,to:'forestThree',entry:{x:60,y:36,face:'left'},label:'숲 1-3'},
-    {x:62,y:40,to:'forestFour',entry:{x:3,y:40,face:'right'},label:'숲 1-4'},
-    {x:25,y:46,to:'forestFive',entry:{x:25,y:3,face:'down'},label:'숲 1-5'},
+    {x:14,y:1,to:'forestSeven',entry:{x:25,y:44,face:'up'},label:'붉은 거목림'},
+    {x:1,y:36,to:'forestEight',entry:{x:60,y:36,face:'left'},label:'은빛 경목림'},
+    {x:62,y:40,to:'forestNine',entry:{x:3,y:40,face:'right'},label:'검은 경목림'},
+    {x:25,y:46,to:'deepForest',entry:{x:25,y:3,face:'down'},label:'숲 1-2'},
     {x:1,y:24,to:'mountainLake',entry:{x:60,y:24,face:'left'},label:'산악 호수'}
   ],
-  deepForest:[{x:25,y:46,to:'oldForest',entry:{x:14,y:3,face:'down'},label:'숲 1-1'}],
-  forestThree:[{x:62,y:36,to:'oldForest',entry:{x:3,y:36,face:'right'},label:'숲 1-1'}],
-  forestFour:[{x:1,y:40,to:'oldForest',entry:{x:60,y:40,face:'left'},label:'숲 1-1'}],
-  forestFive:[
+  deepForest:[
     {x:25,y:1,to:'oldForest',entry:{x:25,y:44,face:'up'},label:'숲 1-1'},
+    {x:25,y:46,to:'forestThree',entry:{x:25,y:3,face:'down'},label:'숲 1-3'}
+  ],
+  forestThree:[
+    {x:25,y:1,to:'deepForest',entry:{x:25,y:44,face:'up'},label:'숲 1-2'},
+    {x:25,y:46,to:'forestFour',entry:{x:25,y:3,face:'down'},label:'숲 1-4'}
+  ],
+  forestFour:[
+    {x:25,y:1,to:'forestThree',entry:{x:25,y:44,face:'up'},label:'숲 1-3'},
+    {x:25,y:46,to:'forestFive',entry:{x:25,y:3,face:'down'},label:'숲 1-5'}
+  ],
+  forestFive:[
+    {x:25,y:1,to:'forestFour',entry:{x:25,y:44,face:'up'},label:'숲 1-4'},
     {x:25,y:46,to:'forestSix',entry:{x:25,y:3,face:'down'},label:'거목 숲'}
   ],
-  forestSix:[
-    {x:25,y:1,to:'forestFive',entry:{x:25,y:44,face:'up'},label:'숲 1-5'},
-    {x:25,y:46,to:'forestSeven',entry:{x:25,y:3,face:'down'},label:'붉은 거목림'}
-  ],
-  forestSeven:[
-    {x:25,y:1,to:'forestSix',entry:{x:25,y:44,face:'up'},label:'거목 숲'},
-    {x:25,y:46,to:'forestEight',entry:{x:25,y:3,face:'down'},label:'은빛 경목림'}
-  ],
-  forestEight:[
-    {x:25,y:1,to:'forestSeven',entry:{x:25,y:44,face:'up'},label:'붉은 거목림'},
-    {x:25,y:46,to:'forestNine',entry:{x:25,y:3,face:'down'},label:'검은 경목림'}
-  ],
-  forestNine:[{x:25,y:1,to:'forestEight',entry:{x:25,y:44,face:'up'},label:'은빛 경목림'}],
+  forestSix:[{x:25,y:1,to:'forestFive',entry:{x:25,y:44,face:'up'},label:'숲 1-5'}],
+  forestSeven:[{x:25,y:46,to:'oldForest',entry:{x:14,y:3,face:'down'},label:'숲 1-1'}],
+  forestEight:[{x:62,y:36,to:'oldForest',entry:{x:3,y:36,face:'right'},label:'숲 1-1'}],
+  forestNine:[{x:1,y:40,to:'oldForest',entry:{x:60,y:40,face:'left'},label:'숲 1-1'}],
   forestTen:[
     {x:25,y:46,to:'lilacVillage',entry:{x:25,y:3,face:'down'},label:'마을로'},
     {x:25,y:1,to:'forestEleven',entry:{x:25,y:44,face:'up'},label:'정령 숲'}
@@ -192,6 +192,67 @@ const forestNearSegment=(x,y,segment,padding=1)=>x>=Math.min(segment.x1,segment.
   y<=Math.max(segment.y1,segment.y2)+padding;
 const forestNearArea=(x,y,area,padding=1)=>x>=area.x-padding&&x<area.x+area.w+padding&&
   y>=area.y-padding&&y<area.y+area.h+padding;
+function placeRouteSignposts(definition){
+  const exits=FOREST_ROUTE_EXITS[definition.id];
+  if(!exits)return definition;
+  const solid=new Set(),roads=new Set(),treePoints=[],rectangles=[],k=(x,y)=>x+','+y;
+  const segment=(s,visit)=>{let x=s.x1,y=s.y1;const dx=Math.sign(s.x2-x),dy=Math.sign(s.y2-y);
+    while(true){visit(x,y);if(x===s.x2&&y===s.y2)break;x+=dx;y+=dy;}};
+  for(const area of definition.waterAreas)for(let x=area.x;x<area.x+area.w;x++)for(let y=area.y;y<area.y+area.h;y++){
+    if(area.cutCorners&&(x===area.x||x===area.x+area.w-1)&&(y===area.y||y===area.y+area.h-1))continue;
+    solid.add(k(x,y));
+  }
+  for(const bridge of definition.bridges)segment(bridge,(x,y)=>solid.delete(k(x,y)));
+  for(const line of definition.treeLines)for(let n=line.from;n<=line.to;n+=line.step){
+    if(line.gaps?.some(([a,b])=>n>=a&&n<=b))continue;
+    treePoints.push({x:line.axis==='x'?n:line.fixed,y:line.axis==='x'?line.fixed:n});
+  }
+  treePoints.push(...definition.trees);for(const t of treePoints)solid.add(k(t.x,t.y));
+  for(const t of treePoints)rectangles.push({x:t.x*48-24,y:t.y*48-64,w:96,h:115});
+  for(const b of definition.buildings){
+    for(let x=b.x;x<b.x+b.w;x++)for(let y=b.y;y<b.y+b.h;y++)solid.add(k(x,y));
+    const imageWidth={buildingHome:300,buildingWorkshop:330,buildingTownhall:320,buildingInn:320,buildingAtelier:156,buildingGardener:140,buildingVeranda:200}[b.sprite];
+    rectangles.push({x:(b.entrance.door.x+.5)*48-b.artAnchor.doorCenterX*b.drawW/imageWidth,
+      y:(b.y+b.h)*48-b.drawH+b.artAnchor.groundOffsetY,w:b.drawW,h:b.drawH});
+    solid.add(k(b.entrance.approach.x,b.entrance.approach.y));
+  }
+  const fixed=definition.fixedObjects;
+  for(const item of [...(fixed.rocks||[]),fixed.sign,fixed.bench,fixed.lamp,...definition.npcs].filter(Boolean))solid.add(k(item.x,item.y));
+  if(fixed.marketShop){const s=fixed.marketShop;
+    for(let x=s.x;x<s.x+s.w;x++)for(let y=s.y;y<s.y+s.h;y++)solid.add(k(x,y));
+    rectangles.push({x:s.x*48,y:s.y*48-26,w:s.w*48,h:s.h*48+26});
+  }
+  for(const path of definition.paths)segment(path,(x,y)=>roads.add(k(x,y)));
+  for(const entry of Object.values(FOREST_ROUTE_EXITS).flat().filter(e=>e.to===definition.id).map(e=>e.entry))solid.add(k(entry.x,entry.y));
+  solid.add(k(definition.playerSpawn.x,definition.playerSpawn.y));
+  if(definition.id==='oldForest')solid.add('3,24'); // Preserved mountain lake arrival.
+  const overlap=(a,b)=>a.x<b.x+b.w&&a.x+a.w>b.x&&a.y<b.y+b.h&&a.y+a.h>b.y;
+  const candidates=[];
+  for(let y=5;y<=42;y++)for(let x=3;x<=60;x++){
+    if(solid.has(k(x,y))||roads.has(k(x,y)))continue;
+    let distance=4;
+    for(let dy=-3;dy<=3;dy++)for(let dx=-3;dx<=3;dx++){
+      const d=Math.abs(dx)+Math.abs(dy);if(d<distance&&roads.has(k(x+dx,y+dy)))distance=d;
+    }
+    if(distance>2)continue;
+    const rect={x:(x+.5)*48-72,y:(y+1)*48-103,w:144,h:103};
+    if(rectangles.some(r=>overlap(rect,r)))continue;
+    candidates.push({x,y,rect,distance});
+  }
+  const routeSigns=[];
+  for(const exit of exits){
+    const top=exit.y===1,bottom=exit.y===46,left=exit.x===1,right=exit.x===62;
+    const target={x:left?7:right?56:exit.x,y:top?7:bottom?40:exit.y};
+    const candidatesForExit=candidates.filter(c=>!routeSigns.some(s=>overlap(c.rect,s.rect)));
+    candidatesForExit.sort((a,b)=>(Math.abs(a.x-target.x)+Math.abs(a.y-target.y)+(a.distance===1?1:0))-
+      (Math.abs(b.x-target.x)+Math.abs(b.y-target.y)+(b.distance===1?1:0))||a.y-b.y||a.x-b.x);
+    const chosen=candidatesForExit[0];
+    if(!chosen)throw new Error('No clear roadside sign location: '+definition.id+' '+exit.to);
+    routeSigns.push({id:definition.id+'_sign_'+exit.to,x:chosen.x,y:chosen.y,rect:chosen.rect,
+      to:exit.to,label:exit.label,arrow:definition.id==='oldForest'&&exit.to==='forestSeven'?'↖':top?'↑':bottom?'↓':left?'←':'→'});
+  }
+  return Object.freeze({...definition,routeSigns});
+}
 function forestTierTrees(regionId,layout){
   const species=FOREST_TIER_REGION_SPECIES[regionId],pattern=layout.treePattern||{};
   const trees=[],used=new Set(),areas=[...(layout.waterAreas||[]),...(layout.stoneAreas||[])];
@@ -685,7 +746,7 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
     trees:[{x:5,y:18},{x:24,y:17},{x:51,y:16},{x:58,y:12}],farmPlots:[],
     exits:[{x:62,y:24,to:'lilacVillage',entry:{x:3,y:36,face:'right'},label:'마을로'}]
   })
-}).map(([id,definition])=>[id,connectForestEntrances(definition)])));
+}).map(([id,definition])=>[id,placeRouteSignposts(connectForestEntrances(definition))])));
 const REGION_EXITS=Object.freeze({
   lilacVillage:FOREST_ROUTE_EXITS.lilacVillage,
   oldForest:REGION_WORLDS.oldForest.exits,

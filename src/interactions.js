@@ -31,6 +31,8 @@ function resolveWorldInteraction(tile=facingTile()){
   const harborFeature=harborFeatureAt(tile.x,tile.y);
   if(harborFeature) return harborFeature;
   if(tile.x===sign.x&&tile.y===sign.y) return {kind:'sign',label:'표지판'};
+  const routePost=routeSigns.find(post=>post.x===tile.x&&post.y===tile.y);
+  if(routePost)return {kind:'routeSign',label:'읽기',target:routePost};
   const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
   if(tree){
     const needed=FORESTRY_TREES[tree.species]?.tier||1;
@@ -59,6 +61,7 @@ function activateWorldInteraction(interaction){
     case 'npc':return ['captain','voyageCaptain'].includes(interaction.target.role)?openHarbor():showDialog(interaction.target.name,interaction.target.dialog);
     case 'ticketBooth':return openHarbor();
     case 'sign':return showDialog('표지판','↑ 고대 숲 · ↓ 오래된 숲 · → 햇살 농장 · ← 바람결 해안 항구 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
+    case 'routeSign':return showDialog('나무 팻말',interaction.target.arrow+' '+interaction.target.label);
     case 'tree':return GAME_STATE.appearance?.activeTool==='sword'?startSwordSwing():startTreeChop(interaction.target);
     case 'farm':return openFarmPlot(interaction.target);
     case 'fishing':return startFishing();

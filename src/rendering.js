@@ -297,6 +297,7 @@ function onScreen(wx,wy,w=100,h=120){
   return wx+w>-40+camX&&wy+h>-40+camY&&wx-w<VIEW_W+camX&&wy-h<VIEW_H+camY;
 }
 function drawRegionExits(){
+  if(routeSigns.length)return; // Physical signposts replace land-route UI/painted gate labels.
   for(const exit of REGION_EXITS[GAME_STATE.regionId]||[]){
     const x=Math.round(exit.x*TILE-camX),y=Math.round(exit.y*TILE-camY);
     ctx.save();
@@ -309,34 +310,14 @@ function drawRegionExits(){
     ctx.restore();
   }
 }
-function getNearbyForestExitGuides(){
-  if(GAME_STATE.regionId!=='lilacVillage'&&!FOREST_REGION_SPECIES[GAME_STATE.regionId])return [];
-  return (REGION_EXITS[GAME_STATE.regionId]||[]).filter(exit=>
-    Math.abs(player.x-exit.x)+Math.abs(player.y-exit.y)<=12).flatMap(exit=>{
-    const sx=(exit.x+.5)*TILE-camX,sy=(exit.y+.5)*TILE-camY;
-    if(sx<-TILE||sx>VIEW_W+TILE||sy<-TILE||sy>VIEW_H+TILE)return [];
-    const arrow=exit.y===1?'↑':exit.y===MAP_H-2?'↓':exit.x===1?'←':'→';
-    const width=Math.max(112,(exit.label.length+2)*16+24);
-    const guide={text:arrow+' '+exit.label,to:exit.to,width,
-      x:Math.max(width/2+8,Math.min(VIEW_W-width/2-8,sx)),
-      y:Math.max(160,Math.min(VIEW_H-420,sy+(exit.y===1?125:-52)))};
-    const actorX=player.px-camX,actorY=player.py-camY;
-    if(guide.x+width/2>actorX-38&&guide.x-width/2<actorX+38&&guide.y+16>actorY-82&&guide.y-16<actorY+12){
-      const right=actorX+50+width/2,left=actorX-50-width/2;
-      guide.x=right+width/2<=VIEW_W-8?right:Math.max(width/2+8,left);
-    }
-    return [guide];
-  });
-}
-function drawForestExitGuides(){
-  // Destination badges sit above canopy/weather and inside the mobile HUD/control safe area.
-  // They are hints, not solid objects or additional input buttons.
-  ctx.save();ctx.font='900 16px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
-  for(const guide of getNearbyForestExitGuides()){
-    ctx.fillStyle='rgba(30,61,45,.94)';ctx.strokeStyle='#c5cda0';ctx.lineWidth=1.5;
-    ctx.beginPath();ctx.roundRect(guide.x-guide.width/2,guide.y-16,guide.width,32,9);ctx.fill();ctx.stroke();
-    ctx.fillStyle='#fff0c7';ctx.fillText(guide.text,guide.x,guide.y);
-  }
+function drawRouteSignpost(post){
+  const x=Math.round((post.x+.5)*TILE-camX),foot=Math.round((post.y+1)*TILE-camY);
+  if(!onScreen((post.x+.5)*TILE,(post.y+1)*TILE,150,130))return;
+  ctx.save();
+  ctx.fillStyle='rgba(24,49,37,.16)';ctx.beginPath();ctx.ellipse(x,foot-2,15,4,0,0,Math.PI*2);ctx.fill();
+  ctx.drawImage(imgs.routeSign,x-72,foot-103,144,111);
+  ctx.font='900 14px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  ctx.fillStyle='#452a17';ctx.fillText(post.arrow+' '+post.label,x,foot-60,110);
   ctx.restore();
 }
 
@@ -850,6 +831,7 @@ function drawWorld(){
     renderables.push({y:o.y*TILE+TILE,draw:()=>o.interactable?drawResourceTree(o):drawWorldTree(o)});
   });
   rocks.forEach(o=>renderables.push({y:o.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.rock,o.x*TILE-camX-6,o.y*TILE-camY-10,60,58)}));
+  routeSigns.forEach(post=>renderables.push({y:(post.y+1)*TILE,draw:()=>drawRouteSignpost(post)}));
   if(GAME_STATE.regionId==='lilacVillage'){
     renderables.push({y:(marketShop.y+marketShop.h)*TILE,draw:drawMarketShop});
     renderables.push({y:sign.y*TILE+TILE,draw:()=>ctx.drawImage(imgs.sign,sign.x*TILE-camX-8,sign.y*TILE-camY-20,64,68)});
@@ -868,7 +850,6 @@ function drawWorld(){
 
   drawWorldTimeEffects();
   drawWeatherEffects();
-  drawForestExitGuides();
   drawWorldDebug();
 
 }

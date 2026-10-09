@@ -1,7 +1,7 @@
 const waterSet=new Set(),pathSet=new Set(),stoneSet=new Set(),bridgeSet=new Set(),blocked=new Set();
 const key=(x,y)=>`${x},${y}`;
 const inside=(x,y)=>x>=0&&y>=0&&x<MAP_W&&y<MAP_H;
-const npcs=[],rocks=[],bushes=[],flowers=[],grassTufts=[],reeds=[],buildings=[],trees=[];
+const npcs=[],rocks=[],bushes=[],flowers=[],grassTufts=[],reeds=[],buildings=[],trees=[],routeSigns=[];
 const sign={x:-100,y:-100},bench={x:-100,y:-100},lamp={x:-100,y:-100},marketShop={x:-100,y:-100,w:0,h:0};
 const treeSet=new Set();
 
@@ -42,7 +42,7 @@ function buildWorldRegion(definition){
   }
   WORLD_DEFINITION=definition;
   for(const set of [waterSet,pathSet,stoneSet,bridgeSet,blocked,treeSet]) set.clear();
-  for(const items of [npcs,rocks,bushes,flowers,grassTufts,reeds,buildings,trees]) items.length=0;
+  for(const items of [npcs,rocks,bushes,flowers,grassTufts,reeds,buildings,trees,routeSigns]) items.length=0;
   for(let x=0;x<MAP_W;x++){blocked.add(key(x,0));blocked.add(key(x,MAP_H-1));}
   for(let y=0;y<MAP_H;y++){blocked.add(key(0,y));blocked.add(key(MAP_W-1,y));}
   definition.paths.forEach(segment=>addSegmentToSet(segment,pathSet));
@@ -104,6 +104,12 @@ function buildWorldRegion(definition){
     }
   }
   definition.trees.forEach(tree=>addTree(tree.x,tree.y,tree));
+  // Signposts are placed only in clear roadside tiles; never displace a saved tree.
+  routeSigns.push(...(definition.routeSigns||[]).map(s=>({...s})));
+  for(const post of routeSigns){
+    if(blocked.has(key(post.x,post.y)))throw new Error('Route sign overlaps a solid tile: '+post.id);
+    blocked.add(key(post.x,post.y));
+  }
 }
 
 function buildingAtDoor(x,y){

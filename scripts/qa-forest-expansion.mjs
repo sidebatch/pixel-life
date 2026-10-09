@@ -33,7 +33,7 @@ try{
       if(count<130||added<40)throw new Error(`${id} is not dense enough: ${count}/${added}`);
       return {id,name:WORLD_DEFINITION.name,count,added,
         species:[...new Set(trees.map(tree=>tree.species))].length};
-    },{id:regions[index],previous:index?'oldForest':null});
+    },{id:regions[index],previous:regions[index-1]});
     reports.push(report);
     await page.screenshot({path:path.join(output,`forest-1-${index+1}-entrance-393.png`)});
     await page.evaluate(()=>{

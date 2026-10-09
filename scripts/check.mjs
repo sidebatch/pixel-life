@@ -151,7 +151,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 417, `Expected 417 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 418, `Expected 418 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -1880,8 +1880,8 @@ assert(validationContext.__forestReport.region==='oldForest'&&validationContext.
   validationContext.__farmReport.region==='sunnyFields'&&validationContext.__plots===16,
   'Forest and farm maps must have exits, fishing water, resource trees, and farm plots');
 const forestRoutes=vm.runInContext(`REGION_EXITS.lilacVillage.some(exit=>exit.to==='oldForest')&&
-  REGION_EXITS.oldForest.some(exit=>exit.to==='deepForest'&&exit.entry.x===25&&exit.entry.y===44)&&
-  REGION_EXITS.deepForest.some(exit=>exit.to==='oldForest'&&exit.entry.x===14&&exit.entry.y===3)`,validationContext);
+  REGION_EXITS.oldForest.some(exit=>exit.to==='deepForest'&&exit.entry.x===25&&exit.entry.y===3)&&
+  REGION_EXITS.deepForest.some(exit=>exit.to==='oldForest'&&exit.entry.x===25&&exit.entry.y===44)`,validationContext);
 assert(forestRoutes,'Forest 1-1 and 1-2 must have reciprocal, walkable entrances');
 const playableForestIds=['oldForest','deepForest','forestThree','forestFour','forestFive','forestSix','forestSeven','forestEight','forestNine','forestTen','forestEleven','forestTwelve'];
 const playableForestNames=['오래된 숲 1-1','오래된 숲 1-2','오래된 숲 1-3','오래된 숲 1-4','오래된 숲 1-5',

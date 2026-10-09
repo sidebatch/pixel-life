@@ -15,6 +15,26 @@ try{
   assert.equal(await page.locator('#fishDexGrid [data-fish-id]').count(),74);
   assert.equal(await page.locator('#fishDexProgress').textContent(),'0 / 74');
   await page.screenshot({path:path.join(output,width+'-undiscovered.png')});
+  const hiddenChecks=await page.evaluate(()=>{
+    const originalFish=GAME_STATE.collections.fish,originalFlags={...GAME_STATE.progression.flags};let checks=0;
+    const checkUnknown=fish=>{renderFishDexDetail(fish);const d=document.getElementById('fishDexDetail');
+      if(d.querySelector('.fishDexHint,.fishDexConditions,img')||!d.textContent.includes('???')||d.textContent.includes(fish.name))throw Error('Unknown fish exposes information: '+fish.id);checks++;};
+    try{
+      GAME_STATE.collections.fish={};
+      for(const rareFishHints of [false,true])for(const finalFishClue of [false,true]){
+        Object.assign(GAME_STATE.progression.flags,{rareFishHints,finalFishClue});for(const fish of FISH_DATA)checkUnknown(fish);
+      }
+      for(const habitat of FISHING_HABITATS){
+        const pool=FISH_DATA.filter(f=>f.habitat===habitat.id),missing=pool.at(-1);
+        GAME_STATE.collections.fish=Object.fromEntries(pool.slice(0,-1).map(f=>[f.id,{count:1}]));
+        Object.assign(GAME_STATE.progression.flags,{rareFishHints:true,finalFishClue:true});checkUnknown(missing);
+      }
+    }finally{GAME_STATE.collections.fish=originalFish;GAME_STATE.progression.flags=originalFlags;}
+    return checks;
+  });assert.equal(hiddenChecks,306);
+  await page.locator('#fishDexGrid [data-fish-id]').first().tap();
+  await page.screenshot({path:path.join(output,width+'-unknown-no-hints.png')});
+  await page.locator('#fishDexModalClose').tap();await page.waitForFunction(()=>!isFishDexDetailOpen());
   await page.evaluate(()=>{
    for(const f of FISH_DATA.slice(0,3))GAME_STATE.collections.fish[f.id]={fishId:f.id,name:f.name,rarity:f.rarity,count:2,minSizeCm:f.minSizeCm,maxSizeCm:f.maxSizeCm,totalSizeCm:f.minSizeCm+f.maxSizeCm,averageSizeCm:(f.minSizeCm+f.maxSizeCm)/2};
    renderFishDex();
@@ -37,9 +57,10 @@ try{
    assert.equal(info.scrollTop,0);assert.equal(info.progress,'3 / 74');assert.equal(info.reviewOpen,false);
    await page.screenshot({path:path.join(output,width+'-'+category+'.png')});categories.push({category,count});
   }
-  // Deep habitat information is still available from an individual card.
+  // Unknown details do not expose a habitat, conditions, or legacy hint exceptions.
   await page.locator('[data-fish-id="fish.coelacanth"]').tap();
-  assert.equal(await page.evaluate(()=>isFishDexDetailOpen()),true);assert.ok((await page.locator('#fishDexDetail').textContent()).includes('심해지역'));
+  assert.equal(await page.evaluate(()=>isFishDexDetailOpen()),true);assert.ok(!(await page.locator('#fishDexDetail').textContent()).includes('심해지역'));
+  assert.equal(await page.locator('#fishDexDetail .fishDexHint,#fishDexDetail .fishDexConditions').count(),0);
   await page.goBack();await page.waitForFunction(()=>isFishDexOpen()&&!isFishDexDetailOpen());
   await page.locator('[data-fish-category="all"]').tap();await page.locator('[data-fish-id="fish.crucian_carp"]').tap();
   const detail=await page.locator('#fishDexDetail').textContent();assert.ok(detail.includes('붕어')&&detail.includes('연못')&&detail.includes('잡은 수')&&detail.includes('평균 크기'));
@@ -50,6 +71,9 @@ try{
   await page.locator('[data-fish-category="coastal"]').tap();assert.equal(await page.evaluate(()=>document.getElementById('fishDexScroll').scrollTop),0);
   await page.locator('#fishDexRewardsBtn').tap();assert.equal(await page.evaluate(()=>isFishDexRewardsOpen()),true);
   assert.equal(await page.locator('#fishDexRewardsList li').count(),20);assert.ok((await page.locator('#fishDexRewardsList').textContent()).includes('강태공'));
+  const rewardText=await page.locator('#fishDexRewardsList').textContent();assert.ok(!rewardText.includes('힌트')&&!rewardText.includes('단서'));
+  for(const count of [14,18]){await page.evaluate(count=>renderFishDexReward(count),count);assert.ok(!/힌트|단서/.test(await page.locator('#fishDexReward').textContent()));}
+  await page.evaluate(()=>renderFishDexReward(getDiscoveredFishCount()));
   assert.equal(await page.evaluate(()=>document.activeElement.id),'fishDexRewardsClose');
   await page.screenshot({path:path.join(output,width+'-rewards.png')});
   // Review is read-only and does not conflate the original 20 rewards with 74 completion.
@@ -71,8 +95,8 @@ try{
   assert.equal(await page.locator('#fishDexRewardsModal').getAttribute('aria-hidden'),'true');
   await page.evaluate(()=>saveGame());await page.reload();await page.waitForFunction(()=>typeof openFishDexRewards==='function'&&!document.getElementById('startupLoading'));
   assert.equal(await page.evaluate(()=>isFishDexRewardsOpen()),false);assert.equal(await page.evaluate(()=>getDiscoveredFishCount()),3);
-  reports.push({width,categories,columns:3,continuousScrolling:true,details:true,rewardHistory:true,readOnly:true,reload:true,voyageExpiryClosesReview:true});await context.close();
+  reports.push({width,categories,columns:3,continuousScrolling:true,details:true,hiddenChecks,rewardHistory:true,readOnly:true,reload:true,voyageExpiryClosesReview:true});await context.close();
  }
  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({reports,errors},null,2));
- console.log('Fish dex clean UI passed: '+JSON.stringify({viewports:[393,320],fourTabs:true,counts:[74,37,8,29],threeColumns:true,noSubTabsOrAccordion:true,optionalRewards:true,detailsAndHistory:true,stateUnchanged:true,errors}));
+ console.log('Fish dex clean UI passed: '+JSON.stringify({viewports:[393,320],fourTabs:true,counts:[74,37,8,29],threeColumns:true,unknownHintsHidden:true,legacyFlagsNoException:true,knownConditionsRetained:true,optionalRewards:true,detailsAndHistory:true,stateUnchanged:true,errors}));
 }finally{await browser.close();}

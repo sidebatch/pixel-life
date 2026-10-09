@@ -32,42 +32,32 @@ function renderFishDexReward(discovered){
   const title=typeof fishDexActiveTitle==='function'?fishDexActiveTitle():null;
   panel.className='fishDexReward'+(next?'':' complete');
   const heading=legacy?'다음 도감 보상 · '+next.count+'종':next?'기존 20종 도감 보상 완료 · 다음 '+next.count+'종':'기존 20종 도감 보상 완료';
-  const label=next?(next.label||next.name):'세계의 강태공 · 74종 도감 완성';
+  const label=next?(legacy?fishDexLegacyRewardLabel(next):next.name):'세계의 강태공 · 74종 도감 완성';
   const progress=next?'<i><span style="width:'+Math.min(100,discovered/next.count*100)+'%"></span></i>':'';
   panel.innerHTML='<div><small>'+heading+'</small><b>'+label+'</b>'+
     (title?'<em class="fishDexTitleBadge">칭호 · '+title+'</em>':'')+progress+
     '</div><span>'+discovered+' / '+(legacy?legacy.count:FISH_DATA.length)+'</span>';
 }
 
-function fishDexUndiscoveredHint(fish,habitat,period,weather){
-  const flags=GAME_STATE.progression.flags||{};
-  const remaining=FISH_DATA.filter(item=>item.habitat===fish.habitat&&!getFishDexRecord(item.id)).length;
-  const finalClue=flags.finalFishClue===true&&remaining===1;
-  const highRarity=['rare','heroic','legendary'].includes(fish.rarity);
-  if(highRarity&&!flags.rareFishHints&&!finalClue){
-    return {label:'출현 힌트',text:`${habitat} · 특별한 시간 또는 날씨`};
-  }
-  return {
-    label:finalClue?'마지막 단서':'출현 힌트',
-    text:`${habitat} · ${period} · ${weather}`
-  };
+function fishDexLegacyRewardLabel(reward){
+  // Keep historical reward IDs/save flags, but never promise hidden-fish hints.
+  if(reward.kind==='rareHints'||reward.kind==='finalClue')return `${reward.count}종 발견 기록`;
+  return reward.label;
 }
 
 function renderFishDexDetail(fish){
   const detail=document.getElementById('fishDexDetail');
   const record=getFishDexRecord(fish.id);
-  const habitat=FISH_DEX_LABELS.habitats[fish.habitat];
-  const period=fishDexConditionText(fish.periods,FISH_DEX_LABELS.periods,'언제나');
-  const weather=fishDexConditionText(fish.weather,FISH_DEX_LABELS.weather,'모든 날씨');
   if(!record){
-    const hint=fishDexUndiscoveredHint(fish,habitat,period,weather);
     detail.className='fishDexDetail undiscovered';
     detail.innerHTML=`
       <div class="fishDexDetailHero"><span class="fishDexUnknown">?</span><div><small>미발견</small><h3>???</h3></div></div>
-      <p>아직 발견하지 못한 물고기입니다. 직접 낚아 도감 기록을 완성해 보세요.</p>
-      <div class="fishDexHint"><b>${hint.label}</b><span>${hint.text}</span></div>`;
+      <p>아직 발견하지 못한 물고기입니다. 직접 낚아 도감 기록을 완성해 보세요.</p>`;
     return;
   }
+  const habitat=FISH_DEX_LABELS.habitats[fish.habitat];
+  const period=fishDexConditionText(fish.periods,FISH_DEX_LABELS.periods,'언제나');
+  const weather=fishDexConditionText(fish.weather,FISH_DEX_LABELS.weather,'모든 날씨');
   detail.className=`fishDexDetail rarity-${fish.rarity}`;
   detail.innerHTML=`
     <div class="fishDexDetailHero"><span><img src="${getFishImageUrl(fish)}" alt=""></span><div><small>${FISH_RARITY_LABELS[fish.rarity]}</small><h3>${fish.name}</h3></div></div>
@@ -99,7 +89,7 @@ function renderFishDexGrid(){
 function renderFishDexRewardsList(){
   const discovered=getDiscoveredFishCount(),state=getFishDexRewardState();
   const row=(label,description,status)=>`<li><div><b>${label}</b><small>${description}</small></div><span>${status}</span></li>`;
-  const legacy=FISH_COLLECTION_REWARDS.map(reward=>row(reward.count+'종',reward.label,discovered>=reward.count?'달성':'미달성')).join('');
+  const legacy=FISH_COLLECTION_REWARDS.map(reward=>row(reward.count+'종',fishDexLegacyRewardLabel(reward),discovered>=reward.count?'달성':'미달성')).join('');
   const milestones=FISH_DEX_MILESTONES.map(reward=>row(reward.count+'종',reward.name,state.milestoneIds.includes(reward.id)?'달성':'미달성')).join('');
   const habitats=FISHING_HABITATS.map(habitat=>{
     const species=FISH_DATA.filter(fish=>fish.habitat===habitat.id),found=species.filter(fish=>getFishDexRecord(fish.id)).length;

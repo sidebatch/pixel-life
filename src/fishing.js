@@ -191,11 +191,12 @@ function applyFishCollectionRewards(){
       xpGained+=reward.amount;
       messages.push(`${reward.count}종 보상 · 낚시 경험치 +${reward.amount} XP`);
     }else if(reward.kind==='rareHints'){
+      // Historical flags remain save-compatible; discovery no longer reveals hints.
       flags.rareFishHints=true;
-      messages.push(`${reward.count}종 보상 · 희귀어 정보가 자세히 보여요`);
+      messages.push(`${reward.count}종 발견 · 도감 기록이 쌓였어요`);
     }else if(reward.kind==='finalClue'){
       flags.finalFishClue=true;
-      messages.push(`${reward.count}종 보상 · 마지막 물고기 단서를 볼 수 있어요`);
+      messages.push(`${reward.count}종 발견 · 도감 완성에 한 걸음 더 가까워졌어요`);
     }else if(reward.kind==='masterReward'){
       flags.masterAnglerTitle=true;
       flags.masterRod=true;

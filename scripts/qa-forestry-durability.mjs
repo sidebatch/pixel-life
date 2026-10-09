@@ -131,7 +131,8 @@ try{
 
   await page.evaluate(()=>{
     window.__equipSoundCount=0;
-    playItemEquipSound=()=>{window.__equipSoundCount+=1;return true;};
+    // Weapon/clothes/rod sounds were separated by the earlier audio update.
+    playEquipWeaponSound=()=>{window.__equipSoundCount+=1;return true;};
     closeMarket({fromHistory:true});
     openInventory({fromHistory:true});inventoryState.tab='equipment';renderInventory();
   });

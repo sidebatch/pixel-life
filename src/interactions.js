@@ -46,7 +46,7 @@ function resolveWorldInteraction(tile=facingTile()){
   if(plot) return {kind:'farm',label:farmPlotActionLabel(plot),target:plot};
   if(waterSet.has(key(tile.x,tile.y))&&GAME_STATE.appearance?.activeTool==='rod') return {kind:'fishing',label:'낚시'};
   const building=buildingForPlayerInteraction();
-  if(building) return {kind:'building',label:'들어가기',target:building};
+  if(building) return {kind:'building',label:building.interactionLabel||'들어가기',target:building};
   return null;
 }
 

@@ -1,0 +1,130 @@
+{
+  "tool": "built-in imagegen",
+  "packing": "alpha crop, binary-alpha nearest neighbor, 8px building padding, shared NPC scale and feet baseline",
+  "buildings": {
+    "townhall": {
+      "file": "assets/buildings/townhall-v1.png",
+      "width": 320,
+      "height": 243,
+      "doorCenterX": 153,
+      "groundOffsetY": 12,
+      "drawW": 480,
+      "drawH": 364.5,
+      "sourceDoorX": 700,
+      "crop": {
+        "x": 36,
+        "y": 22,
+        "width": 1389,
+        "height": 1038
+      }
+    },
+    "inn": {
+      "file": "assets/buildings/inn-v1.png",
+      "width": 320,
+      "height": 194,
+      "doorCenterX": 149,
+      "groundOffsetY": 12,
+      "drawW": 480,
+      "drawH": 291,
+      "sourceDoorX": 738,
+      "crop": {
+        "x": 67,
+        "y": 78,
+        "width": 1450,
+        "height": 847
+      }
+    },
+    "atelier": {
+      "file": "assets/buildings/atelier-v1.png",
+      "width": 156,
+      "height": 228,
+      "doorCenterX": 58,
+      "groundOffsetY": 12,
+      "drawW": 234,
+      "drawH": 342,
+      "sourceDoorX": 556,
+      "crop": {
+        "x": 296,
+        "y": 36,
+        "width": 728,
+        "height": 1104
+      }
+    },
+    "gardener": {
+      "file": "assets/buildings/gardener-v1.png",
+      "width": 140,
+      "height": 125,
+      "doorCenterX": 54,
+      "groundOffsetY": 12,
+      "drawW": 210,
+      "drawH": 187.5,
+      "sourceDoorX": 518,
+      "crop": {
+        "x": 90,
+        "y": 85,
+        "width": 1166,
+        "height": 1029
+      }
+    },
+    "veranda": {
+      "file": "assets/buildings/veranda-v1.png",
+      "width": 200,
+      "height": 124,
+      "doorCenterX": 116,
+      "groundOffsetY": 12,
+      "drawW": 300,
+      "drawH": 186,
+      "sourceDoorX": 900,
+      "crop": {
+        "x": 46,
+        "y": 76,
+        "width": 1461,
+        "height": 855
+      }
+    }
+  },
+  "npcs": {
+    "luca": {
+      "file": "assets/npcs/luca-v1.png",
+      "width": 288,
+      "height": 384,
+      "cell": 96,
+      "feetY": 88,
+      "maxBodyHeight": 66,
+      "rows": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    "sora": {
+      "file": "assets/npcs/sora-v1.png",
+      "width": 288,
+      "height": 384,
+      "cell": 96,
+      "feetY": 88,
+      "maxBodyHeight": 66,
+      "rows": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ]
+    },
+    "eden": {
+      "file": "assets/npcs/eden-v1.png",
+      "width": 288,
+      "height": 384,
+      "cell": 96,
+      "feetY": 88,
+      "maxBodyHeight": 66,
+      "rows": [
+        "down",
+        "left",
+        "right",
+        "up"
+      ]
+    }
+  }
+}

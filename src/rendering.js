@@ -189,6 +189,37 @@ function drawSwampWaterDetails(terrain){
   ctx.restore();
 }
 
+// PLAZA STANDARD V2: connected worn earth, scattered embedded stones, no brick rows.
+// These surfaces are decorative; stoneSet, collision and route semantics stay intact.
+function drawNaturalPlazas(terrain){
+  for(const area of WORLD_DEFINITION.stoneAreas||[]){
+    const wx=area.x*TILE,wy=area.y*TILE,w=area.w*TILE,h=area.h*TILE;
+    const x=wx-camX,y=wy-camY;
+    if(x>VIEW_W+12||y>VIEW_H+12||x+w<-12||y+h<-12)continue;
+    ctx.save();
+    ctx.fillStyle=terrain.plazaEdge||'#b3b49a';
+    ctx.beginPath();ctx.roundRect(x-4,y-4,w+8,h+8,22);ctx.fill();
+    ctx.fillStyle=terrain.plazaCore||'#c9c2ab';
+    ctx.beginPath();ctx.roundRect(x,y,w,h,18);ctx.fill();ctx.clip();
+    // World-stable jittered texture: no camera-driven changes or repeated paver grid.
+    const x0=Math.max(Math.floor(wx/28)*28,Math.floor(camX/28)*28-28),y0=Math.max(Math.floor(wy/28)*28,Math.floor(camY/28)*28-28);
+    for(let gy=y0;gy<Math.min(wy+h,camY+VIEW_H+28);gy+=28){
+      for(let gx=x0;gx<Math.min(wx+w,camX+VIEW_W+28);gx+=28){
+        const r=hash2(gx,gy),rx=gx+hash2(gx+19,gy+3)*22,ry=gy+hash2(gx+7,gy+31)*22;
+        if(r<.28)continue;
+        ctx.globalAlpha=r>.78?.32:.18;
+        ctx.fillStyle=r>.78?'#e9dfc3':r>.53?'#887e63':'#daceb0';
+        const size=r>.9?8:3;
+        ctx.beginPath();ctx.moveTo(Math.round(rx-camX),Math.round(ry-camY));
+        ctx.lineTo(Math.round(rx+size-camX),Math.round(ry+1-camY));
+        ctx.lineTo(Math.round(rx+size-1-camX),Math.round(ry+3+(r>.9?2:0)-camY));
+        ctx.lineTo(Math.round(rx+1-camX),Math.round(ry+3-camY));ctx.closePath();ctx.fill();
+      }
+    }
+    ctx.restore();
+  }
+}
+
 function drawTerrain(){
   // Movement/collision is still tile based, but the terrain is painted as connected surfaces.
   const terrain=WORLD_DEFINITION.terrain||{};
@@ -203,9 +234,9 @@ function drawTerrain(){
   for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
     const type=tileTypeAt(x,y), wx=x*TILE, wy=y*TILE;
     if(type==='path') drawPathTile(x,y);
-    else if(type==='stone') worldRect(wx-1,wy-1,TILE+2,TILE+2,'#9ca2a9');
     else if(type==='water') worldRect(wx-1,wy-1,TILE+2,TILE+2,terrain.waterColor||'#2b91c9');
   }
+  drawNaturalPlazas(terrain);
 
   // Large patches cross several movement cells, which visually breaks the grid.
   ctx.save();
@@ -235,21 +266,6 @@ function drawTerrain(){
       }else if(type==='water' && r>.89){
         ctx.globalAlpha=.22;ctx.fillStyle='#b9efff';
         ctx.fillRect(Math.round(wx-camX),Math.round(wy-camY),10,2);
-      }
-    }
-  }
-  ctx.restore();
-
-  // Smaller pavers make the plaza read as one area rather than 48px square tiles.
-  ctx.save();
-  ctx.strokeStyle='rgba(77,84,94,.34)';ctx.lineWidth=2;
-  for(const area of WORLD_DEFINITION.stoneAreas){
-    const stoneMinX=area.x*TILE, stoneMaxX=(area.x+area.w)*TILE;
-    const stoneMinY=area.y*TILE, stoneMaxY=(area.y+area.h)*TILE;
-    for(let y=stoneMinY;y<=stoneMaxY;y+=24){
-      for(let x=stoneMinX;x<=stoneMaxX;x+=32){
-        const ox=((Math.floor((y-stoneMinY)/24)&1)?16:0);
-        ctx.strokeRect(Math.round(x+ox-camX),Math.round(y-camY),32,24);
       }
     }
   }

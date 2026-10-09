@@ -71,22 +71,121 @@ function forestInfillTrees(regionId,waterAreas=[]){
   }
   return extras;
 }
-const FOREST_ROUTE_IDS=Object.freeze(['deepForest','forestThree','forestFour','forestFive','forestSix','forestSeven','forestEight','forestNine','forestTen','forestEleven','forestTwelve']);
-const FOREST_ROUTE_LABELS=Object.freeze({
-  deepForest:'숲 1-2',forestThree:'숲 1-3',forestFour:'숲 1-4',forestFive:'숲 1-5',
-  forestSix:'거목 숲',forestSeven:'붉은 거목림',forestEight:'은빛 경목림',forestNine:'검은 경목림',
-  forestTen:'고대 숲',forestEleven:'정령 숲',forestTwelve:'태초 숲'
-});
 const FOREST_REGION_NAMES=Object.freeze({
   forestSix:'거목 숲 2-1',forestSeven:'붉은 거목림 2-2',forestEight:'은빛 경목림 2-3',
   forestNine:'검은 경목림 2-4',forestTen:'고대 숲 3-1',forestEleven:'정령 숲 3-2',forestTwelve:'태초 숲 3-3'
 });
-function forestFrontierExits(id){
-  const index=FOREST_ROUTE_IDS.indexOf(id),previous=FOREST_ROUTE_IDS[index-1],next=FOREST_ROUTE_IDS[index+1];
-  return [
-    ...(next?[{x:25,y:1,to:next,entry:{x:25,y:44,face:'up'},label:FOREST_ROUTE_LABELS[next]}]:[]),
-    {x:25,y:46,to:previous,entry:{x:25,y:3,face:'down'},label:FOREST_ROUTE_LABELS[previous]}
-  ];
+// Branches are geography, not new level locks. Stable region/tree IDs remain unchanged.
+const FOREST_ROUTE_EXITS=Object.freeze({
+  lilacVillage:[
+    {x:25,y:46,to:'oldForest',entry:{x:25,y:3,face:'down'},label:'오래된 숲'},
+    {x:25,y:1,to:'forestTen',entry:{x:25,y:44,face:'up'},label:'고대 숲'},
+    {x:62,y:24,to:'sunnyFields',entry:{x:3,y:24,face:'right'},label:'농장으로'},
+    {x:1,y:36,to:'coast',entry:{x:60,y:24,face:'left'},label:'해안으로'}
+  ],
+  oldForest:[
+    {x:25,y:1,to:'lilacVillage',entry:{x:25,y:44,face:'up'},label:'마을로'},
+    {x:14,y:1,to:'deepForest',entry:{x:25,y:44,face:'up'},label:'숲 1-2'},
+    {x:1,y:36,to:'forestThree',entry:{x:60,y:36,face:'left'},label:'숲 1-3'},
+    {x:62,y:40,to:'forestFour',entry:{x:3,y:40,face:'right'},label:'숲 1-4'},
+    {x:25,y:46,to:'forestFive',entry:{x:25,y:3,face:'down'},label:'숲 1-5'},
+    {x:1,y:24,to:'mountainLake',entry:{x:60,y:24,face:'left'},label:'산악 호수'}
+  ],
+  deepForest:[{x:25,y:46,to:'oldForest',entry:{x:14,y:3,face:'down'},label:'숲 1-1'}],
+  forestThree:[{x:62,y:36,to:'oldForest',entry:{x:3,y:36,face:'right'},label:'숲 1-1'}],
+  forestFour:[{x:1,y:40,to:'oldForest',entry:{x:60,y:40,face:'left'},label:'숲 1-1'}],
+  forestFive:[
+    {x:25,y:1,to:'oldForest',entry:{x:25,y:44,face:'up'},label:'숲 1-1'},
+    {x:25,y:46,to:'forestSix',entry:{x:25,y:3,face:'down'},label:'거목 숲'}
+  ],
+  forestSix:[
+    {x:25,y:1,to:'forestFive',entry:{x:25,y:44,face:'up'},label:'숲 1-5'},
+    {x:25,y:46,to:'forestSeven',entry:{x:25,y:3,face:'down'},label:'붉은 거목림'}
+  ],
+  forestSeven:[
+    {x:25,y:1,to:'forestSix',entry:{x:25,y:44,face:'up'},label:'거목 숲'},
+    {x:25,y:46,to:'forestEight',entry:{x:25,y:3,face:'down'},label:'은빛 경목림'}
+  ],
+  forestEight:[
+    {x:25,y:1,to:'forestSeven',entry:{x:25,y:44,face:'up'},label:'붉은 거목림'},
+    {x:25,y:46,to:'forestNine',entry:{x:25,y:3,face:'down'},label:'검은 경목림'}
+  ],
+  forestNine:[{x:25,y:1,to:'forestEight',entry:{x:25,y:44,face:'up'},label:'은빛 경목림'}],
+  forestTen:[
+    {x:25,y:46,to:'lilacVillage',entry:{x:25,y:3,face:'down'},label:'마을로'},
+    {x:25,y:1,to:'forestEleven',entry:{x:25,y:44,face:'up'},label:'정령 숲'}
+  ],
+  forestEleven:[
+    {x:25,y:46,to:'forestTen',entry:{x:25,y:3,face:'down'},label:'고대 숲'},
+    {x:25,y:1,to:'forestTwelve',entry:{x:25,y:44,face:'up'},label:'태초 숲'}
+  ],
+  forestTwelve:[{x:25,y:46,to:'forestEleven',entry:{x:25,y:3,face:'down'},label:'정령 숲'}]
+});
+function forestFrontierExits(id){return FOREST_ROUTE_EXITS[id];}
+
+function connectForestEntrances(definition){
+  if(!FOREST_REGION_SPECIES[definition.id])return definition;
+  // Add paths AFTER legacy grove/tier generation. Never remove/move resource trees
+  // or feed new paths back into the deterministic species/ID generator.
+  const exits=FOREST_ROUTE_EXITS[definition.id];
+  const solid=new Set(),roads=new Set(),tileKey=(x,y)=>x+','+y;
+  // An old unused border road should end inside the map, not suggest a missing exit.
+  const paths=definition.paths.map(path=>{
+    const s={...path};
+    if(s.x1===s.x2){
+      const low=exits.some(e=>e.x===s.x1&&e.y===1)?1:4,high=exits.some(e=>e.x===s.x1&&e.y===46)?46:43;
+      s.y1=Math.max(low,Math.min(high,s.y1));s.y2=Math.max(low,Math.min(high,s.y2));
+    }
+    return s;
+  }),originalPathCount=paths.length;
+  const segment=(s,visit)=>{
+    const dx=Math.sign(s.x2-s.x1),dy=Math.sign(s.y2-s.y1);
+    let x=s.x1,y=s.y1;
+    while(true){visit(x,y);if(x===s.x2&&y===s.y2)break;x+=dx;y+=dy;}
+  };
+  for(const area of definition.waterAreas)for(let x=area.x;x<area.x+area.w;x++)for(let y=area.y;y<area.y+area.h;y++){
+    if(area.cutCorners&&(x===area.x||x===area.x+area.w-1)&&(y===area.y||y===area.y+area.h-1))continue;
+    solid.add(tileKey(x,y));
+  }
+  for(const bridge of definition.bridges)segment(bridge,(x,y)=>solid.delete(tileKey(x,y)));
+  for(const line of definition.treeLines)for(let n=line.from;n<=line.to;n+=line.step){
+    if(line.gaps?.some(([a,b])=>n>=a&&n<=b))continue;
+    solid.add(tileKey(line.axis==='x'?n:line.fixed,line.axis==='x'?line.fixed:n));
+  }
+  for(const item of [...definition.trees,...(definition.fixedObjects.rocks||[])])solid.add(tileKey(item.x,item.y));
+  for(const path of paths)segment(path,(x,y)=>{if(!solid.has(tileKey(x,y)))roads.add(tileKey(x,y));});
+  const exitTiles=new Set(exits.map(e=>tileKey(e.x,e.y)));
+  const arrivals=Object.values(FOREST_ROUTE_EXITS).flat().filter(e=>e.to===definition.id).map(e=>e.entry);
+  const points=[...exits,...arrivals],seenPoints=new Set();
+  for(const start of points){
+    const startKey=tileKey(start.x,start.y);
+    if(seenPoints.has(startKey)||roads.has(startKey))continue;
+    seenPoints.add(startKey);
+    if(solid.has(startKey))throw new Error('Blocked forest entrance: '+definition.id+' '+startKey);
+    const queue=[start],previous=new Map([[startKey,null]]);let goal=null;
+    for(let i=0;i<queue.length&&!goal;i++){
+      const point=queue[i],k=tileKey(point.x,point.y);
+      if(roads.has(k)&&!exitTiles.has(k)){goal=point;break;}
+      for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]){
+        const x=point.x+dx,y=point.y+dy,next=tileKey(x,y);
+        if(x<1||x>=definition.width-1||y<1||y>=definition.height-1||solid.has(next)||previous.has(next)||(exitTiles.has(next)&&next!==startKey))continue;
+        previous.set(next,point);queue.push({x,y});
+      }
+    }
+    if(!goal)throw new Error('Disconnected forest entrance: '+definition.id+' '+startKey);
+    const route=[];let point=goal;
+    while(point){route.push(point);point=previous.get(tileKey(point.x,point.y));}
+    route.reverse();
+    // Compact straight runs while preserving the natural bends around existing trees.
+    let run=route[0],last=run,direction=null;
+    for(let i=1;i<route.length;i++){
+      const next=route[i],dir=(next.x-last.x)+','+(next.y-last.y);
+      if(direction&&dir!==direction){paths.push({x1:run.x,y1:run.y,x2:last.x,y2:last.y});run=last;}
+      direction=dir;last=next;roads.add(tileKey(next.x,next.y));
+    }
+    paths.push({x1:run.x,y1:run.y,x2:last.x,y2:last.y});roads.add(startKey);
+  }
+  return Object.freeze({...definition,paths,routePaths:paths.slice(originalPathCount),exits,playerSpawn:{...arrivals[0]}});
 }
 const forestNearSegment=(x,y,segment,padding=1)=>x>=Math.min(segment.x1,segment.x2)-padding&&
   x<=Math.max(segment.x1,segment.x2)+padding&&y>=Math.min(segment.y1,segment.y2)-padding&&
@@ -150,7 +249,7 @@ function defineVoyageRegion(id,name,habitat,spotId,waterColor){
     buildings:[],fixedObjects:{},decorations:{bushes:[],flowers:[],grassTufts:[],reeds:[]},treeLines:[],trees:[],farmPlots:[],exits:[]
   });
 }
-const REGION_WORLDS=Object.freeze({
+const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
   lilacVillage:VILLAGE_WORLD_DEFINITION,
   oldForest:Object.freeze({
     id:'oldForest',name:'오래된 숲 1-1',tileSize:48,width:64,height:48,
@@ -205,11 +304,7 @@ const REGION_WORLDS=Object.freeze({
       ...forestGroveTrees('oldForest'),
       ...forestInfillTrees('oldForest',[{x:40,y:7,w:8,h:30},{x:37,y:21,w:4,h:9}])
     ],
-    farmPlots:[],exits:[
-      {x:25,y:1,to:'deepForest',entry:{x:25,y:44,face:'up'},label:'숲 1-2'},
-      {x:25,y:46,to:'lilacVillage',entry:{x:25,y:3,face:'down'},label:'마을로'},
-      {x:1,y:24,to:'mountainLake',entry:{x:60,y:24,face:'left'},label:'산악 호수'}
-    ]
+    farmPlots:[],exits:forestFrontierExits('oldForest')
   }),
   deepForest:Object.freeze({
     id:'deepForest',name:'오래된 숲 1-2',tileSize:48,width:64,height:48,
@@ -264,10 +359,7 @@ const REGION_WORLDS=Object.freeze({
       ...forestGroveTrees('deepForest'),
       ...forestInfillTrees('deepForest',[{x:40,y:7,w:8,h:30},{x:37,y:19,w:4,h:9}])
     ],
-    farmPlots:[],exits:[
-      {x:25,y:1,to:'forestThree',entry:{x:25,y:44,face:'up'},label:'숲 1-3'},
-      {x:25,y:46,to:'oldForest',entry:{x:25,y:3,face:'down'},label:'숲 1-1'}
-    ]
+    farmPlots:[],exits:forestFrontierExits('deepForest')
   }),
   forestThree:forestFrontierRegion('forestThree',3,{
     terrain:{ground:'#497f70',patchA:'#245f62',patchB:'#8ab99a',pathRim:'#907955',pathCore:'#b9a078',
@@ -593,13 +685,9 @@ const REGION_WORLDS=Object.freeze({
     trees:[{x:5,y:18},{x:24,y:17},{x:51,y:16},{x:58,y:12}],farmPlots:[],
     exits:[{x:62,y:24,to:'lilacVillage',entry:{x:3,y:36,face:'right'},label:'마을로'}]
   })
-});
+}).map(([id,definition])=>[id,connectForestEntrances(definition)])));
 const REGION_EXITS=Object.freeze({
-  lilacVillage:[
-    {x:25,y:1,to:'oldForest',entry:{x:25,y:44,face:'up'},label:'숲으로'},
-    {x:62,y:24,to:'sunnyFields',entry:{x:3,y:24,face:'right'},label:'농장으로'},
-    {x:1,y:36,to:'coast',entry:{x:60,y:24,face:'left'},label:'해안으로'}
-  ],
+  lilacVillage:FOREST_ROUTE_EXITS.lilacVillage,
   oldForest:REGION_WORLDS.oldForest.exits,
   deepForest:REGION_WORLDS.deepForest.exits,
   forestThree:REGION_WORLDS.forestThree.exits,

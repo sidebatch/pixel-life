@@ -58,7 +58,7 @@ function activateWorldInteraction(interaction){
     case 'characterStyle':return openCharacterStyle();
     case 'npc':return ['captain','voyageCaptain'].includes(interaction.target.role)?openHarbor():showDialog(interaction.target.name,interaction.target.dialog);
     case 'ticketBooth':return openHarbor();
-    case 'sign':return showDialog('표지판','↑ 오래된 숲 · → 햇살 농장 · ← 바람결 해안 항구 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
+    case 'sign':return showDialog('표지판','↑ 고대 숲 · ↓ 오래된 숲 · → 햇살 농장 · ← 바람결 해안 항구 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
     case 'tree':return GAME_STATE.appearance?.activeTool==='sword'?startSwordSwing():startTreeChop(interaction.target);
     case 'farm':return openFarmPlot(interaction.target);
     case 'fishing':return startFishing();

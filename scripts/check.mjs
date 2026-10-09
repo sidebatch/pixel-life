@@ -1881,7 +1881,7 @@ assert(validationContext.__forestReport.region==='oldForest'&&validationContext.
   'Forest and farm maps must have exits, fishing water, resource trees, and farm plots');
 const forestRoutes=vm.runInContext(`REGION_EXITS.lilacVillage.some(exit=>exit.to==='oldForest')&&
   REGION_EXITS.oldForest.some(exit=>exit.to==='deepForest'&&exit.entry.x===25&&exit.entry.y===44)&&
-  REGION_EXITS.deepForest.some(exit=>exit.to==='oldForest'&&exit.entry.x===25&&exit.entry.y===3)`,validationContext);
+  REGION_EXITS.deepForest.some(exit=>exit.to==='oldForest'&&exit.entry.x===14&&exit.entry.y===3)`,validationContext);
 assert(forestRoutes,'Forest 1-1 and 1-2 must have reciprocal, walkable entrances');
 const playableForestIds=['oldForest','deepForest','forestThree','forestFour','forestFive','forestSix','forestSeven','forestEight','forestNine','forestTen','forestEleven','forestTwelve'];
 const playableForestNames=['오래된 숲 1-1','오래된 숲 1-2','오래된 숲 1-3','오래된 숲 1-4','오래된 숲 1-5',
@@ -1897,12 +1897,12 @@ const forestExpansion=vm.runInContext(`${JSON.stringify(playableForestIds)}.map(
     tiers:[...new Set(trees.map(tree=>FORESTRY_TREES[tree.species].tier))].sort().join(','),
     upperSouth:trees.some(tree=>FORESTRY_TREES[tree.species].tier===3&&tree.y>=31),
     north:REGION_EXITS[id].find(exit=>exit.y===1)?.to||null,
-    south:REGION_EXITS[id].find(exit=>exit.y===46)?.to||null};
+    south:REGION_EXITS[id].find(exit=>exit.y===46)?.to||null,
+    reciprocal:REGION_EXITS[id].every(exit=>(REGION_EXITS[exit.to]||[]).some(back=>back.to===id))};
 })`,validationContext);
 assert(forestExpansion.every((region,index)=>region.name===playableForestNames[index]&&region.count>=110&&
   (index<5?region.added>=40&&!region.upperSouth:region.tierTrees>=25&&region.targetComplete&&region.targetOnly)&&
-  region.south===(index===0?'lilacVillage':forestExpansion[index-1].id)&&
-  region.north===(index===forestExpansion.length-1?null:forestExpansion[index+1].id)),
+  region.reciprocal),
   `All twelve forest maps need dense tier trees and reciprocal exits: ${JSON.stringify(forestExpansion)}`);
 assert(vm.runInContext(`${JSON.stringify(playableForestIds)}.every(id=>REGION_MUSIC_TRACKS[id]==='woodland')`,musicContext),
   'All twelve forest maps should continue the woodland track');
@@ -1970,4 +1970,5 @@ await import('./qa-fishing-balance.mjs');
 await import('./qa-fishing-rod-expansion.mjs');
 await import('./qa-fishing-durability.mjs');
 await import('./qa-village-polish.mjs');
+await import('./qa-forest-routes.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

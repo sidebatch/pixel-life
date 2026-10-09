@@ -309,6 +309,36 @@ function drawRegionExits(){
     ctx.restore();
   }
 }
+function getNearbyForestExitGuides(){
+  if(GAME_STATE.regionId!=='lilacVillage'&&!FOREST_REGION_SPECIES[GAME_STATE.regionId])return [];
+  return (REGION_EXITS[GAME_STATE.regionId]||[]).filter(exit=>
+    Math.abs(player.x-exit.x)+Math.abs(player.y-exit.y)<=12).flatMap(exit=>{
+    const sx=(exit.x+.5)*TILE-camX,sy=(exit.y+.5)*TILE-camY;
+    if(sx<-TILE||sx>VIEW_W+TILE||sy<-TILE||sy>VIEW_H+TILE)return [];
+    const arrow=exit.y===1?'↑':exit.y===MAP_H-2?'↓':exit.x===1?'←':'→';
+    const width=Math.max(112,(exit.label.length+2)*16+24);
+    const guide={text:arrow+' '+exit.label,to:exit.to,width,
+      x:Math.max(width/2+8,Math.min(VIEW_W-width/2-8,sx)),
+      y:Math.max(160,Math.min(VIEW_H-420,sy+(exit.y===1?125:-52)))};
+    const actorX=player.px-camX,actorY=player.py-camY;
+    if(guide.x+width/2>actorX-38&&guide.x-width/2<actorX+38&&guide.y+16>actorY-82&&guide.y-16<actorY+12){
+      const right=actorX+50+width/2,left=actorX-50-width/2;
+      guide.x=right+width/2<=VIEW_W-8?right:Math.max(width/2+8,left);
+    }
+    return [guide];
+  });
+}
+function drawForestExitGuides(){
+  // Destination badges sit above canopy/weather and inside the mobile HUD/control safe area.
+  // They are hints, not solid objects or additional input buttons.
+  ctx.save();ctx.font='900 16px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';
+  for(const guide of getNearbyForestExitGuides()){
+    ctx.fillStyle='rgba(30,61,45,.94)';ctx.strokeStyle='#c5cda0';ctx.lineWidth=1.5;
+    ctx.beginPath();ctx.roundRect(guide.x-guide.width/2,guide.y-16,guide.width,32,9);ctx.fill();ctx.stroke();
+    ctx.fillStyle='#fff0c7';ctx.fillText(guide.text,guide.x,guide.y);
+  }
+  ctx.restore();
+}
 
 function drawFarmGround(){
   if(GAME_STATE.regionId!=='sunnyFields') return;
@@ -838,6 +868,7 @@ function drawWorld(){
 
   drawWorldTimeEffects();
   drawWeatherEffects();
+  drawForestExitGuides();
   drawWorldDebug();
 
 }

@@ -43,7 +43,7 @@ try{
         throw new Error(`${id} did not create a stump and wood reward`);
       return {id,name:WORLD_DEFINITION.name,count:trees.length,species:target.length,tree:tree.species,
         ground:WORLD_DEFINITION.terrain.ground,paths:JSON.stringify(WORLD_DEFINITION.paths),water:JSON.stringify(WORLD_DEFINITION.waterAreas)};
-    },{id:regions[index],previous:index?regions[index-1]:'forestFive',tier:index+4});
+    },{id:regions[index],previous:index===4?'lilacVillage':index?regions[index-1]:'forestFive',tier:index+4});
     reports.push(report);
     await page.screenshot({path:path.join(output,`${index+4}-${regions[index]}-entrance.png`)});
     await page.evaluate(()=>{

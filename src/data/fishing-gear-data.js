@@ -1,7 +1,14 @@
 const FISHING_ROD_DURABILITY=Object.freeze({
-  basic:[null,0],sturdy:[120,240],steel:[160,400],expert:[200,600],master_angler:[240,840],
-  deepwater:[300,1200],tidal:[360,1800],tempest:[420,2520],abyssal:[480,3360],aurora:[600,4800]
+  basic:[null,0],sturdy:[120,240],steel:[160,400],expert:[200,300],master_angler:[240,420],
+  deepwater:[300,200],tidal:[360,225],tempest:[420,252],abyssal:[480,280],aurora:[600,400]
 });
+const FISHING_DURABILITY_LOSS_BY_HABITAT=Object.freeze({
+  pond:1,river:1,mountain_lake:1,waterfall:1,swamp:1,coast:1,
+  boat_shallow:6,boat_mid:8,boat_deep:10,glacier:12
+});
+function getFishingDurabilityLoss(fish,rod=getEquippedFishingRod()){
+  return rod.maxDurability?(FISHING_DURABILITY_LOSS_BY_HABITAT[fish?.habitat]||1):0;
+}
 function defineFishingRod(rod){
   const [maxDurability,repairCoins]=FISHING_ROD_DURABILITY[rod.asset];
   return Object.freeze({...rod,maxDurability,repairCoins});

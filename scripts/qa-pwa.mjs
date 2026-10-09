@@ -149,5 +149,15 @@ try{
   if(process.platform==='win32'&&browser.pid)spawnSync('taskkill',['/pid',String(browser.pid),'/T','/F'],{stdio:'ignore',windowsHide:true});
   else browser.kill();
   await pause(350);
-  fs.rmSync(profile,{recursive:true,force:true,maxRetries:8,retryDelay:200});
+  const profileRoot=path.resolve(profile),temporaryRoot=path.resolve(os.tmpdir())+path.sep;
+  if(!profileRoot.startsWith(temporaryRoot)||!path.basename(profileRoot).startsWith('pixel-life-pwa-'))
+    throw new Error('Refusing to remove a profile outside the QA temporary directory');
+  try{await fs.promises.rm(profileRoot,{recursive:true,force:true,maxRetries:12,retryDelay:200});}
+  catch(error){
+    // Windows may retain a Chrome/antivirus lock after its isolated tree exits.
+    // Report retained test files without masking a functional assertion failure.
+    if(process.platform==='win32'&&['EPERM','EBUSY','ENOTEMPTY'].includes(error.code))
+      console.warn('QA browser profile remains locked:',profileRoot);
+    else throw error;
+  }
 }

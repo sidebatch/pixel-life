@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict';
 import {fishingRuntime,balanceReport,routeRegressions,poolModel,expectedFishPrice} from './lib/fishing-balance.mjs';
-import {simulateTrips,simulateGearProgression} from './lib/fishing-progression.mjs';
+import {simulateTrips,simulateGearProgression,simulateRodMaterials} from './lib/fishing-progression.mjs';
 
 const r=fishingRuntime(71),report=balanceReport();
 assert.equal(report.rows.length,1200);assert.equal(report.legendRows.length,60);
@@ -39,6 +39,9 @@ const snow=r.FISH_DATA.find(f=>f.id==='fish.snow_smelt');
 assert(expectedFishPrice(r,snow,r.FISHING_RODS.at(-1))>expectedFishPrice(r,snow,rod));
 
 const trips=simulateTrips({samples:8});assert(trips.every(trip=>trip.losses===0&&trip.minNet>0));
+for(let seed=1;seed<=4;seed++)for(const recipe of simulateRodMaterials(seed)){
+  assert(recipe.complete&&recipe.repairs>0,'A fresh-bag recipe farm skipped all repairs');
+}
 for(let seed=1;seed<=16;seed++){
   const progress=simulateGearProgression(seed);
   assert(progress.complete,`Progression hung for seed ${seed}`);

@@ -62,6 +62,33 @@ r.state.progression.fishing.durabilityByRodId={'rod.master_angler':0};r.createFi
 assert.equal(r.getFishingRodDurability('rod.master_angler').current,0,'Reward sync refilled a broken gift');
 assert(!r.repairFishingRod('rod.fake'));r.state.progression.fishing.purchasedRodIds=['rod.basic'];
 assert(!r.repairFishingRod('rod.sturdy'));
+const losses={pond:1,river:1,mountain_lake:1,waterfall:1,swamp:1,coast:1,boat_shallow:6,boat_mid:8,boat_deep:10,glacier:12};
+for(const rod of ready().FISHING_RODS){
+  const r=ready();
+  for(const [habitat,wear] of Object.entries(losses))for(const current of [wear*2,wear,Math.max(1,wear-1),1]){
+    const fish=r.FISH_DATA.find(f=>f.habitat===habitat&&(!f.periods||f.periods.includes('DAY'))&&(!f.weather||f.weather.includes('clear')));
+    r.state.progression.fishing.durabilityByRodId={...(r.state.progression.fishing.durabilityByRodId||{}),[rod.id]:current};
+    assert(r.equipFishingRod(rod.id));r.fishingState.context={habitat,period:'DAY',weather:'clear'};
+    r.fishingState.pendingCatch={fish,rod,sizeCm:fish.minSizeCm,price:fish.basePrice};
+    const result=r.createFishingCatch();assert(result);assert.equal(result.durabilityLoss,rod.maxDurability?wear:0);
+    const remaining=rod.maxDurability?Math.max(0,current-wear):null;
+    assert.equal(r.getFishingRodDurability(rod).current,remaining);assert.equal(result.rodBroke,remaining===0);
+    assert.equal(r.state.appearance.activeTool,remaining===0?'none':'rod');
+    if(rod.maxDurability){
+      assert.equal(r.fishingRodRepairCost(rod),Math.ceil(rod.repairCoins*(rod.maxDurability-remaining)/rod.maxDurability));
+      assert(r.repairFishingRod(rod.id));
+    }
+  }
+}
+// Even all-perfect target catches exceed a full rod for later recipes. No
+// random luck/coin farming is needed for this empty-bag lower-bound proof.
+for(const target of r.FISHING_RODS.slice(6)){
+  const previous=r.FISHING_RODS.find(rod=>rod.id===target.requiresRodId);
+  const fish=r.FISH_DATA.find(f=>f.id===Object.keys(target.fishCost)[0]);
+  assert(Object.keys(target.fishCost).every(id=>r.FISH_DATA.find(f=>f.id===id).habitat===fish.habitat));
+  const minimumCatches=Object.values(target.fishCost).reduce((a,b)=>a+b,0),perRod=Math.ceil(previous.maxDurability/r.getFishingDurabilityLoss(fish,previous));
+  assert(Math.floor((minimumCatches-1)/perRod)>=1,'Later recipe can skip all repairs with the previous paid rod');
+}
 // A failed catch must not permanently unlock the next voyage by XP or species.
 for(const [habitat,lower,upper,fishId] of [['boat_shallow','shallow','mid','fish.filefish'],['boat_mid','mid','deep','fish.marlin'],['boat_deep','deep','glacier','fish.anglerfish']]){
   const r=fishingRuntime(101),state=r.state,fish=r.FISH_DATA.find(f=>f.id===fishId);
@@ -85,4 +112,4 @@ for(const value of [0,1,84,119.9,-5,99999,null,'0',NaN,Infinity]){
   const expected=typeof value==='number'&&Number.isFinite(value)?Math.max(0,Math.min(120,Math.floor(value))):120;
   assert.equal(normalized.durabilityByRodId['rod.sturdy'],expected);assert(!('rod.basic' in normalized.durabilityByRodId));assert(!('rod.fake' in normalized.durabilityByRodId));
 }
-console.log('Rod durability passed: ten rods, 70% partial repair, last catch/break/manual re-equip, region/funds/ownership locks, old/partial/broken saves, eleven atomic reward boundaries and frozen retry');
+console.log('Rod durability passed: ten rods, 400 habitat/wear/remaining cases, later recipe repair lower bounds, 70% partial repair, last catch/break/manual re-equip, locks/old saves, eleven atomic reward boundaries and frozen retry');

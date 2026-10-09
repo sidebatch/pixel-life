@@ -19,7 +19,7 @@ export function fishingRuntime(seed=1){
     '\nglobalThis.runtime={FISH_DATA,FISHING_RODS,VOYAGE_ROUTES,FISHING_HABITATS,FISHING_CONFIG,WORLD_TIME_CONFIG,WEATHER_CONFIG,'+
     'worldTime,weatherState,fishingState,fishingCatchStreak,getWorldTimePeriod,getWeatherKind,updateWeather,'+
     'getEligibleFishPool,getEffectiveFishWeight,getFishingBiteDelay,applyFishingRodSizeBonus,calculateFishPrice,'+
-    'createFishingCatch,chooseWeightedFish,recordFishingSelection,canPurchaseFishingRod,purchaseFishingRod,equipFishingRod,getFishingRodDurability,fishingRodRepairCost,repairFishingRod,lifeSkillTotalXpForLevel,syncVoyageUnlocks};',sandbox);
+    'createFishingCatch,chooseWeightedFish,recordFishingSelection,canPurchaseFishingRod,purchaseFishingRod,equipFishingRod,getFishingRodDurability,getFishingDurabilityLoss,FISHING_DURABILITY_LOSS_BY_HABITAT,fishingRodRepairCost,repairFishingRod,lifeSkillTotalXpForLevel,syncVoyageUnlocks};',sandbox);
   return {...sandbox.runtime,state,random:math.random,setSaveResult(value){saveSucceeds=value;}};
 }
 
@@ -83,7 +83,8 @@ export function balanceReport({overheadSeconds=3,legends=true}={}){
       const xp=pool.reduce((sum,f,i)=>sum+model.stationary[i]*f.xp,0);
       const cycleMs=runtime.FISHING_CONFIG.castMs+runtime.getFishingBiteDelay(.5,rod)+overheadSeconds*1000;
       const route=routeByHabitat.get(habitat),setupMs=15000,travelMs=45000;
-      const repairPerCatch=rod.maxDurability?rod.repairCoins/rod.maxDurability:0;
+      const wear=runtime.getFishingDurabilityLoss(pool[0],rod);
+      const repairPerCatch=rod.maxDurability?wear*rod.repairCoins/rod.maxDurability:0;
       // Last cast may finish after expiry. Every normal trip first spends 15s
       // walking to the rail; 45s ticket/port/sale round trip is outside the clock.
       const catches=route?Math.ceil((route.durationMs-setupMs)/cycleMs):null;
@@ -91,9 +92,9 @@ export function balanceReport({overheadSeconds=3,legends=true}={}){
       rows.push({habitat,period,weather,rodId:rod.id,pricePerCatch:price,xpPerCatch:xp,cycleMs,
         grossCoinsPerMinute:price*60000/cycleMs,xpPerMinute:xp*60000/cycleMs,
         ticketPrice:route?.price||0,durationMs:route?.durationMs||null,catches,
-        repairCoinsPerCatch:repairPerCatch,
+        durabilityLossPerCatch:wear,repairCoinsPerCatch:repairPerCatch,
         netTripCoins:route?catches*(price-repairPerCatch)-route.price:null,
-        netCoinsPerMinute:route?(catches*(price-repairPerCatch)-route.price)*60000/(playMs+(rod.maxDurability?5000:0)):(price-repairPerCatch)*60000/(cycleMs+(rod.maxDurability?90000/rod.maxDurability:0)),
+        netCoinsPerMinute:route?(catches*(price-repairPerCatch)-route.price)*60000/(playMs+(rod.maxDurability?5000:0)):(price-repairPerCatch)*60000/(cycleMs+(rod.maxDurability?90000*wear/rod.maxDurability:0)),
         probabilities:pool.map((f,i)=>({id:f.id,initial:model.initial[i],stationary:model.stationary[i]}))});
       if(legends)pool.forEach((fish,i)=>{if(fish.rarity==='legendary')legendRows.push({fishId:fish.id,habitat,period,weather,rodId:rod.id,
         conditionalProbability:model.initial[i],...model.firstHit(i)});});

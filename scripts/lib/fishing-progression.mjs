@@ -19,6 +19,39 @@ export function sessionRuntime(seed,overheadSeconds=3,startMinutes=624){
 }
 export function quantile(values,p){const ordered=values.toSorted((a,b)=>a-b);return ordered[Math.floor((ordered.length-1)*p)];}
 
+// Independent recipe-only diagnostic: empty bag and the previous rod, not
+// future materials stockpiled during earlier coin farming. Travel/repair time
+// advances real weather. Tickets/XP progression belong to the full model below.
+export function simulateRodMaterials(seed,{overheadSeconds=3,maxCatches=20000}={}){
+  const data=fishingRuntime(),targets=data.FISHING_RODS.filter(rod=>rod.fishCost&&rod.id!=='rod.sturdy'),rows=[];
+  for(const target of targets){
+    const r=sessionRuntime(seed,overheadSeconds,(seed*137.50776405)%1440),state=r.state;
+    const previous=target.requiresRodId||({ 'rod.steel':'rod.sturdy','rod.expert':'rod.steel','rod.deepwater':'rod.master_angler' })[target.id];
+    state.progression.flags={masterRod:true,fishCollectionRewards:{5:true,10:true,15:true,19:true,20:true}};
+    state.progression.fishing.purchasedRodIds=data.FISHING_RODS.filter(rod=>!rod.requiresMasterReward).map(rod=>rod.id);
+    state.progression.coins=100000000;r.equipFishingRod(previous);
+    const counts=new Map(Object.keys(target.fishCost).map(id=>[id,0]));let habitat=null,repairs=0,repairCoins=0;
+    while(r.catches<maxCatches&&[...counts].some(([id,count])=>count<target.fishCost[id])){
+      const missing=[...counts].filter(([id,count])=>count<target.fishCost[id]);
+      const available=missing.filter(([id])=>{const fish=r.FISH_DATA.find(f=>f.id===id);return r.getEligibleFishPool(r.context(fish.habitat)).some(f=>f.id===id);});
+      const fish=r.FISH_DATA.find(f=>f.id===(available[0]||missing[0])[0]);
+      if(habitat!==fish.habitat){habitat=fish.habitat;r.advance(45000);}
+      if(r.getFishingRodDurability(previous).broken){
+        state.regionId='lilacVillage';const cost=r.fishingRodRepairCost(previous);
+        if(!r.repairFishingRod(previous))throw Error('Recipe repair failed');
+        repairs++;repairCoins+=cost;r.advance(90000);r.equipFishingRod(previous);
+      }
+      state.regionId='simulation';const result=r.catchFish(habitat);
+      if(counts.has(result.fishId))counts.set(result.fishId,counts.get(result.fishId)+1);
+      // Keep diagnostic memory bounded; counts are not game ownership.
+      state.inventory=[];
+    }
+    rows.push({seed,targetId:target.id,previousId:previous,maxDurability:r.getFishingRodDurability(previous).max,
+      catches:r.catches,repairs,repairCoins,complete:[...counts].every(([id,count])=>count>=target.fishCost[id])});
+  }
+  return rows;
+}
+
 export function simulateTrips({samples=128,overheadSeconds=3}={}){
   const data=fishingRuntime(),reports=[];
   for(const route of data.VOYAGE_ROUTES)for(const rod of data.FISHING_RODS){
@@ -54,11 +87,23 @@ export function simulateGearProgression(seed,{overheadSeconds=3,maxCatches=40000
   let stage=0,habitat=null,tripEnds=null,sinceChoice=0,glacier=null;
   const milestones=[];
   let repairCoins=0,repairVisits=0;
+  function preferredRodId(){return state.progression.flags.masterRod&&stage<4?'rod.master_angler':stage?rods[stage-1].id:'rod.basic';}
+  function repairAtPort(){
+    const id=preferredRodId(),cost=r.fishingRodRepairCost(id);
+    if(cost&&state.progression.coins>=cost){
+      state.regionId='lilacVillage';
+      if(!r.repairFishingRod(id))throw new Error('Port repair failed');
+      repairCoins+=cost;repairVisits++;r.advance(5000);r.equipFishingRod(id);
+    }
+  }
   const count=id=>state.inventory.filter(i=>i.id===id&&i.type==='fish').reduce((sum,i)=>sum+i.quantity,0);
   const checkpoint=()=>({catches:r.catches,minutes:r.elapsedMs/60000,level:state.progression.fishing.level,
     totalXp:state.progression.fishing.totalXp,coins:state.progression.coins,repairCoins,repairVisits,discovered:Object.keys(state.collections.fish).length});
   function move(next){
     if(next===habitat&&tripEnds===null)return true;
+    // A recipe change/expired trip returns to port before another departure.
+    // Repair the preferred rod here rather than using basic forever at sea.
+    if(tripEnds!==null)repairAtPort();
     const route=r.VOYAGE_ROUTES.find(route=>route.habitat===next);
     if(route){
       r.syncVoyageUnlocks(state);
@@ -74,6 +119,7 @@ export function simulateGearProgression(seed,{overheadSeconds=3,maxCatches=40000
       state.progression.coins>=route.price)?.habitat||'coast';
   }
   for(let step=0;step<maxCatches;step++){
+    if(tripEnds!==null&&r.elapsedMs>=tripEnds){repairAtPort();habitat=null;tripEnds=null;}
     const rod=rods[stage];
     if(!rod){
       if(glacier)return {seed,complete:true,glacier,milestones,...checkpoint()};
@@ -110,7 +156,7 @@ export function simulateGearProgression(seed,{overheadSeconds=3,maxCatches=40000
       if(state.progression.flags.masterRod&&stage<4)state.progression.fishing.equippedRodId='rod.master_angler';
     }
     if(tripEnds!==null&&r.elapsedMs>=tripEnds){habitat=null;tripEnds=null;continue;}
-    const preferred=state.progression.flags.masterRod&&stage<4?'rod.master_angler':stage?rods[stage-1].id:'rod.basic';
+    const preferred=preferredRodId();
     const durability=r.getFishingRodDurability(preferred),cost=r.fishingRodRepairCost(preferred);
     if(durability.broken){
       if(tripEnds===null&&state.progression.coins>=cost){

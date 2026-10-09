@@ -191,7 +191,8 @@ function openInventoryDetail(type,id,options={}){
   const labels={axe:'벌목 도구',rod:'낚시 도구',sword:'검',outfit:'옷',backpack:'가방'};
   const axeDurability=type==='axe'?getForestryAxeDurability(item):null;
   const rodDurability=type==='rod'?getFishingRodDurability(item):null;
-  const effects=type==='rod'?[...fishingRodEffectLabels(item),rodDurability.infinite?'내구도 무제한':`내구도 ${rodDurability.current} / ${rodDurability.max}`]:
+  const effects=type==='rod'?[...fishingRodEffectLabels(item),rodDurability.infinite?'내구도 무제한':`내구도 ${rodDurability.current} / ${rodDurability.max}`,
+    ...(rodDurability.infinite?[]:['획득 시 내륙·해안 1 / 얕은 바다 6 / 중간 바다 8 / 심해 10 / 빙하 12 감소'])]:
     type==='axe'?[`타격 힘 ${item.damage}`,axeDurability.infinite?'내구도 무제한':`내구도 ${axeDurability.current} / ${axeDurability.max}`,
       `벨 수 있는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`]:
     type==='sword'?[`검 단계 ${item.tier}`,nextSword()?'다음 검은 추후 구매 가능':'상위 검과 전투 콘텐츠는 추후 추가 예정']:

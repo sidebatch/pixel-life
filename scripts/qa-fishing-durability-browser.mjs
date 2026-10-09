@@ -73,6 +73,8 @@ try{
   await card.tap();assert((await page.locator('#inventorySummary').textContent()).includes('엘리'));
   await page.locator('[data-inventory-info-type="rod"][data-inventory-info-id="rod.sturdy"]').tap();
   assert((await page.locator('#inventoryDetailContent').textContent()).includes('내구도 0 / 120'));
+  assert((await page.locator('#inventoryDetailContent').textContent()).includes('얕은 바다 6'));
+  const detailBox=await page.locator('#inventoryDetailContent').boundingBox();assert(detailBox.x>=0&&detailBox.x+detailBox.width<=width);
   await page.screenshot({path:path.join(out,width+'-broken-bag.png')});
   await page.evaluate(()=>{closeInventoryDetail({fromHistory:true});closeInventory({fromHistory:true});GAME_STATE.progression.coins=1000;openMarket();marketState.view='rods';renderMarket();});
   const repair=page.locator('[data-repair-rod-id="rod.sturdy"]');assert((await repair.textContent()).includes('240'));await repair.tap();
@@ -87,7 +89,7 @@ try{
    if(!departVoyage('shallow'))throw Error('Departure failed');
   });await page.waitForFunction(()=>document.getElementById('voyageBoarding').hidden);
   await page.evaluate(()=>{
-   GAME_STATE.progression.fishing.durabilityByRodId['rod.sturdy']=1;
+   GAME_STATE.progression.fishing.durabilityByRodId['rod.sturdy']=5;
    player.x=35;player.y=21;player.face='right';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
    if(!startFishing())throw Error('Boat cast failed');updateFishing(320);updateFishing(7000);
    activeVoyage().remainingMs=0;activeVoyage().returnPending=true;updateVoyage();
@@ -95,7 +97,7 @@ try{
    const original=Storage.prototype.setItem;try{Storage.prototype.setItem=()=>{throw Error('QA disk full');};handleFishingAction();}finally{Storage.prototype.setItem=original;}
    if(before!==JSON.stringify({fishing:GAME_STATE.progression.fishing,fish:GAME_STATE.collections.fish,inventory:GAME_STATE.inventory,flags:GAME_STATE.progression.flags}))throw Error('Boat catch not atomic');
    updateVoyage();if(GAME_STATE.regionId!=='boatShallow'||fishingState.phase!=='bite'||!activeVoyage().returnPending)throw Error('Failed catch returned prematurely');
-   handleFishingAction();if(!fishingState.result?.rodBroke||GAME_STATE.regionId!=='boatShallow')throw Error('Expired last catch failed');
+   handleFishingAction();if(!fishingState.result?.rodBroke||fishingState.result.durabilityLoss!==6||GAME_STATE.regionId!=='boatShallow')throw Error('Expired last catch failed');
   });await page.locator('#dialogNext').tap();await page.waitForFunction(()=>GAME_STATE.regionId==='coast');
   assert.deepEqual(await page.evaluate(()=>({active:GAME_STATE.appearance.activeTool,current:getFishingRodDurability().current,trip:activeVoyage()})),{active:'none',current:0,trip:null});
   // A basic rod can still be manually equipped; no passive auto-fallback or refill.

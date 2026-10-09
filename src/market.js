@@ -256,7 +256,7 @@ function renderRodMarket(){
       !available?'이전 낚싯대를 먼저 구매해 주세요.':missing.length?`부족: ${missing.join(' · ')}`:'구매할 수 있어요.';
     return equipmentCardMarkup({id:rod.id,asset:FISHING_ROD_URLS[rod.asset],name:rod.name,
       effect:owned?durabilityText:fishingRodEffectLabels(rod)[0],status:owned&&durability.broken?'수리 필요':active?'장착 중':owned?'보유 중':reward?'도감 보상':available?'다음 낚싯대':'순서대로 구매',
-      details:`${rod.description} ${fishingRodEffectLabels(rod).join(' · ')} · ${owned?durabilityText:durability.infinite?'내구도 무제한':`최대 내구도 ${durability.max}`}${durability.infinite?'':' · 물고기 획득 시 1 감소'}`,costs,note,active,open:available||(owned&&durability.broken),
+      details:`${rod.description} ${fishingRodEffectLabels(rod).join(' · ')} · ${owned?durabilityText:durability.infinite?'내구도 무제한':`최대 내구도 ${durability.max}`}${durability.infinite?'':' · 획득 시 내륙·해안 1 / 바다 6~12 감소'}`,costs,note,active,open:available||(owned&&durability.broken),
       action:repairCost?`<button type="button" class="marketAxeUpgrade" data-repair-rod-id="${rod.id}" ${GAME_STATE.regionId==='lilacVillage'&&GAME_STATE.progression.coins>=repairCost&&!isFishingActive()?'':'disabled'}>수리 · ${repairCost.toLocaleString()}코인</button>`:owned||reward?'':`<button type="button" class="marketAxeUpgrade" data-rod-id="${rod.id}" ${canPurchaseFishingRod(rod)?'':'disabled'}>${rod.name} 구매</button>`});
   }).join('');
   document.getElementById('marketList').innerHTML=`${skillCardMarkup('fishing')}${catalog}`;

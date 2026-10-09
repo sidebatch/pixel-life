@@ -14,8 +14,10 @@ if(process.argv.includes('--sessions')){
   report.trips=simulateTrips({samples,overheadSeconds:overhead});
   if(!process.argv.includes('--json'))console.log(`Simulating ${samples} recipe-farming progressions…`);
   report.progression=Array.from({length:samples},(_,i)=>simulateGearProgression(i+1,{overheadSeconds:overhead}));
-  if(!process.argv.includes('--json'))console.log(`Simulating ${tourSamples} blind collection tours…`);
-  report.dexTours=Array.from({length:tourSamples},(_,i)=>simulateDexTour(i+1,{overheadSeconds:overhead}));
+  if(!process.argv.includes('--skip-tours')){
+    if(!process.argv.includes('--json'))console.log(`Simulating ${tourSamples} blind collection tours…`);
+    report.dexTours=Array.from({length:tourSamples},(_,i)=>simulateDexTour(i+1,{overheadSeconds:overhead}));
+  }
 }
 const output=process.argv.find(a=>a.startsWith('--output='))?.slice('--output='.length);
 if(output){fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,JSON.stringify({...report,regressions},null,2));}
@@ -39,7 +41,7 @@ else{
      glacierLevelMedian:quantile(report.progression.map(r=>r.glacier?.level||100),.5),
      minutesMedian:quantile(report.progression.map(r=>r.minutes),.5),
      maxXp:Math.max(...report.progression.map(r=>r.totalXp))}));
-   console.log('Blind 74-species tour:',JSON.stringify({completed:report.dexTours.filter(r=>r.complete).length,
+   if(report.dexTours)console.log('Blind 74-species tour:',JSON.stringify({completed:report.dexTours.filter(r=>r.complete).length,
      medianHours:quantile(report.dexTours.map(r=>r.hours),.5),p90Hours:quantile(report.dexTours.map(r=>r.hours),.9),
      medianCatches:quantile(report.dexTours.map(r=>r.catches),.5)}));
  }

@@ -318,9 +318,10 @@ function createFishingCatch(){
     const progression={...progressAfter,before:progressBefore,after:progressAfter,
       gained:fish.xp+rewards.xpGained,leveledUp:progressAfter.level>progressBefore.level,
       masteryGained:progressAfter.mastery-progressBefore.mastery};
-    const durability=getFishingRodDurability(rod),rodBroke=!durability.infinite&&durability.current===1;
+    const durability=getFishingRodDurability(rod),durabilityLoss=getFishingDurabilityLoss(fish,rod);
+    const rodBroke=!durability.infinite&&durability.current<=durabilityLoss;
     if(!durability.infinite){
-      GAME_STATE.progression.fishing.durabilityByRodId[rod.id]=durability.current-1;
+      GAME_STATE.progression.fishing.durabilityByRodId[rod.id]=Math.max(0,durability.current-durabilityLoss);
       if(rodBroke&&GAME_STATE.appearance)GAME_STATE.appearance.activeTool='none';
     }
     if(!saveGame())throw new Error('Fishing catch save failed');
@@ -337,7 +338,7 @@ function createFishingCatch(){
       collection:discovery.record,
       progression,
       rewards,
-      rodId:rod.id,rodBroke,rodName:rod.name
+      rodId:rod.id,rodBroke,rodName:rod.name,durabilityLoss
     };
   }catch(error){
     GAME_STATE.inventory=before.inventory;GAME_STATE.collections.fish=before.fish;

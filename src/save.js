@@ -199,7 +199,13 @@ function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
     requestedRod.requiresMasterReward?masterUnlocked:purchasedRodIds.includes(requestedRod.id)
   );
   const equippedRodId=rodUnlocked?requestedRod.id:DEFAULT_FISHING_ROD_ID;
-  return {...progress,equippedRodId,purchasedRodIds};
+  const ownedIds=[...purchasedRodIds,...(masterUnlocked?['rod.master_angler']:[])],durabilityByRodId={};
+  for(const id of ownedIds){
+    const rod=FISHING_ROD_BY_ID.get(id);if(!rod?.maxDurability)continue;
+    const saved=source.durabilityByRodId?.[id];
+    durabilityByRodId[id]=typeof saved==='number'&&Number.isFinite(saved)?saveClamp(Math.floor(saved),0,rod.maxDurability):rod.maxDurability;
+  }
+  return {...progress,equippedRodId,purchasedRodIds,durabilityByRodId};
 }
 
 function normalizeSavedLoggingProgress(rawProgress){
@@ -318,6 +324,9 @@ function applySaveData(saveData){
     GAME_STATE.inventory
   );
   GAME_STATE.progression.logging=normalizeSavedLoggingProgress(savedState.progression?.logging);
+  const savedRod=FISHING_ROD_BY_ID.get(GAME_STATE.progression.fishing.equippedRodId);
+  if(GAME_STATE.appearance.activeTool==='rod'&&savedRod?.maxDurability&&
+    GAME_STATE.progression.fishing.durabilityByRodId[savedRod.id]===0)GAME_STATE.appearance.activeTool='none';
   GAME_STATE.progression.forestry=normalizeSavedForestryProgress(savedState.progression?.forestry);
   const savedAxe=FORESTRY_AXE_BY_ID.get(GAME_STATE.progression.forestry.axeId);
   if(GAME_STATE.appearance.activeTool==='axe'&&savedAxe?.maxDurability&&

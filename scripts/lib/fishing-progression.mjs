@@ -28,8 +28,14 @@ export function simulateTrips({samples=128,overheadSeconds=3}={}){
       r.state.progression.fishing.equippedRodId=rod.id;r.state.progression.fishing.purchasedRodIds=data.FISHING_RODS.map(r=>r.id);
       r.state.progression.flags.masterRod=true;
       r.advance(15000);let gross=0,totalXp=0;
-      while(r.elapsedMs<route.durationMs){const result=r.catchFish(route.habitat);gross+=result.price;totalXp+=result.xp;r.state.inventory=[];}
-      r.advance(45000);const net=gross-route.price;values.push(net);xp.push(totalXp);rates.push(net*60000/r.elapsedMs);
+      while(r.elapsedMs<route.durationMs){
+        if(r.getFishingRodDurability()?.broken)r.equipFishingRod('rod.basic');
+        const result=r.catchFish(route.habitat);gross+=result.price;totalXp+=result.xp;r.state.inventory=[];
+      }
+      r.advance(45000);const repair=r.fishingRodRepairCost(rod);
+      r.state.regionId='lilacVillage';r.state.progression.coins=gross;
+      if(repair){if(!r.repairFishingRod(rod.id))throw new Error('Trip repair failed');r.advance(5000);}
+      const net=gross-route.price-repair;values.push(net);xp.push(totalXp);rates.push(net*60000/r.elapsedMs);
     }
     reports.push({routeId:route.id,rodId:rod.id,samples,losses:values.filter(n=>n<0).length,
       meanNet:values.reduce((a,b)=>a+b,0)/samples,p10Net:quantile(values,.1),p90Net:quantile(values,.9),minNet:Math.min(...values),
@@ -47,9 +53,10 @@ export function simulateGearProgression(seed,{overheadSeconds=3,maxCatches=40000
   const rods=r.FISHING_RODS.filter(rod=>rod.fishCost),free=['pond','river','mountain_lake','waterfall','swamp','coast'];
   let stage=0,habitat=null,tripEnds=null,sinceChoice=0,glacier=null;
   const milestones=[];
+  let repairCoins=0,repairVisits=0;
   const count=id=>state.inventory.filter(i=>i.id===id&&i.type==='fish').reduce((sum,i)=>sum+i.quantity,0);
   const checkpoint=()=>({catches:r.catches,minutes:r.elapsedMs/60000,level:state.progression.fishing.level,
-    totalXp:state.progression.fishing.totalXp,coins:state.progression.coins,discovered:Object.keys(state.collections.fish).length});
+    totalXp:state.progression.fishing.totalXp,coins:state.progression.coins,repairCoins,repairVisits,discovered:Object.keys(state.collections.fish).length});
   function move(next){
     if(next===habitat&&tripEnds===null)return true;
     const route=r.VOYAGE_ROUTES.find(route=>route.habitat===next);
@@ -103,6 +110,17 @@ export function simulateGearProgression(seed,{overheadSeconds=3,maxCatches=40000
       if(state.progression.flags.masterRod&&stage<4)state.progression.fishing.equippedRodId='rod.master_angler';
     }
     if(tripEnds!==null&&r.elapsedMs>=tripEnds){habitat=null;tripEnds=null;continue;}
+    const preferred=state.progression.flags.masterRod&&stage<4?'rod.master_angler':stage?rods[stage-1].id:'rod.basic';
+    const durability=r.getFishingRodDurability(preferred),cost=r.fishingRodRepairCost(preferred);
+    if(durability.broken){
+      if(tripEnds===null&&state.progression.coins>=cost){
+        state.regionId='lilacVillage';
+        if(!r.repairFishingRod(preferred))throw new Error('Progression repair failed');
+        repairCoins+=cost;repairVisits++;r.advance(90000);
+      }else r.equipFishingRod('rod.basic');
+    }
+    if(!r.getFishingRodDurability(preferred).broken)r.equipFishingRod(preferred);
+    state.regionId=habitat?.startsWith('boat_')||habitat==='glacier'?'fishingBoat':'simulation';
     const reserved=new Map(rods.slice(stage).flatMap(rod=>Object.entries(rod.fishCost)));
     const before=r.catches,result=r.catchFish(habitat||'coast');sinceChoice++;
     if(count(result.fishId)>(reserved.get(result.fishId)||0)){
@@ -130,9 +148,15 @@ export function simulateDexTour(seed,{maxCatches=150000,overheadSeconds=3}={}){
       else state.progression.coins-=route.price;
     }
     r.advance(45000);let remaining=route?route.durationMs-15000:null;if(route)r.advance(15000);
+    state.regionId='lilacVillage';
+    const cost=r.fishingRodRepairCost('rod.deepwater');
+    if(cost&&state.progression.coins>=cost){r.repairFishingRod('rod.deepwater');r.advance(5000);}
+    r.equipFishingRod(r.getFishingRodDurability('rod.deepwater').broken?'rod.basic':'rod.deepwater');
+    state.regionId=route?'fishingBoat':'simulation';
     const visitCatches=40+Math.floor(r.random()*61);
     for(let i=0;i<visitCatches&&r.catches<maxCatches&&Object.keys(state.collections.fish).length<74;i++){
       if(remaining!==null&&remaining<=0)break;
+      if(r.getFishingRodDurability()?.broken)r.equipFishingRod('rod.basic');
       const before=r.elapsedMs,result=r.catchFish(habitat);state.progression.coins+=result.price;state.inventory=[];
       if(remaining!==null)remaining-=r.elapsedMs-before;
     }

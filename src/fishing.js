@@ -12,7 +12,8 @@ const fishingState = {
   biteDelay: 0,
   result: null,
   spot: null,
-  context: null
+  context: null,
+  pendingCatch: null
 };
 
 const fishingCatchStreak={fishId:null,count:0};
@@ -168,6 +169,9 @@ function fishingNewRodText(previousLevel,currentLevel){
 
 function ensureMasterAnglerRod(){
   const inventory=GAME_STATE.inventory;
+  const rod=FISHING_ROD_BY_ID.get('rod.master_angler'),progress=GAME_STATE.progression.fishing;
+  if(rod.maxDurability&&!(typeof progress.durabilityByRodId?.[rod.id]==='number'&&Number.isFinite(progress.durabilityByRodId[rod.id])))
+    progress.durabilityByRodId={...(progress.durabilityByRodId||{}),[rod.id]:rod.maxDurability};
   if(inventory.some(item=>item.type==='equipment'&&item.id==='rod.master_angler')) return;
   inventory.push({type:'equipment',id:'rod.master_angler',name:'강태공의 낚싯대',quantity:1});
 }
@@ -223,13 +227,14 @@ function startFishing(){
   if(typeof canStartVoyageFishing==='function'&&!canStartVoyageFishing())return false;
   if(GAME_STATE.appearance?.activeTool!=='rod'||
     (typeof isChoppingTree==='function'&&isChoppingTree())||
-    menuOpen || isFishingActive()) return false;
+    menuOpen || isFishingActive()||getFishingRodDurability()?.broken) return false;
   const spot=getFishingSpotInFront();
   if(!spot) return false;
   fishingState.phase=fishingDebugFishId?'bite':'casting';
   fishingState.timer=0;
   fishingState.biteDelay=getFishingBiteDelay();
   fishingState.result=null;
+  fishingState.pendingCatch=null;
   fishingState.spot={spotId:spot.spotId,x:spot.x,y:spot.y,fishingHabitat:spot.fishingHabitat};
   fishingState.context=getFishingContext(spot);
   GAME_STATE.activity.active='fishing';
@@ -253,6 +258,7 @@ function finishFishing(){
   fishingState.timer=0;
   fishingState.biteDelay=0;
   fishingState.result=null;
+  fishingState.pendingCatch=null;
   fishingState.spot=null;
   fishingState.context=null;
   if(GAME_STATE.activity.active==='fishing') GAME_STATE.activity.active=null;
@@ -275,50 +281,91 @@ function applyFishingRodSizeBonus(randomValue,rod=getEquippedFishingRod()){
 }
 
 function createFishingCatch(){
+  if(fishingState.phase==='result'&&fishingState.result)return fishingState.result;
+  if(getFishingRodDurability()?.broken)return null;
   const pool=getEligibleFishPool(fishingState.context||getFishingContext());
   const forcedFish=getFishingDebugFish();
-  const fish=forcedFish||chooseWeightedFish(pool);
+  const fish=fishingState.pendingCatch?.fish||forcedFish||chooseWeightedFish(pool);
   if(!fish) throw new Error('No eligible fish for the current fishing context');
-  recordFishingSelection(fish.id);
-  const rod=getEquippedFishingRod();
-  const sizeRoll=applyFishingRodSizeBonus(Math.random(),rod);
-  const sizeCm=fish.minSizeCm+sizeRoll*(fish.maxSizeCm-fish.minSizeCm);
-  const price=calculateFishPrice(fish,sizeCm);
-  GAME_STATE.inventory.push({
-    type:'fish',id:fish.id,name:fish.name,rarity:fish.rarity,sizeCm,price,quantity:1
-  });
-  const discovery=recordFishDiscovery(fish,sizeCm);
-  const progressBefore=lifeSkillProgressSnapshot('fishing');
-  addFishingXp(fish.xp);
-  const rewards=applyFishCollectionRewards();
-  const progressAfter=lifeSkillProgressSnapshot('fishing');
-  const progression={...progressAfter,before:progressBefore,after:progressAfter,
-    gained:fish.xp+rewards.xpGained,leveledUp:progressAfter.level>progressBefore.level,
-    masteryGained:progressAfter.mastery-progressBefore.mastery};
-  saveGame();
-  return {
-    fishId:fish.id,
-    name:fish.name,
-    emoji:fish.emoji,
-    rarity:fish.rarity,
-    sizeCm,
-    price,
-    xp:fish.xp,
-    firstDiscovery:discovery.isFirst,
-    collection:discovery.record,
-    progression,
-    rewards,
-    rodId:rod.id
-  };
+  const rod=fishingState.pendingCatch?.rod||getEquippedFishingRod();
+  if(!fishingState.pendingCatch){
+    const sizeRoll=applyFishingRodSizeBonus(Math.random(),rod),sizeCm=fish.minSizeCm+sizeRoll*(fish.maxSizeCm-fish.minSizeCm);
+    fishingState.pendingCatch={fish,rod,sizeCm,price:calculateFishPrice(fish,sizeCm)};
+  }
+  const {sizeCm,price}=fishingState.pendingCatch;
+  const before={inventory:GAME_STATE.inventory,fish:GAME_STATE.collections.fish,fishRewards:GAME_STATE.collections.fishRewards,
+    coins:GAME_STATE.progression.coins,flags:GAME_STATE.progression.flags,fishing:GAME_STATE.progression.fishing,
+    appearance:GAME_STATE.appearance,voyage:GAME_STATE.progression.voyage,streak:{...fishingCatchStreak}};
+  try{
+    GAME_STATE.inventory=[...before.inventory];
+    GAME_STATE.collections.fish=Object.fromEntries(Object.entries(before.fish).map(([id,record])=>[id,{...record}]));
+    if(before.fishRewards)GAME_STATE.collections.fishRewards=JSON.parse(JSON.stringify(before.fishRewards));
+    GAME_STATE.progression.flags=JSON.parse(JSON.stringify(before.flags||{}));
+    GAME_STATE.progression.fishing={...before.fishing,durabilityByRodId:{...(before.fishing.durabilityByRodId||{})}};
+    if(before.appearance)GAME_STATE.appearance={...before.appearance};
+    // Save may unlock a route from this catch. Roll that back on failure, but
+    // retain elapsed visible voyage time via the shared activeTrip reference.
+    if(before.voyage)GAME_STATE.progression.voyage={...before.voyage,unlockedRouteIds:[...before.voyage.unlockedRouteIds]};
+    recordFishingSelection(fish.id);
+    GAME_STATE.inventory.push({
+      type:'fish',id:fish.id,name:fish.name,rarity:fish.rarity,sizeCm,price,quantity:1
+    });
+    const discovery=recordFishDiscovery(fish,sizeCm);
+    const progressBefore=lifeSkillProgressSnapshot('fishing');
+    addFishingXp(fish.xp);
+    const rewards=applyFishCollectionRewards();
+    const progressAfter=lifeSkillProgressSnapshot('fishing');
+    const progression={...progressAfter,before:progressBefore,after:progressAfter,
+      gained:fish.xp+rewards.xpGained,leveledUp:progressAfter.level>progressBefore.level,
+      masteryGained:progressAfter.mastery-progressBefore.mastery};
+    const durability=getFishingRodDurability(rod),rodBroke=!durability.infinite&&durability.current===1;
+    if(!durability.infinite){
+      GAME_STATE.progression.fishing.durabilityByRodId[rod.id]=durability.current-1;
+      if(rodBroke&&GAME_STATE.appearance)GAME_STATE.appearance.activeTool='none';
+    }
+    if(!saveGame())throw new Error('Fishing catch save failed');
+    fishingState.pendingCatch=null;
+    return {
+      fishId:fish.id,
+      name:fish.name,
+      emoji:fish.emoji,
+      rarity:fish.rarity,
+      sizeCm,
+      price,
+      xp:fish.xp,
+      firstDiscovery:discovery.isFirst,
+      collection:discovery.record,
+      progression,
+      rewards,
+      rodId:rod.id,rodBroke,rodName:rod.name
+    };
+  }catch(error){
+    GAME_STATE.inventory=before.inventory;GAME_STATE.collections.fish=before.fish;
+    if(before.fishRewards===undefined)delete GAME_STATE.collections.fishRewards;else GAME_STATE.collections.fishRewards=before.fishRewards;
+    GAME_STATE.progression.coins=before.coins;GAME_STATE.progression.flags=before.flags;
+    GAME_STATE.progression.fishing=before.fishing;GAME_STATE.appearance=before.appearance;
+    if(before.voyage)GAME_STATE.progression.voyage=before.voyage;
+    Object.assign(fishingCatchStreak,before.streak);
+    if(typeof document!=='undefined'){
+      const coinCount=document.getElementById('coinCount');if(coinCount)coinCount.textContent=Number(before.coins||0).toLocaleString();
+    }
+    return null;
+  }
 }
 
 function showFishingResult(){
+  if(fishingState.phase==='result')return false;
   fishingState.result=createFishingCatch();
+  if(!fishingState.result){
+    if(typeof showLifeToast==='function')showLifeToast('저장하지 못했어요 · 다시 누르면 재시도할 수 있어요');
+    return false;
+  }
   fishingState.phase='result';
   const r=fishingState.result;
   const fish=FISH_DATA.find(item=>item.id===r.fishId);
   const discoveryText=r.firstDiscovery?'\n✨ 첫 발견! 도감 기록 완료':'';
-  const rewardText=r.rewards.messages.length?`\n🎁 ${r.rewards.messages.join('\n🎁 ')}`:'';
+  const breakText=r.rodBroke?`${r.rodName}가 망가졌어요 · 마을 엘리에게서 수리해 주세요`:'';
+  const rewardText=(r.rewards.messages.length?`\n🎁 ${r.rewards.messages.join('\n🎁 ')}`:'')+(breakText?'\n'+breakText:'');
   const resultCopy=`${r.sizeCm.toFixed(1)}cm · 판매가 ${r.price}${discoveryText}${rewardText}`;
   showDialog(r.name,resultCopy);
   const layout=document.createElement('div');
@@ -346,8 +393,8 @@ function showFishingResult(){
     // Keep the original title/image/confirmation hooks for existing result consumers.
     const heading=document.querySelector('#dialog .dialogTop');heading.before(eyebrow,art,habitat);
     document.getElementById('dialogText').replaceChildren(description);
-    if(r.rewards.messages.length){
-      const note=document.createElement('p');note.className='fishingDiscoveryRewards';note.textContent=r.rewards.messages.join('\n');
+    if(r.rewards.messages.length||breakText){
+      const note=document.createElement('p');note.className='fishingDiscoveryRewards';note.textContent=[...r.rewards.messages,...(breakText?[breakText]:[])].join('\n');
       document.getElementById('dialogText').append(note);
     }
     overlay.classList.add('show');overlay.setAttribute('aria-hidden','false');overlay.removeAttribute('inert');
@@ -386,6 +433,7 @@ function handleFishingAction(){
 }
 
 function getFishingContextText(){
+  if(fishingState.pendingCatch)return '저장 실패 · 다시 누르면 재시도';
   if(fishingState.phase==='result') return '🎣 낚시 결과';
   return '';
 }

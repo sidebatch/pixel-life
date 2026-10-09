@@ -12,14 +12,14 @@ export function fishingRuntime(seed=1){
   const state={regionId:'lilacVillage',inventory:[],collections:{fish:{}},progression:{coins:0,flags:{},
     fishing:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:'rod.basic',purchasedRodIds:['rod.basic']},
     voyage:{ticketCounts:{},unlockedRouteIds:['shallow'],activeTrip:null}},appearance:{activeTool:'rod'}};
-  const sandbox={Math:math,GAME_STATE:state,saveGame:()=>saveSucceeds};vm.createContext(sandbox);
-  const files=['data/fishing-habitat-data.js','data/fish-data.js','data/fishing-gear-data.js','data/life-skill-data.js',
+  const sandbox={Math:math,GAME_STATE:state,saveGame:()=>{sandbox.runtime.syncVoyageUnlocks();return saveSucceeds;}};vm.createContext(sandbox);
+  const files=['data/fishing-habitat-data.js','data/fish-data.js','data/fish-reward-data.js','fish-collection-rewards.js','data/fishing-gear-data.js','data/life-skill-data.js',
     'life-skills.js','world-time.js','weather.js','data/voyage-data.js','fishing.js','fishing-gear.js'];
   vm.runInContext(files.map(file=>fs.readFileSync(new URL('../../src/'+file,import.meta.url),'utf8')).join('\n')+
     '\nglobalThis.runtime={FISH_DATA,FISHING_RODS,VOYAGE_ROUTES,FISHING_HABITATS,FISHING_CONFIG,WORLD_TIME_CONFIG,WEATHER_CONFIG,'+
     'worldTime,weatherState,fishingState,fishingCatchStreak,getWorldTimePeriod,getWeatherKind,updateWeather,'+
     'getEligibleFishPool,getEffectiveFishWeight,getFishingBiteDelay,applyFishingRodSizeBonus,calculateFishPrice,'+
-    'createFishingCatch,chooseWeightedFish,recordFishingSelection,canPurchaseFishingRod,purchaseFishingRod,equipFishingRod,lifeSkillTotalXpForLevel,syncVoyageUnlocks};',sandbox);
+    'createFishingCatch,chooseWeightedFish,recordFishingSelection,canPurchaseFishingRod,purchaseFishingRod,equipFishingRod,getFishingRodDurability,fishingRodRepairCost,repairFishingRod,lifeSkillTotalXpForLevel,syncVoyageUnlocks};',sandbox);
   return {...sandbox.runtime,state,random:math.random,setSaveResult(value){saveSucceeds=value;}};
 }
 
@@ -83,6 +83,7 @@ export function balanceReport({overheadSeconds=3,legends=true}={}){
       const xp=pool.reduce((sum,f,i)=>sum+model.stationary[i]*f.xp,0);
       const cycleMs=runtime.FISHING_CONFIG.castMs+runtime.getFishingBiteDelay(.5,rod)+overheadSeconds*1000;
       const route=routeByHabitat.get(habitat),setupMs=15000,travelMs=45000;
+      const repairPerCatch=rod.maxDurability?rod.repairCoins/rod.maxDurability:0;
       // Last cast may finish after expiry. Every normal trip first spends 15s
       // walking to the rail; 45s ticket/port/sale round trip is outside the clock.
       const catches=route?Math.ceil((route.durationMs-setupMs)/cycleMs):null;
@@ -90,13 +91,14 @@ export function balanceReport({overheadSeconds=3,legends=true}={}){
       rows.push({habitat,period,weather,rodId:rod.id,pricePerCatch:price,xpPerCatch:xp,cycleMs,
         grossCoinsPerMinute:price*60000/cycleMs,xpPerMinute:xp*60000/cycleMs,
         ticketPrice:route?.price||0,durationMs:route?.durationMs||null,catches,
-        netTripCoins:route?catches*price-route.price:null,
-        netCoinsPerMinute:route?(catches*price-route.price)*60000/playMs:price*60000/cycleMs,
+        repairCoinsPerCatch:repairPerCatch,
+        netTripCoins:route?catches*(price-repairPerCatch)-route.price:null,
+        netCoinsPerMinute:route?(catches*(price-repairPerCatch)-route.price)*60000/(playMs+(rod.maxDurability?5000:0)):(price-repairPerCatch)*60000/(cycleMs+(rod.maxDurability?90000/rod.maxDurability:0)),
         probabilities:pool.map((f,i)=>({id:f.id,initial:model.initial[i],stationary:model.stationary[i]}))});
       if(legends)pool.forEach((fish,i)=>{if(fish.rarity==='legendary')legendRows.push({fishId:fish.id,habitat,period,weather,rodId:rod.id,
         conditionalProbability:model.initial[i],...model.firstHit(i)});});
     }
-  return {assumptions:{overheadSeconds,deckSetupSeconds:15,portAndSaleSeconds:45,
+  return {assumptions:{overheadSeconds,deckSetupSeconds:15,portAndSaleSeconds:45,repairVisitSeconds:5,freeHabitatRepairRoundTripSeconds:90,amortizedRepair:true,
     conditionalPools:true,repeatPenalty:true,legendAttempts:'Eligible conditions held constant; not real-time discovery promises'},
     rows,legendRows,maxLevelXp:runtime.lifeSkillTotalXpForLevel('fishing',100)};
 }

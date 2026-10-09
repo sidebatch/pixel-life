@@ -45,6 +45,7 @@ for(let seed=1;seed<=16;seed++){
   assert.equal(progress.milestones.at(-1).rodId,'rod.aurora');
   assert(progress.glacier.level<100&&progress.milestones.at(-1).level<100);
   assert(progress.totalXp<report.maxLevelXp,'Final rod must be ready before Lv.100');
+  assert(progress.repairVisits>0&&progress.repairCoins>0,'Growth model bypassed paid repairs');
 }
 for(const overheadSeconds of [0,8])for(let seed=1;seed<=4;seed++){
   const progress=simulateGearProgression(seed,{overheadSeconds});

@@ -145,8 +145,9 @@ try{
     installabilityErrors:installability,offline},null,2));
 }finally{
   try{socket?.close();}catch(_){}
-  browser.kill();
+  // Kill the complete isolated browser tree before its root PID disappears.
   if(process.platform==='win32'&&browser.pid)spawnSync('taskkill',['/pid',String(browser.pid),'/T','/F'],{stdio:'ignore',windowsHide:true});
+  else browser.kill();
   await pause(350);
   fs.rmSync(profile,{recursive:true,force:true,maxRetries:8,retryDelay:200});
 }

@@ -125,7 +125,7 @@ const GAME_STATE = {
   progression:{
     coins:0,
     flags:{},
-    fishing:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:DEFAULT_FISHING_ROD_ID,purchasedRodIds:[DEFAULT_FISHING_ROD_ID]},
+    fishing:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:DEFAULT_FISHING_ROD_ID,purchasedRodIds:[DEFAULT_FISHING_ROD_ID],durabilityByRodId:{}},
     logging:{level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},
     forestry:{axeId:DEFAULT_FORESTRY_AXE_ID,ownedAxeIds:[DEFAULT_FORESTRY_AXE_ID],durabilityByAxeId:{}},
     swords:{swordId:DEFAULT_SWORD_ID,ownedSwordIds:[DEFAULT_SWORD_ID]},

@@ -940,6 +940,7 @@ inventoryContext.FISHING_RODS=[{id:'rod.basic',name:'기본 낚싯대',asset:'ba
 inventoryContext.FISHING_ROD_URLS={basic:'assets/fishing/rods/basic.png'};
 inventoryContext.isFishingRodUnlocked=()=>true;
 inventoryContext.getEquippedFishingRod=()=>inventoryContext.FISHING_RODS[0];
+inventoryContext.getFishingRodDurability=()=>({infinite:true,broken:false,current:null,max:null});
 inventoryContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',asset:'basic'});
 inventoryContext.getOwnedForestryAxes=()=>[{id:'axe.basic',name:'기본 도끼',asset:'basic'},{id:'axe.iron',name:'철 도끼',asset:'iron'}];
 inventoryContext.getForestryAxeDurability=axe=>axe.id==='axe.basic'?{infinite:true,broken:false,current:null,max:null}:{infinite:false,broken:false,current:180,max:180};
@@ -1967,4 +1968,5 @@ await import('./qa-discovery-feedback.mjs');
 await import('./qa-startup-progress.mjs');
 await import('./qa-fishing-balance.mjs');
 await import('./qa-fishing-rod-expansion.mjs');
+await import('./qa-fishing-durability.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

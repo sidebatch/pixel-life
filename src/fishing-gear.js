@@ -2,6 +2,24 @@ function nextFishingRodForSale(state=GAME_STATE){
   return FISHING_RODS.find(rod=>rod.fishCost&&!isFishingRodUnlocked(rod,state))||null;
 }
 
+function fishingRodRepairCost(rodOrId,state=GAME_STATE){
+  const rod=typeof rodOrId==='string'?FISHING_ROD_BY_ID.get(rodOrId):rodOrId;
+  const durability=getFishingRodDurability(rod,state);
+  return !durability||durability.infinite||!durability.missing?0:
+    Math.max(1,Math.ceil(rod.repairCoins*durability.missing/rod.maxDurability));
+}
+
+function repairFishingRod(rodId){
+  const rod=FISHING_ROD_BY_ID.get(rodId),cost=fishingRodRepairCost(rod);
+  if(GAME_STATE.regionId!=='lilacVillage'||!rod||!isFishingRodUnlocked(rod)||!cost||
+    isFishingActive()||GAME_STATE.progression.coins<cost)return false;
+  const before=GAME_STATE.progression.fishing,coins=GAME_STATE.progression.coins;
+  GAME_STATE.progression.fishing={...before,durabilityByRodId:{...(before.durabilityByRodId||{}),[rod.id]:rod.maxDurability}};
+  GAME_STATE.progression.coins-=cost;
+  if(saveGame())return true;
+  GAME_STATE.progression.fishing=before;GAME_STATE.progression.coins=coins;return false;
+}
+
 function planFishingRodTrade(rod,inventory=GAME_STATE.inventory){
   if(!rod?.fishCost) return null;
   const needed=new Map(Object.entries(rod.fishCost));
@@ -37,7 +55,8 @@ function purchaseFishingRod(rodId){
   GAME_STATE.inventory=remaining;
   GAME_STATE.progression.coins-=rod.coins;
   GAME_STATE.progression.fishing={...beforeFishing,
-    purchasedRodIds:[...new Set([...(beforeFishing.purchasedRodIds||[DEFAULT_FISHING_ROD_ID]),rod.id])]};
+    purchasedRodIds:[...new Set([...(beforeFishing.purchasedRodIds||[DEFAULT_FISHING_ROD_ID]),rod.id])],
+    durabilityByRodId:{...(beforeFishing.durabilityByRodId||{}),...(rod.maxDurability?{[rod.id]:rod.maxDurability}:{})}};
   if(!saveGame()){
     GAME_STATE.inventory=beforeInventory;
     GAME_STATE.progression.coins=beforeCoins;
@@ -60,7 +79,7 @@ function equipFishingRod(rodId){
   if((typeof isChoppingTree==='function'&&isChoppingTree())||
     (typeof isFishingActive==='function'&&isFishingActive()))return false;
   const rod=FISHING_ROD_BY_ID.get(rodId);
-  if(!rod||!isFishingRodUnlocked(rod)) return false;
+  if(!rod||!isFishingRodUnlocked(rod)||getFishingRodDurability(rod)?.broken) return false;
   const before=GAME_STATE.progression.fishing.equippedRodId;
   const previousTool=GAME_STATE.appearance?.activeTool;
   GAME_STATE.progression.fishing.equippedRodId=rod.id;

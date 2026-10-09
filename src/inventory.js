@@ -82,7 +82,7 @@ function inventoryWearableArt(type,item){
 }
 
 function inventoryWearableCard(type,item,equipped){
-  const broken=type==='axe'&&getForestryAxeDurability(item)?.broken;
+  const broken=type==='axe'?getForestryAxeDurability(item)?.broken:type==='rod'&&getFishingRodDurability(item)?.broken;
   return `<div class="inventoryWearableSlot${equipped?' selected':''}">
     <button type="button" class="inventoryItemCard inventoryEquipmentCard${equipped?' equipped':''}${broken?' broken':''}" data-equip-type="${type}" data-equip-id="${item.id}" aria-pressed="${equipped}" aria-label="${item.name}${equipped?', 장착 중':broken?', 수리 필요':', 장착하기'}">
       <span class="inventoryItemArt">${inventoryWearableArt(type,item)}</span>
@@ -96,6 +96,7 @@ function inventoryWearableCard(type,item,equipped){
 
 function selectHeldTool(tool){
   if(!['axe','rod','sword'].includes(tool)) return false;
+  if(tool==='rod'&&getFishingRodDurability()?.broken)return false;
   if((typeof isChoppingTree==='function'&&isChoppingTree())||
     (typeof isFishingActive==='function'&&isFishingActive()))return false;
   const previous=GAME_STATE.appearance;
@@ -189,7 +190,8 @@ function openInventoryDetail(type,id,options={}){
     appearance[type==='outfit'?'outfitId':'backpackId']===id;
   const labels={axe:'벌목 도구',rod:'낚시 도구',sword:'검',outfit:'옷',backpack:'가방'};
   const axeDurability=type==='axe'?getForestryAxeDurability(item):null;
-  const effects=type==='rod'?fishingRodEffectLabels(item):
+  const rodDurability=type==='rod'?getFishingRodDurability(item):null;
+  const effects=type==='rod'?[...fishingRodEffectLabels(item),rodDurability.infinite?'내구도 무제한':`내구도 ${rodDurability.current} / ${rodDurability.max}`]:
     type==='axe'?[`타격 힘 ${item.damage}`,axeDurability.infinite?'내구도 무제한':`내구도 ${axeDurability.current} / ${axeDurability.max}`,
       `벨 수 있는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`]:
     type==='sword'?[`검 단계 ${item.tier}`,nextSword()?'다음 검은 추후 구매 가능':'상위 검과 전투 콘텐츠는 추후 추가 예정']:
@@ -198,7 +200,7 @@ function openInventoryDetail(type,id,options={}){
   document.getElementById('inventoryDetailContent').innerHTML=`<div class="inventoryDetailHero">
     <span>${inventoryWearableArt(type,{...item,id})}</span><div><small>${labels[type]}</small><h3 id="inventoryDetailTitle">${item.name}</h3></div></div>
     <p>${description}</p><ul>${effects.map(effect=>`<li>${effect}</li>`).join('')}</ul>
-    <footer>${equipped?'✓ 현재 장착 중':axeDurability?.broken?'망가짐 · 준의 도구점에서 수리해야 다시 장착할 수 있어요.':'가방에서 카드를 누르면 장착할 수 있어요.'}</footer>`;
+    <footer>${equipped?'✓ 현재 장착 중':axeDurability?.broken?'망가짐 · 준의 도구점에서 수리해야 다시 장착할 수 있어요.':rodDurability?.broken?'망가짐 · 마을 엘리에게서 수리해야 다시 장착할 수 있어요.':'가방에서 카드를 누르면 장착할 수 있어요.'}</footer>`;
   inventoryState.detail={type,id};
   const modal=document.getElementById('inventoryDetailModal');
   modal.classList.add('show');modal.setAttribute('aria-hidden','false');
@@ -328,6 +330,7 @@ if(typeof document!=='undefined'){
         selected?.classList.add('showName');selected?.focus({preventScroll:true});
       }else document.getElementById('inventorySummary').textContent=card.dataset.equipType==='axe'&&
         getForestryAxeDurability(card.dataset.equipId)?.broken?'망가진 도끼예요. 준의 도구점에서 먼저 수리해 주세요.':
+        card.dataset.equipType==='rod'&&getFishingRodDurability(card.dataset.equipId)?.broken?'망가진 낚싯대예요. 마을 엘리에게서 먼저 수리해 주세요.':
         '장착 상태를 저장하지 못했어요. 다시 시도해 주세요.';
       return;
     }

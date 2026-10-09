@@ -22,6 +22,9 @@ for(const [index,rod] of rods.entries()){
   state.progression.fishing.equippedRodId=previous.id;
   state.inventory=Object.entries(rod.fishCost).map(([id,count])=>({type:'fish',id,quantity:count+2,price:123,sizeCm:30}));
   state.progression.coins=rod.coins+123;
+  // Manual fixture level changes must establish the pre-existing route gates
+  // before testing a trade rollback, as the real save path synchronizes them.
+  r.syncVoyageUnlocks(state);
   const originalInventory=state.inventory,originalFishing=state.progression.fishing,before=plain(state);
   assert(r.canPurchaseFishingRod(rod));
   state.progression.fishing.level--;assert(!r.canPurchaseFishingRod(rod));state.progression.fishing.level++;

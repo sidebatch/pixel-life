@@ -1,5 +1,19 @@
+const FISHING_ROD_DURABILITY=Object.freeze({
+  basic:[null,0],sturdy:[120,240],steel:[160,400],expert:[200,600],master_angler:[240,840],
+  deepwater:[300,1200],tidal:[360,1800],tempest:[420,2520],abyssal:[480,3360],aurora:[600,4800]
+});
 function defineFishingRod(rod){
-  return Object.freeze({...rod});
+  const [maxDurability,repairCoins]=FISHING_ROD_DURABILITY[rod.asset];
+  return Object.freeze({...rod,maxDurability,repairCoins});
+}
+
+function getFishingRodDurability(rodOrId=getEquippedFishingRod(),state=GAME_STATE){
+  const rod=typeof rodOrId==='string'?FISHING_ROD_BY_ID.get(rodOrId):rodOrId;
+  if(!rod)return null;
+  if(!rod.maxDurability)return {current:null,max:null,missing:0,broken:false,infinite:true};
+  const saved=state.progression.fishing.durabilityByRodId?.[rod.id];
+  const current=typeof saved==='number'&&Number.isFinite(saved)?Math.max(0,Math.min(rod.maxDurability,Math.floor(saved))):rod.maxDurability;
+  return {current,max:rod.maxDurability,missing:rod.maxDurability-current,broken:current===0,infinite:false};
 }
 
 const FISHING_RODS=Object.freeze([

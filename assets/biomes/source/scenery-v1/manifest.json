@@ -1,0 +1,91 @@
+{
+  "tool": "built-in imagegen",
+  "packing": "alpha crop, aspect-preserving nearest-neighbor fit with 4px padding",
+  "assets": {
+    "ridge-west": {
+      "file": "assets/biomes/ridge-west-v1.png",
+      "width": 384,
+      "height": 352,
+      "content": {
+        "x": 4,
+        "y": 52,
+        "w": 376,
+        "h": 296
+      },
+      "sourceCrop": {
+        "x": 10,
+        "y": 99,
+        "width": 1292,
+        "height": 1017
+      }
+    },
+    "ridge-east": {
+      "file": "assets/biomes/ridge-east-v1.png",
+      "width": 448,
+      "height": 256,
+      "content": {
+        "x": 4,
+        "y": 37,
+        "w": 440,
+        "h": 215
+      },
+      "sourceCrop": {
+        "x": 23,
+        "y": 181,
+        "width": 1438,
+        "height": 702
+      }
+    },
+    "waterfall": {
+      "file": "assets/biomes/waterfall-v1.png",
+      "width": 224,
+      "height": 320,
+      "content": {
+        "x": 4,
+        "y": 26,
+        "w": 216,
+        "h": 290
+      },
+      "sourceCrop": {
+        "x": 81,
+        "y": 144,
+        "width": 920,
+        "height": 1237
+      }
+    },
+    "swamp-bank": {
+      "file": "assets/biomes/swamp-bank-v1.png",
+      "width": 160,
+      "height": 96,
+      "content": {
+        "x": 4,
+        "y": 8,
+        "w": 152,
+        "h": 84
+      },
+      "sourceCrop": {
+        "x": 89,
+        "y": 164,
+        "width": 1326,
+        "height": 735
+      }
+    },
+    "lily-pads": {
+      "file": "assets/biomes/lily-pads-v1.png",
+      "width": 96,
+      "height": 64,
+      "content": {
+        "x": 6,
+        "y": 4,
+        "w": 83,
+        "h": 56
+      },
+      "sourceCrop": {
+        "x": 275,
+        "y": 178,
+        "width": 987,
+        "height": 664
+      }
+    }
+  }
+}

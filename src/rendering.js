@@ -101,90 +101,126 @@ function drawForestHills(terrain){
     ctx.restore();
   }
 }
+// Art is independent from the tile geometry: no navigation/save data changes.
+const sceneryMotionQuery=typeof window!=='undefined'?window.matchMedia?.('(prefers-reduced-motion: reduce)'):null;
+const SCENERY_IMAGE_CONTENT=Object.freeze({
+  west:{x:4,y:52,w:376,h:296},east:{x:4,y:37,w:440,h:215},fall:{x:4,y:26,w:216,h:290}
+});
+function drawSceneryImage(img,source,x,y,w,h){
+  if(!img||x>VIEW_W||y>VIEW_H||x+w<0||y+h<0)return;
+  ctx.drawImage(img,source.x,source.y,source.w,source.h,Math.round(x),Math.round(y),Math.round(w),Math.round(h));
+}
 function drawForestWaterfalls(terrain){
   for(const fall of terrain.waterfalls||[]){
-    const x=Math.round(fall.x*TILE-camX),y=Math.round(fall.y*TILE-camY);
-    const w=fall.w*TILE,h=fall.h*TILE;
+    const x=fall.x*TILE-camX,y=fall.y*TILE-camY,w=fall.w*TILE,h=fall.h*TILE;
     if(x>VIEW_W+TILE||y>VIEW_H+TILE||x+w<-TILE||y+h<-TILE)continue;
+    drawSceneryImage(imgs.sceneryWaterfall,SCENERY_IMAGE_CONTENT.fall,x,y,w,h);
     ctx.save();
-    ctx.fillStyle='#354c49';ctx.fillRect(x-10,y-16,w+20,h+23);
-    ctx.fillStyle='#5e7060';ctx.fillRect(x-10,y-18,w+20,18);
-    ctx.fillStyle='#328eb1';ctx.fillRect(x+22,y,w-44,h);
-    for(let row=0;row<h;row+=16){
-      const wobble=Math.round(hash2(fall.x+row,fall.y)*13);
-      const left=16+wobble,right=17+Math.round(hash2(row,fall.y)*14);
-      ctx.fillStyle=row%32===0?'#657269':'#455b55';
-      ctx.fillRect(x-8,y+row,left+8,16);
-      ctx.fillRect(x+w-right,y+row,right+8,16);
-      ctx.fillStyle='rgba(26,47,47,.4)';
-      ctx.fillRect(x+left-4,y+row+13,12,3);
-      ctx.fillRect(x+w-right-8,y+row+13,12,3);
-    }
-    for(let stripe=0;stripe<fall.w*4;stripe++){
-      const sx=x+25+stripe*12+Math.round(Math.sin(tNow/340+stripe)*2);
-      if(sx>x+w-30)break;
-      ctx.fillStyle=stripe%3===0?'rgba(194,248,245,.78)':stripe%3===1?'rgba(82,200,218,.8)':'rgba(28,127,176,.6)';
-      ctx.fillRect(sx,y+4,4+(stripe%3)*2,h-8);
-      ctx.fillStyle='rgba(239,254,250,.58)';
-      for(let row=0;row<fall.h*2;row++){
-        const drift=(Math.floor(tNow/130)+row*23+stripe*11)%(h-8);
-        ctx.fillRect(sx+2,y+4+drift,5,9);
-      }
-    }
-    ctx.fillStyle='rgba(225,253,250,.88)';
-    for(let bubble=0;bubble<fall.w*5;bubble++){
-      const bx=x+(bubble*37)%(w+7)-4;
-      ctx.fillRect(bx,y+h-12+(bubble%3)*5,12+(bubble%3)*5,4);
-    }
-    if(fall.mist){
-      for(let cloud=0;cloud<7;cloud++){
-        const drift=Math.sin(tNow/1300+cloud)*8;
-        ctx.fillStyle='rgba(218,252,246,.1)';
-        ctx.beginPath();ctx.ellipse(x-18+cloud*(w+36)/6+drift,y+h+12+(cloud%3)*13,36+(cloud%3)*10,13+(cloud%2)*8,0,0,Math.PI*2);ctx.fill();
-      }
+    // Only the central curtain moves. No repeating wall bricks or full-height stripe bars.
+    ctx.beginPath();ctx.rect(x+w*.30,y+h*.16,w*.40,h*.82);ctx.clip();
+    const time=sceneryMotionQuery?.matches?0:tNow;
+    for(let i=0;i<9;i++){
+      const phase=(time/1900+i*.137)%1,alpha=Math.sin(phase*Math.PI)*.24;
+      const px=x+w*(.36+hash2(fall.x+i,fall.y)*.28),py=y+h*(.22+phase*.66);
+      ctx.fillStyle='rgba(231,254,255,'+alpha.toFixed(3)+')';
+      ctx.fillRect(Math.round(px),Math.round(py),2+Math.floor(hash2(i,fall.x)*3),5+Math.floor(hash2(i,fall.y)*6));
     }
     ctx.restore();
+    // Small low mist puffs; keep the adjacent fishing ledge and actor readable.
+    if(fall.mist){
+      ctx.save();const time=sceneryMotionQuery?.matches?0:tNow;
+      for(let i=0;i<4;i++){
+        ctx.fillStyle='rgba(229,250,248,.08)';
+        ctx.beginPath();ctx.ellipse(x+w*(.27+i*.16)+Math.sin(time/2400+i)*5,y+h-6,19+(i%2)*8,6,0,0,Math.PI*2);ctx.fill();
+      }
+      ctx.restore();
+    }
   }
 }
 function drawMountainRidges(terrain){
-  for(const ridge of terrain.ridges||[]){
+  (terrain.ridges||[]).forEach((ridge,index)=>{
     const x=ridge.x*TILE-camX,y=ridge.y*TILE-camY,w=ridge.w*TILE,h=ridge.h*TILE;
-    if(x>VIEW_W||y>VIEW_H||x+w<0||y+h<0)continue;
-    ctx.save();
-    ctx.fillStyle='#637c7e';ctx.fillRect(x,y+h*.58,w,h*.42);
-    for(let peak=0;peak<3;peak++){
-      const left=x+peak*w/3,top=y+(peak%2)*h*.15,pw=w*.46;
-      ctx.fillStyle=peak%2?'#788e90':'#8fa1a0';
-      ctx.beginPath();ctx.moveTo(left,y+h);ctx.lineTo(left+pw*.46,top);ctx.lineTo(Math.min(x+w,left+pw),y+h);ctx.closePath();ctx.fill();
-      ctx.fillStyle='#536d72';ctx.beginPath();ctx.moveTo(left+pw*.46,top);ctx.lineTo(left+pw*.55,y+h);ctx.lineTo(Math.min(x+w,left+pw),y+h);ctx.closePath();ctx.fill();
-      ctx.fillStyle='#d9e4df';ctx.beginPath();ctx.moveTo(left+pw*.46,top);ctx.lineTo(left+pw*.3,top+h*.27);ctx.lineTo(left+pw*.45,top+h*.2);ctx.lineTo(left+pw*.53,top+h*.3);ctx.lineTo(left+pw*.6,top+h*.24);ctx.closePath();ctx.fill();
-    }
-    for(let row=0;row<3;row++){
-      ctx.fillStyle=row%2?'#82978c':'#617f74';
-      for(let col=0;col<ridge.w;col++)ctx.fillRect(x+col*TILE,y+h-25+row*8+(col%3)*3,TILE,8);
-    }
-    ctx.restore();
-  }
+    drawSceneryImage(index%2?imgs.sceneryRidgeEast:imgs.sceneryRidgeWest,
+      index%2?SCENERY_IMAGE_CONTENT.east:SCENERY_IMAGE_CONTENT.west,x,y,w,h);
+  });
 }
-
+function clipVisibleSwampWater(){
+  ctx.beginPath();
+  const x0=Math.max(0,Math.floor(camX/TILE)-2),y0=Math.max(0,Math.floor(camY/TILE)-2);
+  const x1=Math.min(MAP_W-1,Math.ceil((camX+VIEW_W)/TILE)+2),y1=Math.min(MAP_H-1,Math.ceil((camY+VIEW_H)/TILE)+2);
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(waterSet.has(key(x,y)))
+    ctx.rect(x*TILE-camX,y*TILE-camY,TILE,TILE);
+  ctx.clip();
+}
+function drawSwampShoreline(){
+  // Soft mud/moss at existing water edges, rather than bright rectangular cell borders.
+  ctx.save();clipVisibleSwampWater();
+  const x0=Math.max(0,Math.floor(camX/TILE)-1),y0=Math.max(0,Math.floor(camY/TILE)-1);
+  const x1=Math.min(MAP_W-1,Math.ceil((camX+VIEW_W)/TILE)+1),y1=Math.min(MAP_H-1,Math.ceil((camY+VIEW_H)/TILE)+1);
+  for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++){
+    if(!waterSet.has(key(x,y)))continue;
+    for(const [dx,dy] of [[0,-1],[0,1],[-1,0],[1,0]]){
+      if(waterSet.has(key(x+dx,y+dy))||bridgeSet.has(key(x+dx,y+dy)))continue;
+      for(let n=0;n<TILE;n+=6){
+        const r=hash2(x*48+(dx?n:0),y*48+(dy?n:0)),depth=4+Math.floor(r*5);
+        const px=x*TILE-camX+(dx<0?0:dx>0?TILE-depth:n);
+        const py=y*TILE-camY+(dy<0?0:dy>0?TILE-depth:n);
+        ctx.fillStyle=r>.5?'#677054':'#535f48';
+        ctx.fillRect(Math.round(px),Math.round(py),dx?depth:7,dy?depth:7);
+      }
+    }
+  }
+  ctx.restore();
+}
+let swampSceneryCache={definition:null,banks:[],duckweed:[]};
+function getSwampSceneryBanks(){
+  if(swampSceneryCache.definition===WORLD_DEFINITION)return swampSceneryCache.banks;
+  const banks=[];
+  for(const reed of WORLD_DEFINITION.decorations?.reeds||[]){
+    const near=[[0,-1],[0,1],[-1,0],[1,0]].find(([dx,dy])=>
+      waterSet.has(key(reed.x+dx,reed.y+dy))&&!bridgeSet.has(key(reed.x+dx,reed.y+dy)));
+    if(!near)continue;
+    const x=reed.x+near[0],y=reed.y+near[1];
+    if(Math.abs(x-WORLD_DEFINITION.fishingSpot.x)+Math.abs(y-WORLD_DEFINITION.fishingSpot.y)<3)continue;
+    banks.push({x:x+.5+near[0]*.55,y:y+.5+near[1]*.55,flip:hash2(x,y)>.5,scale:.65+hash2(y,x)*.2});
+  }
+  const duckweed=[];
+  for(const tile of waterSet){
+    const [x,y]=tile.split(',').map(Number);
+    if(hash2(x*17,y*23)<.92||Math.abs(x-WORLD_DEFINITION.fishingSpot.x)+Math.abs(y-WORLD_DEFINITION.fishingSpot.y)<3)continue;
+    const shore=[[0,-1],[0,1],[-1,0],[1,0]].some(([dx,dy])=>!waterSet.has(key(x+dx,y+dy)));
+    if(shore)duckweed.push({x:x+.5,y:y+.5,seed:hash2(x,y)});
+  }
+  swampSceneryCache={definition:WORLD_DEFINITION,banks,duckweed};return banks;
+}
 function drawSwampWaterDetails(terrain){
   if(!terrain.swamp)return;
-  ctx.save();
-  for(const [index,pad] of (terrain.lilyPads||[]).entries()){
+  ctx.save();clipVisibleSwampWater();
+  const time=sceneryMotionQuery?.matches?0:tNow;
+  for(const [i,pad] of (terrain.lilyPads||[]).entries()){
     if(!waterSet.has(key(pad.x,pad.y)))continue;
-    const x=Math.round((pad.x+.5)*TILE-camX),y=Math.round((pad.y+.5)*TILE-camY);
-    if(x<-90||y<-40||x>VIEW_W+90||y>VIEW_H+40)continue;
-    ctx.fillStyle='rgba(28,45,34,.3)';ctx.beginPath();ctx.ellipse(x+3,y+4,17,7,0,0,Math.PI*2);ctx.fill();
-    for(let leaf=0;leaf<3;leaf++){
-      const px=x+leaf*9-9,py=y+(leaf%2)*5;
-      ctx.fillStyle=leaf%2?'#667c4d':'#738952';ctx.beginPath();ctx.ellipse(px,py,12,6,0,0,Math.PI*1.8);ctx.fill();
-      ctx.fillStyle='#455e40';ctx.fillRect(px-2,py-1,8,2);
+    const x=(pad.x+.5)*TILE-camX,y=(pad.y+.5)*TILE-camY;
+    if(x<-80||y<-50||x>VIEW_W+80||y>VIEW_H+50)continue;
+    const scale=.60+hash2(pad.x,pad.y)*.20,w=96*scale,h=64*scale;
+    ctx.save();ctx.translate(Math.round(x),Math.round(y));if(i%2)ctx.scale(-1,1);
+    ctx.drawImage(imgs.sceneryLilyPads,Math.round(-w/2),Math.round(-h/2),Math.round(w),Math.round(h));ctx.restore();
+    const phase=(time/3200+i*.19)%1;ctx.strokeStyle='rgba(178,206,177,'+(Math.sin(phase*Math.PI)*.12).toFixed(3)+')';ctx.lineWidth=1;
+    ctx.beginPath();ctx.ellipse(x,y+h*.28,12+phase*14,3+phase*4,0,0,Math.PI*2);ctx.stroke();
+  }
+  for(const bank of getSwampSceneryBanks()){
+    const x=bank.x*TILE-camX,y=bank.y*TILE-camY,w=160*bank.scale,h=96*bank.scale;
+    if(x+w<0||x-w>VIEW_W||y+h<0||y-h>VIEW_H)continue;
+    ctx.save();ctx.translate(Math.round(x),Math.round(y));if(bank.flip)ctx.scale(-1,1);
+    ctx.drawImage(imgs.scenerySwampBank,Math.round(-w/2),Math.round(-h/2),Math.round(w),Math.round(h));ctx.restore();
+  }
+  for(const patch of swampSceneryCache.duckweed){
+    const x=patch.x*TILE-camX,y=patch.y*TILE-camY;
+    if(x<-30||x>VIEW_W+30||y<-20||y>VIEW_H+20)continue;
+    for(let i=0;i<12;i++){
+      const dx=hash2(i,patch.seed)*28-14,dy=hash2(patch.seed,i)*12-6;
+      ctx.fillStyle=i%3?'rgba(131,151,83,.4)':'rgba(184,187,101,.35)';
+      ctx.fillRect(Math.round(x+dx),Math.round(y+dy),3,2);
     }
-    const ripple=(tNow/170+index*7)%32;
-    ctx.strokeStyle='rgba(168,188,145,.16)';ctx.lineWidth=2;
-    ctx.beginPath();ctx.ellipse(x-21,y+12,5+ripple/3,2+ripple/8,0,0,Math.PI*2);ctx.stroke();
-    ctx.fillStyle='rgba(190,207,168,.08)';
-    ctx.beginPath();ctx.ellipse(x+Math.sin(tNow/2100+index)*15,y-19,57,11,0,0,Math.PI*2);ctx.fill();
   }
   ctx.restore();
 }
@@ -234,13 +270,21 @@ function drawTerrain(){
   for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
     const type=tileTypeAt(x,y), wx=x*TILE, wy=y*TILE;
     if(type==='path') drawPathTile(x,y);
-    else if(type==='water') worldRect(wx-1,wy-1,TILE+2,TILE+2,terrain.waterColor||'#2b91c9');
+    else if(type==='water') worldRect(wx-1,wy-1,TILE+2,TILE+2,terrain.swamp?'#3c6057':terrain.waterColor||'#2b91c9');
   }
   drawNaturalPlazas(terrain);
 
   // Large patches cross several movement cells, which visually breaks the grid.
   ctx.save();
   ctx.globalAlpha=.09;
+  if(terrain.swamp||terrain.ridges?.length){
+    // Ground patches must not become huge overlapping ovals on the swamp surface.
+    ctx.beginPath();
+    for(let y=y0;y<=y1;y++)for(let x=x0;x<=x1;x++)if(!waterSet.has(key(x,y))&&
+      !(terrain.ridges||[]).some(r=>x>=r.x&&x<r.x+r.w&&y>=r.y&&y<r.y+r.h))
+      ctx.rect(x*TILE-camX,y*TILE-camY,TILE,TILE);
+    ctx.clip();
+  }
   for(let gy=Math.floor(camY/144)*144-144;gy<camY+VIEW_H+144;gy+=144){
     for(let gx=Math.floor(camX/144)*144-144;gx<camX+VIEW_W+144;gx+=144){
       const r=hash2(gx/144,gy/144);
@@ -264,8 +308,8 @@ function drawTerrain(){
         ctx.fillStyle=r>.88?'#225f3b':'#e0d66c';
         ctx.fillRect(Math.round(wx-camX+(r*5)%4),Math.round(wy-camY+(r*7)%4),2+(r>.9?2:0),5);
       }else if(type==='water' && r>.89){
-        ctx.globalAlpha=.22;ctx.fillStyle='#b9efff';
-        ctx.fillRect(Math.round(wx-camX),Math.round(wy-camY),10,2);
+        ctx.globalAlpha=terrain.swamp ? .07 : .22;ctx.fillStyle=terrain.swamp?'#b8ccb0':'#b9efff';
+        ctx.fillRect(Math.round(wx-camX),Math.round(wy-camY),terrain.swamp?4:10,terrain.swamp?1:2);
       }
     }
   }
@@ -275,7 +319,7 @@ function drawTerrain(){
   ctx.save();
   ctx.strokeStyle='rgba(213,245,255,.48)';ctx.lineWidth=3;ctx.lineCap='round';
   for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++){
-    if(!waterSet.has(key(x,y))) continue;
+    if(!waterSet.has(key(x,y))||terrain.swamp) continue;
     const wx=x*TILE-camX, wy=y*TILE-camY;
     if(!waterSet.has(key(x,y-1)) && !bridgeSet.has(key(x,y-1))){ctx.beginPath();ctx.moveTo(wx+4,wy+3);ctx.lineTo(wx+TILE-4,wy+3);ctx.stroke();}
     if(!waterSet.has(key(x,y+1)) && !bridgeSet.has(key(x,y+1))){ctx.beginPath();ctx.moveTo(wx+4,wy+TILE-3);ctx.lineTo(wx+TILE-4,wy+TILE-3);ctx.stroke();}
@@ -284,8 +328,8 @@ function drawTerrain(){
   }
   ctx.restore();
 
+  if(terrain.swamp)drawSwampShoreline();
   drawForestWaterfalls(terrain);
-  drawSwampWaterDetails(terrain);
 
   bridgeSet.forEach(k=>{
     if(WORLD_DEFINITION.voyageDeck)return;
@@ -787,12 +831,12 @@ function drawWorld(){
   drawRegionExits();
 
   // Water shimmer travels across the whole pond instead of restarting in every cell.
-  ctx.globalAlpha=.18+.06*Math.sin(tNow/430);
+  ctx.globalAlpha=WORLD_DEFINITION.terrain?.swamp ? .065 : .18+.06*Math.sin(tNow/430);
   ctx.fillStyle='#c8f6ff';
   for(let wy=Math.floor(camY/30)*30;!voyageSea&&wy<camY+VIEW_H+30;wy+=30){
     for(let wx=Math.floor(camX/72)*72;wx<camX+VIEW_W+72;wx+=72){
       const tx=Math.floor(wx/TILE),ty=Math.floor(wy/TILE);
-      if(waterSet.has(key(tx,ty))){
+      if(waterSet.has(key(tx,ty))&&!(WORLD_DEFINITION.terrain?.waterfalls||[]).some(f=>tx>=f.x&&tx<f.x+f.w&&ty>=f.y&&ty<f.y+f.h)){
         ctx.fillRect(Math.round(wx-camX+8),Math.round(wy-camY+8*Math.sin((wx+wy+tNow*.05)/55)),22,2);
       }
     }
@@ -801,6 +845,7 @@ function drawWorld(){
 
   drawHarborWaterDetails();
   drawVoyageDeck();
+  drawSwampWaterDetails(WORLD_DEFINITION.terrain||{});
 
   // Vegetation Layer Standard 4.0:
   // Any vegetation the player/NPC can walk through is a ground decoration and is ALWAYS

@@ -151,7 +151,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 418, `Expected 418 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 423, `Expected 423 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -1971,4 +1971,5 @@ await import('./qa-fishing-rod-expansion.mjs');
 await import('./qa-fishing-durability.mjs');
 await import('./qa-village-polish.mjs');
 await import('./qa-forest-routes.mjs');
+await import('./qa-biome-scenery.mjs');
 console.log(`Checks passed: ${scriptFiles.length} scripts, ${htmlIds.size} UI ids, ${assetPaths.length} runtime assets, ${fishData.length} fish, world ${worldReport.map}; fixed character and sword standards`);

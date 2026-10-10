@@ -1,5 +1,6 @@
 const ASSET_URLS = Object.freeze({
-  bridge: 'assets/world/bridge.png',
+  bridge: 'assets/world/bridge-deck-v1.png',
+  bridgePost:'assets/world/bridge-post-v1.png',
   tree: 'assets/world/tree.png',
   treeStage24: 'assets/world/treeStage24.png',
   rock: 'assets/world/rock.png',

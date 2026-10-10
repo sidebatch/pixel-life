@@ -1,0 +1,25 @@
+{
+  "tool": "built-in imagegen",
+  "packing": "nearest-neighbor resize; alpha crop post, aspect-preserving padded fit",
+  "deck": {
+    "width": 64,
+    "height": 64,
+    "logicalSize": 32
+  },
+  "post": {
+    "width": 24,
+    "height": 32,
+    "content": {
+      "x": 4,
+      "y": 2,
+      "w": 15,
+      "h": 28
+    },
+    "sourceCrop": {
+      "x": 386,
+      "y": 550,
+      "width": 250,
+      "height": 469
+    }
+  }
+}

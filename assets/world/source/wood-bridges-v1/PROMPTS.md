@@ -1,0 +1,11 @@
+# 나무 다리 원화 프롬프트 v1
+
+내장 imagegen 도구 사용. 기존 cottage/swamp-bank는 스타일 참조이며 수정 대상이 아니다.
+
+## deck
+
+Use case: stylized-concept. Asset type: seamless square wooden walkway FLOOR texture tile for Pixel Life top-down pixel RPG. Input image 1 cottage and image 2 swamp roots are STYLE references only, not edit targets. Match their chunky crisp pixel-art clusters, clean restrained contours and muted earthy RPG palette, NOT photorealistic or painterly. Primary request: warm weathered oak planks viewed directly from above, for a continuous narrow wooden bridge, fishing pier and swamp boardwalk. Five horizontal plank courses spanning fully from left edge to right edge, naturally varied warm muted brown with tiny dark grain and subtle highlights, a few small nail heads, restrained knots, darker fine seams. Uniform diffuse daylight, no directional long shadow. Tile occupies entire square, seamless repeating at all four edges, no outer outline/frame, no rails, no posts, no end cap, no water/ground, no text, no border or perspective/vanishing point. Logical pixel texture target 64x64, simple bold grain still readable when displayed 48x48. Full opaque material texture filling entire image edge to edge, no margin. Color: subdued medium warm brown, not saturated orange or yellow, consistent with reference cottage wood.
+
+## post
+
+Use case: stylized-concept. Asset type: one transparent wooden bridge support post sprite for Pixel Life top-down pixel RPG. Input image 1 cottage and image 2 swamp roots are STYLE references only, not edit targets. Match clean dark contours, chunky crisp pixel clusters, muted warm wood colors and cute top-down/front-facing 2D RPG perspective. Primary request: ONE very short sturdy weathered square oak bridge edge post, seen slightly from above with small square flat end-grain top visible and two short side faces below, restrained dark grain and tiny bevel on corners. Simple warm medium brown, darker right side, pale muted brown top. Compact upright rectangular silhouette, logical pixel size 16x24. Not a tall fence or log, no rope or attached rail, no stand/base/platform, no metal, no ground or water, no cast shadow, no text, no characters, no extra objects, no sheet, no perspective diamond. Genuine transparent background with generous transparent margins; complete object centered.

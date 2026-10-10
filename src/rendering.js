@@ -331,11 +331,56 @@ function drawTerrain(){
   if(terrain.swamp)drawSwampShoreline();
   drawForestWaterfalls(terrain);
 
-  bridgeSet.forEach(k=>{
-    if(WORLD_DEFINITION.voyageDeck)return;
-    const [x,y]=k.split(',').map(Number);
-    ctx.drawImage(imgs.bridge,Math.round(x*TILE-camX-1),Math.round(y*TILE-camY-1),TILE+2,TILE+2);
-  });
+  drawWoodBridges();
+}
+// Visual topology only: bridge/water collision sets remain owned by world.js.
+let woodBridgeCache={definition:null,tiles:[],edges:[],posts:[]};
+function getWoodBridgeGeometry(){
+  if(woodBridgeCache.definition===WORLD_DEFINITION)return woodBridgeCache;
+  const tiles=[],edges=[],vertices=new Map();
+  const vertex=(x,y,axis)=>{
+    const id=key(x,y),v=vertices.get(id)||{x,y,axes:[],degree:0};
+    v.degree++;v.axes.push(axis);vertices.set(id,v);
+  };
+  for(const cell of bridgeSet){
+    const [x,y]=cell.split(',').map(Number),up=bridgeSet.has(key(x,y-1)),down=bridgeSet.has(key(x,y+1));
+    const left=bridgeSet.has(key(x-1,y)),right=bridgeSet.has(key(x+1,y));
+    tiles.push({x,y,horizontal:(left||right)&&!(up||down),flip:hash2(x,y)>.5});
+    for(const [dx,dy] of [[-1,0],[1,0],[0,-1],[0,1]]){
+      // Open onto land or another bridge. Rails never cut across a junction/ramp.
+      if(bridgeSet.has(key(x+dx,y+dy))||!waterSet.has(key(x+dx,y+dy)))continue;
+      const ex=x+(dx>0?1:0),ey=y+(dy>0?1:0),axis=dx?'vertical':'horizontal';
+      edges.push({x:ex,y:ey,axis});vertex(ex,ey,axis);
+      vertex(ex+(dx?0:1),ey+(dx?1:0),axis);
+    }
+  }
+  const posts=[...vertices.values()].filter(v=>v.degree!==2||v.axes[0]!==v.axes[1]||
+    (v.axes[0]==='vertical'?v.y%3===0:v.x%3===0));
+  woodBridgeCache={definition:WORLD_DEFINITION,tiles,edges,posts};return woodBridgeCache;
+}
+function drawWoodBridges(){
+  // The voyage bow has its own art; do not paint walkway tiles over its deck.
+  if(WORLD_DEFINITION.voyageDeck||!bridgeSet.size)return;
+  const geometry=getWoodBridgeGeometry();
+  for(const tile of geometry.tiles){
+    const x=Math.round(tile.x*TILE-camX),y=Math.round(tile.y*TILE-camY);
+    if(x>VIEW_W||y>VIEW_H||x+TILE<0||y+TILE<0)continue;
+    ctx.save();ctx.translate(x+TILE/2,y+TILE/2);
+    if(tile.horizontal)ctx.rotate(Math.PI/2);if(tile.flip)ctx.scale(-1,1);
+    ctx.drawImage(imgs.bridge,-TILE/2,-TILE/2,TILE,TILE);ctx.restore();
+  }
+  // Continuous low edge beams, not a new frame/end cap on every 48px tile.
+  for(const edge of geometry.edges){
+    const x=Math.round(edge.x*TILE-camX),y=Math.round(edge.y*TILE-camY),vertical=edge.axis==='vertical';
+    if(x>VIEW_W+8||y>VIEW_H+8||x+(vertical?8:TILE)<0||y+(vertical?TILE:8)<0)continue;
+    ctx.fillStyle='#46372b';ctx.fillRect(x-3,y-3,vertical?6:TILE+6,vertical?TILE+6:6);
+    ctx.fillStyle='#8d6a46';ctx.fillRect(x-1,y-1,vertical?2:TILE+2,vertical?TILE+2:2);
+  }
+  for(const post of geometry.posts){
+    const x=Math.round(post.x*TILE-camX),y=Math.round(post.y*TILE-camY);
+    if(x<-16||y<-24||x>VIEW_W+16||y>VIEW_H+24)continue;
+    ctx.drawImage(imgs.bridgePost,x-6,y-16,12,18);
+  }
 }
 function onScreen(wx,wy,w=100,h=120){
   return wx+w>-40+camX&&wy+h>-40+camY&&wx-w<VIEW_W+camX&&wy-h<VIEW_H+camY;

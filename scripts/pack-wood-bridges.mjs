@@ -1,0 +1,12 @@
+import fs from 'node:fs';
+import {blank,decodePNG,encodePNG,crop,alphaBounds,blitNearest} from './lib/png.mjs';
+const deck=decodePNG(fs.readFileSync('assets/world/source/wood-bridges-v1/deck.png'));
+const logicalFloor=blank(32,32);blitNearest(logicalFloor,deck,0,0,32,32);
+const floor=blank(64,64);blitNearest(floor,logicalFloor,0,0,64,64);
+fs.writeFileSync('assets/world/bridge-deck-v1.png',encodePNG(floor));
+const post=decodePNG(fs.readFileSync('assets/world/source/wood-bridges-v1/post.png')),bounds=alphaBounds(post);
+const ratio=Math.min(20/bounds.width,28/bounds.height),w=Math.round(bounds.width*ratio),h=Math.round(bounds.height*ratio);
+const support=blank(24,32),x=Math.floor((24-w)/2),y=32-h-2;
+blitNearest(support,crop(post,bounds.x,bounds.y,bounds.width,bounds.height),x,y,w,h);
+fs.writeFileSync('assets/world/bridge-post-v1.png',encodePNG(support));
+fs.writeFileSync('assets/world/source/wood-bridges-v1/manifest.json',JSON.stringify({tool:'built-in imagegen',packing:'nearest-neighbor resize; alpha crop post, aspect-preserving padded fit',deck:{width:64,height:64,logicalSize:32},post:{width:24,height:32,content:{x,y,w,h},sourceCrop:bounds}},null,2)+'\n');

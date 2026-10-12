@@ -1,0 +1,1388 @@
+{
+  "version": 1,
+  "date": "2026-10-12",
+  "scope": "output only",
+  "recovery": "Windows Recycle Bin; no permanent-delete fallback",
+  "groups": [
+    {
+      "topic": "다리·설산·폭포·늪",
+      "latest": [
+        "wood-bridges-public",
+        "wood-bridges-v1",
+        "biome-scenery-public"
+      ],
+      "previous": [
+        "biome-scenery-v1"
+      ]
+    },
+    {
+      "topic": "호수·폭포·늪 낚시",
+      "latest": [
+        "wood-bridges-lake-fishing",
+        "wood-bridges-swamp-fishing",
+        "fishing-waterfall-qa"
+      ],
+      "previous": [
+        "fishing-mountain-lake-qa",
+        "fishing-swamp-qa",
+        "fishing-waterfall-live-qa"
+      ]
+    },
+    {
+      "topic": "숲 경로",
+      "latest": [
+        "scenery-forest-route-regression",
+        "forest-routes-v2-public"
+      ],
+      "previous": [
+        "forest-routes-public"
+      ]
+    },
+    {
+      "topic": "마을·항구",
+      "latest": [
+        "village-polish-qa",
+        "village-polish-public",
+        "harbor-v2-live-qa"
+      ],
+      "previous": [
+        "harbor-art-live-qa"
+      ]
+    },
+    {
+      "topic": "벌목·도끼·소리",
+      "latest": [
+        "forest-expansion-qa",
+        "forestry-maps-tier4-10-qa",
+        "axe-10-qa",
+        "forestry-durability-qa",
+        "forestry-asmr-sound-qa"
+      ],
+      "previous": [
+        "forestry-recipes-qa",
+        "forestry-sound-qa"
+      ]
+    },
+    {
+      "topic": "낚싯대·내구도·귀항",
+      "latest": [
+        "repair-tuning-rods",
+        "rod-durability-qa",
+        "repair-tuning-public",
+        "repair-tuning-voyage"
+      ],
+      "previous": [
+        "phase18-rod-regression",
+        "phase18-public-durability",
+        "phase18-voyage-regression"
+      ]
+    },
+    {
+      "topic": "바다 물고기",
+      "latest": [
+        "shallow-clean-dex",
+        "fishing-mid-deep-regression-qa",
+        "deep-clean-dex",
+        "ten-rod-qa-fishing-glacier-browser"
+      ],
+      "previous": [
+        "fishing-shallow-rewards-dist-qa",
+        "fishing-mid-live-qa",
+        "fishing-deep-glacier-regression-qa",
+        "fishing-balance-public-291cb97"
+      ]
+    },
+    {
+      "topic": "도감·발견·보상",
+      "latest": [
+        "fish-dex-qa",
+        "tree-dex-public-414f7e1",
+        "discovery-unified-qa",
+        "fish-rewards-hidden-hints"
+      ],
+      "previous": [
+        "fish-dex-hidden-hints-public-79f2782",
+        "tree-clean-fish-dex",
+        "repair-tuning-discovery",
+        "fish-rewards-unified-final"
+      ]
+    },
+    {
+      "topic": "시작 화면",
+      "latest": [
+        "phase18-startup"
+      ],
+      "previous": [
+        "startup-ui-public-414f7e1"
+      ]
+    },
+    {
+      "topic": "운항 풍경·연속 이동",
+      "latest": [
+        "voyage-flow-public-001385d",
+        "voyage-bow-no-overtaking",
+        "voyage-sea-no-overtaking",
+        "voyage-reef-no-overtaking"
+      ],
+      "previous": [
+        "voyage-flow-public-82bebf9",
+        "voyage-bow-public-82bebf9",
+        "voyage-sea-art-qa",
+        "voyage-reef-art-qa"
+      ]
+    },
+    {
+      "topic": "성장·수리 경제",
+      "latest": [
+        "repair-tuning-balance-0s.json",
+        "repair-tuning-balance-3s.json",
+        "repair-tuning-balance-8s.json",
+        "repair-frequency-after.json"
+      ],
+      "previous": [
+        "phase18-balance-0s.json",
+        "phase18-balance-3s.json",
+        "phase18-balance-8s.json",
+        "repair-frequency-before.json"
+      ]
+    },
+    {
+      "topic": "캐릭터·주민·장비",
+      "latest": [
+        "held-tool-qa",
+        "appearance-qa",
+        "character-qa/character-master-preview",
+        "character-qa/walk-preview",
+        "character-qa/inventory",
+        "character-qa/npc-wardrobe-v2",
+        "character-qa/sword-v1"
+      ],
+      "previous": [
+        "held-discovery-unified",
+        "character-qa/inventory-public",
+        "character-qa/temporary-wardrobe-public"
+      ]
+    },
+    {
+      "topic": "목 연결·발 정렬 재현 보존",
+      "pinned": [
+        "character-qa/collar-fit",
+        "character-qa/ria-neck-fit",
+        "character-qa/ria-neck-horizontal",
+        "character-qa/ria-side-fit",
+        "character-qa/walk-alignment"
+      ],
+      "reason": "목 연결/옆면/발 정렬의 중요 비교·재현 화면. 원본 이미지나 검사 코드를 삭제하지 않음."
+    }
+  ],
+  "pinnedFiles": [
+    "character-qa/air-down-impact.png",
+    "character-qa/air-down-ready.png",
+    "character-qa/air-left-impact.png",
+    "character-qa/air-left-ready.png",
+    "character-qa/air-right-impact.png",
+    "character-qa/air-right-ready.png",
+    "character-qa/air-up-impact.png",
+    "character-qa/air-up-ready.png",
+    "character-qa/backpack-side-closeups.png",
+    "character-qa/mobile-catch.png",
+    "character-qa/mobile-chop-impact.png",
+    "character-qa/mobile-chop-ready.png",
+    "character-qa/mobile-down.png",
+    "character-qa/mobile-fishing.png",
+    "character-qa/mobile-left.png",
+    "character-qa/mobile-right.png",
+    "character-qa/mobile-up.png",
+    "character-qa/report.json",
+    "character-qa/rig-contact-sheet.png",
+    "character-qa/npc-v1/air-down-impact.png",
+    "character-qa/npc-v1/air-down-ready.png",
+    "character-qa/npc-v1/air-left-impact.png",
+    "character-qa/npc-v1/air-left-ready.png",
+    "character-qa/npc-v1/air-right-impact.png",
+    "character-qa/npc-v1/air-right-ready.png",
+    "character-qa/npc-v1/air-up-impact.png",
+    "character-qa/npc-v1/air-up-ready.png",
+    "character-qa/npc-v1/backpack-side-closeups.png",
+    "character-qa/npc-v1/mobile-catch.png",
+    "character-qa/npc-v1/mobile-chop-impact.png",
+    "character-qa/npc-v1/mobile-chop-ready.png",
+    "character-qa/npc-v1/mobile-down.png",
+    "character-qa/npc-v1/mobile-fishing.png",
+    "character-qa/npc-v1/mobile-left.png",
+    "character-qa/npc-v1/mobile-right.png",
+    "character-qa/npc-v1/mobile-up.png",
+    "character-qa/npc-v1/report.json",
+    "character-qa/npc-v1/rig-contact-sheet.png",
+    "character-qa/ria-head-v3/new-public-soft-walk.png",
+    "character-qa/ria-head-v3/old-vs-new-soft-walk.png",
+    "character-qa/ria-head-v3/report.json",
+    "character-qa/ria-head-v3/ria-v3-vs-baseline-v2-soft-walk.png",
+    "character-qa/ria-neck-preview/centered-mobile.png",
+    "character-qa/ria-neck-preview/original-mobile.png"
+  ],
+  "retire": [
+    {
+      "path": "character-polish-review",
+      "directory": true,
+      "files": 3,
+      "bytes": 256129,
+      "fingerprint": "862583250ce0ffe7b276ac207f29ab7f3880c48adbf6ef2b2d82522c51015218"
+    },
+    {
+      "path": "character-qa-trial",
+      "directory": true,
+      "files": 19,
+      "bytes": 3705742,
+      "fingerprint": "d3259afc6e7739d718aa0cce0544cd8b033f8623775d2e29ceeb24c717f569fb"
+    },
+    {
+      "path": "discovery-clean-dex",
+      "directory": true,
+      "files": 11,
+      "bytes": 1859292,
+      "fingerprint": "4d63c2d1b274b44ba9aaba3a20e7b86117ae4f9050375fdf491430d6f669cca5"
+    },
+    {
+      "path": "discovery-hidden-hints",
+      "directory": true,
+      "files": 11,
+      "bytes": 1699925,
+      "fingerprint": "698e0d43a394f789fa963b172bc9e3d3531445350f25a0d54c68a744fcf30c58"
+    },
+    {
+      "path": "discovery-unified-public-70cd62a",
+      "directory": true,
+      "files": 11,
+      "bytes": 1744771,
+      "fingerprint": "41d886490cf6bb4a081ff818db33d99dc718e7d9f01775ea7d91b3cf97632db0"
+    },
+    {
+      "path": "fish-dex-clean-final",
+      "directory": true,
+      "files": 13,
+      "bytes": 1269212,
+      "fingerprint": "3206d8f250d4ac002677dbc9ae7e094aef53bd61cbef135f3e28468c6c682de2"
+    },
+    {
+      "path": "fish-dex-clean-public-63faf5b",
+      "directory": true,
+      "files": 13,
+      "bytes": 1269532,
+      "fingerprint": "8fc0447c9af5ac867bbdfb597cecdec3e4fe1f181e0a687b8d29e34782b527ab"
+    },
+    {
+      "path": "fish-dex-clean-qa",
+      "directory": true,
+      "files": 13,
+      "bytes": 1239460,
+      "fingerprint": "52d395bba9f3d0674c6b5d654b222408afe31d46c6d81861c0b3c588f44432c7"
+    },
+    {
+      "path": "fish-dex-deep-dist-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 1037970,
+      "fingerprint": "a1020aa4941be7eaefb583aafe512da4a4028fa1a4fc7e522338526777dba6c7"
+    },
+    {
+      "path": "fish-dex-deep-pages-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 1011729,
+      "fingerprint": "7e76aa0c5e764d47d85deed52d4f72108c10727c6a4ce9497917912d91d48576"
+    },
+    {
+      "path": "fish-dex-glacier-dist-qa",
+      "directory": true,
+      "files": 9,
+      "bytes": 1081347,
+      "fingerprint": "85e5fea2657dcabd735dfbcae6c55206d3d28f6fd9dc049e5b6768cfc843a567"
+    },
+    {
+      "path": "fish-dex-glacier-pages-qa",
+      "directory": true,
+      "files": 9,
+      "bytes": 1081580,
+      "fingerprint": "800fa83d4bb3d4692b3eb2b477581db5dc3806161c8dabda878eea46dfff105b"
+    },
+    {
+      "path": "fish-dex-hidden-hints",
+      "directory": true,
+      "files": 15,
+      "bytes": 1393017,
+      "fingerprint": "58c9090808f67203c6badc546796fe83bf5ff9ef25867e887f7f4f1e43f78252"
+    },
+    {
+      "path": "fish-dex-rewards-dist-qa",
+      "directory": true,
+      "files": 9,
+      "bytes": 1080317,
+      "fingerprint": "c5cadc02eb4fb2163e7cc55dccb7efa54a456fb4e2aeee11b8d6797774408cb5"
+    },
+    {
+      "path": "fish-dex-rewards-pages-qa",
+      "directory": true,
+      "files": 9,
+      "bytes": 1079909,
+      "fingerprint": "97fbd7c979ba747a3b04c1def915319f2cb774d3e16464cca87bf89316b25b6d"
+    },
+    {
+      "path": "fish-rewards-clean-dex",
+      "directory": true,
+      "files": 25,
+      "bytes": 3146637,
+      "fingerprint": "427703e7d6f8c725bd36fe768a311841ccf4aa6b3a4079d396dc973da8757c5f"
+    },
+    {
+      "path": "fish-rewards-dist-qa",
+      "directory": true,
+      "files": 25,
+      "bytes": 3383331,
+      "fingerprint": "075976b4d4f7a38019094adc3e75f56f1b4065fb1f63a59e78fc068ae06bb115"
+    },
+    {
+      "path": "fish-rewards-pages-qa",
+      "directory": true,
+      "files": 25,
+      "bytes": 3356577,
+      "fingerprint": "923302c97a2247f8a614962ae2fb44acfa542f5b8506c756a927c4bd1e693df2"
+    },
+    {
+      "path": "fish-rewards-qa",
+      "directory": true,
+      "files": 25,
+      "bytes": 3466606,
+      "fingerprint": "fab0cada68ab8b2ebb8a57831b29008a8fc712376251c90d2e892ce7007e80a9"
+    },
+    {
+      "path": "fish-rewards-unified",
+      "directory": true,
+      "files": 25,
+      "bytes": 3445029,
+      "fingerprint": "ea05f0f1e7aa5ee61a7e8dc5ccb40fce88eb57f4f46848e7866150ee962d90bc"
+    },
+    {
+      "path": "fishing-balance-glacier-final",
+      "directory": true,
+      "files": 33,
+      "bytes": 4499346,
+      "fingerprint": "5fbe35d9b911890f270040e8bf76052c6b5a47c77812c50e70a8140ab8f0b759"
+    },
+    {
+      "path": "fishing-balance-qa-fishing-glacier-browser",
+      "directory": true,
+      "files": 33,
+      "bytes": 4492575,
+      "fingerprint": "1e9308374b9d52d390eca98cec5327a12acbf3545c70147c0525cacac90af102"
+    },
+    {
+      "path": "fishing-balance-qa-voyage-browser",
+      "directory": true,
+      "files": 7,
+      "bytes": 936875,
+      "fingerprint": "c9d822baa39aec2d2f2c9c0f6f20faad1a290328435a97e2ec164898271a4419"
+    },
+    {
+      "path": "fishing-coast-qa",
+      "directory": true,
+      "files": 3,
+      "bytes": 430776,
+      "fingerprint": "6a565316454a099920b8902318f34072e23c175ff66be12c2eabd0c4d6836ce2"
+    },
+    {
+      "path": "fishing-deep-dist-qa",
+      "directory": true,
+      "files": 37,
+      "bytes": 4392158,
+      "fingerprint": "5ed22de7064f228e269dd07e4db02b68661ed86d26ceed36bbff633b48c7798c"
+    },
+    {
+      "path": "fishing-deep-pages-qa",
+      "directory": true,
+      "files": 35,
+      "bytes": 4196926,
+      "fingerprint": "ad97475e581ce9998ff5c02d62564e02e1df7a5caada259692e151221360af0e"
+    },
+    {
+      "path": "fishing-glacier-dist-qa",
+      "directory": true,
+      "files": 33,
+      "bytes": 3706563,
+      "fingerprint": "ae1d41e77188b58eb8a14ebf9ea0f601f2458439f091b8f5b179d5be3ba93ebd"
+    },
+    {
+      "path": "fishing-glacier-pages-qa",
+      "directory": true,
+      "files": 33,
+      "bytes": 3690474,
+      "fingerprint": "d664f6a1953fac0e2bd4e13bb6be8f3da045b73d1e96b390ee50196a7fcfb498"
+    },
+    {
+      "path": "fishing-glacier-qa",
+      "directory": true,
+      "files": 33,
+      "bytes": 3943813,
+      "fingerprint": "a9d13959383a49c2bd85af60ca3de956ef65cd6a3f2ef3caf634cbc1fb59293a"
+    },
+    {
+      "path": "fishing-glacier-rewards-dist-qa",
+      "directory": true,
+      "files": 33,
+      "bytes": 3690959,
+      "fingerprint": "1e610729cd18ed9cb8e7a076afc465827ef471c33758f1f298805b4a22dfbd5c"
+    },
+    {
+      "path": "fishing-mid-compiled-qa",
+      "directory": true,
+      "files": 31,
+      "bytes": 3496423,
+      "fingerprint": "1097539d65d1c57eb42fc93c7dc052dad83ffd91736ba8131f55b3599ef67074"
+    },
+    {
+      "path": "fishing-mid-qa",
+      "directory": true,
+      "files": 31,
+      "bytes": 3469947,
+      "fingerprint": "ddcb4195e298bb82f91fa677be2f55be1f432efc62a3d2573a782777675004da"
+    },
+    {
+      "path": "fishing-mountain-lake-live-qa",
+      "directory": true,
+      "files": 7,
+      "bytes": 816098,
+      "fingerprint": "8f53d0b77237b26c6c56889c4cba84370c7aa048da77aa1656454127a1f7a5ef"
+    },
+    {
+      "path": "fishing-shallow-compiled-qa",
+      "directory": true,
+      "files": 27,
+      "bytes": 3065262,
+      "fingerprint": "1343be1243b6cf1f4ddfb8b38d195544278e2aebeb88f30a06f4897124bf904c"
+    },
+    {
+      "path": "fishing-shallow-live-qa",
+      "directory": true,
+      "files": 27,
+      "bytes": 3082088,
+      "fingerprint": "f6fce1364f56b19a9478227282c46c6e9c1ee0bcadf4d6ca88e0bfceff22871e"
+    },
+    {
+      "path": "fishing-shallow-qa",
+      "directory": true,
+      "files": 27,
+      "bytes": 3037913,
+      "fingerprint": "d1618b0b111c96c5f6203b5cc71c7ff31332f8675d8d4d885dc2eaa4923fa790"
+    },
+    {
+      "path": "fishing-swamp-live-qa",
+      "directory": true,
+      "files": 7,
+      "bytes": 970519,
+      "fingerprint": "60f9fb6461353786bd244ec3868d94e0a54131dcdd72d05498a6426e7a1da24c"
+    },
+    {
+      "path": "forest-routes-qa",
+      "directory": true,
+      "files": 23,
+      "bytes": 4285290,
+      "fingerprint": "a370ec9fd2fcad6345856fa768443f8f8145ed9bdcaad6ec67350022f8e52a31"
+    },
+    {
+      "path": "forest-routes-v2",
+      "directory": true,
+      "files": 25,
+      "bytes": 4212622,
+      "fingerprint": "2b9153df32a0f56a49077d163cf622c19440f9eaaa69fb66602dc2cb2eb175f0"
+    },
+    {
+      "path": "forestry-recipes-public-qa",
+      "directory": true,
+      "files": 3,
+      "bytes": 238553,
+      "fingerprint": "83207a98210d32fe730c2b81f96da8eb6f541eec4ea35cc2a256a29b6a16e59b"
+    },
+    {
+      "path": "forestry-recipes-worlds-qa",
+      "directory": true,
+      "files": 3,
+      "bytes": 241198,
+      "fingerprint": "8570691ae00088e9d10022a46043ea131966ac8bbbeeb8fca46182a3f2ecf686"
+    },
+    {
+      "path": "forestry-tier1-qa",
+      "directory": true,
+      "files": 3,
+      "bytes": 588550,
+      "fingerprint": "e3f256121b06bc8ea7c3807e8fe1e90a3c8531db09e8ed9ef80201e30d77f8c5"
+    },
+    {
+      "path": "forestry-tier2-qa",
+      "directory": true,
+      "files": 4,
+      "bytes": 794952,
+      "fingerprint": "f232f6cccedd282cb83fd082b2d6fdb3ee6bc6f0e62b98698798faf1ca3d665c"
+    },
+    {
+      "path": "forestry-tier3-qa",
+      "directory": true,
+      "files": 4,
+      "bytes": 794405,
+      "fingerprint": "48a6ba4eca65ad8d782b3185770652d1fff9a9c39fda5b5177903fc066e26534"
+    },
+    {
+      "path": "forestry-tier4-10-qa",
+      "directory": true,
+      "files": 1,
+      "bytes": 183683,
+      "fingerprint": "ca8dda3a4e1582521586079bb2553d28efafc2e3526825165d18e777cf97782f"
+    },
+    {
+      "path": "glacier-clean-dex",
+      "directory": true,
+      "files": 33,
+      "bytes": 4466278,
+      "fingerprint": "3fd23c45303bc09e1013a00f73e5b944c7f60c07673c185f11a3adbafdf2f9d8"
+    },
+    {
+      "path": "glacier-discovery-unified",
+      "directory": true,
+      "files": 33,
+      "bytes": 4555359,
+      "fingerprint": "88c2181226d04953218fd89928bbd1a7a2b3e197cf460235bf604ccfe4f95083"
+    },
+    {
+      "path": "harbor-art-dist-qa",
+      "directory": true,
+      "files": 23,
+      "bytes": 3990948,
+      "fingerprint": "bd5f17b5d56ec04fb51f8cb8c3bc351dad775ae90514040336c9954cc3ad3b95"
+    },
+    {
+      "path": "harbor-coast-art-dist-qa",
+      "directory": true,
+      "files": 3,
+      "bytes": 360448,
+      "fingerprint": "63c44396375511a1d4ce37a44daa275733bdb69f3bee52a76920c99caaa67ae2"
+    },
+    {
+      "path": "harbor-fish-rewards-dist-qa",
+      "directory": true,
+      "files": 25,
+      "bytes": 3665496,
+      "fingerprint": "14e6389057e4b5cb7882b2a7ac3e373cc35cd12017d57cd764abc2fb593897a6"
+    },
+    {
+      "path": "harbor-glacier-dist-qa",
+      "directory": true,
+      "files": 33,
+      "bytes": 5072458,
+      "fingerprint": "b28e762689c5b254f90e82f6ac8618ee95b6f80c7906a3b156cc32f348e87a92"
+    },
+    {
+      "path": "harbor-v2-coast-dist-qa",
+      "directory": true,
+      "files": 3,
+      "bytes": 351074,
+      "fingerprint": "2b7ee8f908b60d0c5467e286b9272d9f4c0a0ff10a75e3ee3df25389e0f0ba4a"
+    },
+    {
+      "path": "harbor-v2-dist-qa",
+      "directory": true,
+      "files": 23,
+      "bytes": 3318276,
+      "fingerprint": "adc6f97d4d50d71a631f8cbfdaa7851b19b2ff1b64913701e437441321ed6522"
+    },
+    {
+      "path": "harbor-v2-rewards-dist-qa",
+      "directory": true,
+      "files": 25,
+      "bytes": 3559235,
+      "fingerprint": "0a37c95f8f2c21dde5fd083dca8a40e1df74784d873ed0143f8e0ed162cc587b"
+    },
+    {
+      "path": "harbor-v2-source-qa",
+      "directory": true,
+      "files": 23,
+      "bytes": 3319660,
+      "fingerprint": "89b8c5c4e38e281f7b635bf0b5da4b138e01f73ca808ac5ce488c49d383b0077"
+    },
+    {
+      "path": "lake-clean-dex",
+      "directory": true,
+      "files": 7,
+      "bytes": 756566,
+      "fingerprint": "4f57eb39da58857bfe6ddd76d365cce1153571ab7d85897d3e7bf4ba5cff9da7"
+    },
+    {
+      "path": "lake-discovery-unified",
+      "directory": true,
+      "files": 7,
+      "bytes": 831237,
+      "fingerprint": "9705db2389509a4d123b83600895a33f03be4479f71c14a3b6b8732d852ad5b3"
+    },
+    {
+      "path": "phase18-discovery-regression",
+      "directory": true,
+      "files": 11,
+      "bytes": 1796588,
+      "fingerprint": "edee6017b68b54c67205639cc73df4f2ffbd1d5f3a9d7ea87b41b3d11f7ca896"
+    },
+    {
+      "path": "phase18-final-durability",
+      "directory": true,
+      "files": 7,
+      "bytes": 656206,
+      "fingerprint": "0ff61ef14f5c0552183f8343679c96aec3394cde5dc9032810db2e1108aa6bc3"
+    },
+    {
+      "path": "reef-raster-dist-qa",
+      "directory": true,
+      "files": 7,
+      "bytes": 1061277,
+      "fingerprint": "1320cc999f1fe80fb65b4be89f08c1b596155eda037bf80fd96164319a366eb3"
+    },
+    {
+      "path": "reef-raster-harbor-dist-qa",
+      "directory": true,
+      "files": 23,
+      "bytes": 3264313,
+      "fingerprint": "cbb72e2172b761cb073f0a3ee24179014f2ca0ed29b2267d687c0420219d6fa3"
+    },
+    {
+      "path": "reef-raster-live-qa",
+      "directory": true,
+      "files": 7,
+      "bytes": 1063289,
+      "fingerprint": "1d3a59efba0702d445234042b72bb7e6bc5ff1e0b52d72d24a9d529867e7b5f6"
+    },
+    {
+      "path": "reef-raster-rewards-dist-qa",
+      "directory": true,
+      "files": 25,
+      "bytes": 3531599,
+      "fingerprint": "66918785c0038772c8045eaa734c3ba6ad1ae104f1c89f553b36ff32a923476d"
+    },
+    {
+      "path": "reef-raster-sea-dist-qa",
+      "directory": true,
+      "files": 49,
+      "bytes": 6750097,
+      "fingerprint": "7843ebddf33e22e5e15e5ff3f6b51153cd2281be891cf5461550ed50da882dcd"
+    },
+    {
+      "path": "repair-tuning-browser",
+      "directory": true,
+      "files": 7,
+      "bytes": 671517,
+      "fingerprint": "47ea121965fd73ed928a944498f6b4a9f648b81afc3c9522d52d51d9cf530b31"
+    },
+    {
+      "path": "repair-tuning-final-browser",
+      "directory": true,
+      "files": 7,
+      "bytes": 680230,
+      "fingerprint": "e3d21d86286f9a0039a0cdd83a376c472a9abbbba685704466d99663917cc81e"
+    },
+    {
+      "path": "startup-ui-final",
+      "directory": true,
+      "files": 8,
+      "bytes": 584071,
+      "fingerprint": "a4be7d158439078018bf03036d54ba719697d6354912a7fa26b2c90b96b88794"
+    },
+    {
+      "path": "startup-ui-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 600763,
+      "fingerprint": "0dc964a0de71b5dc80834a29fd03379100a459bbd2933e4edeedf00dfd8b2e60"
+    },
+    {
+      "path": "ten-rod-final",
+      "directory": true,
+      "files": 26,
+      "bytes": 3810491,
+      "fingerprint": "4bcfc9b6e74fe7bd4f78e5c5c088485901a3628871ae2b27a8591578b723238b"
+    },
+    {
+      "path": "ten-rod-public-107ad66",
+      "directory": true,
+      "files": 26,
+      "bytes": 3844187,
+      "fingerprint": "08f2b256aa146fa84a32922192dadb53b5c11bc6bad99ecb75693fa406a48a01"
+    },
+    {
+      "path": "ten-rod-qa",
+      "directory": true,
+      "files": 26,
+      "bytes": 4144913,
+      "fingerprint": "38e07f064b0bd6331919a52bfc8fb6b0703effdabdd9bb0927535e4dfc8bddb9"
+    },
+    {
+      "path": "ten-rod-qa-discovery-unified-browser",
+      "directory": true,
+      "files": 11,
+      "bytes": 1812889,
+      "fingerprint": "a7b75fd3c4423b0fb724c95980a4fa7d47e1d64fc181e5ba8e7c9a6a8f6ada9b"
+    },
+    {
+      "path": "ten-rod-qa-startup-browser",
+      "directory": true,
+      "files": 8,
+      "bytes": 577932,
+      "fingerprint": "7f7c8d33ee0ac13c37690e0db5abdee43704e028017b5ccf33c8c5548bf5e048"
+    },
+    {
+      "path": "tree-dex-concise-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 1090726,
+      "fingerprint": "585ddb45fbec2d38ea346d0a9c5798baaa6350de6c6a8eaa27e465328685aa5e"
+    },
+    {
+      "path": "tree-dex-fish-rewards-regression-qa",
+      "directory": true,
+      "files": 14,
+      "bytes": 2010769,
+      "fingerprint": "33e88518b2f9cc57247f9205a83ed02a7a71b7bb3bc73d00e03d1a0972dd4cab"
+    },
+    {
+      "path": "tree-dex-grid-tabs-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 1054536,
+      "fingerprint": "11401d4dd4a0f156b8c419d831315a27b19a2152d319fd0c53c63828268f9cc7"
+    },
+    {
+      "path": "tree-dex-milestone-qa",
+      "directory": true,
+      "files": 14,
+      "bytes": 1992666,
+      "fingerprint": "de02f48eab4e269181df0da34311b2287a6fcbc258095bcde1f0ea60fd4b3f9c"
+    },
+    {
+      "path": "tree-dex-public-concise-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 1019102,
+      "fingerprint": "da597281672fc4c8421821232cc6b241f6eca1210f9dd194cf3b500bdd0709ae"
+    },
+    {
+      "path": "tree-dex-public-grid-tabs-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 1083394,
+      "fingerprint": "75367d180968436f5c2ae0de06509d8b1b381603b0921a02be80a7274f09de91"
+    },
+    {
+      "path": "tree-dex-public-qa",
+      "directory": true,
+      "files": 6,
+      "bytes": 711613,
+      "fingerprint": "24e73ef74c583d739b5f984df2910f17236f8b6d83892f8fd91a036b5278154b"
+    },
+    {
+      "path": "tree-dex-public-worlds-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 1159102,
+      "fingerprint": "56965564a1c2d9ffbd111bf0a2160680ed29c4d238c1df5eb7773bf19a7c9020"
+    },
+    {
+      "path": "tree-dex-qa",
+      "directory": true,
+      "files": 14,
+      "bytes": 1968479,
+      "fingerprint": "6b1e648566cebc869de7520c3fd55097d96899c6bee942e34be6a75f67f0bc40"
+    },
+    {
+      "path": "tree-dex-worlds-qa",
+      "directory": true,
+      "files": 8,
+      "bytes": 1068150,
+      "fingerprint": "c2c50aad75d0b3832d8892eac1d7f0cdacdd0f43893218b835a1313ec2adbd28"
+    },
+    {
+      "path": "tree-discovery-unified",
+      "directory": true,
+      "files": 14,
+      "bytes": 1992230,
+      "fingerprint": "8436b02b93d88268f5a6c25324a5eaf4032fdaa287421be57fa2d463e4e8efed"
+    },
+    {
+      "path": "voyage-bow-dist-qa",
+      "directory": true,
+      "files": 35,
+      "bytes": 4427775,
+      "fingerprint": "26294f94103dfa45b65d7260d09e1adfce4f557d9706a5802487d1339e584831"
+    },
+    {
+      "path": "voyage-bow-glacier-qa",
+      "directory": true,
+      "files": 33,
+      "bytes": 3954306,
+      "fingerprint": "d34c31a8fadb484a32cea0761d6e2c3c55cd1bcb6cde3b4af00111cfe6dea3d9"
+    },
+    {
+      "path": "voyage-bow-harbor-qa",
+      "directory": true,
+      "files": 23,
+      "bytes": 2759653,
+      "fingerprint": "8904d8577810d30f8abf71a9e0b4ab64722ed684a23bd477f178a29b36d30998"
+    },
+    {
+      "path": "voyage-bow-lifecycle-qa",
+      "directory": true,
+      "files": 7,
+      "bytes": 737439,
+      "fingerprint": "8ca14e919d103bb4dbcade046b2faf14a28771ca3ac2904e67f09b1e4a5bd370"
+    },
+    {
+      "path": "voyage-bow-live-qa",
+      "directory": true,
+      "files": 35,
+      "bytes": 4428636,
+      "fingerprint": "bbac5e17df716f3fdf823d25c143a679e97fb1d2e13c23c6776de124d1b71496"
+    },
+    {
+      "path": "voyage-bow-qa",
+      "directory": true,
+      "files": 35,
+      "bytes": 4233741,
+      "fingerprint": "b5d8bbdf7e8ab1a2fd883aefc8209246ed68a1af3a74af49836560ac369d8e18"
+    },
+    {
+      "path": "voyage-bow-reef-qa",
+      "directory": true,
+      "files": 7,
+      "bytes": 1056351,
+      "fingerprint": "b3300fb4579ef8e73f71bc71e477b6e4a3ad5389b3c857a1cd19c26e065485d6"
+    },
+    {
+      "path": "voyage-bow-rewards-qa",
+      "directory": true,
+      "files": 25,
+      "bytes": 3462496,
+      "fingerprint": "80d49404645daf2b4255b2f04d48f80b60d7a217099c5450a5a4734ce6a8f8b6"
+    },
+    {
+      "path": "voyage-bow-sea-qa",
+      "directory": true,
+      "files": 49,
+      "bytes": 5827576,
+      "fingerprint": "a965c312bf7576e26583be1da021ffa87e34d7a1bf2046ff54ff195dd51202a0"
+    },
+    {
+      "path": "voyage-compiled-qa",
+      "directory": true,
+      "files": 0,
+      "bytes": 0,
+      "fingerprint": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    {
+      "path": "voyage-discovery-unified",
+      "directory": true,
+      "files": 7,
+      "bytes": 897219,
+      "fingerprint": "a450643e11b5cd1fb053fe5007044732961123ee6166c7364098cab5724bf490"
+    },
+    {
+      "path": "voyage-flow-no-overtaking",
+      "directory": true,
+      "files": 9,
+      "bytes": 993033,
+      "fingerprint": "2269a4364f723cec4aba81b4ab8b67864fb4635587da3e4b406500b047aa3858"
+    },
+    {
+      "path": "voyage-flow-qa",
+      "directory": true,
+      "files": 9,
+      "bytes": 994801,
+      "fingerprint": "f6005a71f7553e059d6cf41793204ca0c1d222c17221ea87d49060eb78354885"
+    },
+    {
+      "path": "voyage-live-qa",
+      "directory": true,
+      "files": 7,
+      "bytes": 819200,
+      "fingerprint": "0fcddd452179b174136e4bed1ed9f174c1e00b2f4ead01e489cfa8c3aa96ff7d"
+    },
+    {
+      "path": "voyage-pixel-sea-dist-qa",
+      "directory": true,
+      "files": 49,
+      "bytes": 6716470,
+      "fingerprint": "39be5520f098276f1352eca72233be521ae35e002e3491d56abf56a73618f1b4"
+    },
+    {
+      "path": "voyage-pixel-sea-glacier-qa",
+      "directory": true,
+      "files": 33,
+      "bytes": 4418084,
+      "fingerprint": "06e3ae25065995ea91dcdc3f0206e0bc4dbe637f0651e3fae95d5240a51e039e"
+    },
+    {
+      "path": "voyage-pixel-sea-harbor-qa",
+      "directory": true,
+      "files": 23,
+      "bytes": 3261853,
+      "fingerprint": "8dbff1dead39fc50bf9e45509e115c5bb013350ce6cb9e613be908df72f0401a"
+    },
+    {
+      "path": "voyage-pixel-sea-live-qa",
+      "directory": true,
+      "files": 49,
+      "bytes": 6717126,
+      "fingerprint": "6df7806857eae26e3ac8669d03e703a997ed8423328d5f767a6da4f088f3db87"
+    },
+    {
+      "path": "voyage-pixel-sea-rewards-qa",
+      "directory": true,
+      "files": 25,
+      "bytes": 3513981,
+      "fingerprint": "aa86b5f9297e96cc9c36dbf1698d114921d0481058db5cc3cc6c34a66a02123e"
+    },
+    {
+      "path": "voyage-qa",
+      "directory": true,
+      "files": 7,
+      "bytes": 696037,
+      "fingerprint": "ab2dc8c1bbb687a3ca724e5710936fca8e492e9a6c2ee7e2bfa3379056f98bff"
+    },
+    {
+      "path": "fishing-10-rod-balance.json",
+      "directory": false,
+      "files": 1,
+      "bytes": 1434108,
+      "fingerprint": "d0a5bfdfbd84a643900ed2a6e3e6835b101aef16ffe478a0fe6355bbfb6b6fef"
+    },
+    {
+      "path": "fishing-balance-after-0.json",
+      "directory": false,
+      "files": 1,
+      "bytes": 769964,
+      "fingerprint": "c163112ea54cf8cefaab06157710bc8b3604cc3f22dfa104f40d2deaa8d499b4"
+    },
+    {
+      "path": "fishing-balance-after-3.json",
+      "directory": false,
+      "files": 1,
+      "bytes": 769311,
+      "fingerprint": "105e808f7510782da0acff14277f43527170cff5b39abcadcb872125495d6fb2"
+    },
+    {
+      "path": "fishing-balance-after-8.json",
+      "directory": false,
+      "files": 1,
+      "bytes": 769932,
+      "fingerprint": "767e1291a781e2e0729a0dfad9b16b29b00d6bc92d63c77c9f4c48e714b6540b"
+    },
+    {
+      "path": "fishing-balance-before.json",
+      "directory": false,
+      "files": 1,
+      "bytes": 774618,
+      "fingerprint": "be192c120c082e2bc5cd0da9243e704c4fabd483cb5094e5ac57c8cbb451b594"
+    },
+    {
+      "path": "fishing-balance-final.json",
+      "directory": false,
+      "files": 1,
+      "bytes": 861185,
+      "fingerprint": "6e32f9e432c91159d0f99fe113123fdefa55a91e422d90878101067a285fe0a1"
+    },
+    {
+      "path": "character-qa/attachments",
+      "directory": true,
+      "files": 6,
+      "bytes": 1586799,
+      "fingerprint": "83435e7efd54b2819b2a1a812ac9137656d615ecfe8b407b1711bf3cac22b158"
+    },
+    {
+      "path": "character-qa/attachments-public",
+      "directory": true,
+      "files": 6,
+      "bytes": 1586799,
+      "fingerprint": "648943b6e0b4363378492db9c724a0d07c19507006ce8b9ecbe7c281b10efbfe"
+    },
+    {
+      "path": "character-qa/axe-facing-preview",
+      "directory": true,
+      "files": 40,
+      "bytes": 7452080,
+      "fingerprint": "1b229fafb34b267ea88a238cb8e46bd4629fae4783640b9a3697a5cb8ff01e38"
+    },
+    {
+      "path": "character-qa/backpack-appearance",
+      "directory": true,
+      "files": 10,
+      "bytes": 1709009,
+      "fingerprint": "3802fa7736d48e5f5d6636cb1190286f53b5fba6d9e248b034a3017b6423b729"
+    },
+    {
+      "path": "character-qa/backpack-fix",
+      "directory": true,
+      "files": 19,
+      "bytes": 3789964,
+      "fingerprint": "3b861b380a0e150a56b04ee64b7745855d071752d0349fbbe70ef03d246be1ec"
+    },
+    {
+      "path": "character-qa/backpack-public",
+      "directory": true,
+      "files": 19,
+      "bytes": 3787304,
+      "fingerprint": "50742a186d78c8d879b034952842e41a1ceeea0a6cf92c339220778b894b432c"
+    },
+    {
+      "path": "character-qa/backpack-trial",
+      "directory": true,
+      "files": 19,
+      "bytes": 3704823,
+      "fingerprint": "b5eb5d13f07b647770e938d6033871f0d7b04d232ef36489f1db73ede46489b1"
+    },
+    {
+      "path": "character-qa/character-style",
+      "directory": true,
+      "files": 7,
+      "bytes": 1808010,
+      "fingerprint": "8c09fa191e20e45d6df3d757c0949accb388cb9bbf7571abc0e030569fb0389f"
+    },
+    {
+      "path": "character-qa/connected-v2",
+      "directory": true,
+      "files": 19,
+      "bytes": 3740761,
+      "fingerprint": "4c623fe22721ec02687d0f21d01a952e52cb7a22f0f93de2db7325cd9e9e3983"
+    },
+    {
+      "path": "character-qa/connected-v2-ember",
+      "directory": true,
+      "files": 19,
+      "bytes": 3742215,
+      "fingerprint": "ea418fe22f0ac4746a6a25eb9baa421fe27bd42b4a2676b76fe36c9b77cadc10"
+    },
+    {
+      "path": "character-qa/connected-v2-meadow",
+      "directory": true,
+      "files": 19,
+      "bytes": 3745609,
+      "fingerprint": "e7757aad13315a7d889eac4ad7d0bec5f3aeb05ee4b232551c30548cb4ddfe8d"
+    },
+    {
+      "path": "character-qa/connected-v2-public",
+      "directory": true,
+      "files": 19,
+      "bytes": 3738419,
+      "fingerprint": "974041ce5c49cb80d28f3128d21b384381302ddea19add76bad0a2718c3ce888"
+    },
+    {
+      "path": "character-qa/connected-v2-trial",
+      "directory": true,
+      "files": 10,
+      "bytes": 1179430,
+      "fingerprint": "bd1596c2add00eb5097001b159cf12bcb998e9a8c78c224360ef6e009f957bcf"
+    },
+    {
+      "path": "character-qa/connected-v2-wardrobe",
+      "directory": true,
+      "files": 3,
+      "bytes": 806914,
+      "fingerprint": "af56111ca45e9238f537ecc3847c0179399d93f41dfff336c20740e97e9f9b3e"
+    },
+    {
+      "path": "character-qa/ember-ranger",
+      "directory": true,
+      "files": 19,
+      "bytes": 3790956,
+      "fingerprint": "c5a0ac07cad81e9f1a37d88f088a7b58f5659b2a1910e63cdf59ae0d8d7aa6d0"
+    },
+    {
+      "path": "character-qa/meadow-berry",
+      "directory": true,
+      "files": 19,
+      "bytes": 3796996,
+      "fingerprint": "fbe329909f07d6d09b6b799f8e1d27d0dcde038f85fa5679ee5fc07305053ff8"
+    },
+    {
+      "path": "character-qa/music-local",
+      "directory": true,
+      "files": 2,
+      "bytes": 207541,
+      "fingerprint": "48bf74d0d918103ac47957e0e9bf3c62809a8017787e11fe74b3ddab9d043d59"
+    },
+    {
+      "path": "character-qa/music-public",
+      "directory": true,
+      "files": 2,
+      "bytes": 207592,
+      "fingerprint": "e482f49b68967da02374205d644106235e1b185b8ff3575ac8624792c971c1a7"
+    },
+    {
+      "path": "character-qa/music-regression",
+      "directory": true,
+      "files": 19,
+      "bytes": 3810421,
+      "fingerprint": "dfc8a2d060cf7072cc63c606ff5236d4d788bc32c0db889a1a6550a087559949"
+    },
+    {
+      "path": "character-qa/polish-base",
+      "directory": true,
+      "files": 19,
+      "bytes": 3772655,
+      "fingerprint": "f898f7c12b36ce207b06b0abf06f20643f9497d213c4aed9dd70b12f7eed1161"
+    },
+    {
+      "path": "character-qa/polish-combinations",
+      "directory": true,
+      "files": 3,
+      "bytes": 870063,
+      "fingerprint": "1af1041a2b17cdbb5e1312391722b58ffb333d2a834a7880b6fc08aa7f7781ee"
+    },
+    {
+      "path": "character-qa/polish-ember-ranger",
+      "directory": true,
+      "files": 19,
+      "bytes": 3794321,
+      "fingerprint": "d83923b55ebf61f943c823ac04040f6db5fadc671462cf11f510ac25d7f60f4c"
+    },
+    {
+      "path": "character-qa/polish-inventory-public",
+      "directory": true,
+      "files": 7,
+      "bytes": 536917,
+      "fingerprint": "e1b67fafa6e76154bb8123da8a5ca97937e753fb3c51b3bce7ad675fc8fb0ee9"
+    },
+    {
+      "path": "character-qa/polish-meadow-berry",
+      "directory": true,
+      "files": 19,
+      "bytes": 3778432,
+      "fingerprint": "99765566dd1f8a7949c7b173a0dd494524dce845bf28799e7fbfc73e9c25c7d3"
+    },
+    {
+      "path": "character-qa/polish-public",
+      "directory": true,
+      "files": 3,
+      "bytes": 870063,
+      "fingerprint": "936ef6a94e3443200f22baac063f6f145ac854c0d6108bf55473ae8b96722191"
+    },
+    {
+      "path": "character-qa/polish-trial",
+      "directory": true,
+      "files": 19,
+      "bytes": 3691996,
+      "fingerprint": "32ee6ff758920a5832e2d141d524e617b2f16a377bd8ee618993a4676f4962d2"
+    },
+    {
+      "path": "character-qa/registration-ember",
+      "directory": true,
+      "files": 19,
+      "bytes": 3769518,
+      "fingerprint": "b4517ef3bd50fa70d239d0f1735abe94d80b4c58ea888e3291b5f21b7c3b0d7f"
+    },
+    {
+      "path": "character-qa/registration-final-trial",
+      "directory": true,
+      "files": 10,
+      "bytes": 1285121,
+      "fingerprint": "8c97bcf3dbf518caab4c7288991f0347508e88a69f1054e5044a29483792b266"
+    },
+    {
+      "path": "character-qa/registration-final-wardrobe",
+      "directory": true,
+      "files": 3,
+      "bytes": 858882,
+      "fingerprint": "414e88bfab29b3b00fbf9b89a0b5cfef0bc56171019e09e16c406ddff547a6eb"
+    },
+    {
+      "path": "character-qa/registration-fix",
+      "directory": true,
+      "files": 19,
+      "bytes": 3768594,
+      "fingerprint": "9f729eda75cbec63c9ebcb9a965d828bc3a8b735db5b517047e8a879434183fa"
+    },
+    {
+      "path": "character-qa/registration-meadow",
+      "directory": true,
+      "files": 19,
+      "bytes": 3774212,
+      "fingerprint": "61ad01f034345c638cfdb18228ffc881278c8d1043f2749685e9460a85e90d2b"
+    },
+    {
+      "path": "character-qa/registration-public",
+      "directory": true,
+      "files": 19,
+      "bytes": 3767381,
+      "fingerprint": "2907b7e7a32cee0a5adeb3cce8015436ce4951a96a60d441a7d5f2bfa5141c9e"
+    },
+    {
+      "path": "character-qa/registration-trial",
+      "directory": true,
+      "files": 10,
+      "bytes": 1363731,
+      "fingerprint": "4396a68548b0d4a6b458f49ff0b0f63fffa460b5d6d077d1dd611ed59182eb08"
+    },
+    {
+      "path": "character-qa/registration-trial-actions",
+      "directory": true,
+      "files": 19,
+      "bytes": 3688665,
+      "fingerprint": "671a4746a291d15a0fa448e0f78b345dbb75cc767ab530020091061549deef28"
+    },
+    {
+      "path": "character-qa/registration-wardrobe",
+      "directory": true,
+      "files": 3,
+      "bytes": 859281,
+      "fingerprint": "2502f83a6044c488b23fa5e9cc63b0788766fa93d6cce498ec84f9f8ab429f09"
+    },
+    {
+      "path": "character-qa/ria-head-v2",
+      "directory": true,
+      "files": 23,
+      "bytes": 3825099,
+      "fingerprint": "e5784a81d1c18daa979969ac797b2b0a7532395f518fda0f751a42911614dcb0"
+    },
+    {
+      "path": "character-qa/rollback-public",
+      "directory": true,
+      "files": 18,
+      "bytes": 3674923,
+      "fingerprint": "6c60c45d9a59971a1c35d6c1ab56f31840f316fb5049b9c277cf00111ee0122d"
+    },
+    {
+      "path": "character-qa/side-appearance",
+      "directory": true,
+      "files": 10,
+      "bytes": 2039758,
+      "fingerprint": "2cf08b2daceeeb383fba04599134b5ef7518dcdad605f7b6ab10ad2638262d3c"
+    },
+    {
+      "path": "character-qa/side-public",
+      "directory": true,
+      "files": 19,
+      "bytes": 3771437,
+      "fingerprint": "559d660791eb7b9640c2f3bf4f557bf22bcd862aa6159d3f9cdbc128df168806"
+    },
+    {
+      "path": "character-qa/side-swing",
+      "directory": true,
+      "files": 19,
+      "bytes": 3773177,
+      "fingerprint": "39ad1c2cce000ef6e1c756feeae22af8c2daaf6c9f00f0909fafb34ff262a425"
+    },
+    {
+      "path": "character-qa/side-trial",
+      "directory": true,
+      "files": 19,
+      "bytes": 3680814,
+      "fingerprint": "d0847bfa586f1617ea2f3e8034614a4482ef33cbeb3d6c4401eaf1db5544aad1"
+    },
+    {
+      "path": "character-qa/soft-neck-normal",
+      "directory": true,
+      "files": 19,
+      "bytes": 3693863,
+      "fingerprint": "55f154a24a181eef158c04f004ffa5a68e43e08d6871ad8ae873201b92677c6f"
+    },
+    {
+      "path": "character-qa/soft-walk-normal",
+      "directory": true,
+      "files": 19,
+      "bytes": 3694667,
+      "fingerprint": "00c424063a9894c57d921df0f5bc70f43d77dfd31b29951cd67b731f631e986e"
+    },
+    {
+      "path": "character-qa/temporary-wardrobe",
+      "directory": true,
+      "files": 3,
+      "bytes": 676891,
+      "fingerprint": "6bb3edba581a71b554f71de5a1eb3291a3b71412f90f25cac10f1237604c991d"
+    },
+    {
+      "path": "character-qa/npc-v1/attachments",
+      "directory": true,
+      "files": 6,
+      "bytes": 1509614,
+      "fingerprint": "e10d35331dabd833f39f0fa0f3b8feedb4139fa8ff7894b36edeb16eeab06ed1"
+    },
+    {
+      "path": "character-qa/npc-v1/attachments-final",
+      "directory": true,
+      "files": 6,
+      "bytes": 1498783,
+      "fingerprint": "9e75a6480d873129322fd788f44364b3023c23cb996e570e46daf75f4e33b51b"
+    },
+    {
+      "path": "character-qa/npc-v1/female-final",
+      "directory": true,
+      "files": 19,
+      "bytes": 3607583,
+      "fingerprint": "d82afc470387d56459969bfaa0a6e8c11b1a1879aa0ce7cc557b57af433a81a8"
+    },
+    {
+      "path": "character-qa/npc-v1/full",
+      "directory": true,
+      "files": 4,
+      "bytes": 553805,
+      "fingerprint": "934a56cee834c6fbde2fd24a186591ec7767c47d1b46889c93a596ebba66bd03"
+    },
+    {
+      "path": "character-qa/npc-v1/male-final",
+      "directory": true,
+      "files": 19,
+      "bytes": 3695342,
+      "fingerprint": "07d71af4d027253047516728017df851f6fe22d54593ffc72635184b6624c769"
+    },
+    {
+      "path": "character-qa/npc-v1/palette-trial",
+      "directory": true,
+      "files": 19,
+      "bytes": 3613951,
+      "fingerprint": "b8cf758fbfc070642859838899b23f18ad20bd4083027b5799a0b4b9e432e610"
+    },
+    {
+      "path": "character-qa/npc-v1/public-female",
+      "directory": true,
+      "files": 19,
+      "bytes": 3651984,
+      "fingerprint": "ee2685718e6731b4e61ec229f2e7facabb5c54756455bf454eaeb11cc960d29f"
+    },
+    {
+      "path": "character-qa/npc-v1/public-male",
+      "directory": true,
+      "files": 19,
+      "bytes": 3694863,
+      "fingerprint": "961f45d2c48b59af4da0cb87557a82e49445dca5078ff9aec44583add163dd42"
+    },
+    {
+      "path": "character-qa/npc-v1/wardrobe-final",
+      "directory": true,
+      "files": 3,
+      "bytes": 660898,
+      "fingerprint": "0f2d9fb608981fb05f913d42e44ba87ea7cec29be834008a69ad79c1ac8c38c5"
+    },
+    {
+      "path": "character-qa/ria-neck-preview/public-a9a559c.html",
+      "directory": false,
+      "files": 1,
+      "bytes": 13292849,
+      "fingerprint": "abd1e6f47219466a7188b52ba115b5b9900680f3fe44d0407c35e506bf9a9343"
+    },
+    {
+      "path": "character-qa/ria-neck-preview/public-eea4240.html",
+      "directory": false,
+      "files": 1,
+      "bytes": 13292849,
+      "fingerprint": "5f27705db16eb65248d0527b1812b7e96a8479c6c968fef45708507d84474f45"
+    },
+    {
+      "path": "character-qa/ria-head-v3/public-89dc576.html",
+      "directory": false,
+      "files": 1,
+      "bytes": 13289641,
+      "fingerprint": "f32147a53721dd49c064aa5a404b28cc35ee303029869a68d5c7c9f1bccdfd09"
+    }
+  ]
+}

@@ -1,5 +1,7 @@
 # 벌목 1~10단계 진행·내구도 시뮬레이션
 
+2026-10-12 현재 성장 수치: [LIFE_SKILL_GROWTH_BALANCE.md](LIFE_SKILL_GROWTH_BALANCE.md)의 승인된 성장 v2가 우선한다. 완전 벌목 XP는 단계별 7~18, Lv.100 누적 요구량은 187,230이다. 아래 과거 5%/106,690 XP/준비 레벨 표는 당시 결과이며 현행 수치로 사용하지 않는다. 장비·가격·수리·항로의 기존 계약은 유지한다.
+
 기준일: 2026-10-05. 실제 수치의 단일 기준은 `src/data/life-content-data.js`이며, `node scripts/simulate-forestry-balance.mjs`가 그 데이터를 직접 읽는다. 시뮬레이터는 저장을 변경하지 않는다.
 
 ## 계산 기준

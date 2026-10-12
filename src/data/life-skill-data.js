@@ -8,16 +8,22 @@ const LIFE_SKILLS=Object.freeze({
 });
 
 const LIFE_SKILL_MAX_LEVEL=100;
+const LIFE_SKILL_XP_CURVE_VERSION=2;
 
-// Provisional curve. Levels 1–20 retain the existing fishing requirements so
-// saved progress keeps its meaning; later tiers can be tuned after playtests.
-const LIFE_SKILL_XP_TABLE=Object.freeze(Array.from({length:LIFE_SKILL_MAX_LEVEL-1},(_,index)=>{
+// Keep the original curve to migrate old saves without losing levels or bars.
+const LIFE_SKILL_LEGACY_XP_TABLE=Object.freeze(Array.from({length:LIFE_SKILL_MAX_LEVEL-1},(_,index)=>{
   const level=index+1;
   if(level<=20) return 60+level*12;
   if(level<=30) return 300+(level-20)*14;
   if(level<=60) return 440+(level-30)*22;
   if(level<=80) return 1100+(level-60)*38;
   return 1860+(level-80)*55;
+}));
+// Approved shared Fishing/Logging growth: reaching Lv.80 is unchanged.
+// Later requirements rise gradually from 1.15x to 4x (Lv.100: 187,230 XP).
+const LIFE_SKILL_XP_TABLE=Object.freeze(LIFE_SKILL_LEGACY_XP_TABLE.map((required,index)=>{
+  const level=index+1;
+  return level<80?required:Math.round(required*(1+3*(level-79)/20));
 }));
 
 const LIFE_SKILL_MASTERY_BASE_XP=4000;

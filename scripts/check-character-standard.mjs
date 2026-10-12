@@ -44,7 +44,7 @@ export function checkCharacterStandard(contract=JSON.parse(read('docs/character-
     document:{getElementById:()=>({width:576,height:1024,getContext:()=>({})})},
     DEFAULT_FISHING_ROD_ID:'rod.basic',DEFAULT_FORESTRY_AXE_ID:'axe.basic'};
   vm.createContext(context);
-  vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/data/sword-data.js')+'\n'+read('src/assets.js')+'\n'+read('src/config.js')+
+  vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/data/sword-data.js')+'\n'+read('src/assets.js')+'\n'+read('src/data/life-skill-data.js')+'\n'+read('src/config.js')+
     '\nglobalThis.registration={rig:CHARACTER_RIG,layers:CHARACTER_LAYER_URLS,tools:CHARACTER_TOOL_URLS,outfits:CHARACTER_OUTFITS,preview:CHARACTER_WARDROBE_PREVIEW_URLS,parts:Object.fromEntries(Object.entries(CHARACTER_PARTS).map(([k,v])=>[k,[...v]]))};',context);
   const data=plain(context.registration),{tools,...geometry}=data.rig;
   assert.equal(hash(JSON.stringify(geometry)),contract.geometryHash,'Frozen body/grip/pose coordinates changed');

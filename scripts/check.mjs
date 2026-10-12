@@ -73,7 +73,7 @@ const freshContext={WORLD_DEFINITION:{tileSize:48,width:64,height:48},
   document:{getElementById:()=>({width:576,height:1024,getContext:()=>({})})},
   DEFAULT_FISHING_ROD_ID:'rod.basic',DEFAULT_FORESTRY_AXE_ID:'axe.basic'};
 vm.createContext(freshContext);
-vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
+vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
 assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progression.fishing.level===1&&
   freshContext.__fresh.progression.logging.level===1&&
   freshContext.__fresh.progression.fishing.equippedRodId==='rod.basic'&&
@@ -102,7 +102,7 @@ assert(freshContext.__legacyWardrobe.ownedOutfitIds.length===3&&freshContext.__l
   freshContext.__wardrobeTrial.outfitId==='outfit.traveler'&&freshContext.__wardrobeTrial.backpackId==='pack.traveler',
   'Legacy and selected temporary appearances must restore independently while trial IDs stay excluded');
 vm.createContext(trialContext);
-vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/config.js')}\n
+vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/config.js')}\n
   const trialBefore=JSON.stringify(GAME_STATE);
   globalThis.__trialValid=setCharacterAppearancePreview(['outfitId','hairId','backpackId']);
   globalThis.__trialAppearance=getCharacterRenderAppearance();
@@ -738,7 +738,7 @@ vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.
   `globalThis.__loaded=loadGame();globalThis.__restored=JSON.parse(JSON.stringify(GAME_STATE));`+
   `globalThis.__lockedRod=normalizeSavedFishingProgress({level:2,xp:0,totalXp:0,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__oldCap=normalizeSavedFishingProgress({level:20,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',20)+900,equippedRodId:'rod.expert'},{},[]);`+
-  `globalThis.__savedMastery=normalizeSavedFishingProgress({level:100,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17,equippedRodId:'rod.expert'},{},[]);`+
+  `globalThis.__savedMastery=normalizeSavedFishingProgress({xpCurveVersion:LIFE_SKILL_XP_CURVE_VERSION,level:100,xp:0,totalXp:lifeSkillTotalXpForLevel('fishing',100)+lifeSkillMasteryXpRequired(0)+17,equippedRodId:'rod.expert'},{},[]);`+
   `globalThis.__migratedTreeCollection=normalizeSavedTreeCollections(null,{},[{type:'material',id:'pine_log',quantity:4}]);`+
   `const twentyTrees=Object.fromEntries(FOREST_SPECIES.slice(0,20).map(species=>[species,{species,name:FOREST_WOOD[species],count:1}]));`+
   `globalThis.__retroactiveMilestones=normalizeSavedTreeMilestones(null,twentyTrees);`+
@@ -1078,13 +1078,13 @@ assert(lifeContext.__hits.join(',')==='true,true,true,true,true,false'&&lifeCont
 assert(lifeContext.__treeDiscovery.count===1&&lifeContext.__treeDiscovery.total===1&&
   lifeContext.__treeDiscovery.toast==='',
   'A zero-item first cut must register exactly one tree species without showing a no-item toast');
-assert(lifeContext.__firstHitToast===''&&lifeContext.GAME_STATE.progression.logging.totalXp===1&&
-  lifeContext.feedback.length===1&&lifeContext.feedback[0].skillId==='logging'&&lifeContext.feedback[0].gained===1,
-  'Partial hits must stay quiet; a zero-item complete cut must still grant reduced Logging XP once');
+assert(lifeContext.__firstHitToast===''&&lifeContext.GAME_STATE.progression.logging.totalXp===7&&
+  lifeContext.feedback.length===1&&lifeContext.feedback[0].skillId==='logging'&&lifeContext.feedback[0].gained===7,
+  'Partial hits must stay quiet; a zero-item complete cut must still grant the approved Logging XP once');
 assert(vm.runInContext(`FORESTRY_LOG_DROP_TABLE.join(',')==='0,1,2,3'&&FORESTRY_EXPECTED_LOGS_PER_TREE===1.5&&
   rollForestryLogs(0)===0&&rollForestryLogs(.25)===1&&rollForestryLogs(.5)===2&&rollForestryLogs(.999)===3&&
-  FORESTRY_LOGGING_XP_RATE===.05&&forestryTreeXp(FORESTRY_TREES.oak)===1&&forestryTreeXp(FORESTRY_TREES.whisperwood)===13`,lifeContext),
-  'Forestry drops must include a 25% no-item outcome and use the reduced Logging XP rate');
+  forestryTreeXp(FORESTRY_TREES.oak)===7&&forestryTreeXp(FORESTRY_TREES.whisperwood)===17`,lifeContext),
+  'Forestry drops must include a 25% no-item outcome and use the approved per-tree Logging XP');
 vm.runInContext(`Math.random=()=>.99;GAME_STATE.regionId='deepForest';const lockedSource=REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='maple');`+
   `const lockedTree={...lockedSource,id:forestTreeId(lockedSource.x,lockedSource.y,'deepForest'),interactable:true};`+
   `globalThis.__lockedHit=hitResourceTree(lockedTree);globalThis.__lockedHp=getTreeState(lockedTree).hp;`+
@@ -1112,9 +1112,9 @@ assert(lifeContext.__deepFirstHit&&lifeContext.__deepFirstHp===70&&lifeContext._
   lifeContext.__deepLogs>=1&&lifeContext.__deepLogs<=3&&
   lifeContext.GAME_STATE.progression.forestry.durabilityByAxeId['axe.iron']===174,
   'Iron axe must cut tier-2 trees in three hits and block duplicate rewards');
-assert(lifeContext.GAME_STATE.progression.logging.totalXp===2&&lifeContext.feedback.length===2&&
-  lifeContext.feedback[1].gained===1,
-  'Deeper trees must award their provisional Logging XP only on completion');
+assert(lifeContext.GAME_STATE.progression.logging.totalXp===15&&lifeContext.feedback.length===2&&
+  lifeContext.feedback[1].gained===8,
+  'Deeper trees must award their approved Logging XP only on completion');
 vm.runInContext(`const upperSource=REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='cypress');`+
   `const upperTree={...upperSource,id:forestTreeId(upperSource.x,upperSource.y,'deepForest'),interactable:true};`+
   `globalThis.__upperLocked=hitResourceTree(upperTree);globalThis.__upperLockedHp=getTreeState(upperTree).hp;`+
@@ -1127,7 +1127,7 @@ assert(lifeContext.__upperLocked===false&&lifeContext.__upperLockedHp===160&&lif
   lifeContext.__steelBeforeEquip==='axe.iron'&&lifeContext.__steelEquipped&&
   lifeContext.__upperHits.join(',')==='true,true,true,false,false'&&lifeContext.GAME_STATE.progression.forestry.axeId==='axe.steel'&&
   lifeContext.GAME_STATE.progression.forestry.durabilityByAxeId['axe.steel']===231&&
-  lifeContext.GAME_STATE.progression.logging.totalXp===5,
+  lifeContext.GAME_STATE.progression.logging.totalXp===24,
   'Tier-3 tree must require steel axe and grant its own XP on the final hit');
 vm.runInContext(`GAME_STATE.progression.coins=32000;`+
   `for(const [id,count] of Object.entries(FORESTRY_AXES[3].materials))addLifeItem('material',id,count);`+
@@ -1321,7 +1321,7 @@ vm.runInContext(`GAME_STATE.regionId='oldForest';
   }
   globalThis.__newLogRewards=['paulownia','cedar'].map(species=>lifeItemCount('material',species+'_log'));`,lifeContext);
 assert(lifeContext.__newLogRewards.every(count=>count>=1&&count<=3)&&
-  lifeContext.feedback.slice(-2).map(entry=>entry.gained).join(',')==='1,1',
+  lifeContext.feedback.slice(-2).map(entry=>entry.gained).join(',')==='7,7',
   'Both new starter trees must be choppable and grant their own wood plus Logging XP');
 vm.runInContext(`GAME_STATE.regionId='deepForest';
   const ginkgo={...REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='ginkgo'),interactable:true};
@@ -1336,7 +1336,7 @@ vm.runInContext(`GAME_STATE.regionId='deepForest';
   globalThis.__tier2LogRewards=['ginkgo','larch','cherry'].map(species=>lifeItemCount('material',species+'_log'));`,lifeContext);
 assert(lifeContext.__tier2Locked===false&&lifeContext.__tier2LockedHp===120&&
   lifeContext.__tier2LogRewards.every(count=>count>=1&&count<=3)&&
-  lifeContext.feedback.slice(-3).map(entry=>entry.gained).join(',')==='1,1,1',
+  lifeContext.feedback.slice(-3).map(entry=>entry.gained).join(',')==='8,8,8',
   'New Tier-2 trees must require iron, fall in three hits, and reward their own wood and XP');
 vm.runInContext(`GAME_STATE.regionId='deepForest';
   const chestnut={...REGION_WORLDS.deepForest.trees.find(tree=>tree.species==='chestnut'),interactable:true};
@@ -1350,7 +1350,7 @@ vm.runInContext(`GAME_STATE.regionId='deepForest';
   globalThis.__tier3LogRewards=['chestnut','walnut','zelkova'].map(species=>lifeItemCount('material',species+'_log'));`,lifeContext);
 assert(lifeContext.__tier3Locked===false&&lifeContext.__tier3LockedHp===160&&
   lifeContext.__tier3LogRewards.every(count=>count>=1&&count<=3)&&
-  lifeContext.feedback.slice(-3).map(entry=>entry.gained).join(',')==='3,3,3',
+  lifeContext.feedback.slice(-3).map(entry=>entry.gained).join(',')==='9,9,9',
   'New Tier-3 trees must require steel, fall in four hits, and reward their own wood and XP');
 
 const farmDrawCalls=[];
@@ -1823,6 +1823,7 @@ const validationScripts = [
   'src/fishing-spots.js',
   'src/data/fishing-gear-data.js',
   'src/data/life-content-data.js',
+  'src/data/life-skill-data.js',
   'src/config.js',
   'src/world.js',
   'src/world-validation.js'
@@ -1946,6 +1947,7 @@ assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&r
 
 checkCharacterStandard();
 checkSwordStandard();
+await import('./qa-life-skill-growth.mjs');
 await import('./qa-fishing-expansion-data.mjs');
 await import('./qa-fishing-baseline.mjs');
 await import('./qa-fishing-spots.mjs');

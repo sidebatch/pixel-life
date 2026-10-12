@@ -8,7 +8,7 @@ import vm from 'node:vm';
 const root=path.resolve(import.meta.dirname,'..');
 const lifeDataSource=fs.readFileSync(path.join(root,'src/data/life-content-data.js'),'utf8');
 const current=vm.runInNewContext(`${lifeDataSource};({FORESTRY_TREES,FORESTRY_AXES,FORESTRY_CHOP_TIMING,
-  FORESTRY_LOG_DROP_TABLE,FORESTRY_EXPECTED_LOGS_PER_TREE,FORESTRY_LOGGING_XP_RATE,forestryTreeXp})`);
+  FORESTRY_LOG_DROP_TABLE,FORESTRY_EXPECTED_LOGS_PER_TREE,forestryTreeXp})`);
 const skillDataSource=fs.readFileSync(path.join(root,'src/data/life-skill-data.js'),'utf8');
 const skillLogicSource=fs.readFileSync(path.join(root,'src/life-skills.js'),'utf8');
 const skillModel=vm.runInNewContext(`${skillDataSource}\n${skillLogicSource};({lifeSkillProgressFromTotal})`);
@@ -155,7 +155,7 @@ const sensitivity=[1,current.FORESTRY_EXPECTED_LOGS_PER_TREE,2,3].map(simulatePr
 const report={
   assumptions:{dropsPerTree,dropTable:Array.from(current.FORESTRY_LOG_DROP_TABLE),
     noDropChance:current.FORESTRY_LOG_DROP_TABLE.filter(count=>count===0).length/current.FORESTRY_LOG_DROP_TABLE.length,
-    loggingXpRate:current.FORESTRY_LOGGING_XP_RATE,treeOverheadSeconds,treeRespawnMinutes:5,
+    loggingXpByTier:Array.from({length:10},(_,index)=>current.forestryTreeXp(Object.values(current.FORESTRY_TREES).find(tree=>tree.tier===index+1))),treeOverheadSeconds,treeRespawnMinutes:5,
     notes:['재료 목재는 보관하고 초과분만 판매','부족한 코인은 현재 접근 가능한 나무 중 시간당 판매 효율이 가장 높은 수종으로 충당',
       '기본 도끼는 무한 내구도, 유료 도끼는 나무 단계만큼 타격 내구도 감소','내구도 0 뒤 추가 타격이 필요할 때 전체 수리비를 지출',
       '이동·메뉴·나무 탐색은 나무당 추가 시간으로 근사','마을 수리 왕복·나무 재생 대기·동시 보유 나무 수 제한은 계산에서 제외']},

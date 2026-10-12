@@ -4,7 +4,7 @@ import {simulateTrips,simulateGearProgression,simulateRodMaterials} from './lib/
 
 const r=fishingRuntime(71),report=balanceReport();
 assert.equal(report.rows.length,1200);assert.equal(report.legendRows.length,60);
-assert.equal(report.maxLevelXp,106690);
+assert.equal(report.maxLevelXp,187230);
 for(const row of report.rows){
   assert(row.probabilities.length>0);assert(Math.abs(row.probabilities.reduce((sum,p)=>sum+p.initial,0)-1)<1e-10);
   assert(Math.abs(row.probabilities.reduce((sum,p)=>sum+p.stationary,0)-1)<1e-10);

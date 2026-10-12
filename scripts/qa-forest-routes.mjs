@@ -10,8 +10,8 @@ const renderer=fs.readFileSync('src/rendering.js','utf8');
 assert(!renderer.includes('getNearbyForestExitGuides')&&!renderer.includes('drawForestExitGuides'),'No floating destination UI');
 assert(renderer.includes('routeSigns.forEach(post=>renderables.push({y:(post.y+1)*TILE'),'Physical signs share world depth sorting');
 const context=forestWorldContext();
-assert.deepEqual(forestSnapshot(context),JSON.parse(fs.readFileSync('docs/FOREST_ROUTES_BASELINE_V1.json','utf8')),
-  'Every legacy resource tree ID/position/species, water, shore, rock, terrain and forestry economy must remain intact');
+assert.deepEqual(forestSnapshot(context),JSON.parse(fs.readFileSync('docs/FOREST_ROUTES_BASELINE_V2.json','utf8')),
+  'Every legacy resource tree ID/position/species, water, shore, rock, terrain and approved forestry economy must remain intact');
 const report=JSON.parse(vm.runInContext(`JSON.stringify((()=>{
   const ids=['lilacVillage',...Object.keys(FOREST_REGION_SPECIES),'mountainLake'],maps={};
   for(const id of ids){

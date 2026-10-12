@@ -36,7 +36,9 @@
     "qa:forestry:dex": "node scripts/qa-tree-dex.mjs",
     "qa:forestry:durability": "node scripts/qa-forestry-durability.mjs",
     "qa:forestry:balance": "node scripts/simulate-forestry-balance.mjs",
-    "test": "npm run check && npm run build"
+    "test": "npm run check && npm run build",
+    "qa:growth": "node scripts/qa-life-skill-growth.mjs",
+    "qa:growth:browser": "node scripts/qa-life-skill-growth-browser.mjs"
   },
   "engines": {
     "node": ">=20"

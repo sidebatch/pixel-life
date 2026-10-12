@@ -30,73 +30,73 @@ const VILLAGE_RETURN_ITEM=Object.freeze({
   id:'village_return_charm',name:'귀환석',englishName:'Return Stone',icon:'🌀',price:100
 });
 
-// Provisional forestry balance. Upgrade recipes only use wood from trees
+// Approved per-tree XP: 7/8/9/10/11/12/15/16/17/18 by tier.
+// HP, prices and upgrade recipes remain provisional. Recipes only use wood from trees
 // reachable with the player's current axe, so progression cannot deadlock.
 const FORESTRY_TREES=Object.freeze({
-  paulownia:Object.freeze({tier:1,maxHp:100,xp:10,logPrice:12}),
-  oak:Object.freeze({tier:1,maxHp:100,xp:10,logPrice:12}),
-  pine:Object.freeze({tier:1,maxHp:100,xp:12,logPrice:14}),
-  birch:Object.freeze({tier:1,maxHp:100,xp:14,logPrice:16}),
-  cedar:Object.freeze({tier:1,maxHp:100,xp:16,logPrice:18}),
-  maple:Object.freeze({tier:2,maxHp:120,xp:25,logPrice:24}),
-  spruce:Object.freeze({tier:2,maxHp:120,xp:28,logPrice:27}),
-  willow:Object.freeze({tier:2,maxHp:120,xp:32,logPrice:30}),
-  ginkgo:Object.freeze({tier:2,maxHp:120,xp:25,logPrice:25}),
-  larch:Object.freeze({tier:2,maxHp:120,xp:29,logPrice:28}),
-  cherry:Object.freeze({tier:2,maxHp:120,xp:27,logPrice:26}),
-  cypress:Object.freeze({tier:3,maxHp:160,xp:55,logPrice:42}),
-  broadleaf:Object.freeze({tier:3,maxHp:160,xp:65,logPrice:48}),
-  chestnut:Object.freeze({tier:3,maxHp:160,xp:58,logPrice:43}),
-  walnut:Object.freeze({tier:3,maxHp:160,xp:62,logPrice:46}),
-  zelkova:Object.freeze({tier:3,maxHp:160,xp:68,logPrice:50}),
-  // Tier 4-10 values are functional placeholders. Final HP, XP and prices
+  paulownia:Object.freeze({tier:1,maxHp:100,xp:7,logPrice:12}),
+  oak:Object.freeze({tier:1,maxHp:100,xp:7,logPrice:12}),
+  pine:Object.freeze({tier:1,maxHp:100,xp:7,logPrice:14}),
+  birch:Object.freeze({tier:1,maxHp:100,xp:7,logPrice:16}),
+  cedar:Object.freeze({tier:1,maxHp:100,xp:7,logPrice:18}),
+  maple:Object.freeze({tier:2,maxHp:120,xp:8,logPrice:24}),
+  spruce:Object.freeze({tier:2,maxHp:120,xp:8,logPrice:27}),
+  willow:Object.freeze({tier:2,maxHp:120,xp:8,logPrice:30}),
+  ginkgo:Object.freeze({tier:2,maxHp:120,xp:8,logPrice:25}),
+  larch:Object.freeze({tier:2,maxHp:120,xp:8,logPrice:28}),
+  cherry:Object.freeze({tier:2,maxHp:120,xp:8,logPrice:26}),
+  cypress:Object.freeze({tier:3,maxHp:160,xp:9,logPrice:42}),
+  broadleaf:Object.freeze({tier:3,maxHp:160,xp:9,logPrice:48}),
+  chestnut:Object.freeze({tier:3,maxHp:160,xp:9,logPrice:43}),
+  walnut:Object.freeze({tier:3,maxHp:160,xp:9,logPrice:46}),
+  zelkova:Object.freeze({tier:3,maxHp:160,xp:9,logPrice:50}),
+  // Tier 4-10 HP and prices are functional placeholders. Final HP and prices
   // are intentionally deferred until every tree is spawned and testable.
-  ash:Object.freeze({tier:4,maxHp:260,xp:90,logPrice:75,provisionalBalance:true}),
-  teak:Object.freeze({tier:4,maxHp:260,xp:90,logPrice:75,provisionalBalance:true}),
-  mahogany:Object.freeze({tier:4,maxHp:260,xp:90,logPrice:75,provisionalBalance:true}),
-  mango:Object.freeze({tier:4,maxHp:260,xp:90,logPrice:75,provisionalBalance:true}),
-  baobab:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
-  sequoia:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
-  black_locust:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
-  hickory:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
-  eucalyptus:Object.freeze({tier:5,maxHp:400,xp:120,logPrice:105,provisionalBalance:true}),
-  olive:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
-  purpleheart:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
-  jatoba:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
-  spotted_gum:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
-  ironbark:Object.freeze({tier:6,maxHp:620,xp:155,logPrice:145,provisionalBalance:true}),
-  cumaru:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
-  ipe:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
-  quebracho:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
-  african_blackwood:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
-  lignum_vitae:Object.freeze({tier:7,maxHp:950,xp:190,logPrice:190,provisionalBalance:true}),
+  ash:Object.freeze({tier:4,maxHp:260,xp:10,logPrice:75,provisionalBalance:true}),
+  teak:Object.freeze({tier:4,maxHp:260,xp:10,logPrice:75,provisionalBalance:true}),
+  mahogany:Object.freeze({tier:4,maxHp:260,xp:10,logPrice:75,provisionalBalance:true}),
+  mango:Object.freeze({tier:4,maxHp:260,xp:10,logPrice:75,provisionalBalance:true}),
+  baobab:Object.freeze({tier:5,maxHp:400,xp:11,logPrice:105,provisionalBalance:true}),
+  sequoia:Object.freeze({tier:5,maxHp:400,xp:11,logPrice:105,provisionalBalance:true}),
+  black_locust:Object.freeze({tier:5,maxHp:400,xp:11,logPrice:105,provisionalBalance:true}),
+  hickory:Object.freeze({tier:5,maxHp:400,xp:11,logPrice:105,provisionalBalance:true}),
+  eucalyptus:Object.freeze({tier:5,maxHp:400,xp:11,logPrice:105,provisionalBalance:true}),
+  olive:Object.freeze({tier:6,maxHp:620,xp:12,logPrice:145,provisionalBalance:true}),
+  purpleheart:Object.freeze({tier:6,maxHp:620,xp:12,logPrice:145,provisionalBalance:true}),
+  jatoba:Object.freeze({tier:6,maxHp:620,xp:12,logPrice:145,provisionalBalance:true}),
+  spotted_gum:Object.freeze({tier:6,maxHp:620,xp:12,logPrice:145,provisionalBalance:true}),
+  ironbark:Object.freeze({tier:6,maxHp:620,xp:12,logPrice:145,provisionalBalance:true}),
+  cumaru:Object.freeze({tier:7,maxHp:950,xp:15,logPrice:190,provisionalBalance:true}),
+  ipe:Object.freeze({tier:7,maxHp:950,xp:15,logPrice:190,provisionalBalance:true}),
+  quebracho:Object.freeze({tier:7,maxHp:950,xp:15,logPrice:190,provisionalBalance:true}),
+  african_blackwood:Object.freeze({tier:7,maxHp:950,xp:15,logPrice:190,provisionalBalance:true}),
+  lignum_vitae:Object.freeze({tier:7,maxHp:950,xp:15,logPrice:190,provisionalBalance:true}),
   // Late-tier prices include durability repair costs and keep the newest
   // unlocked grove ahead of faster lower-tier trees at the two-second baseline.
-  ancient_zelkova:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
-  amber_cedar:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
-  silverbark:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
-  spiralwood:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
-  moonshade:Object.freeze({tier:8,maxHp:1450,xp:225,logPrice:285,provisionalBalance:true}),
-  spirit_ancient:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
-  starlight_tree:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
-  moonveil:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
-  crystal_leaf:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
-  whisperwood:Object.freeze({tier:9,maxHp:2100,xp:260,logPrice:340,provisionalBalance:true}),
-  origin_tree:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true}),
-  primal_ancient:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true}),
-  worldroot:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true}),
-  dawncore:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true}),
-  abysswood:Object.freeze({tier:10,maxHp:3000,xp:300,logPrice:400,provisionalBalance:true})
+  ancient_zelkova:Object.freeze({tier:8,maxHp:1450,xp:16,logPrice:285,provisionalBalance:true}),
+  amber_cedar:Object.freeze({tier:8,maxHp:1450,xp:16,logPrice:285,provisionalBalance:true}),
+  silverbark:Object.freeze({tier:8,maxHp:1450,xp:16,logPrice:285,provisionalBalance:true}),
+  spiralwood:Object.freeze({tier:8,maxHp:1450,xp:16,logPrice:285,provisionalBalance:true}),
+  moonshade:Object.freeze({tier:8,maxHp:1450,xp:16,logPrice:285,provisionalBalance:true}),
+  spirit_ancient:Object.freeze({tier:9,maxHp:2100,xp:17,logPrice:340,provisionalBalance:true}),
+  starlight_tree:Object.freeze({tier:9,maxHp:2100,xp:17,logPrice:340,provisionalBalance:true}),
+  moonveil:Object.freeze({tier:9,maxHp:2100,xp:17,logPrice:340,provisionalBalance:true}),
+  crystal_leaf:Object.freeze({tier:9,maxHp:2100,xp:17,logPrice:340,provisionalBalance:true}),
+  whisperwood:Object.freeze({tier:9,maxHp:2100,xp:17,logPrice:340,provisionalBalance:true}),
+  origin_tree:Object.freeze({tier:10,maxHp:3000,xp:18,logPrice:400,provisionalBalance:true}),
+  primal_ancient:Object.freeze({tier:10,maxHp:3000,xp:18,logPrice:400,provisionalBalance:true}),
+  worldroot:Object.freeze({tier:10,maxHp:3000,xp:18,logPrice:400,provisionalBalance:true}),
+  dawncore:Object.freeze({tier:10,maxHp:3000,xp:18,logPrice:400,provisionalBalance:true}),
+  abysswood:Object.freeze({tier:10,maxHp:3000,xp:18,logPrice:400,provisionalBalance:true})
 });
 const FORESTRY_LOG_DROP_TABLE=Object.freeze([0,1,2,3]);
 const FORESTRY_EXPECTED_LOGS_PER_TREE=FORESTRY_LOG_DROP_TABLE.reduce((sum,count)=>sum+count,0)/FORESTRY_LOG_DROP_TABLE.length;
-const FORESTRY_LOGGING_XP_RATE=.05;
 function rollForestryLogs(randomValue=Math.random()){
   const index=Math.max(0,Math.min(FORESTRY_LOG_DROP_TABLE.length-1,
     Math.floor(Number(randomValue)*FORESTRY_LOG_DROP_TABLE.length)));
   return FORESTRY_LOG_DROP_TABLE[index];
 }
-function forestryTreeXp(tree){return Math.max(1,Math.round((tree?.xp||0)*FORESTRY_LOGGING_XP_RATE));}
+function forestryTreeXp(tree){return Math.max(1,Math.floor(Number(tree?.xp)||0));}
 const FORESTRY_AXES=Object.freeze([
   Object.freeze({id:'axe.basic',name:'기본 도끼',tier:1,damage:20,asset:'basic',coins:0,maxDurability:null,repairCoins:0,materials:Object.freeze({})}),
   Object.freeze({id:'axe.iron',name:'철 도끼',tier:2,damage:50,asset:'iron',coins:3600,maxDurability:180,repairCoins:150,materials:Object.freeze({oak_log:60,pine_log:48,birch_log:36})}),

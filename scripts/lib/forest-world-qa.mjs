@@ -5,7 +5,7 @@ export const forestIds=['oldForest','deepForest','forestThree','forestFour','for
 export function forestWorldContext(){
   const context={console:{info(){},warn(){},error:console.error},Image:class{},document:{getElementById(id){return id==='game'?{width:540,height:960,getContext:()=>({})}:null;}}};
   vm.createContext(context);
-  const files=['src/assets.js','src/data/character-rig-data.js','src/data/sword-data.js','src/data/world-map.js','src/data/region-maps.js','src/data/fishing-habitat-data.js','src/fishing-spots.js','src/data/fishing-gear-data.js','src/data/life-content-data.js','src/config.js','src/world.js','src/world-validation.js'];
+  const files=['src/assets.js','src/data/character-rig-data.js','src/data/sword-data.js','src/data/world-map.js','src/data/region-maps.js','src/data/fishing-habitat-data.js','src/fishing-spots.js','src/data/fishing-gear-data.js','src/data/life-content-data.js','src/data/life-skill-data.js','src/config.js','src/world.js','src/world-validation.js'];
   vm.runInContext(files.map(file=>fs.readFileSync(file,'utf8')).join('\n'),context);
   return context;
 }

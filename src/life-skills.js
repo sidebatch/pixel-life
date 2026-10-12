@@ -1,13 +1,14 @@
-function lifeSkillXpForNextLevel(skillId,level){
+function lifeSkillXpForNextLevel(skillId,level,xpCurveVersion=LIFE_SKILL_XP_CURVE_VERSION){
   if(!LIFE_SKILLS[skillId]||level>=LIFE_SKILL_MAX_LEVEL) return null;
-  return LIFE_SKILL_XP_TABLE[Math.max(1,Math.floor(level))-1]||null;
+  const table=xpCurveVersion===1?LIFE_SKILL_LEGACY_XP_TABLE:LIFE_SKILL_XP_TABLE;
+  return table[Math.max(1,Math.floor(level))-1]||null;
 }
 
-function lifeSkillTotalXpForLevel(skillId,level){
+function lifeSkillTotalXpForLevel(skillId,level,xpCurveVersion=LIFE_SKILL_XP_CURVE_VERSION){
   if(!LIFE_SKILLS[skillId]) return 0;
   let total=0;
   for(let current=1;current<Math.min(LIFE_SKILL_MAX_LEVEL,Math.max(1,Math.floor(level)));current++){
-    total+=lifeSkillXpForNextLevel(skillId,current);
+    total+=lifeSkillXpForNextLevel(skillId,current,xpCurveVersion);
   }
   return total;
 }
@@ -16,12 +17,12 @@ function lifeSkillMasteryXpRequired(mastery){
   return LIFE_SKILL_MASTERY_BASE_XP+Math.max(0,Math.floor(mastery))*LIFE_SKILL_MASTERY_STEP_XP;
 }
 
-function lifeSkillProgressFromTotal(skillId,totalXp){
+function lifeSkillProgressFromTotal(skillId,totalXp,xpCurveVersion=LIFE_SKILL_XP_CURVE_VERSION){
   if(!LIFE_SKILLS[skillId]) return null;
   let remaining=Math.max(0,Math.floor(Number(totalXp)||0));
   let level=1;
   while(level<LIFE_SKILL_MAX_LEVEL){
-    const required=lifeSkillXpForNextLevel(skillId,level);
+    const required=lifeSkillXpForNextLevel(skillId,level,xpCurveVersion);
     if(remaining<required) break;
     remaining-=required;
     level++;
@@ -34,6 +35,7 @@ function lifeSkillProgressFromTotal(skillId,totalXp){
     }
   }
   return {
+    xpCurveVersion:xpCurveVersion===1?1:LIFE_SKILL_XP_CURVE_VERSION,
     level,
     xp:level>=LIFE_SKILL_MAX_LEVEL?0:remaining,
     mastery,

@@ -1,6 +1,5 @@
 const SAVE_CONFIG=Object.freeze({
-  // A fresh namespace starts every browser at Lv.1 and zero coins. Keep the
-  // previous key untouched so an accidental reset remains recoverable.
+  // Preserve the existing namespace; growth curves migrate per skill.
   key:'pixel-life.save.v2',
   version:2
 });
@@ -175,14 +174,38 @@ function normalizeSavedFishCollections(rawCollections){
   return collections;
 }
 
-function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
+function normalizeSavedLifeSkillProgress(skillId,rawProgress){
   const source=rawProgress&&typeof rawProgress==='object'?rawProgress:{};
   const savedLevel=saveClamp(Math.floor(saveFiniteNumber(source.level,1)),1,LIFE_SKILL_MAX_LEVEL);
   const savedXp=Math.max(0,Math.floor(saveFiniteNumber(source.xp,0)));
-  // Old Lv.20 saves kept earning totalXp even though the visible XP was reset.
-  const minimumTotal=lifeSkillTotalXpForLevel('fishing',savedLevel)+savedXp;
+  const sourceVersion=Number(source.xpCurveVersion)>=LIFE_SKILL_XP_CURVE_VERSION?LIFE_SKILL_XP_CURVE_VERSION:1;
+  const savedMastery=Math.max(0,Math.floor(saveFiniteNumber(source.mastery,0)));
+  const savedMasteryXp=Math.max(0,Math.floor(saveFiniteNumber(source.masteryXp,0)));
+  const masteryTotal=savedMastery*LIFE_SKILL_MASTERY_BASE_XP+
+    savedMastery*(savedMastery-1)/2*LIFE_SKILL_MASTERY_STEP_XP+savedMasteryXp;
+  const minimumTotal=lifeSkillTotalXpForLevel(skillId,savedLevel,sourceVersion)+
+    (savedLevel===LIFE_SKILL_MAX_LEVEL?masteryTotal:savedXp);
+  // Legacy Lv.20 caps kept earning totalXp. Decode that original total first.
   const totalXp=Math.max(minimumTotal,Math.floor(saveFiniteNumber(source.totalXp,minimumTotal)));
-  const progress=lifeSkillProgressFromTotal('fishing',totalXp);
+  const progress=lifeSkillProgressFromTotal(skillId,totalXp,sourceVersion);
+  if(sourceVersion===LIFE_SKILL_XP_CURVE_VERSION)return progress;
+  const currentBase=lifeSkillTotalXpForLevel(skillId,progress.level);
+  if(progress.level===LIFE_SKILL_MAX_LEVEL){
+    const earnedMastery=progress.mastery*LIFE_SKILL_MASTERY_BASE_XP+
+      progress.mastery*(progress.mastery-1)/2*LIFE_SKILL_MASTERY_STEP_XP+progress.masteryXp;
+    return lifeSkillProgressFromTotal(skillId,currentBase+earnedMastery);
+  }
+  const oldRequired=lifeSkillXpForNextLevel(skillId,progress.level,1);
+  const newRequired=lifeSkillXpForNextLevel(skillId,progress.level);
+  // Whole XP cannot retain every fraction exactly. Round upward so the
+  // visible bar never loses progress, but never grant a level on migration.
+  const migratedXp=Math.min(newRequired-1,Math.ceil(progress.xp*newRequired/oldRequired));
+  return lifeSkillProgressFromTotal(skillId,currentBase+migratedXp);
+}
+
+function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
+  const source=rawProgress&&typeof rawProgress==='object'?rawProgress:{};
+  const progress=normalizeSavedLifeSkillProgress('fishing',source);
   // Before shop purchases existed, every rod at or below the fishing level
   // was already usable. Keep those earned entitlements in legacy saves.
   const purchasedRodIds=Array.isArray(source.purchasedRodIds)?
@@ -209,12 +232,7 @@ function normalizeSavedFishingProgress(rawProgress,flags={},inventory=[]){
 }
 
 function normalizeSavedLoggingProgress(rawProgress){
-  const source=rawProgress&&typeof rawProgress==='object'?rawProgress:{};
-  const savedLevel=saveClamp(Math.floor(saveFiniteNumber(source.level,1)),1,LIFE_SKILL_MAX_LEVEL);
-  const savedXp=Math.max(0,Math.floor(saveFiniteNumber(source.xp,0)));
-  const minimumTotal=lifeSkillTotalXpForLevel('logging',savedLevel)+savedXp;
-  const totalXp=Math.max(minimumTotal,Math.floor(saveFiniteNumber(source.totalXp,minimumTotal)));
-  return lifeSkillProgressFromTotal('logging',totalXp);
+  return normalizeSavedLifeSkillProgress('logging',rawProgress);
 }
 
 function normalizeSavedForestryProgress(rawProgress){

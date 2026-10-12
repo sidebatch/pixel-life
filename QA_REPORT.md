@@ -609,3 +609,20 @@ git diff --check
 ```
 
 `main` 푸시 후 GitHub Actions의 `Deploy GitHub Pages` 성공과 공개 URL의 최신 빌드 응답까지 확인한다.
+
+
+## 2026-10-12 낚시·벌목 성장 v2 적용
+
+사용자 승인으로 완전 벌목 XP를 나무 단계별 7/8/9/10/11/12/15/16/17/18로 적용했다. 낚시 어종별 XP는 유지하고 공통 Lv.80 이후 요구량을 점차 늘려 Lv.100 누적 요구량을 187,230으로 조정했다. 저장 키/버전은 그대로이며 진행별 xpCurveVersion=2로 기존 레벨·바·숙련도를 한 번 환산 보존한다. 상세 현행 기준은 docs/LIFE_SKILL_GROWTH_BALANCE.md다.
+
+- 단위: scripts/qa-life-skill-growth.mjs — 1,356개 기존/현재 저장 이행, 모든 레벨 경계·숙련도, 50종 XP, 실제 저장/복원과 코인·장비·아이템 보존 통과.
+- 전체: scripts/check.mjs — 48 runtime scripts / 139 UI ids / 424 runtime assets / 74 fish. 낚시 기준선·1,200풀·24 장비 성장 경로·400 내구도 사례, 저장/거래/수리 롤백, 캐릭터/검 규격, 숲 2,565나무·다리·풍경 회귀 통과.
+- 빌드: dist/index.html 19,995,363 bytes, PWA 6f6f3804bca1.
+- 브라우저: output/life-skill-growth-qa/report.json — 393/320px, 0 목재에서도 실제 +7 XP/저장, Lv.85/99 바·Lv.100 숙련도·장비/코인/아이템 보존, 재접속 후 중복 이행 없음.
+- 후반 XP UI: 같은 브라우저 검사에서 실제 10단계 나무 +18 XP와 11,620 요구량 표시가 393/320px 카드 안에 들어오는 것을 확인했다.
+- 낚시 수리: output/growth-fishing-durability-qa/report.json — 393/320px, 기존 내구도 이행·취소 무소모·실패 재시도·마지막 획득/파손·부분 수리·운항 만료/귀항 통과.
+- 발견/XP UI: output/growth-discovery-qa/report.json — 나무/물고기 공통 XP 카드, 최초/반복 발견·확인·저장·모션 감소·레벨업 통과.
+- 벌목 수리: output/growth-forestry-durability-qa/report.json — 파손/부분 수리/빈손/귀환석/재접속 통과.
+- 숲 기준선: 기존 V1 보존, 12숲 지문과 모든 비-XP 경제 필드가 기존과 동일함을 확인해 승인된 XP만 V2 기준선에 반영.
+
+검사는 별도 브라우저 프로필을 사용했다. 실제 Android 손 조작·체감 시간은 측정하지 않았다. 이 항목은 배포 전 로컬 수정/빌드 검증이며, 이후 공개 배포 기록은 아래 항목에 별도로 남긴다. 기존 시뮬레이션 보고서의 코드 지문은 적용 전 역사이며 현행 검사 결과와 구분한다.

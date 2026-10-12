@@ -9,7 +9,7 @@
 - 카메라 크기: 540×960px
 - 좌표 원점: 좌상단 `(0, 0)`
 
-맵 크기는 `src/data/world-map.js`의 `width`, `height`, `tileSize`에서만 정의한다. 이동, 충돌과 카메라는 이 값을 자동으로 사용한다.
+맵 크기는 `src/data/world-map.js`와 `src/data/region-maps.js`의 지역별 `width`, `height`, `tileSize`에서 정의한다. 현재 육지 18/어선 4지역이고 이동·충돌·카메라는 활성 지역의 값을 사용한다. 숲 현재 연결은 [FOREST_ROUTES_V2.md](FOREST_ROUTES_V2.md), 전체 현재 상태는 [HANDOFF.md](HANDOFF.md)를 따른다.
 
 ## 데이터 레이어
 
@@ -30,6 +30,8 @@
 ### Bridge
 
 물 위의 수평 또는 수직 선분으로 정의한다. 해당 타일의 물과 충돌을 제거한다.
+
+2026-10-10 그림 정비 후에도 마을/호수/폭포/늪/항구의 기존 다리 48칸과 통행 폭은 그대로다. 널판 방향·물 쪽 낮은 보·짧은 기둥은 캐시된 시각 표현일 뿐 추가 충돌이 아니다. 연결부/땅 쪽 입구는 열고 어선 갑판은 별도 원화를 쓴다. [WOOD_BRIDGES_V1.md](WOOD_BRIDGES_V1.md)를 따른다.
 
 ### Solid object
 

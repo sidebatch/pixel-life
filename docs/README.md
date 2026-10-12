@@ -1,5 +1,7 @@
 # Pixel Life 문서 안내
 
+갱신: 2026-10-12. 현재 인수인계는 간소화했으며 과거 전체 기록은 [HANDOFF_HISTORY_2026_10_12.md](HANDOFF_HISTORY_2026_10_12.md)에 보존했다.
+
 새 개발 세션에서는 먼저 [`HANDOFF.md`](HANDOFF.md)를 읽는다. 이 문서는 현재 구현 범위, 최근 검증, 남은 작업, 변경하지 말아야 할 결정을 한곳에 정리한 단일 인수인계 기준이다. 날짜가 오래된 QA·설계 기록과 내용이 다르면 `HANDOFF.md`, 실제 데이터 파일, 최신 자동 검사를 우선한다.
 
 ## 새 세션 읽는 순서
@@ -25,6 +27,12 @@
 | 생활 성장 | [`LIFE_SKILL_PROGRESSION.md`](LIFE_SKILL_PROGRESSION.md) | Lv.1–100과 숙련도의 공통 원칙 |
 | 장기 콘텐츠 | [`LONG_TERM_CONTENT_DESIGN.md`](LONG_TERM_CONTENT_DESIGN.md) | 아직 구현하지 않은 장기 방향과 현재 구현의 경계 |
 | 월드·UI | [`02_WORLD_UI_AND_SYSTEM_STANDARD.md`](02_WORLD_UI_AND_SYSTEM_STANDARD.md) | 모바일 화면, 이동, 상호작용, UI 기준 |
+| 숲 현재 연결 | [`FOREST_ROUTES_V2.md`](FOREST_ROUTES_V2.md) | 남쪽 1-1~1-5/거목·일반 상위 분기·북쪽 판타지·팻말 |
+| 마을 그림/배치 | [`VILLAGE_POLISH_V1.md`](VILLAGE_POLISH_V1.md) | 8건물/9주민·크기/문/깊이와 기능 연결 후보 |
+| 설산·폭포·늪 | [`BIOME_SCENERY_V1.md`](BIOME_SCENERY_V1.md) | 현행 원화·기존 물리/낚시 보존·프롬프트/QA |
+| 나무 다리 | [`WOOD_BRIDGES_V1.md`](WOOD_BRIDGES_V1.md) | 48칸 보존·방향/연결부/보/기둥·원화/QA |
+| QA 보존 | [`QA_RETENTION.md`](QA_RETENTION.md) | 최신/직전/재현·휴지통 정리 안전 기준 |
+| 용량 현황 | [`PROJECT_STORAGE.md`](PROJECT_STORAGE.md) | 개발 폴더/실제 배포/원본·Git·테스트 구분 |
 | 맵 | [`MAP_FOUNDATION.md`](MAP_FOUNDATION.md) | 지역·타일·충돌·출입구 기준 |
 | 생활 에셋 | [`LIFE_ASSET_STANDARD.md`](LIFE_ASSET_STANDARD.md) | 나무·작물 등 픽셀 에셋 규격 |
 | 캐릭터 에셋 | [`CHARACTER_ASSET_STANDARD.md`](CHARACTER_ASSET_STANDARD.md) | 캐릭터 셀·발 기준·레이어·도구 규격 |
@@ -38,12 +46,12 @@
 - 숨기는 정보: 도끼 피해량, 단계 번호, 나무 HP, 출현 지역, 필요 도끼, 발견 힌트
 - 임시 밸런스: 나무 HP·XP·판매가, 도끼 피해·코인·목재 수량
 - 보류: 낮은 도끼의 상위 나무 도전은 넣지 않고 현행 최소 도끼 제한 유지
-- 다음 작업: Android 대표 구간에서 실제 이동·선택과 마을 수리 왕복 시간을 재고 최대 내구도 주기를 조정
+- 실기기 확인은 남았지만 사용자가 나중에 하기로 했다. 현재 확장을 막는 필수 선행 작업으로 삼거나 실측 없이 내구도 수치를 다시 조정하지 않는다.
 
-## 현재 낚시와 다음 개발 후보 (2026-10-09)
+## 현재 낚시와 다음 개발 후보 (2026-10-12)
 
 - 완료: 물고기 74종·10서식지·낚싯대 10종·승선권 4항로·표시 중 10분 운항·비반복 바다 연출·도감/졸업/꾸미기·마을 부분 수리·기존 저장 호환. 기본 낚싯대는 무한이며 유료 장비의 획득 마모는 내륙·해안 1 / 바다 6·8·10·12다.
-- 다음 개발 추천: 농사 스킬 분류/성장 설계 → 농사 도구·작물 도감/보상 → 요리 최소 루프. 직업 의상·주거·의뢰·전투는 별도 선택/장기 후보이며 승인 없이 구현하지 않는다.
+- 다음 개발 추천: 농사 독립 Farming/채집 포함을 사용자에게 확인(독립 농사는 assistant 추천이며 아직 확정되지 않음)/성장 설계 → 농사 도구·작물 도감/보상 → 요리 최소 루프. 직업 의상·주거·의뢰·전투는 별도 선택/장기 후보이며 승인 없이 구현하지 않는다.
 - 농사는 작물 10종·4×4 밭의 초기 4칸/개별 구매·심기·오프라인 성장·수확/판매/저장까지 있다. 농사 XP·낫·작물 도감은 아직 없다. 이미 있는 밭 구매를 새 기능으로 착각하지 않는다.
 - Android 체감과 설치 앱 비행기 모드 확인은 사용자 결정에 따라 나중에 한다. 상세 우선순위와 승인 경계는 [`HANDOFF.md`](HANDOFF.md)의 최신 `다음 작업 안내`를 따른다.
 
@@ -51,9 +59,12 @@
 
 ```bash
 git status --short
-git pull --ff-only origin main
+git fetch origin main
+git rev-list --left-right --count HEAD...origin/main
 node scripts/check.mjs
 node scripts/build.mjs
 ```
 
-벌목 전체를 이어서 작업할 때는 `HANDOFF.md`의 추가 QA 명령을 실행한다. `dist/`는 빌드 결과이므로 직접 편집하거나 커밋하지 않고, `output/`은 로컬 QA 결과 폴더이므로 문서나 소스 커밋에 섞지 않는다.
+로컬 변경/원격 차이를 확인하고 깨끗한 상태에서만 필요한 fast-forward를 한다. 강제 덮어쓰기를 하지 않는다.
+
+벌목 전체를 이어서 작업할 때는 `HANDOFF.md`의 추가 QA 명령을 실행한다. `dist/`는 빌드 결과이므로 직접 편집하거나 커밋하지 않고, `output/` 전체는 Git 제외다. [`QA_RETENTION.md`](QA_RETENTION.md)의 최신/직전/고정 보존 기준을 적용하고 새/정체불명 결과나 사용자 원화를 일괄 삭제하지 않는다.

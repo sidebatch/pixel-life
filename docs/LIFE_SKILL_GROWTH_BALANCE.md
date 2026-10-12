@@ -88,4 +88,4 @@ node scripts/qa-life-skill-growth-browser.mjs
 
 ## 공개 배포
 
-사용자 요청으로 2026-10-12 GitHub Pages 배포를 진행한다. 대상은 PWA `6f6f3804bca1`이며 완료 검증과 공개 URL은 [DEPLOYMENT.md](DEPLOYMENT.md)에 기록한다. 설치 앱은 종료 후 다시 열어 업데이트하고 기존 저장을 유지한다.
+2026-10-12 사용자 요청으로 공개 배포 완료했다. 게임 변경 커밋 `0891f6a`, PWA `6f6f3804bca1`, [배포 #38293464202](https://github.com/sidebatch/pixel-life/actions/runs/38293464202)의 build/deploy가 모두 성공했다. 공개 파일 8개가 로컬과 일치하며 실제 저장 이행/+7/+18/재접속/PWA 오프라인·음악 검사를 통과했다. 공개 게임과 세부 기록은 [DEPLOYMENT.md](DEPLOYMENT.md)에 있다. 설치 앱은 종료 후 다시 열어 업데이트하고 기존 저장을 유지한다.

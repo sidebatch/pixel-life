@@ -626,3 +626,14 @@ git diff --check
 - 숲 기준선: 기존 V1 보존, 12숲 지문과 모든 비-XP 경제 필드가 기존과 동일함을 확인해 승인된 XP만 V2 기준선에 반영.
 
 검사는 별도 브라우저 프로필을 사용했다. 실제 Android 손 조작·체감 시간은 측정하지 않았다. 이 항목은 배포 전 로컬 수정/빌드 검증이며, 이후 공개 배포 기록은 아래 항목에 별도로 남긴다. 기존 시뮬레이션 보고서의 코드 지문은 적용 전 역사이며 현행 검사 결과와 구분한다.
+
+
+## 2026-10-12 성장 v2 공개 배포 완료
+
+게임 변경 커밋 `0891f6ae328e14746fc6bbe6339ca819ab9d46ae`, GitHub Pages 배포 [#38293464202](https://github.com/sidebatch/pixel-life/actions/runs/38293464202)의 build/deploy 모두 성공했다. 공개 URL은 [https://sidebatch.github.io/pixel-life/](https://sidebatch.github.io/pixel-life/)다.
+
+- 공개 파일: output/deploy-growth-qa/public-files.json — dist 전체 8파일, 37,462,525 bytes, 로컬/공개 SHA-256 일치. 캐시 pixel-life-6f6f3804bca1.
+- 공개 성장/저장: output/deploy-growth-qa/growth-browser/report.json — 393/320px, 실제 완전 벌목 +7/+18, 11,620 후반 요구량 표시, Lv.85/99 바·Lv.100 숙련도 보존, 도구/아이템/코인 보존, 저장·재접속 후 중복 이행 없음.
+- 공개 PWA: output/deploy-growth-qa/pwa-public.json — HTTPS/서비스 워커 제어·새 캐시 7항목·설치 조건 오류 0·오프라인 재실행·음악 Range 206/100 bytes·업데이트 시 강제 재로딩/두 번째 준비 화면 없음.
+
+전용 브라우저 프로필로 확인했으며 실제 사용자 저장은 초기화하지 않았다. 설치 앱은 완전히 종료 후 다시 열면 새 배포를 사용할 수 있다. 실제 Android 손 조작/성능/설치 업데이트 체감은 기존 결정대로 별도 수동 항목이다. 문서 보강은 게임 파일을 변경하지 않으며 현재 게임 기준은 위 배포 커밋과 캐시다.

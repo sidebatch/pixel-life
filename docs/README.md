@@ -1,6 +1,6 @@
 # Pixel Life 문서 안내
 
-갱신: 2026-10-12. 현재 인수인계는 간소화했으며 과거 전체 기록은 [HANDOFF_HISTORY_2026_10_12.md](HANDOFF_HISTORY_2026_10_12.md)에 보존했다.
+갱신: 2026-10-12. 성장 균형 v2는 공개 배포 완료했으며 현재 수치/저장 이행은 [LIFE_SKILL_GROWTH_BALANCE.md](LIFE_SKILL_GROWTH_BALANCE.md), 배포 검증은 [DEPLOYMENT.md](DEPLOYMENT.md)에 있다. 현재 인수인계는 간소화했으며 과거 전체 기록은 [HANDOFF_HISTORY_2026_10_12.md](HANDOFF_HISTORY_2026_10_12.md)에 보존했다.
 
 새 개발 세션에서는 먼저 [`HANDOFF.md`](HANDOFF.md)를 읽는다. 이 문서는 현재 구현 범위, 최근 검증, 남은 작업, 변경하지 말아야 할 결정을 한곳에 정리한 단일 인수인계 기준이다. 날짜가 오래된 QA·설계 기록과 내용이 다르면 `HANDOFF.md`, 실제 데이터 파일, 최신 자동 검사를 우선한다.
 

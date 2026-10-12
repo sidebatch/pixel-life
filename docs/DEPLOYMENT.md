@@ -15,7 +15,17 @@
 
 ## 2026-10-12 성장 균형 v2 배포
 
-사용자 요청으로 벌목 XP 7/8/9/10/11/12/15/16/17/18, 공통 Lv.80 이후 요구량/187,230 XP, 기존 레벨·바·숙련도 보존 이행을 공개 게임에 배포한다. 검증된 배포 대상은 PWA `6f6f3804bca1`이다. 소스와 설계/QA/인수인계를 함께 올리고 Actions 성공 및 공개 HTML/서비스 워커·실제 저장 이행을 확인한다. 현재는 배포 검증 진행 중이며 완료 결과는 이 절과 `QA_REPORT.md`에 기록한다.
+사용자 요청으로 성장 균형 v2를 **공개 배포 완료**했다. 벌목 XP 7/8/9/10/11/12/15/16/17/18, 공통 Lv.80 이후 요구량/187,230 XP, 기존 레벨·바·숙련도 보존 이행이 적용됐다.
+
+- 공개 게임: [https://sidebatch.github.io/pixel-life/](https://sidebatch.github.io/pixel-life/)
+- 게임 변경 커밋: [`0891f6a`](https://github.com/sidebatch/pixel-life/commit/0891f6ae328e14746fc6bbe6339ca819ab9d46ae)
+- 성공한 배포: [Deploy GitHub Pages #38293464202](https://github.com/sidebatch/pixel-life/actions/runs/38293464202) — build/deploy 모두 success
+- 확인한 PWA 캐시: `pixel-life-6f6f3804bca1`
+- 공개 dist 전체 8파일/37,462,525 bytes가 로컬과 SHA-256까지 일치한다.
+- 공개 393/320px 브라우저에서 실제 +7/+18 XP, Lv.85/99 바와 Lv.100 숙련도 보존, 도구/아이템/코인 보존, 재접속 후 중복 이행 없음을 확인했다.
+- 공개 PWA의 설치 조건·캐시·오프라인 실행·음악 Range(206/100 bytes)·업데이트 시 강제 재로딩 없음 검사를 통과했다.
+
+세부 검증은 `output/deploy-growth-qa/{public-files.json,pwa-public.json,growth-browser/report.json}`과 `QA_REPORT.md`에 기록했다. 실제 Android 손 조작·설치 앱 업데이트 체감은 별도 수동 항목이다.
 
 설치 앱은 완전히 종료 후 다시 열어 새 캐시를 사용한다. 성장 이행 때문에 저장을 삭제하거나 앱을 재설치할 필요는 없다.
 

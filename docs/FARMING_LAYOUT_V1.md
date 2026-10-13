@@ -1,5 +1,7 @@
 # 지정 농장 부지·통로·기본 낫 v1
 
+2026-10-13 사용자 요청으로 기본 낫 그림 v2 공개 배포 완료. 남녀 캐릭터에 새 곡선 날/짧은 손잡이를 적용했다. 게임 변경 커밋 `6d15ab0`, PWA `0062d37f3da2`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38350941915). 공개 파일·남녀 24프레임·393/320px 농장/저장·PWA 오프라인/음악 검증을 통과했다. 설치 앱은 완전히 종료 후 다시 열며 저장을 삭제하지 않는다.
+
 2026-10-13 사용자 요청으로 농장 정비 v1 공개 배포 완료. 게임 변경 커밋 `12e5a7d`, PWA `568667fe105c`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38346705185). 공개 8파일 일치·393/320px 밭 상시 이동 차단/낫 수확/저장 보존·PWA 오프라인 실행/음악을 확인했다. 설치 앱은 완전히 종료 후 다시 열며 저장을 삭제하지 않는다.
 
 2026-10-13 구현·공개 배포 완료. 사용자 결정: 지정 부지 구매, 게임에 맞는 밭 그림, 밭 한 줄과 이동 통로 반복, 밭 자체의 상시 이동 차단, 기본 제공 낫 수확, 씨앗 상점의 수확 수량 설명 제거. 공개 배포된 성장 v2와 구분한다. 이번 농장 변경은 공개 배포 완료했다.
@@ -25,7 +27,7 @@
 
 ## 낫 그림·모션 규격
 
-- 공개 v1 그림은 `assets/player/sickle-v1/basic.png`다. 사용자 피드백으로 로컬은 `assets/player/sickle-v2/basic.png`의 짧은 손잡이/긴 곡선 날을 사용한다. grip=(19,62), tip=(43,21), bladeTip=(86,55), 제작/패킹/검증은 [SICKLE_ART_V2.md](SICKLE_ART_V2.md)를 따른다. v2 그림은 사용자 요청으로 공개 배포·검증 중이다.
+- 초기 v1 그림은 `assets/player/sickle-v1/basic.png`다. 사용자 피드백으로 현행은 `assets/player/sickle-v2/basic.png`의 짧은 손잡이/긴 곡선 날을 사용한다. grip=(19,62), tip=(43,21), bladeTip=(86,55), 제작/패킹/검증은 [SICKLE_ART_V2.md](SICKLE_ART_V2.md)를 따른다. v2 그림도 사용자 요청으로 공개 배포 완료했다.
 - 독립 `src/data/farming-data.js`의 SICKLE_ACTION/SICKLE_TOOLS를 사용한다. 기존 chop Body/Grip과 머리 이동을 공유하며 낫의 각도·표시 길이만 별도 등록한다. 몸·손 좌표·옷·기존 도끼/낚싯대/검 원화와 데이터는 변경하지 않는다.
 - 현행 캐릭터 보호 계약은 `character-standard-v5.json`이다. v4 계약은 역사로 보존한다. 확장은 낫 도구와 동작군이며 기존 도구 검사·검 전용 보호 검사를 계속 수행한다.
 

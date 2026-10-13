@@ -9,7 +9,8 @@ const browser=await chromium.launch({headless:true,executablePath:process.env.PI
 try{
   const context=await browser.newContext({viewport:{width:800,height:1100}}),page=await context.newPage();
   const errors=[];page.on('pageerror',e=>errors.push(e.message));
-  await page.goto(process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4186/');
+  // Art readiness is the startup screen; streaming music may finish later.
+  await page.goto(process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4186/',{waitUntil:'domcontentloaded',timeout:60000});
   await page.waitForFunction(()=>typeof SICKLE_TOOLS!=='undefined'&&!document.getElementById('startupLoading'));
   const report=await page.evaluate(()=>{
     drawWorld=()=>{};const canvas=document.getElementById('game');canvas.width=576;canvas.height=1120;

@@ -13,7 +13,7 @@ try{
     const context=await browser.newContext({viewport:{width,height:width===393?780:568},isMobile:true,hasTouch:true});
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
     page.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
-    await page.goto(base);await page.waitForFunction(()=>typeof FARM_SICKLE!=='undefined'&&!document.getElementById('startupLoading'));
+    await page.goto(base,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>typeof FARM_SICKLE!=='undefined'&&!document.getElementById('startupLoading'));
     const layout=await page.evaluate(()=>{
       enterWorldRegion({to:'sunnyFields',entry:{x:16,y:23,face:'left'}});
       const plots=WORLD_DEFINITION.farmPlots;
@@ -104,7 +104,7 @@ try{
     await page.waitForFunction(()=>!document.getElementById('lifeToast').classList.contains('show'));
     await page.screenshot({path:path.join(out,`farm-${width}.png`)});
     const stored=await page.evaluate(()=>JSON.parse(JSON.stringify(GAME_STATE.world.plots)));
-    await page.reload();await page.waitForFunction(()=>!document.getElementById('startupLoading'));
+    await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
     assert.deepEqual(await page.evaluate(()=>JSON.parse(JSON.stringify(GAME_STATE.world.plots))),stored);
     assert.equal(await page.evaluate(()=>GAME_STATE.appearance.activeTool),'sickle');
     await page.evaluate(()=>{openMarket();marketState.view='seeds';renderMarket();});
@@ -131,7 +131,7 @@ try{
       delete data.state.appearance.sickleId;
       window.removeEventListener('pagehide',saveGame);localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(data));return expected;
     });
-    await page.reload();await page.waitForFunction(()=>!document.getElementById('startupLoading'));
+    await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
     assert.deepEqual(await page.evaluate(()=>JSON.parse(JSON.stringify(GAME_STATE.world.plots))),old);
     assert(await page.evaluate(()=>!isBlocked(player.x,player.y)),'Legacy saved position spawned inside a mature crop');
     await page.evaluate(()=>{openInventory();inventoryState.tab='equipment';renderInventory();});
@@ -146,7 +146,7 @@ try{
         window.removeEventListener('pagehide',saveGame);localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(data));
         return data.state.world.plots;
       },phase);
-      await page.reload();await page.waitForFunction(()=>!document.getElementById('startupLoading'));
+      await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
       assert(await page.evaluate(()=>!isBlocked(player.x,player.y)),`${phase} old position spawned on a bed`);
       assert.deepEqual(await page.evaluate(()=>JSON.parse(JSON.stringify(GAME_STATE.world.plots))),expected);
     }

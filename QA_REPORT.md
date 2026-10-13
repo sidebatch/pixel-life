@@ -1,10 +1,12 @@
 # Pixel Life 종합 QA 보고서
 
-## 2026-10-13 기본 낫 그림 v2 로컬 수정
+2026-10-13 사용자 요청으로 기본 낫 그림 v2 공개 배포 완료. 남녀 캐릭터에 새 곡선 날/짧은 손잡이를 적용했다. 게임 변경 커밋 `6d15ab0`, PWA `0062d37f3da2`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38350941915). 공개 파일·남녀 24프레임·393/320px 농장/저장·PWA 오프라인/음악 검증을 통과했다. 설치 앱은 완전히 종료 후 다시 열며 저장을 삭제하지 않는다.
+
+## 2026-10-13 기본 낫 그림 v2 공개 배포
 
 - 사용자 피드백으로 짧은 나무손잡이/긴 곡선 날로 교체했다. 생성 원본/정확한 프롬프트/96px 패킹과 실제 grip/축/날 끝은 [docs/SICKLE_ART_V2.md](docs/SICKLE_ART_V2.md)에 기록했다. 기존 캐릭터·손·모션·도구와 저장 ID를 유지한다.
 - 실제 PNG/손잡이와 농장 단위 검사, 캐릭터 v5/검 보호 검사, 빌드 통과. 남녀·4방향·휴대/준비/수확 24프레임을 직접 비교했고, 393/320px 농장 브라우저에서 장착/수확/저장·720조합도 통과했다.
-- 결과: `output/sickle-art-qa/{before,after}/contact-sheet.png`, `output/sickle-art-qa/gameplay/report.json` 및 farm PNG. 로컬 빌드는 20,006,014 bytes/PWA `0062d37f3da2`이며 사용자 요청으로 공개 배포·검증 중이다. 아래 공개 농장 v1 기록은 보존한다.
+- 결과: `output/sickle-art-qa/{before,after}/contact-sheet.png`, `output/sickle-art-qa/gameplay/report.json` 및 farm PNG. 로컬 빌드는 20,006,014 bytes/PWA `0062d37f3da2`이며 공개 배포·검증도 완료했다. 아래 공개 농장 v1 기록은 보존한다.
 
 2026-10-13 사용자 요청으로 농장 정비 v1 공개 배포 완료. 게임 변경 커밋 `12e5a7d`, PWA `568667fe105c`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38346705185). 공개 8파일 일치·393/320px 밭 상시 이동 차단/낫 수확/저장 보존·PWA 오프라인 실행/음악을 확인했다. 설치 앱은 완전히 종료 후 다시 열며 저장을 삭제하지 않는다.
 

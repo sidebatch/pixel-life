@@ -1,6 +1,8 @@
 # 기본 낫 그림 v2
 
-2026-10-13 사용자 피드백: 공개 게임의 기본 낫 모양이 어색함. v1의 긴 손잡이/작은 둥근 날을 짧은 나무손잡이와 길고 뾰족하게 휘어진 철제 날로 교체했다. 사용자 요청으로 공개 배포·검증을 진행 중이다.
+2026-10-13 사용자 요청으로 기본 낫 그림 v2 공개 배포 완료. 남녀 캐릭터에 새 곡선 날/짧은 손잡이를 적용했다. 게임 변경 커밋 `6d15ab0`, PWA `0062d37f3da2`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38350941915). 공개 파일·남녀 24프레임·393/320px 농장/저장·PWA 오프라인/음악 검증을 통과했다. 설치 앱은 완전히 종료 후 다시 열며 저장을 삭제하지 않는다.
+
+2026-10-13 사용자 피드백: 공개 게임의 기본 낫 모양이 어색함. v1의 긴 손잡이/작은 둥근 날을 짧은 나무손잡이와 길고 뾰족하게 휘어진 철제 날로 교체했다. 사용자 요청으로 공개 배포 완료했다.
 
 ## 제작·등록
 
@@ -17,4 +19,4 @@
 - `node scripts/check-character-standard.mjs`, `node scripts/check-sword-standard.mjs`: 고정 공통 규격/기존 그림·도구/검 보호 통과.
 - `scripts/qa-sickle-art-browser.mjs`: 격리된 저장에서 실제 그림을 합성해 남녀·4방향·휴대/준비/수확 24프레임을 렌더링했다. `output/sickle-art-qa/{before,after}/contact-sheet.png`와 report.json을 확인한다.
 - `scripts/qa-farming-layout-browser.mjs`: 393/320px에서 장착/수확/저장/충돌·720 외형/동작 조합을 검사한다. 결과는 `output/sickle-art-qa/gameplay/`다.
-- 최종 빌드: 20,006,014 bytes, PWA `0062d37f3da2`. 공개 배포는 농장 v1 `568667fe105c`까지이며 본 낫 교체는 사용자 요청으로 공개 배포·검증 중이다.
+- 최종 빌드: 20,006,014 bytes, PWA `0062d37f3da2`. 공개 빌드도 `0062d37f3da2`이며 직전 농장 v1 빌드는 `568667fe105c`다.

@@ -76,8 +76,10 @@ function showSkillLevelUp(skillId,level,mastery,currentReward){
   close.addEventListener('click',()=>dismissSkillLevelUp());
   const icon=document.createElement('span');icon.textContent=skill.icon;
   const title=document.createElement('b');title.textContent=mastery===null?`${skill.name} Lv.${level}!`:`${skill.name} 숙련도 ${mastery}!`;
-  const reward=document.createElement('p');reward.textContent=currentReward||'실력이 늘었어요!';
-  overlay.append(close,icon,title,reward);
+  overlay.append(close,icon,title);
+  if(currentReward){
+    const reward=document.createElement('p');reward.textContent=currentReward;overlay.append(reward);
+  }
   overlay.classList.add('show');
   overlay.setAttribute('aria-hidden','false');
   overlay.removeAttribute('inert');
@@ -117,7 +119,7 @@ async function showSkillXpFeedback(skillId,before,after,gained,currentReward='')
       setSkillCardProgress(skillId,{level,xp:lifeSkillXpForNextLevel(skillId,level),mastery:0,masteryXp:0});
       await skillFeedbackPause(420);
       if(token!==skillFeedbackState.token) return;
-      const nextLevel=level+1;
+      const nextLevel=step===animatedLevels-1&&levelCount>animatedLevels?after.level:level+1;
       showSkillLevelUp(skillId,nextLevel,null,step===animatedLevels-1?currentReward:'');
       setSkillCardProgress(skillId,{level:nextLevel,xp:0,mastery:0,masteryXp:0},true);
       await skillFeedbackPause(180);

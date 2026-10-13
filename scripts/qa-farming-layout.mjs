@@ -7,10 +7,11 @@ import {validateTool} from './check-character-standard.mjs';
 const context=forestWorldContext();context.performance={now:()=>0};
 context.document=undefined;
 vm.runInContext(fs.readFileSync('src/data/farming-data.js','utf8')+'\n'+
+  fs.readFileSync('src/life-skills.js','utf8')+'\n'+
   "GAME_STATE.regionId='sunnyFields';buildWorldRegion(REGION_WORLDS.sunnyFields);\n"+
   fs.readFileSync('src/simulation.js','utf8')+'\n'+fs.readFileSync('src/life-content.js','utf8'),context);
 assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(LIFE_CONTENT.crops.map(farmCropSubject))',context)),
-  ['당근이','순무가','감자가','양파가','양배추가','밀이','옥수수가','토마토가','딸기가','호박이']);
+  ['당근이','비트가','상추가','감자가','양파가','양배추가','밀이','옥수수가','오이가','토마토가','가지가','딸기가','호박이','고추가']);
 const tool=JSON.parse(vm.runInContext("JSON.stringify(SICKLE_TOOLS['sickle.basic'])",context));
 const imagePath=vm.runInContext("SICKLE_TOOL_URLS['sickle.basic']",context);
 const image=decodePNG(fs.readFileSync(imagePath));validateTool(image,tool,'sickle.basic');
@@ -19,6 +20,8 @@ assert(image.data[(tool.tip[1]*96+tool.tip[0])*4+3]>0,'Tip must sit on the real 
 context.document={getElementById:()=>({classList:{add(){},remove(){}}})};
 context.setTimeout=()=>0;context.clearTimeout=()=>{};context.saveGame=()=>true;
 context.clearMovement=()=>{};
+context.showSkillXpFeedback=()=>{};
+context.skillCardMarkup=()=>'<div></div>';
 const result=JSON.parse(vm.runInContext(`JSON.stringify((()=>{
   const plots=WORLD_DEFINITION.farmPlots;
   const ids=plots.map(p=>p.id),initial=plots.filter(p=>getFarmPlotState(p).unlocked).map(p=>p.id);
@@ -27,7 +30,7 @@ const result=JSON.parse(vm.runInContext(`JSON.stringify((()=>{
   const growingSolid=plots.every(p=>isBlocked(p.x,p.y));
   const times=[];
   for(let i=0;i<plots.length;i++){
-    const crop=LIFE_CONTENT.crops[i%10],plot=plots[i];
+    const crop=LIFE_CONTENT.crops[i%LIFE_CONTENT.crops.length],plot=plots[i];
     GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:crop.id,plantedAt:Date.now()-crop.growMs-1};
     times.push(GAME_STATE.world.plots[plot.id].plantedAt);
   }
@@ -57,4 +60,4 @@ assert.deepEqual(result.ids,Array.from({length:16},(_,i)=>`farm_${String(i+1).pa
 assert.deepEqual(result.initial,['farm_01','farm_02','farm_05','farm_06']);
 assert(result.emptyAndLockedSolid&&result.growingSolid&&result.accessible&&result.solid&&result.preserved&&!result.wrongTool&&!result.farAway&&!result.outsideFarm);
 assert(result.harvested.every(Boolean));
-console.log('Farm layout passed: old IDs/ownership/time, beds blocked before purchase/planting/during growth/after harvest, accessible lanes, adjacent sickle harvest, ten yields, single grant and real tool anchors');
+console.log('Farm layout passed: old IDs/ownership/time, beds blocked before purchase/planting/during growth/after harvest, accessible lanes, adjacent sickle harvest, fourteen yields, single grant and real tool anchors');

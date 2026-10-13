@@ -1,0 +1,35 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-10-13",
+  "references": [
+    "assets/farming/mature/tomato.png",
+    "assets/farming/young/tomato.png",
+    "assets/farming/seeds/tomato.png"
+  ],
+  "crops": [
+    {
+      "id": "lettuce",
+      "name": "상추",
+      "subject": "green leaf lettuce; young small rosette; mature lush compact leafy lettuce rosette; harvested loose lettuce head",
+      "prompt": "Use case: stylized-concept. Asset type: one four-frame transparent pixel-art crop sprite sheet for Pixel Life game. Input images are style references only: existing mature tomato, young tomato, seed sack. New subject: green leaf lettuce; young small rosette; mature lush compact leafy lettuce rosette; harvested loose lettuce head. Draw exactly a 2x2 equal square cell grid, FOUR isolated sprites. Top-left: tan tied seed sack with simple recognizable crop emblem and a few seeds. Top-right: young plant, green foliage only, tiny brown earth patch at base. Bottom-left: mature rooted crop plant in a tiny brown soil patch, appropriate vegetables visible. Bottom-right: harvested vegetable inventory icon, no soil. Each sprite entirely inside its cell, centered, at least 15% transparent padding. Match references' charming detailed pixel-art, dark brown outlines, warm limited palette, hard square pixels and same slightly overhead frontal perspective. Compact foliage fits one garden bed; no trellis, stakes, pot or background. Transparency between all cells and outside sprites; no visible grid lines, no labels, no text, no numbers, no watermark. Clear recognizable forms at 48px."
+    },
+    {
+      "id": "cucumber",
+      "name": "오이",
+      "subject": "green cucumber; young small vine with broad leaves; mature compact cucumber vine with 3 visible elongated green cucumbers; harvested pair of elongated green cucumbers",
+      "prompt": "Use case: stylized-concept. Asset type: one four-frame transparent pixel-art crop sprite sheet for Pixel Life game. Input images are style references only: existing mature tomato, young tomato, seed sack. New subject: green cucumber; young small vine with broad leaves; mature compact cucumber vine with 3 visible elongated green cucumbers; harvested pair of elongated green cucumbers. Draw exactly a 2x2 equal square cell grid, FOUR isolated sprites. Top-left: tan tied seed sack with simple recognizable crop emblem and a few seeds. Top-right: young plant, green foliage only, tiny brown earth patch at base. Bottom-left: mature rooted crop plant in a tiny brown soil patch, appropriate vegetables visible. Bottom-right: harvested vegetable inventory icon, no soil. Each sprite entirely inside its cell, centered, at least 15% transparent padding. Match references' charming detailed pixel-art, dark brown outlines, warm limited palette, hard square pixels and same slightly overhead frontal perspective. Compact foliage fits one garden bed; no trellis, stakes, pot or background. Transparency between all cells and outside sprites; no visible grid lines, no labels, no text, no numbers, no watermark. Clear recognizable forms at 48px."
+    },
+    {
+      "id": "eggplant",
+      "name": "가지",
+      "subject": "purple eggplant; young upright small plant; mature compact leafy plant with 3 hanging purple eggplants and green calyxes; harvested pair of purple eggplants",
+      "prompt": "Use case: stylized-concept. Asset type: one four-frame transparent pixel-art crop sprite sheet for Pixel Life game. Input images are style references only: existing mature tomato, young tomato, seed sack. New subject: purple eggplant; young upright small plant; mature compact leafy plant with 3 hanging purple eggplants and green calyxes; harvested pair of purple eggplants. Draw exactly a 2x2 equal square cell grid, FOUR isolated sprites. Top-left: tan tied seed sack with simple recognizable crop emblem and a few seeds. Top-right: young plant, green foliage only, tiny brown earth patch at base. Bottom-left: mature rooted crop plant in a tiny brown soil patch, appropriate vegetables visible. Bottom-right: harvested vegetable inventory icon, no soil. Each sprite entirely inside its cell, centered, at least 15% transparent padding. Match references' charming detailed pixel-art, dark brown outlines, warm limited palette, hard square pixels and same slightly overhead frontal perspective. Compact foliage fits one garden bed; no trellis, stakes, pot or background. Transparency between all cells and outside sprites; no visible grid lines, no labels, no text, no numbers, no watermark. Clear recognizable forms at 48px."
+    },
+    {
+      "id": "chili",
+      "name": "고추",
+      "subject": "red chili pepper; young upright small plant; mature compact leafy bush with several narrow curved red chili peppers; harvested three narrow curved red chili peppers",
+      "prompt": "Use case: stylized-concept. Asset type: one four-frame transparent pixel-art crop sprite sheet for Pixel Life game. Input images are style references only: existing mature tomato, young tomato, seed sack. New subject: red chili pepper; young upright small plant; mature compact leafy bush with several narrow curved red chili peppers; harvested three narrow curved red chili peppers. Draw exactly a 2x2 equal square cell grid, FOUR isolated sprites. Top-left: tan tied seed sack with simple recognizable crop emblem and a few seeds. Top-right: young plant, green foliage only, tiny brown earth patch at base. Bottom-left: mature rooted crop plant in a tiny brown soil patch, appropriate vegetables visible. Bottom-right: harvested vegetable inventory icon, no soil. Each sprite entirely inside its cell, centered, at least 15% transparent padding. Match references' charming detailed pixel-art, dark brown outlines, warm limited palette, hard square pixels and same slightly overhead frontal perspective. Compact foliage fits one garden bed; no trellis, stakes, pot or background. Transparency between all cells and outside sprites; no visible grid lines, no labels, no text, no numbers, no watermark. Clear recognizable forms at 48px."
+    }
+  ]
+}

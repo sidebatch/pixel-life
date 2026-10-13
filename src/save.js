@@ -311,6 +311,7 @@ function createSaveData(){
         flags:GAME_STATE.progression.flags,
         fishing:GAME_STATE.progression.fishing,
         logging:GAME_STATE.progression.logging,
+        farming:GAME_STATE.progression.farming,
         forestry:GAME_STATE.progression.forestry,
         swords:GAME_STATE.progression.swords,
         voyage:GAME_STATE.progression.voyage
@@ -342,6 +343,7 @@ function applySaveData(saveData){
     GAME_STATE.inventory
   );
   GAME_STATE.progression.logging=normalizeSavedLoggingProgress(savedState.progression?.logging);
+  GAME_STATE.progression.farming=normalizeSavedLifeSkillProgress('farming',savedState.progression?.farming);
   const savedRod=FISHING_ROD_BY_ID.get(GAME_STATE.progression.fishing.equippedRodId);
   if(GAME_STATE.appearance.activeTool==='rod'&&savedRod?.maxDurability&&
     GAME_STATE.progression.fishing.durabilityByRodId[savedRod.id]===0)GAME_STATE.appearance.activeTool='none';

@@ -159,6 +159,7 @@ function commitLifeChange(change){
   const beforeTreeMilestones=JSON.parse(JSON.stringify(GAME_STATE.collections?.treeMilestones||{unlockedIds:[],revealedIds:[]}));
   const beforeCoins=GAME_STATE.progression.coins;
   const beforeLogging=GAME_STATE.progression.logging?{...GAME_STATE.progression.logging}:null;
+  const beforeFarming=GAME_STATE.progression.farming?{...GAME_STATE.progression.farming}:null;
   const beforeForestry=GAME_STATE.progression.forestry?JSON.parse(JSON.stringify(GAME_STATE.progression.forestry)):null;
   const beforeAppearance=GAME_STATE.appearance?{...GAME_STATE.appearance}:null;
   const result=change();
@@ -169,6 +170,7 @@ function commitLifeChange(change){
   GAME_STATE.collections.treeMilestones=beforeTreeMilestones;
   GAME_STATE.progression.coins=beforeCoins;
   if(beforeLogging) GAME_STATE.progression.logging=beforeLogging;
+  if(beforeFarming) GAME_STATE.progression.farming=beforeFarming;
   if(beforeForestry) GAME_STATE.progression.forestry=beforeForestry;
   if(beforeAppearance) GAME_STATE.appearance=beforeAppearance;
   return null;
@@ -389,13 +391,16 @@ function harvestFarmCrop(plot){
   const state=getFarmPlotState(plot),crop=LIFE_CROP_BY_ID.get(state.cropId);
   if(!crop) return false;
   const quantity=crop.harvestMin+Math.floor(Math.random()*(crop.harvestMax-crop.harvestMin+1));
+  const gainedXp=farmingCropXp(crop),progressBefore=lifeSkillProgressSnapshot('farming');
   const success=commitLifeChange(()=>{
     addLifeItem('crop',crop.id,quantity);
     GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:null,plantedAt:null};
+    grantLifeSkillXp('farming',gainedXp);
     return true;
   });
   if(!success){showLifeToast('저장하지 못했어요');return false;}
-  showLifeToast(`+${quantity} ${crop.name}`);
+  showLifeToast(`+${quantity} ${crop.name}`,{belowSkill:true});
+  showSkillXpFeedback('farming',progressBefore,lifeSkillProgressSnapshot('farming'),gainedXp);
   renderLifePanel();return true;
 }
 
@@ -422,6 +427,7 @@ function renderLifePanel(){
   if(!plot) return;
   const state=getFarmPlotState(plot),phase=getFarmPlotPhase(plot),crop=LIFE_CROP_BY_ID.get(state.cropId);
   lifeUi.phase=phase;
+  document.getElementById('farmSkillCard').innerHTML=skillCardMarkup('farming');
   document.getElementById('lifeTitle').textContent=crop?crop.name:phase==='LOCKED'?'부지 구매':'씨앗 심기';
   const info=document.getElementById('lifeInfo'),actions=document.getElementById('lifeActions');
   if(phase==='LOCKED'){
@@ -434,7 +440,7 @@ function renderLifePanel(){
     actions.innerHTML=LIFE_CONTENT.crops.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}" ${lifeItemCount('seed',item.id)?'':'disabled'}>${lifeItemIconMarkup('seed',item.id,item.icon)} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');
   }else if(phase==='GROWING'){
     const remaining=Math.max(0,crop.growMs-(Date.now()-state.plantedAt));
-    info.textContent=`${farmCropSubject(crop)} 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요. 게임을 꺼도 자라요.`;
+    info.textContent=`${farmCropSubject(crop)} 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요.`;
     actions.innerHTML='';
   }else{
     const equipped=GAME_STATE.appearance?.activeTool==='sickle';

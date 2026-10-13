@@ -1,16 +1,16 @@
 # Pixel Life — Life Skill Progression System v1.0
 
-2026-10-13 농장 정비 v1: 지정 부지/통로/밭 상시 충돌/기본 제공 낫은 공개 배포됐다. 농사 XP/레벨/상위 낫/작물 도감은 미구현이며 Farming 독립 여부도 아직 결정 전이다. 상세는 [FARMING_LAYOUT_V1.md](FARMING_LAYOUT_V1.md)를 따른다.
+2026-10-13 최신: 사용자 요청으로 농사 독립 Farming Lv.1–100/숙련도·수확 XP/진행률/저장 호환을 로컬 구현했다. 현재 계약은 [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md), 가격/14종은 FARMING_CROPS_BALANCE_V1.md다. 후속 확장과 농사 레벨은 아직 공개 배포하지 않았다. 농장 배치/기본 낫은 기존 공개 FARMING_LAYOUT_V1 기준을 유지한다.
 ## 다른 세션/Work 인수인계 문서
 
 2026-10-12 적용: [LIFE_SKILL_GROWTH_BALANCE.md](LIFE_SKILL_GROWTH_BALANCE.md)의 성장 v2가 현행 수치/저장 기준이다. 완전 벌목 XP 7~18, Lv.80 이후 공통 요구량 증가, Lv.100 누적 187,230 XP와 기존 레벨·바·숙련도 보존을 적용했다. 아래 예시 XP/요구량은 현행 수치표로 사용하지 않는다.
 
-2026-10-13 현재 승인 경계: 낚시·벌목 독립 성장/공통 UI는 구현됐다. 농사는 작물 10종의 심기·성장·수확/판매·저장에 농장 정비와 기본 낫이 추가됐으며 XP/레벨/상위 낫/작물 도감은 없다. Farming 독립 vs Gathering 포함은 아직 사용자 결정 전이며 독립 농사는 assistant 추천일 뿐 확정안이 아니다. 다음 세션은 [HANDOFF.md](HANDOFF.md)의 다음 작업 순서를 먼저 확인한다.
+2026-10-13 현재 승인 경계: 낚시·벌목과 독립 농사 성장/공통 UI는 구현됐다. 농사 14종의 수확 XP/레벨/숙련도와 기존 저장/재배를 연결했다. 상위 낫/작물 도감/레벨별 보상/요리는 후속 범위다. 다음 세션은 [HANDOFF.md](HANDOFF.md)를 먼저 확인한다.
 
 이 문서는 Pixel Life 오픈월드 게임의 생활 스킬 성장 시스템 확정안이다.
 이후 구현 및 UI 작업은 아래 원칙을 기준으로 진행한다.
 
-후속 장기 콘텐츠 방향(도끼·낚싯대·검·향후 낫의 각 10단계, 소프트 난이도, 수리 가능한 내구력, 직업 의상, 농사·요리·전투·집의 연결)은 [`LONG_TERM_CONTENT_DESIGN.md`](LONG_TERM_CONTENT_DESIGN.md)에 별도로 기록한다. 이 확장은 여기서 확정한 **스킬별 독립 Lv.1–100과 이후 숙련도, 전체 캐릭터 레벨 없음**을 대체하지 않는다. Farming은 현재 이 문서의 향후 확장 후보이며, 실제 구현 전에 독립 스킬 여부를 결정한다.
+후속 장기 콘텐츠 방향(도끼·낚싯대·검·향후 낫의 각 10단계, 소프트 난이도, 수리 가능한 내구력, 직업 의상, 농사·요리·전투·집의 연결)은 [`LONG_TERM_CONTENT_DESIGN.md`](LONG_TERM_CONTENT_DESIGN.md)에 별도로 기록한다. 이 확장은 **스킬별 독립 Lv.1–100과 이후 숙련도, 전체 캐릭터 레벨 없음**을 대체하지 않는다. Farming은 사용자 후속 요청으로 독립 스킬 구현을 완료했다.
 
 ---
 
@@ -77,13 +77,13 @@ Total Level이나 Character Level이 중요해지면
 - Fishing / 낚시
 - Gathering / 채집
 - Logging / 벌목
+- Farming / 농사
 - Mining / 채광
 - Cooking / 요리
 - Hunting / 수렵
 
 향후 확장 가능:
 
-- Farming
 - Crafting
 - Smithing
 - Alchemy

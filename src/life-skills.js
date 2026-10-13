@@ -44,6 +44,10 @@ function lifeSkillProgressFromTotal(skillId,totalXp,xpCurveVersion=LIFE_SKILL_XP
   };
 }
 
+function farmingCropXp(crop){
+  return crop?Math.max(1,Math.round(crop.growMs/60000*FARMING_XP_PER_GROW_MINUTE)):0;
+}
+
 function lifeSkillProgressSnapshot(skillId,progress=GAME_STATE.progression[skillId]){
   const nextLevelXp=lifeSkillXpForNextLevel(skillId,progress.level);
   const currentXp=nextLevelXp===null?progress.masteryXp||0:progress.xp;

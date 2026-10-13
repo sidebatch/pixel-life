@@ -48,10 +48,12 @@ try{
         before===JSON.stringify({plots:GAME_STATE.world.plots,inventory:GAME_STATE.inventory});
       return {rows,lockedTitle,failedPlantKeptPanel};
     });
-    const subjects=['당근이','순무가','감자가','양파가','양배추가','밀이','옥수수가','토마토가','딸기가','호박이'];
+    const subjects=['당근이','비트가','상추가','감자가','양파가','양배추가','밀이','옥수수가','오이가','토마토가','가지가','딸기가','호박이','고추가'];
+    assert.equal(wording.rows.length,subjects.length);
     for(const [i,row] of wording.rows.entries()){
       assert(!/^밭\s*\d/.test(row.title));assert(row.growing.startsWith(subjects[i]+' 자라는 중이에요.'));
       assert(row.ready.startsWith(subjects[i]+' 다 자랐어요.'));
+      assert(!row.growing.includes('게임을 꺼도'));
     }
     assert.equal(wording.lockedTitle,'부지 구매');assert(wording.failedPlantKeptPanel);
     await page.locator('#lifeClose').click();
@@ -62,8 +64,8 @@ try{
       const emptyAndLockedSolid=plots.every(plot=>isBlocked(plot.x,plot.y));
       for(const plot of plots)GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:'carrot',plantedAt:Date.now()};
       const growingSolid=plots.every(plot=>isBlocked(plot.x,plot.y));
-      for(const [index,plot] of plots.entries())GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:LIFE_CONTENT.crops[index%10].id,
-        plantedAt:Date.now()-LIFE_CONTENT.crops[index%10].growMs-5000};
+      for(const [index,plot] of plots.entries())GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:LIFE_CONTENT.crops[index%LIFE_CONTENT.crops.length].id,
+        plantedAt:Date.now()-LIFE_CONTENT.crops[index%LIFE_CONTENT.crops.length].growMs-5000};
       const seen=new Set(),queue=[{x:3,y:24}];
       for(let i=0;i<queue.length;i++){
         const tile=queue[i],k=key(tile.x,tile.y);if(seen.has(k)||isBlocked(tile.x,tile.y))continue;

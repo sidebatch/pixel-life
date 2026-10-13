@@ -260,6 +260,10 @@ const LIFE_ITEM_URLS = Object.freeze({
   tomatoSeed:'assets/farming/seeds/tomato.png',
   strawberrySeed:'assets/farming/seeds/strawberry.png',
   pumpkinSeed:'assets/farming/seeds/pumpkin.png',
+  lettuceSeed:'assets/farming/seeds/lettuce.png',
+  cucumberSeed:'assets/farming/seeds/cucumber.png',
+  eggplantSeed:'assets/farming/seeds/eggplant.png',
+  chiliSeed:'assets/farming/seeds/chili.png',
   carrotCrop:'assets/farming/harvest/carrot.png',
   turnipCrop:'assets/farming/harvest/turnip.png',
   potatoCrop:'assets/farming/harvest/potato.png',
@@ -269,7 +273,11 @@ const LIFE_ITEM_URLS = Object.freeze({
   cornCrop:'assets/farming/harvest/corn.png',
   tomatoCrop:'assets/farming/harvest/tomato.png',
   strawberryCrop:'assets/farming/harvest/strawberry.png',
-  pumpkinCrop:'assets/farming/harvest/pumpkin.png'
+  pumpkinCrop:'assets/farming/harvest/pumpkin.png',
+  lettuceCrop:'assets/farming/harvest/lettuce.png',
+  cucumberCrop:'assets/farming/harvest/cucumber.png',
+  eggplantCrop:'assets/farming/harvest/eggplant.png',
+  chiliCrop:'assets/farming/harvest/chili.png'
 });
 const MATURE_CROP_URLS = Object.freeze({
   carrot:'assets/farming/mature/carrot.png',
@@ -281,7 +289,11 @@ const MATURE_CROP_URLS = Object.freeze({
   corn:'assets/farming/mature/corn.png',
   tomato:'assets/farming/mature/tomato.png',
   strawberry:'assets/farming/mature/strawberry.png',
-  pumpkin:'assets/farming/mature/pumpkin.png'
+  pumpkin:'assets/farming/mature/pumpkin.png',
+  lettuce:'assets/farming/mature/lettuce.png',
+  cucumber:'assets/farming/mature/cucumber.png',
+  eggplant:'assets/farming/mature/eggplant.png',
+  chili:'assets/farming/mature/chili.png'
 });
 const YOUNG_CROP_URLS = Object.freeze({
   carrot:'assets/farming/young/carrot.png',
@@ -293,7 +305,11 @@ const YOUNG_CROP_URLS = Object.freeze({
   corn:'assets/farming/young/corn.png',
   tomato:'assets/farming/young/tomato.png',
   strawberry:'assets/farming/young/strawberry.png',
-  pumpkin:'assets/farming/young/pumpkin.png'
+  pumpkin:'assets/farming/young/pumpkin.png',
+  lettuce:'assets/farming/young/lettuce.png',
+  cucumber:'assets/farming/young/cucumber.png',
+  eggplant:'assets/farming/young/eggplant.png',
+  chili:'assets/farming/young/chili.png'
 });
 
 const PLAYER_URLS = Object.freeze({

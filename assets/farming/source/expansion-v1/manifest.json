@@ -1,0 +1,390 @@
+{
+  "cellSize": 96,
+  "sampling": "nearest",
+  "sprites": [
+    {
+      "id": "lettuce",
+      "stage": "seeds",
+      "source": "assets/farming/source/expansion-v1/lettuce.png",
+      "sourceCell": {
+        "x": 0,
+        "y": 0,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 120,
+        "y": 101,
+        "width": 475,
+        "height": 515
+      },
+      "output": "assets/farming/seeds/lettuce.png",
+      "packedBounds": {
+        "x": 11,
+        "y": 8,
+        "width": 74,
+        "height": 80
+      }
+    },
+    {
+      "id": "lettuce",
+      "stage": "young",
+      "source": "assets/farming/source/expansion-v1/lettuce.png",
+      "sourceCell": {
+        "x": 627,
+        "y": 0,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 129,
+        "y": 245,
+        "width": 399,
+        "height": 362
+      },
+      "output": "assets/farming/young/lettuce.png",
+      "packedBounds": {
+        "x": 15,
+        "y": 30,
+        "width": 66,
+        "height": 60
+      }
+    },
+    {
+      "id": "lettuce",
+      "stage": "mature",
+      "source": "assets/farming/source/expansion-v1/lettuce.png",
+      "sourceCell": {
+        "x": 0,
+        "y": 627,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 85,
+        "y": 57,
+        "width": 542,
+        "height": 501
+      },
+      "output": "assets/farming/mature/lettuce.png",
+      "packedBounds": {
+        "x": 7,
+        "y": 14,
+        "width": 82,
+        "height": 76
+      }
+    },
+    {
+      "id": "lettuce",
+      "stage": "harvest",
+      "source": "assets/farming/source/expansion-v1/lettuce.png",
+      "sourceCell": {
+        "x": 627,
+        "y": 627,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 0,
+        "y": 133,
+        "width": 542,
+        "height": 403
+      },
+      "output": "assets/farming/harvest/lettuce.png",
+      "packedBounds": {
+        "x": 8,
+        "y": 18,
+        "width": 80,
+        "height": 59
+      }
+    },
+    {
+      "id": "cucumber",
+      "stage": "seeds",
+      "source": "assets/farming/source/expansion-v1/cucumber.png",
+      "sourceCell": {
+        "x": 0,
+        "y": 0,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 119,
+        "y": 118,
+        "width": 471,
+        "height": 491
+      },
+      "output": "assets/farming/seeds/cucumber.png",
+      "packedBounds": {
+        "x": 10,
+        "y": 8,
+        "width": 76,
+        "height": 80
+      }
+    },
+    {
+      "id": "cucumber",
+      "stage": "young",
+      "source": "assets/farming/source/expansion-v1/cucumber.png",
+      "sourceCell": {
+        "x": 627,
+        "y": 0,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 100,
+        "y": 165,
+        "width": 414,
+        "height": 432
+      },
+      "output": "assets/farming/young/cucumber.png",
+      "packedBounds": {
+        "x": 17,
+        "y": 26,
+        "width": 61,
+        "height": 64
+      }
+    },
+    {
+      "id": "cucumber",
+      "stage": "mature",
+      "source": "assets/farming/source/expansion-v1/cucumber.png",
+      "sourceCell": {
+        "x": 0,
+        "y": 627,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 82,
+        "y": 43,
+        "width": 532,
+        "height": 517
+      },
+      "output": "assets/farming/mature/cucumber.png",
+      "packedBounds": {
+        "x": 7,
+        "y": 10,
+        "width": 82,
+        "height": 80
+      }
+    },
+    {
+      "id": "cucumber",
+      "stage": "harvest",
+      "source": "assets/farming/source/expansion-v1/cucumber.png",
+      "sourceCell": {
+        "x": 627,
+        "y": 627,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 97,
+        "y": 152,
+        "width": 457,
+        "height": 347
+      },
+      "output": "assets/farming/harvest/cucumber.png",
+      "packedBounds": {
+        "x": 8,
+        "y": 17,
+        "width": 80,
+        "height": 61
+      }
+    },
+    {
+      "id": "eggplant",
+      "stage": "seeds",
+      "source": "assets/farming/source/expansion-v1/eggplant.png",
+      "sourceCell": {
+        "x": 0,
+        "y": 0,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 128,
+        "y": 120,
+        "width": 480,
+        "height": 486
+      },
+      "output": "assets/farming/seeds/eggplant.png",
+      "packedBounds": {
+        "x": 8,
+        "y": 8,
+        "width": 79,
+        "height": 80
+      }
+    },
+    {
+      "id": "eggplant",
+      "stage": "young",
+      "source": "assets/farming/source/expansion-v1/eggplant.png",
+      "sourceCell": {
+        "x": 627,
+        "y": 0,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 118,
+        "y": 142,
+        "width": 402,
+        "height": 466
+      },
+      "output": "assets/farming/young/eggplant.png",
+      "packedBounds": {
+        "x": 20,
+        "y": 26,
+        "width": 55,
+        "height": 64
+      }
+    },
+    {
+      "id": "eggplant",
+      "stage": "mature",
+      "source": "assets/farming/source/expansion-v1/eggplant.png",
+      "sourceCell": {
+        "x": 0,
+        "y": 627,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 79,
+        "y": 31,
+        "width": 548,
+        "height": 517
+      },
+      "output": "assets/farming/mature/eggplant.png",
+      "packedBounds": {
+        "x": 7,
+        "y": 13,
+        "width": 82,
+        "height": 77
+      }
+    },
+    {
+      "id": "eggplant",
+      "stage": "harvest",
+      "source": "assets/farming/source/expansion-v1/eggplant.png",
+      "sourceCell": {
+        "x": 627,
+        "y": 627,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 127,
+        "y": 147,
+        "width": 422,
+        "height": 363
+      },
+      "output": "assets/farming/harvest/eggplant.png",
+      "packedBounds": {
+        "x": 8,
+        "y": 13,
+        "width": 80,
+        "height": 69
+      }
+    },
+    {
+      "id": "chili",
+      "stage": "seeds",
+      "source": "assets/farming/source/expansion-v1/chili.png",
+      "sourceCell": {
+        "x": 0,
+        "y": 0,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 144,
+        "y": 100,
+        "width": 459,
+        "height": 496
+      },
+      "output": "assets/farming/seeds/chili.png",
+      "packedBounds": {
+        "x": 11,
+        "y": 8,
+        "width": 74,
+        "height": 80
+      }
+    },
+    {
+      "id": "chili",
+      "stage": "young",
+      "source": "assets/farming/source/expansion-v1/chili.png",
+      "sourceCell": {
+        "x": 627,
+        "y": 0,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 129,
+        "y": 115,
+        "width": 375,
+        "height": 456
+      },
+      "output": "assets/farming/young/chili.png",
+      "packedBounds": {
+        "x": 21,
+        "y": 26,
+        "width": 53,
+        "height": 64
+      }
+    },
+    {
+      "id": "chili",
+      "stage": "mature",
+      "source": "assets/farming/source/expansion-v1/chili.png",
+      "sourceCell": {
+        "x": 0,
+        "y": 627,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 120,
+        "y": 52,
+        "width": 505,
+        "height": 499
+      },
+      "output": "assets/farming/mature/chili.png",
+      "packedBounds": {
+        "x": 7,
+        "y": 9,
+        "width": 82,
+        "height": 81
+      }
+    },
+    {
+      "id": "chili",
+      "stage": "harvest",
+      "source": "assets/farming/source/expansion-v1/chili.png",
+      "sourceCell": {
+        "x": 627,
+        "y": 627,
+        "width": 627,
+        "height": 627
+      },
+      "bounds": {
+        "x": 98,
+        "y": 136,
+        "width": 435,
+        "height": 369
+      },
+      "output": "assets/farming/harvest/chili.png",
+      "packedBounds": {
+        "x": 8,
+        "y": 14,
+        "width": 80,
+        "height": 68
+      }
+    }
+  ]
+}

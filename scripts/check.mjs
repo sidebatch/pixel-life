@@ -77,6 +77,7 @@ vm.createContext(freshContext);
 vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/data/farming-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
 assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progression.fishing.level===1&&
   freshContext.__fresh.progression.logging.level===1&&
+  freshContext.__fresh.progression.farming.level===1&&freshContext.__fresh.progression.farming.totalXp===0&&
   freshContext.__fresh.progression.fishing.equippedRodId==='rod.basic'&&
   freshContext.__fresh.progression.forestry.axeId==='axe.basic'&&
   freshContext.__fresh.progression.forestry.ownedAxeIds.join(',')==='axe.basic'&&
@@ -152,7 +153,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 426, `Expected 426 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 442, `Expected 442 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -210,7 +211,7 @@ for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/ui/menu
     `Menu icon must be a transparent PNG: ${assetPath}`);
 }
 const cropCatalog=new Function(`${read('src/assets.js')}\n${read('src/data/life-content-data.js')}\nreturn {crops:LIFE_CONTENT.crops,items:LIFE_ITEM_URLS,young:YOUNG_CROP_URLS,mature:MATURE_CROP_URLS};`)();
-assert(cropCatalog.crops.length===10&&new Set(cropCatalog.crops.map(crop=>crop.id)).size===10&&
+assert(cropCatalog.crops.length===14&&new Set(cropCatalog.crops.map(crop=>crop.id)).size===14&&
   cropCatalog.crops.every(crop=>cropCatalog.items[`${crop.id}Seed`]&&cropCatalog.items[`${crop.id}Crop`]&&
     cropCatalog.young[crop.id]&&cropCatalog.mature[crop.id]&&crop.seedPrice>0&&crop.sellPrice>0&&
     crop.harvestMin>=1&&crop.harvestMax>=crop.harvestMin),
@@ -1009,9 +1010,10 @@ const lifeContext={
   performance:{now:()=>100},
   setTimeout:()=>1,clearTimeout:()=>{}
 };
-lifeContext.showSkillXpFeedback=(skillId,before,after,gained)=>lifeContext.feedback.push({skillId,before,after,gained});
+lifeContext.showSkillXpFeedback=(skillId,before,after,gained)=>{if(skillId==='logging')lifeContext.feedback.push({skillId,before,after,gained});};
 vm.createContext(lifeContext);
 vm.runInContext(`${read('src/assets.js')}\n${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/life-skills.js')}\n${read('src/life-content.js')}\n`,lifeContext);
+vm.runInContext("GAME_STATE.progression.farming=lifeSkillProgressFromTotal('farming',0);",lifeContext);
 assert(vm.runInContext(`${read('src/data/tree-dex-data.js')}\nObject.keys(TREE_DEX_DESCRIPTIONS).length===50&&FOREST_SPECIES.every(species=>TREE_DEX_DESCRIPTIONS[species])`,lifeContext),
   'Every registered tree species must have a tree-dex description');
 assert(vm.runInContext(`TREE_DEX_WORLDS.length===5&&TREE_DEX_WORLDS.map(world=>world.minTier+'-'+world.maxTier).join(',')==='1-2,3-4,5-6,7-8,9-10'&&
@@ -1271,13 +1273,13 @@ assert(lifeContext.__woodBefore===9&&lifeContext.__woodSpent&&lifeContext.__wood
   lifeContext.__cropIcon.includes('farming/harvest/carrot.png')&&lifeContext.__woodIcon.includes('forestry/items/oak.png'),
   'Mixed legacy/species logs must fund expansion and item icons must use matching harvest/wood art');
 vm.runInContext(`GAME_STATE.regionId='sunnyFields';const extraPlot=REGION_WORLDS.sunnyFields.farmPlots[0];`+
-  `globalThis.__extraCropResults=['turnip','onion','cabbage','wheat','tomato','pumpkin'].map(id=>{`+
+  `globalThis.__extraCropResults=LIFE_CONTENT.crops.map(({id})=>{`+
   `addLifeItem('seed',id,1);const planted=plantFarmCrop(extraPlot,id);`+
   `GAME_STATE.world.plots[extraPlot.id].plantedAt=Date.now()-LIFE_CROP_BY_ID.get(id).growMs-1;`+
   `GAME_STATE.appearance.activeTool='sickle';globalThis.player={x:extraPlot.x-1,y:extraPlot.y};const ready=getFarmPlotPhase(extraPlot)==='READY';const harvested=harvestFarmCrop(extraPlot);`+
   `return planted&&ready&&harvested&&lifeItemCount('crop',id)>0&&lifeItemIconMarkup('crop',id).includes('farming/harvest/'+id+'.png');});`,lifeContext);
-assert(lifeContext.__extraCropResults.length===6&&lifeContext.__extraCropResults.every(Boolean),
-  'All six added crops must plant, mature offline, harvest, and show their own inventory icon');
+assert(lifeContext.__extraCropResults.length===14&&lifeContext.__extraCropResults.every(Boolean),
+  'All crops must plant, mature offline, harvest, and show their own inventory icon');
 lifeContext.player={moving:false};lifeContext.menuOpen=false;lifeContext.dialogOpen=false;
 lifeContext.clearMovement=()=>{};
 let chopSoundCount=0;
@@ -1358,7 +1360,7 @@ assert(lifeContext.__tier3Locked===false&&lifeContext.__tier3LockedHp===160&&
   'New Tier-3 trees must require steel, fall in four hits, and reward their own wood and XP');
 
 const farmDrawCalls=[];
-const farmIds=['carrot','turnip','potato','onion','cabbage','wheat','corn','tomato','strawberry','pumpkin'];
+const farmIds=cropCatalog.crops.map(crop=>crop.id);
 const farmNow=Date.now();
 const farmDrawContext={
   GAME_STATE:{regionId:'sunnyFields'},TILE:48,camX:0,camY:0,imgs:{farmSoil:{soil:true}},
@@ -1616,6 +1618,7 @@ assert(vm.runInContext('forestryPlayerDrawDepth()',characterContext)===500&&
   'Air swings must use chopping animation with normal player depth and no missing-tree error');
 
 const marketContext={
+  skillCardMarkup:skillId=>`<div data-skill-card="${skillId}"></div>`,
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],
   lifeItemCount:(type,id,inventory=marketContext.GAME_STATE.inventory)=>inventory.reduce((sum,item)=>sum+(item.type===type&&item.id===id?item.quantity:0),0),
   GAME_STATE:{inventory:[
@@ -1646,7 +1649,7 @@ assert(vm.runInContext(`marketGoodDefinition('material','birch_log').name==='자
   planGoodsSale(new Map([['material:cedar_log',2]]),[{type:'material',id:'cedar_log',quantity:3}]).total===2*FORESTRY_TREES.cedar.logPrice&&
   planGoodsSale(new Map([['material:birch_log',2]]),[{type:'material',id:'birch_log',quantity:3}]).total===32`,marketContext),
   'Species logs must sell for their configured per-species price');
-assert(vm.runInContext(`['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>{
+assert(vm.runInContext(`LIFE_CONTENT.crops.every(({id})=>{
   const crop=LIFE_CROP_BY_ID.get(id);
   return marketGoodDefinition('crop',id).price===crop.sellPrice&&
     planGoodsSale(new Map([['crop:'+id,1]]),[{type:'crop',id,quantity:2}]).total===crop.sellPrice;
@@ -1655,9 +1658,9 @@ const seedMarketNodes={marketStock:{textContent:''},marketList:{scrollTop:0,inne
 marketContext.document={getElementById:id=>seedMarketNodes[id]};
 marketContext.lifeItemIconMarkup=()=>'<span></span>';
 vm.runInContext('renderSeedMarket();',marketContext);
-assert((seedMarketNodes.marketList.innerHTML.match(/data-seed-id=/g)||[]).length===10&&
-  ['turnip','onion','cabbage','wheat','tomato','pumpkin'].every(id=>seedMarketNodes.marketList.innerHTML.includes(`data-seed-id="${id}"`)),
-  'Seed shop must list all ten crops, including the six new seeds');
+assert((seedMarketNodes.marketList.innerHTML.match(/data-seed-id=/g)||[]).length===14&&
+  cropCatalog.crops.every(({id})=>seedMarketNodes.marketList.innerHTML.includes(`data-seed-id="${id}"`)),
+  'Seed shop must list all fourteen crops');
 marketContext.GAME_STATE.inventory.push({type:'material',id:'oak_log',quantity:2},{type:'crop',id:'carrot',quantity:3});
 vm.runInContext(`marketState.shop='elli';marketState.view='crops';renderGoodsMarket();globalThis.__cropRows=document.getElementById('marketList').innerHTML;`+
   `marketState.shop='workshop';marketState.view='wood';renderGoodsMarket();globalThis.__woodRows=document.getElementById('marketList').innerHTML;`+
@@ -1954,6 +1957,7 @@ assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&r
 checkCharacterStandard();
 checkSwordStandard();
 await import('./qa-farming-layout.mjs');
+await import('./qa-farming-progression.mjs');
 await import('./qa-life-skill-growth.mjs');
 await import('./qa-fishing-expansion-data.mjs');
 await import('./qa-fishing-baseline.mjs');

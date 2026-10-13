@@ -12,15 +12,20 @@ const LIFE_CONTENT=Object.freeze({
   ]),
   crops:Object.freeze([
     {id:'carrot',name:'당근',icon:'🥕',growMs:2*60*1000,harvestMin:2,harvestMax:3,seedPrice:12,sellPrice:8},
-    {id:'turnip',name:'순무',icon:'🌱',growMs:3*60*1000,harvestMin:2,harvestMax:3,seedPrice:16,sellPrice:10},
-    {id:'potato',name:'감자',icon:'🥔',growMs:5*60*1000,harvestMin:2,harvestMax:4,seedPrice:20,sellPrice:12},
-    {id:'onion',name:'양파',icon:'🧅',growMs:8*60*1000,harvestMin:2,harvestMax:4,seedPrice:28,sellPrice:16},
-    {id:'cabbage',name:'양배추',icon:'🥬',growMs:10*60*1000,harvestMin:2,harvestMax:3,seedPrice:35,sellPrice:22},
-    {id:'wheat',name:'밀',icon:'🌾',growMs:12*60*1000,harvestMin:3,harvestMax:5,seedPrice:32,sellPrice:15},
-    {id:'corn',name:'옥수수',icon:'🌽',growMs:15*60*1000,harvestMin:3,harvestMax:5,seedPrice:45,sellPrice:20},
-    {id:'tomato',name:'토마토',icon:'🍅',growMs:20*60*1000,harvestMin:3,harvestMax:5,seedPrice:60,sellPrice:26},
-    {id:'strawberry',name:'딸기',icon:'🍓',growMs:30*60*1000,harvestMin:3,harvestMax:5,seedPrice:80,sellPrice:35},
-    {id:'pumpkin',name:'호박',icon:'🎃',growMs:35*60*1000,harvestMin:1,harvestMax:2,seedPrice:100,sellPrice:120}
+    // Keep the legacy turnip ID/art paths so existing seeds, harvests and planted beds survive.
+    {id:'turnip',name:'비트',icon:'🌱',growMs:3*60*1000,harvestMin:2,harvestMax:3,seedPrice:16,sellPrice:11},
+    {id:'lettuce',name:'상추',icon:'🥬',growMs:4*60*1000,harvestMin:2,harvestMax:3,seedPrice:18,sellPrice:13},
+    {id:'potato',name:'감자',icon:'🥔',growMs:5*60*1000,harvestMin:2,harvestMax:4,seedPrice:22,sellPrice:13},
+    {id:'onion',name:'양파',icon:'🧅',growMs:8*60*1000,harvestMin:2,harvestMax:4,seedPrice:32,sellPrice:20},
+    {id:'cabbage',name:'양배추',icon:'🥬',growMs:10*60*1000,harvestMin:2,harvestMax:3,seedPrice:36,sellPrice:28},
+    {id:'wheat',name:'밀',icon:'🌾',growMs:12*60*1000,harvestMin:3,harvestMax:5,seedPrice:40,sellPrice:20},
+    {id:'corn',name:'옥수수',icon:'🌽',growMs:15*60*1000,harvestMin:3,harvestMax:5,seedPrice:48,sellPrice:24},
+    {id:'cucumber',name:'오이',icon:'🥒',growMs:18*60*1000,harvestMin:3,harvestMax:5,seedPrice:56,sellPrice:28},
+    {id:'tomato',name:'토마토',icon:'🍅',growMs:20*60*1000,harvestMin:3,harvestMax:5,seedPrice:64,sellPrice:32},
+    {id:'eggplant',name:'가지',icon:'🍆',growMs:25*60*1000,harvestMin:2,harvestMax:4,seedPrice:80,sellPrice:53},
+    {id:'strawberry',name:'딸기',icon:'🍓',growMs:30*60*1000,harvestMin:3,harvestMax:5,seedPrice:96,sellPrice:48},
+    {id:'pumpkin',name:'호박',icon:'🎃',growMs:35*60*1000,harvestMin:1,harvestMax:2,seedPrice:120,sellPrice:154},
+    {id:'chili',name:'고추',icon:'🌶️',growMs:40*60*1000,harvestMin:2,harvestMax:4,seedPrice:120,sellPrice:82}
   ])
 });
 const LIFE_CROP_BY_ID=new Map(LIFE_CONTENT.crops.map(crop=>[crop.id,crop]));

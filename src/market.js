@@ -140,7 +140,7 @@ function renderGoodsMarket(){
   const plan=planGoodsSale(marketState.goodsSelection);
   document.getElementById('marketStock').textContent=`판매 가능한 ${marketState.view==='wood'?'목재':'작물'} ${goods.reduce((sum,item)=>sum+item.count,0)}개`;
   const list=document.getElementById('marketList'),scrollTop=list.scrollTop;
-  list.innerHTML=goods.length?goods.map(item=>{
+  list.innerHTML=(marketState.view==='crops'?skillCardMarkup('farming'):'')+(goods.length?goods.map(item=>{
     const itemKey=`${item.type}:${item.id}`,selected=marketState.goodsSelection.get(itemKey)||0;
     return `<div class="marketFishRow" data-good-key="${itemKey}">
       <span class="marketGoodsIcon" aria-hidden="true">${lifeItemIconMarkup(item.type,item.id,item.definition.icon)}</span>
@@ -151,7 +151,7 @@ function renderGoodsMarket(){
         <strong>${selected}</strong><button type="button" data-good-action="plus" aria-label="${item.definition.name} 판매 수량 늘리기" ${selected<item.count?'':'disabled'}>+</button></div>
         <button type="button" class="marketAll" data-good-action="all" ${selected<item.count?'':'disabled'}>전부</button>
         <span class="marketRowTotal">${(selected*item.definition.price).toLocaleString()}</span></div></div></div>`;
-  }).join(''):`<div class="marketEmpty"><span>${marketState.view==='wood'?'🪵':'🌾'}</span><b>판매할 ${marketState.view==='wood'?'목재가':'작물이'} 없어요</b><p>${marketState.view==='wood'?'숲에서 나무를 베어 보세요.':'농장에서 작물을 수확해 보세요.'}</p></div>`;
+  }).join(''):`<div class="marketEmpty"><span>${marketState.view==='wood'?'🪵':'🌾'}</span><b>판매할 ${marketState.view==='wood'?'목재가':'작물이'} 없어요</b><p>${marketState.view==='wood'?'숲에서 나무를 베어 보세요.':'농장에서 작물을 수확해 보세요.'}</p></div>`);
   list.scrollTop=scrollTop;
   document.getElementById('marketTotal').textContent=`${plan?.count||0}개 · ${(plan?.total||0).toLocaleString()}`;
   document.getElementById('marketSellBtn').disabled=!plan||plan.count===0;
@@ -160,7 +160,7 @@ function renderGoodsMarket(){
 function renderSeedMarket(){
   document.getElementById('marketStock').textContent='씨앗은 한 번에 1개씩 살 수 있어요';
   const list=document.getElementById('marketList'),scrollTop=list.scrollTop;
-  list.innerHTML=LIFE_CONTENT.crops.map(crop=>`<div class="marketFishRow">
+  list.innerHTML=skillCardMarkup('farming')+LIFE_CONTENT.crops.map(crop=>`<div class="marketFishRow">
     <span class="marketGoodsIcon" aria-hidden="true">${lifeItemIconMarkup('seed',crop.id,crop.icon)}</span>
     <div class="marketFishBody"><div class="marketFishTop"><b>${crop.name} 씨앗</b><span>보유 ${lifeItemCount('seed',crop.id)}개</span></div>
       <small>${Math.round(crop.growMs/60000)}분 성장 · ${crop.seedPrice.toLocaleString()}코인</small>

@@ -108,6 +108,7 @@ const WORLD_REGIONS = Object.freeze({
 const ACTIVITY_MODULES = Object.freeze({
   fishing:{id:'fishing',label:'낚시',status:'prototype',entry:'water'},
   gathering:{id:'gathering',label:'채집',status:'planned',entry:'resource-node'},
+  farming:{id:'farming',label:'농사',status:'prototype',entry:'farm-plot'},
   cooking:{id:'cooking',label:'요리',status:'planned',entry:'kitchen'},
   defense:{id:'defense',label:'디펜스',status:'planned',entry:'world-event'},
   quests:{id:'quests',label:'퀘스트',status:'planned',entry:'npc'},
@@ -127,6 +128,7 @@ const GAME_STATE = {
     flags:{},
     fishing:{xpCurveVersion:LIFE_SKILL_XP_CURVE_VERSION,level:1,xp:0,totalXp:0,mastery:0,masteryXp:0,equippedRodId:DEFAULT_FISHING_ROD_ID,purchasedRodIds:[DEFAULT_FISHING_ROD_ID],durabilityByRodId:{}},
     logging:{xpCurveVersion:LIFE_SKILL_XP_CURVE_VERSION,level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},
+    farming:{xpCurveVersion:LIFE_SKILL_XP_CURVE_VERSION,level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},
     forestry:{axeId:DEFAULT_FORESTRY_AXE_ID,ownedAxeIds:[DEFAULT_FORESTRY_AXE_ID],durabilityByAxeId:{}},
     swords:{swordId:DEFAULT_SWORD_ID,ownedSwordIds:[DEFAULT_SWORD_ID]},
     voyage:typeof normalizeSavedVoyageProgress==='function'?normalizeSavedVoyageProgress():null

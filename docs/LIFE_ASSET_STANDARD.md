@@ -1,5 +1,7 @@
 # 벌목·농사 이미지 규격
 
+2026-10-13 로컬 작물 확장: 비트(기존 turnip 경로 유지), 상추·오이·가지·고추 추가로 14종. 새 4종의 씨앗/어린 잎/완성 식물/수확물 16개는 내장 image_gen으로 제작해 96px로 패킹했다. 원본·프롬프트·명세는 `assets/farming/source/expansion-v1/`, 재현은 `scripts/pack-farming-expansion-v1.mjs`, 가격·검증·배포 상태는 [FARMING_CROPS_BALANCE_V1.md](FARMING_CROPS_BALANCE_V1.md)다. 아래 ZIP 및 최초 10종 제작 내용은 보존한 이력이다.
+
 2026-10-13 사용자 요청으로 기본 낫 그림 v2 공개 배포 완료. 남녀 캐릭터에 새 곡선 날/짧은 손잡이를 적용했다. 게임 변경 커밋 `6d15ab0`, PWA `0062d37f3da2`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38350941915). 공개 파일·남녀 24프레임·393/320px 농장/저장·PWA 오프라인/음악 검증을 통과했다. 설치 앱은 완전히 종료 후 다시 열며 저장을 삭제하지 않는다.
 
 2026-10-13 낫 후속 수정: 현행 기본 낫은 `assets/player/sickle-v2/basic.png`(96×96), 생성 원본은 같은 폴더의 source.png(1254×1254), 재현은 `scripts/pack-sickle-v2.mjs`다. 제작 프롬프트/실제 손잡이/축/날 끝/게임 합성 검증은 [SICKLE_ART_V2.md](SICKLE_ART_V2.md)를 따른다. 기존 v1 그림은 보존하며 v2도 사용자 요청으로 공개 배포 완료했다.
@@ -15,10 +17,10 @@
 | 벌목 후 그루터기 8종 | `assets/forestry/stumps/*.png` | 96×96 | 나무 재생 전 |
 | 종류별 통나무 8종 | `assets/forestry/items/{oak,pine,birch,maple,spruce,willow,cypress,broadleaf}.png` | 96×96 | 벌목 보상·가방·상점 |
 | 기존 일반 통나무 | `assets/forestry/items/log.png` | 96×96 | 이전 저장 호환 |
-| 작물 씨앗 10종 | `assets/farming/seeds/*.png` | 96×96 | 구매·가방·심기 |
-| 작물별 어린 잎 10종 | `assets/farming/young/*.png` | 96×96 | 성장 중간 단계 |
-| 다 자란 밭 작물 10종 | `assets/farming/mature/*.png` | 96×96 | 수확 가능한 밭 |
-| 수확물 10종 | `assets/farming/harvest/*.png` | 96×96 | 가방·상점 |
+| 작물 씨앗 14종 | `assets/farming/seeds/*.png` | 96×96 | 구매·가방·심기 |
+| 작물별 어린 잎 14종 | `assets/farming/young/*.png` | 96×96 | 성장 중간 단계 |
+| 다 자란 밭 작물 14종 | `assets/farming/mature/*.png` | 96×96 | 수확 가능한 밭 |
+| 수확물 14종 | `assets/farming/harvest/*.png` | 96×96 | 가방·상점 |
 
 처음 제공된 `Trees.zip`은 살아 있는 나무 8종과 그루터기 7종을 제공했다. 빠진 삼나무 그루터기는 기존 이미지 스타일을 참고해 제작했다. 이후 사용자 제공 `나무 벌목후.zip`, `수확전.zip`, `수확 후.zip`의 PNG를 각각 종류별 통나무, 다 자란 밭 작물, 수확물로 연결했다. 무작위 원본 파일명은 이미지 내용을 확인해 종류에 맞게 매핑했다. 큰 원본은 최근접 보간으로 96×96에 맞췄으며 원본 ZIP은 변경하지 않았다.
 

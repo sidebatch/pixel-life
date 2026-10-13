@@ -1,5 +1,7 @@
 # 벌목·농사 이미지 규격
 
+2026-10-13 낫 후속 수정: 로컬 기본 낫은 `assets/player/sickle-v2/basic.png`(96×96), 생성 원본은 같은 폴더의 source.png(1254×1254), 재현은 `scripts/pack-sickle-v2.mjs`다. 제작 프롬프트/실제 손잡이/축/날 끝/게임 합성 검증은 [SICKLE_ART_V2.md](SICKLE_ART_V2.md)를 따른다. 기존 v1 그림은 보존하며 v2는 사용자 요청으로 공개 배포·검증 중이다.
+
 2026-10-13 추가: 지정 농장의 흙 타일 `assets/farming/terrain/soil-v1.png`는 48×48 투명 PNG, 기본 낫 `assets/player/sickle-v1/basic.png`는 96×96 투명 PNG다. 코드 기반 픽셀 도형 원본은 `scripts/prepare-farm-pixel-assets.mjs`, 실제 도구 grip/tip·동작 규격은 `src/data/farming-data.js`와 [FARMING_LAYOUT_V1.md](FARMING_LAYOUT_V1.md)다. 기존 작물 그림은 보존한다.
 
 2026-09-24 기준. 생활 콘텐츠 PNG는 투명 배경의 독립 파일이다. 게임 타일은 48×48이며 Canvas에서 픽셀 스냅으로 그린다.

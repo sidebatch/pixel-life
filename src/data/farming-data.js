@@ -2,8 +2,8 @@
 const FARM_SICKLE=Object.freeze({id:'sickle.basic',name:'기본 낫',asset:'basic',
   description:'처음부터 가지고 있는 농사 도구. 다 자란 작물을 한 칸씩 수확할 수 있어요.'});
 const SICKLE_TOOLS=Object.freeze({
-  'sickle.basic':Object.freeze({grip:[28,72],tip:[58,26],nativeAngle:Math.atan2(-46,30),
-    nativeLength:Math.hypot(30,46),carryLength:25,swingLength:32})
+  'sickle.basic':Object.freeze({grip:[19,62],tip:[43,21],bladeTip:[86,55],nativeAngle:Math.atan2(-41,24),
+    nativeLength:Math.hypot(24,41),carryLength:22,swingLength:30})
 });
 const SICKLE_ACTION=Object.freeze({columns:2,artPose:'chop',
   frames:Object.freeze(Object.fromEntries(['down','right','left','up'].map(face=>[face,

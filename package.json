@@ -40,7 +40,8 @@
     "qa:growth": "node scripts/qa-life-skill-growth.mjs",
     "qa:growth:browser": "node scripts/qa-life-skill-growth-browser.mjs",
     "qa:farming": "node scripts/qa-farming-layout.mjs",
-    "qa:farming:browser": "node scripts/qa-farming-layout-browser.mjs"
+    "qa:farming:browser": "node scripts/qa-farming-layout-browser.mjs",
+    "qa:sickle:art": "node scripts/qa-sickle-art-browser.mjs"
   },
   "engines": {
     "node": ">=20"

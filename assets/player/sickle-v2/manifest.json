@@ -1,0 +1,36 @@
+{
+  "version": 2,
+  "source": "assets/player/sickle-v2/source.png",
+  "image": "assets/player/sickle-v2/basic.png",
+  "sourceSize": [
+    1254,
+    1254
+  ],
+  "crop": {
+    "x": 186,
+    "y": 229,
+    "width": 984,
+    "height": 800
+  },
+  "target": {
+    "x": 8,
+    "y": 14,
+    "width": 80,
+    "height": 65
+  },
+  "grip": [
+    19,
+    62
+  ],
+  "tip": [
+    43,
+    21
+  ],
+  "bladeTip": [
+    86,
+    55
+  ],
+  "nativeAngle": -1.0412067280128203,
+  "nativeLength": 47.50789408087881,
+  "generation": "built-in image_gen; precise-object-edit"
+}

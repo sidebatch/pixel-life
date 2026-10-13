@@ -211,7 +211,7 @@ const CHARACTER_TOOL_URLS=Object.freeze({
   'rod.abyssal':'assets/player/rig-v1/tools/rod-abyssal.png',
   'rod.aurora':'assets/player/rig-v1/tools/rod-aurora.png'
 });
-const SICKLE_TOOL_URLS=Object.freeze({'sickle.basic':'assets/player/sickle-v1/basic.png'});
+const SICKLE_TOOL_URLS=Object.freeze({'sickle.basic':'assets/player/sickle-v2/basic.png'});
 const SWORD_TOOL_URLS=Object.freeze({
   'sword.basic':'assets/player/sword-v1/basic.png'
 });

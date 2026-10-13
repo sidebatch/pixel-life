@@ -10,7 +10,8 @@ vm.runInContext(fs.readFileSync('src/data/farming-data.js','utf8')+'\n'+
   "GAME_STATE.regionId='sunnyFields';buildWorldRegion(REGION_WORLDS.sunnyFields);\n"+
   fs.readFileSync('src/simulation.js','utf8')+'\n'+fs.readFileSync('src/life-content.js','utf8'),context);
 const tool=JSON.parse(vm.runInContext("JSON.stringify(SICKLE_TOOLS['sickle.basic'])",context));
-const image=decodePNG(fs.readFileSync('assets/player/sickle-v1/basic.png'));validateTool(image,tool,'sickle.basic');
+const imagePath=vm.runInContext("SICKLE_TOOL_URLS['sickle.basic']",context);
+const image=decodePNG(fs.readFileSync(imagePath));validateTool(image,tool,'sickle.basic');
 assert(image.data[(tool.grip[1]*96+tool.grip[0])*4+3]>0,'Grip must sit on the real handle');
 assert(image.data[(tool.tip[1]*96+tool.tip[0])*4+3]>0,'Tip must sit on the real tool');
 context.document={getElementById:()=>({classList:{add(){},remove(){}}})};

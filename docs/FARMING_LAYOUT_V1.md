@@ -25,7 +25,7 @@
 
 ## 낫 그림·모션 규격
 
-- `assets/player/sickle-v1/basic.png`: 96×96 투명 픽셀 그림, grip=(28,72), tip=(58,26), 실제 그림의 손잡이/끝점에 대응한다.
+- 공개 v1 그림은 `assets/player/sickle-v1/basic.png`다. 사용자 피드백으로 로컬은 `assets/player/sickle-v2/basic.png`의 짧은 손잡이/긴 곡선 날을 사용한다. grip=(19,62), tip=(43,21), bladeTip=(86,55), 제작/패킹/검증은 [SICKLE_ART_V2.md](SICKLE_ART_V2.md)를 따른다. v2 그림은 사용자 요청으로 공개 배포·검증 중이다.
 - 독립 `src/data/farming-data.js`의 SICKLE_ACTION/SICKLE_TOOLS를 사용한다. 기존 chop Body/Grip과 머리 이동을 공유하며 낫의 각도·표시 길이만 별도 등록한다. 몸·손 좌표·옷·기존 도끼/낚싯대/검 원화와 데이터는 변경하지 않는다.
 - 현행 캐릭터 보호 계약은 `character-standard-v5.json`이다. v4 계약은 역사로 보존한다. 확장은 낫 도구와 동작군이며 기존 도구 검사·검 전용 보호 검사를 계속 수행한다.
 

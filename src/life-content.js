@@ -380,7 +380,8 @@ function plantFarmCrop(plot,cropId){
   });
   if(!success){showLifeToast('저장하지 못했어요');return false;}
   showLifeToast(`${LIFE_CROP_BY_ID.get(cropId).name} 씨앗을 심었어요`);
-  renderLifePanel();return true;
+  if(lifeUi.open&&lifeUi.plotId===plot.id)closeFarmPlot();
+  return true;
 }
 
 function harvestFarmCrop(plot){
@@ -409,13 +410,19 @@ function farmPlotActionLabel(plot){
     READY:GAME_STATE.appearance?.activeTool==='sickle'?'낫으로 수확':'기본 낫 장착'}[phase];
 }
 
+function farmCropSubject(crop){
+  const last=crop.name.charCodeAt(crop.name.length-1);
+  const hasFinal=last>=0xac00&&last<=0xd7a3&&(last-0xac00)%28!==0;
+  return crop.name+(hasFinal?'이':'가');
+}
+
 function renderLifePanel(){
   if(!lifeUi.open) return;
   const plot=WORLD_DEFINITION.farmPlots.find(item=>item.id===lifeUi.plotId);
   if(!plot) return;
   const state=getFarmPlotState(plot),phase=getFarmPlotPhase(plot),crop=LIFE_CROP_BY_ID.get(state.cropId);
   lifeUi.phase=phase;
-  document.getElementById('lifeTitle').textContent=`밭 ${Number(plot.id.slice(-2))}`;
+  document.getElementById('lifeTitle').textContent=crop?crop.name:phase==='LOCKED'?'부지 구매':'씨앗 심기';
   const info=document.getElementById('lifeInfo'),actions=document.getElementById('lifeActions');
   if(phase==='LOCKED'){
     const cost=farmExpansionCost();
@@ -427,12 +434,12 @@ function renderLifePanel(){
     actions.innerHTML=LIFE_CONTENT.crops.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}" ${lifeItemCount('seed',item.id)?'':'disabled'}>${lifeItemIconMarkup('seed',item.id,item.icon)} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');
   }else if(phase==='GROWING'){
     const remaining=Math.max(0,crop.growMs-(Date.now()-state.plantedAt));
-    info.textContent=`${crop.name}이 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요. 게임을 꺼도 자라요.`;
+    info.textContent=`${farmCropSubject(crop)} 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요. 게임을 꺼도 자라요.`;
     actions.innerHTML='';
   }else{
     const equipped=GAME_STATE.appearance?.activeTool==='sickle';
-    info.textContent=`${crop.name}이 다 자랐어요. 옆길에서 기본 낫으로 수확하세요.`;
-    actions.innerHTML=`<button type="button" data-life-action="${equipped?'harvest':'equip-sickle'}">${equipped?`${crop.name} 낫으로 수확`:'기본 낫 장착'}</button>`;
+    info.textContent=`${farmCropSubject(crop)} 다 자랐어요. 옆길에서 기본 낫으로 수확하세요.`;
+    actions.innerHTML=`<button type="button" data-life-action="${equipped?'harvest':'equip-sickle'}">${equipped?'낫으로 수확하기':'기본 낫 장착'}</button>`;
   }
 }
 

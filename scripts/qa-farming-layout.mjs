@@ -9,6 +9,8 @@ context.document=undefined;
 vm.runInContext(fs.readFileSync('src/data/farming-data.js','utf8')+'\n'+
   "GAME_STATE.regionId='sunnyFields';buildWorldRegion(REGION_WORLDS.sunnyFields);\n"+
   fs.readFileSync('src/simulation.js','utf8')+'\n'+fs.readFileSync('src/life-content.js','utf8'),context);
+assert.deepEqual(JSON.parse(vm.runInContext('JSON.stringify(LIFE_CONTENT.crops.map(farmCropSubject))',context)),
+  ['당근이','순무가','감자가','양파가','양배추가','밀이','옥수수가','토마토가','딸기가','호박이']);
 const tool=JSON.parse(vm.runInContext("JSON.stringify(SICKLE_TOOLS['sickle.basic'])",context));
 const imagePath=vm.runInContext("SICKLE_TOOL_URLS['sickle.basic']",context);
 const image=decodePNG(fs.readFileSync(imagePath));validateTool(image,tool,'sickle.basic');

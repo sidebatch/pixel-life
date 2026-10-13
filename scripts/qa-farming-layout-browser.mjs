@@ -14,6 +14,48 @@ try{
     const page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
     page.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
     await page.goto(base,{waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>typeof FARM_SICKLE!=='undefined'&&!document.getElementById('startupLoading'));
+    await page.evaluate(()=>{
+      enterWorldRegion({to:'sunnyFields',entry:{x:14,y:22,face:'right'}});
+      const plot=farmPlotAt(15,22);GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:null,plantedAt:null};
+      addLifeItem('seed','onion',2);openFarmPlot(plot);
+    });
+    assert.equal(await page.locator('#lifeTitle').innerText(),'씨앗 심기');
+    await page.locator('[data-life-action="plant"][data-crop-id="onion"]').click();
+    await page.waitForFunction(()=>!isFarmPlotOpen()&&!menuOpen&&!window.history.state?.pixelLifeOverlay);
+    const planting=await page.evaluate(()=>({crop:GAME_STATE.world.plots.farm_01.cropId,
+      plantedAt:GAME_STATE.world.plots.farm_01.plantedAt,seeds:lifeItemCount('seed','onion'),
+      hidden:document.getElementById('lifePanel').getAttribute('aria-hidden')==='true'}));
+    assert.equal(planting.crop,'onion');assert.equal(planting.seeds,1);assert(planting.hidden&&planting.plantedAt>0);
+    await page.evaluate(()=>openFarmPlot(farmPlotAt(15,22)));
+    assert.equal(await page.locator('#lifeTitle').innerText(),'양파');
+    assert((await page.locator('#lifeInfo').innerText()).startsWith('양파가 자라는 중이에요.'));
+    await page.screenshot({path:path.join(out,`onion-growing-${width}.png`)});
+    const wording=await page.evaluate(()=>{
+      const plot=farmPlotAt(15,22),rows=[];
+      for(const crop of LIFE_CONTENT.crops){
+        GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:crop.id,plantedAt:Date.now()-1};
+        renderLifePanel();const title=document.getElementById('lifeTitle').textContent,growing=document.getElementById('lifeInfo').textContent;
+        GAME_STATE.world.plots[plot.id].plantedAt=Date.now()-crop.growMs-1;renderLifePanel();
+        rows.push({title,growing,ready:document.getElementById('lifeInfo').textContent});
+      }
+      const locked=farmPlotAt(21,25);lifeUi.plotId=locked.id;player.x=22;player.y=25;renderLifePanel();
+      const lockedTitle=document.getElementById('lifeTitle').textContent;
+      lifeUi.plotId=plot.id;player.x=14;player.y=22;player.px=14*TILE+TILE/2;player.py=22*TILE+TILE/2;
+      GAME_STATE.world.plots[plot.id]={unlocked:true,cropId:null,plantedAt:null};renderLifePanel();
+      const before=JSON.stringify({plots:GAME_STATE.world.plots,inventory:GAME_STATE.inventory}),original=saveGame;
+      saveGame=()=>false;try{document.querySelector('[data-life-action="plant"][data-crop-id="onion"]').click();}finally{saveGame=original;}
+      const failedPlantKeptPanel=isFarmPlotOpen()&&menuOpen&&getFarmPlotPhase(plot)==='EMPTY'&&
+        before===JSON.stringify({plots:GAME_STATE.world.plots,inventory:GAME_STATE.inventory});
+      return {rows,lockedTitle,failedPlantKeptPanel};
+    });
+    const subjects=['당근이','순무가','감자가','양파가','양배추가','밀이','옥수수가','토마토가','딸기가','호박이'];
+    for(const [i,row] of wording.rows.entries()){
+      assert(!/^밭\s*\d/.test(row.title));assert(row.growing.startsWith(subjects[i]+' 자라는 중이에요.'));
+      assert(row.ready.startsWith(subjects[i]+' 다 자랐어요.'));
+    }
+    assert.equal(wording.lockedTitle,'부지 구매');assert(wording.failedPlantKeptPanel);
+    await page.locator('#lifeClose').click();
+    await page.waitForFunction(()=>!isFarmPlotOpen()&&!window.history.state?.pixelLifeOverlay);
     const layout=await page.evaluate(()=>{
       enterWorldRegion({to:'sunnyFields',entry:{x:16,y:23,face:'left'}});
       const plots=WORLD_DEFINITION.farmPlots;
@@ -150,7 +192,7 @@ try{
       assert(await page.evaluate(()=>!isBlocked(player.x,player.y)),`${phase} old position spawned on a bed`);
       assert.deepEqual(await page.evaluate(()=>JSON.parse(JSON.stringify(GAME_STATE.world.plots))),expected);
     }
-    await context.close();reports.push({width,layout,result,rollback,growth,purchase,sicklePoseCombinations:poses});
+    await context.close();reports.push({width,planting,wording,layout,result,rollback,growth,purchase,sicklePoseCombinations:poses});
   }
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({base,errors,reports},null,2));
   console.log('Farm browser passed: 393/320px, all beds blocked in every state, lanes accessible, adjacent sickle harvest, persistent bed collision after harvest, rollback, safe old positions, purchase/seed use and saved progress');

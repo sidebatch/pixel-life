@@ -1,8 +1,8 @@
 # Pixel Life 문서 안내
 
-2026-10-13 최신 농사 성장: [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md). 사용자 요청으로 독립 농사 Lv.1–100/숙련도·수확 XP·진행률·저장 호환을 로컬 구현했다. 14종 확장/가격과 농사 레벨은 아직 공개 배포 전이다.
+2026-10-13 최신 공개 농사: [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md). 독립 Lv.1–100/숙련도·수확 XP·진행률·저장 호환과 14종 확장/가격·기본 ‘실력이 늘었어요!’ 문구 제거를 공개 배포 완료했다. 게임 커밋 `1c01b22` / PWA `0ffa41864680`, 배포 결과는 DEPLOYMENT.md다.
 
-2026-10-13 최신 로컬 작물은 14종이다. 비트 이름·새 4종·가격·검증·아직 공개 배포하지 않은 상태는 [FARMING_CROPS_BALANCE_V1.md](FARMING_CROPS_BALANCE_V1.md)를 따른다. 아래 배포 기록은 이전 빌드 이력이다.
+2026-10-13 공개 작물은 14종이다. 비트 이름·새 4종·가격·검증은 [FARMING_CROPS_BALANCE_V1.md](FARMING_CROPS_BALANCE_V1.md)를 따른다. 아래 10종 배포 기록은 이전 이력이다.
 
 2026-10-13 농사 안내 문구·심기 창 정비 공개 배포 완료. 밭 번호를 숨기고 작물 10종의 이/가를 수정했으며 심기 성공 후 창을 닫는다. 게임 변경 커밋 `c3d333a`, PWA `30d79ba57428`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38353183885). 공개 393/320px 실제 버튼/이력/문구/저장 실패 복원·기존 수확/저장·파일/PWA 검증을 통과했다. 저장을 삭제하지 않는다.
 

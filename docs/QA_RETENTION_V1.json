@@ -1,9 +1,14 @@
 {
   "version": 1,
-  "date": "2026-10-12",
+  "date": "2026-10-13",
   "scope": "output only",
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
+    {
+      "topic": "농사 확장·경제·레벨",
+      "latest": ["deploy-farming-v1-qa", "farming-progression-v1", "farming-expansion-v1"],
+      "previous": ["deploy-farm-ui-qa"]
+    },
     {
       "topic": "다리·설산·폭포·늪",
       "latest": [

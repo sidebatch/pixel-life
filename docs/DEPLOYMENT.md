@@ -2,7 +2,22 @@
 
 현재 배포 계약 정리: 2026-10-13.
 
-2026-10-13 사용자 요청으로 작물 14종/비트 이름·가격 균형·독립 농사 Lv.1–100/숙련도와 공통 레벨업의 ‘실력이 늘었어요!’ 문구 제거를 공개 배포 준비 중이다. 배포 준비 빌드는 20,235,673 bytes/PWA 0ffa41864680이며 공개 완료 결과는 아래 최신 기록으로 갱신한다.
+## 2026-10-13 작물 확장·농사 레벨 공개 배포 완료
+
+사용자 요청으로 비트 이름(기존 turnip ID/저장 유지), 상추·오이·가지·고추를 더한 작물 14종, 씨앗값/판매가 균형, 독립 농사 Lv.1–100/숙련도·수확 XP/진행률과 레벨업 기본 ‘실력이 늘었어요!’ 문구 제거를 공개 배포 완료했다. 성장 안내의 ‘게임을 꺼도 자라요’ 문구도 제거했다.
+
+- 게임 변경 커밋: [1c01b22](https://github.com/sidebatch/pixel-life/commit/1c01b22a60a9a652d00c27df3834eb6bd50f2c51)
+- 성공 배포: [Deploy GitHub Pages #38358916193](https://github.com/sidebatch/pixel-life/actions/runs/38358916193), build/deploy success.
+- 빌드 HTML: 20,235,673 bytes. 공개 전체 8파일/37,702,835 bytes가 로컬과 SHA-256 일치, 캐시 pixel-life-0ffa41864680.
+- 전체 검사: 49 scripts/140 UI ids/442 assets/74 fish, 고정 캐릭터·검/도구 계약·기존 낚시/벌목/저장 통과.
+- 경제 280,000회/성장 112가지 시뮬레이션과 로컬 393/320px 실제 재배/거래/진행 검사 통과.
+- 공개 393/320px: 이전 저장의 농사 Lv.1/0 XP·비트 이름/수량/심은 시간 보존, 실제 수확 +XP, Lv.2/6/100/숙련도 1, 밭/상점 카드, 심기/구매/판매 무XP, 실패 복원/저장/재접속을 확인했다.
+- 공통 농사/낚시/벌목 기본 레벨업 설명 문단이 없으며 실제 보상 문구가 있을 때는 유지한다. 자동으로 닫히는 5초 알림도 유지했다. 브라우저 QA는 느린 캡처 중 자동으로 닫힌 알림을 다시 클릭하지 않도록 보완했다.
+- 공개 14종 실제 씨앗 구매→심기→낫 수확→판매 28회로 최소/최대 수확 지출/판매액·순이익을 검증했다. 구매/판매 저장 실패와 새 작물 저장 재접속도 통과했다.
+- 공개 밭 상시 충돌/통로/부지 구매/낫/이전 위치 복원과 화면별 기존 외형/동작 720조합 통과.
+- 공개 PWA: 설치 조건 오류 없음, 새 캐시/7항목, 오프라인 재실행/음악 Range 206·100 bytes, 강제 재로딩 없음.
+
+기준은 [FARMING_CROPS_BALANCE_V1.md](FARMING_CROPS_BALANCE_V1.md)와 [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md)다. 결과는 output/deploy-farming-v1-qa/{deployment.json,public-files.json,pwa-public.json,public-progression/report.json,public-economy/report.json,public-layout/report.json}. 설치 앱은 완전히 종료 후 다시 열고 저장을 삭제하지 않는다.
 
 ## 저장소
 

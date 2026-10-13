@@ -1,6 +1,6 @@
 # 농사 레벨 v1
 
-2026-10-13 사용자가 ‘농사 레벨도 이제 만들어주세요’로 구현을 요청했다. 농사 독립 스킬을 로컬 적용했으며, 앞선 14종 확장/가격 변경과 함께 아직 공개 배포하지 않았다.
+2026-10-13 사용자가 ‘농사 레벨도 이제 만들어주세요’로 구현을 요청했고 후속 ‘배포해주세요. 실력이 늘었어요는 없애주세요’로 공개 배포를 요청했다. 농사 레벨·14종 확장/가격·기본 알림 문구 제거를 공개 배포 완료했다. 게임 커밋 1c01b22 / PWA 0ffa41864680이며 성공 배포와 공개 검증은 DEPLOYMENT.md에 기록한다.
 
 ## 동작
 
@@ -56,13 +56,15 @@ scripts/simulate-farming-growth.mjs에서 14종 × 4/16칸 × 즉시/15/30/60분
 - scripts/qa-farming-progression.mjs: 14종 최소/최대 수확량에서 고정 XP, 중복/불가 행동, 낚시·벌목 독립, 실제 저장 실패 및 레벨/100/숙련도 경계 복원, 이전 저장 Lv.1, 실제 재접속, 99개 레벨 경계.
 - scripts/qa-farming-progression-browser.mjs: 393×780/320×568, 일반/줄인 애니메이션, 실제 낫 타격→+XP→Lv.2/6/100/숙련도 1 알림, 상점/밭 카드, 구매/심기/판매 무XP, 기존 저장/재접속/거래 복원, 화면 넘침·뒤로가기 이력.
 - 전체 검사 통과: 소스 49개, UI ID 140개, 에셋 참조 442개, 기존 낚시·벌목/도구·저장·캐릭터 규격.
-- 배포 준비 빌드: 20,235,673바이트, PWA 0ffa41864680. 앞선 작물 확장과 아래 후속 문구 정비도 포함한다.
+- 공개 빌드: 20,235,673바이트, PWA 0ffa41864680. 앞선 작물 확장과 아래 후속 문구 정비도 포함한다.
 - 주요 소스: src/data/life-skill-data.js, src/life-skills.js, src/config.js, src/save.js, src/life-content.js, src/skill-ui.js, src/market.js, index.html.
 - 로컬 결과와 화면: output/farming-progression-v1/ 및 하위 layout-built/, economy-built/. 실사용 저장과 분리된 브라우저에서 검증한다.
 - 배포용 단일 HTML도 393/320px 성장 검사(progression-built/report.json), 기존 농장/충돌/낫/저장 검사(layout-built/report.json), 14종 실제 구매→심기→수확→판매 검사(economy-built/report.json)를 통과했다. 일반 애니메이션의 레벨업 후 잔여 23/84 XP(27%)도 확인했다.
 
 ## 2026-10-13 배포 요청과 알림 문구 정비
 
-사용자는 ‘배포해주세요. 실력이 늘었어요는 없애주세요’로 공개 배포와 문구 삭제를 요청했다. 농사/낚시/벌목의 공통 레벨업 알림에서 기본 ‘실력이 늘었어요!’ 문구와 빈 설명 줄을 제거했다. 실제 보상 안내가 있을 때는 그 내용만 표시한다. 배포 준비 중이며 최종 공개 결과는 DEPLOYMENT.md에 기록한다.
+사용자는 ‘배포해주세요. 실력이 늘었어요는 없애주세요’로 공개 배포와 문구 삭제를 요청했다. 농사/낚시/벌목의 공통 레벨업 알림에서 기본 ‘실력이 늘었어요!’ 문구와 빈 설명 줄을 제거했다. 실제 보상 안내가 있을 때는 그 내용만 표시한다. 공개 배포 완료했으며 결과는 DEPLOYMENT.md에 기록한다.
 
 최종 로컬 검사: output/deploy-farming-v1-qa/local-progression/report.json. 393/320px의 실제 Lv.2/6/100/숙련도 1에서 기본 설명 문단이 없고 세 스킬의 기본 알림에 문구가 없음을 확인했다. 실제 보상 내용 표시도 유지했다.
+
+공개 성장/거래/농장/PWA 검사와 전체 8파일 일치도 통과했다. 검증 배포 커밋 1c01b22, 워크플로 #38358916193, 결과는 output/deploy-farming-v1-qa/deployment.json과 public-progression/public-economy/public-layout/pwa-public.json이다.

@@ -7,6 +7,15 @@ const base=process.env.PIXEL_LIFE_QA_URL||'http://127.0.0.1:4186/';
 const out=path.resolve(process.argv[2]||'output/farming-progression-v1');fs.mkdirSync(out,{recursive:true});
 const browser=await chromium.launch({headless:true,executablePath:process.env.PIXEL_LIFE_CHROME||undefined});
 const errors=[],reports=[];
+async function closeLevelUp(page){
+  // The real notification also auto-closes after five seconds; a slow screenshot
+  // must not turn that valid dismissal into an attempt to click an expired toast.
+  if(await page.evaluate(()=>isSkillLevelUpVisible())){
+    try{await page.locator('.skillLevelUpClose').click({timeout:2000});}
+    catch(error){if(await page.evaluate(()=>isSkillLevelUpVisible()))throw error;}
+  }
+  await page.waitForFunction(()=>!isSkillLevelUpVisible()&&!window.history.state?.pixelLifeOverlay);
+}
 try{
   for(const width of [393,320]){
     const context=await browser.newContext({viewport:{width,height:width===320?568:780},isMobile:true,hasTouch:true,reducedMotion:width===320?'reduce':'no-preference'});
@@ -43,7 +52,7 @@ try{
     await page.waitForFunction(()=>document.querySelector('#skillXPToast .skillCardXp')?.textContent==='23 / 84 XP');
     assert.equal(await page.locator('#skillXPToast [role="progressbar"]').getAttribute('aria-valuenow'),'27');
     await page.screenshot({path:path.join(out,'level-up-'+width+'.png')});
-    await page.locator('.skillLevelUpClose').click();await page.waitForFunction(()=>!isSkillLevelUpVisible());
+    await closeLevelUp(page);
     assert(await page.evaluate(()=>!menuOpen&&!isFarmPlotOpen()&&!window.history.state?.pixelLifeOverlay));
     assert.deepEqual(await page.evaluate(()=>({fishing:GAME_STATE.progression.fishing,logging:GAME_STATE.progression.logging,coins:GAME_STATE.progression.coins})),setup);
     const beforeXp=await page.evaluate(()=>{
@@ -78,8 +87,7 @@ try{
     assert.equal(await page.evaluate(()=>GAME_STATE.progression.farming.totalXp),480);
     await page.waitForFunction(()=>!isChoppingTree());
     await page.screenshot({path:path.join(out,'multi-level-'+width+'.png')});
-    await page.locator('.skillLevelUpClose').click();
-    await page.waitForFunction(()=>!isSkillLevelUpVisible()&&!window.history.state?.pixelLifeOverlay);
+    await closeLevelUp(page);
     // Reach Lv.100 and then mastery through real sickle actions.
     for(const [total,title] of [[187229,'농사 Lv.100!'],[187230+3999,'농사 숙련도 1!']]){
       await page.evaluate(total=>{
@@ -92,8 +100,7 @@ try{
       assert.equal(await page.locator('#skillLevelUpOverlay p').count(),0);
       await page.waitForFunction(()=>!isChoppingTree());
       assert.equal(await page.evaluate(()=>GAME_STATE.progression.farming.totalXp),total+24);
-      await page.locator('.skillLevelUpClose').click();
-      await page.waitForFunction(()=>!isSkillLevelUpVisible()&&!window.history.state?.pixelLifeOverlay);
+      await closeLevelUp(page);
     }
     const saved=await page.evaluate(()=>{cancelSkillXpFeedback();saveGame();return JSON.parse(JSON.stringify(GAME_STATE.progression.farming));});
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));

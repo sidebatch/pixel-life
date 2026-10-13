@@ -1,6 +1,6 @@
 # Pixel Life — Life Skill Progression System v1.0
 
-2026-10-13 최신: 사용자 요청으로 농사 독립 Farming Lv.1–100/숙련도·수확 XP/진행률/저장 호환을 로컬 구현했다. 현재 계약은 [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md), 가격/14종은 FARMING_CROPS_BALANCE_V1.md다. 후속 확장과 농사 레벨은 아직 공개 배포하지 않았다. 농장 배치/기본 낫은 기존 공개 FARMING_LAYOUT_V1 기준을 유지한다.
+2026-10-13 최신 공개: 사용자 요청으로 농사 독립 Farming Lv.1–100/숙련도·수확 XP/진행률/저장 호환과 작물 14종/가격·기본 레벨업 문구 정비를 공개 배포 완료했다. 현재 계약은 [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md), 가격/14종은 FARMING_CROPS_BALANCE_V1.md다. 농장 배치/기본 낫은 기존 FARMING_LAYOUT_V1 기준을 유지한다.
 ## 다른 세션/Work 인수인계 문서
 
 2026-10-12 적용: [LIFE_SKILL_GROWTH_BALANCE.md](LIFE_SKILL_GROWTH_BALANCE.md)의 성장 v2가 현행 수치/저장 기준이다. 완전 벌목 XP 7~18, Lv.80 이후 공통 요구량 증가, Lv.100 누적 187,230 XP와 기존 레벨·바·숙련도 보존을 적용했다. 아래 예시 XP/요구량은 현행 수치표로 사용하지 않는다.

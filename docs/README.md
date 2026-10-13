@@ -1,5 +1,7 @@
 # Pixel Life 문서 안내
 
+2026-10-13 최신 로컬은 [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md): 랜덤 주문 1개/납품·보상/교환권과 소품 3종의 교환·지정 배치·회수·저장이다. 신규 기능은 아직 공개 배포 전이며 아래 농사 레벨 배포 기록과 구분한다.
+
 2026-10-13 최신 공개 농사: [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md). 독립 Lv.1–100/숙련도·수확 XP·진행률·저장 호환과 14종 확장/가격·기본 ‘실력이 늘었어요!’ 문구 제거를 공개 배포 완료했다. 게임 커밋 `1c01b22` / PWA `0ffa41864680`, 배포 결과는 DEPLOYMENT.md다.
 
 2026-10-13 공개 작물은 14종이다. 비트 이름·새 4종·가격·검증은 [FARMING_CROPS_BALANCE_V1.md](FARMING_CROPS_BALANCE_V1.md)를 따른다. 아래 10종 배포 기록은 이전 이력이다.

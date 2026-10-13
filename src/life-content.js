@@ -160,6 +160,7 @@ function commitLifeChange(change){
   const beforeCoins=GAME_STATE.progression.coins;
   const beforeLogging=GAME_STATE.progression.logging?{...GAME_STATE.progression.logging}:null;
   const beforeFarming=GAME_STATE.progression.farming?{...GAME_STATE.progression.farming}:null;
+  const beforeFarmOrders=GAME_STATE.progression.farmOrders?JSON.parse(JSON.stringify(GAME_STATE.progression.farmOrders)):null;
   const beforeForestry=GAME_STATE.progression.forestry?JSON.parse(JSON.stringify(GAME_STATE.progression.forestry)):null;
   const beforeAppearance=GAME_STATE.appearance?{...GAME_STATE.appearance}:null;
   const result=change();
@@ -171,6 +172,7 @@ function commitLifeChange(change){
   GAME_STATE.progression.coins=beforeCoins;
   if(beforeLogging) GAME_STATE.progression.logging=beforeLogging;
   if(beforeFarming) GAME_STATE.progression.farming=beforeFarming;
+  if(beforeFarmOrders) GAME_STATE.progression.farmOrders=beforeFarmOrders;
   if(beforeForestry) GAME_STATE.progression.forestry=beforeForestry;
   if(beforeAppearance) GAME_STATE.appearance=beforeAppearance;
   return null;
@@ -428,6 +430,8 @@ function renderLifePanel(){
   const state=getFarmPlotState(plot),phase=getFarmPlotPhase(plot),crop=LIFE_CROP_BY_ID.get(state.cropId);
   lifeUi.phase=phase;
   document.getElementById('farmSkillCard').innerHTML=skillCardMarkup('farming');
+  const decorButton=document.getElementById('lifeDecor');
+  if(decorButton)decorButton.textContent=`농장 꾸미기 · 교환권 ${GAME_STATE.progression.farmOrders?.tickets||0}장`;
   document.getElementById('lifeTitle').textContent=crop?crop.name:phase==='LOCKED'?'부지 구매':'씨앗 심기';
   const info=document.getElementById('lifeInfo'),actions=document.getElementById('lifeActions');
   if(phase==='LOCKED'){
@@ -493,6 +497,10 @@ function updateLifeContentUi(now){
 }
 
 if(typeof document!=='undefined'){
+  document.getElementById('lifeDecor')?.addEventListener('click',()=>{
+    closeFarmPlot({fromHistory:true});openMarket({shop:'farm',fromHistory:true});
+    try{window.history.replaceState({...window.history.state,pixelLifeOverlay:'market',fishId:'farm'},'');}catch(_){}
+  });
   document.getElementById('lifeClose').addEventListener('click',closeFarmPlot);
   document.getElementById('lifeExit').addEventListener('click',closeFarmPlot);
   document.getElementById('lifeActions').addEventListener('click',event=>{

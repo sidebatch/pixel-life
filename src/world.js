@@ -113,6 +113,7 @@ function buildWorldRegion(definition){
     if(blocked.has(key(post.x,post.y)))throw new Error('Route sign overlaps a solid tile: '+post.id);
     blocked.add(key(post.x,post.y));
   }
+  if(typeof refreshFarmDecorationCollision==='function')refreshFarmDecorationCollision();
 }
 
 function buildingAtDoor(x,y){

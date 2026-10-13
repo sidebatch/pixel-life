@@ -43,6 +43,8 @@
     "qa:farming:browser": "node scripts/qa-farming-layout-browser.mjs",
     "qa:farming:balance": "node scripts/simulate-farming-balance.mjs",
     "qa:farming:progression": "node scripts/qa-farming-progression.mjs",
+    "qa:farming:orders": "node scripts/qa-farm-orders.mjs",
+    "qa:farming:orders-browser": "node scripts/qa-farm-orders-browser.mjs",
     "qa:farming:growth": "node scripts/simulate-farming-growth.mjs",
     "qa:farming:progression-browser": "node scripts/qa-farming-progression-browser.mjs",
     "qa:farming:economy-browser": "node scripts/qa-farming-economy-browser.mjs",

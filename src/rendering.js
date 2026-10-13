@@ -915,6 +915,7 @@ function drawWorld(){
   // Buildings participate in the SAME Y-sort as trees/actors.
   // Building Standard 3.0: the depth line is independent from sprite size and door position.
   const renderables=[];
+  if(typeof addFarmDecorationRenderables==='function')addFarmDecorationRenderables(renderables);
   if(GAME_STATE.regionId==='sunnyFields')for(const plot of WORLD_DEFINITION.farmPlots){
     if(getFarmPlotPhase(plot)==='READY')renderables.push({y:(plot.y+1)*TILE,draw:()=>drawMatureFarmCrop(plot)});
   }

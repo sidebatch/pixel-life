@@ -1,0 +1,22 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-10-13",
+  "references": [
+    "assets/world/route-sign-v1.png",
+    "assets/farming/mature/tomato.png"
+  ],
+  "prompts": [
+    {
+      "id": "scarecrow",
+      "prompt": "Use case: stylized-concept. Asset type: transparent game decoration sprite, Pixel Life. Reference images show the game's wooden sign and crop pixel-art style only. Draw one cheerful SMALL FARM SCARECROW: straw hat, round simple burlap head with tiny stitched smile, muted teal shirt, two outstretched stick arms and sparse straw, brown wooden stake ending at ground; little dirt shadow attached at base. Front view with slight top-down perspective, single centered object. Match warm detailed square pixel-art, dark brown outlines, crisp pixel clusters, limited natural palette. Compact proportions; reads clearly at 48x64 game display. Fully transparent surroundings, generous 15% padding. No background, no scene, no letters, no text, no watermark, no multiple views."
+    },
+    {
+      "id": "sign",
+      "prompt": "Use case: stylized-concept. Asset type: transparent game decoration sprite, Pixel Life. Reference images are game's wooden sign and crop pixel-art style only. Draw one SMALL FARM SIGNBOARD on a short wooden post, front with slight top-down view. Warm tan rectangular wooden sign with a simple painted orange carrot and green leaves emblem, decorated with tiny green vine on one corner. Grounded short brown stake and subtle attached dark dirt shadow. Match warm detailed square pixel-art, dark brown outlines, crisp pixel clusters, limited natural palette. Clear silhouette at 48x48 game display; centered with 15% transparent padding. No letters, words, numbers, background, scene, watermark or multiple views."
+    },
+    {
+      "id": "fence",
+      "prompt": "Use case: stylized-concept. Asset type: transparent tileable garden decoration sprite, Pixel Life. Reference images show game's wood and crop pixel-art style only. Draw ONE short horizontal decorative wooden fence segment, frontal slightly top-down, warm honey brown planks with TWO horizontal rails and TWO simple vertical posts, tiny yellow flower with green leaves at one post. Low fence silhouette, width about twice its height. Ends of horizontal rails reach near side edges to join neighboring copies. Match warm detailed square pixel-art, dark brown outlines, crisp square pixel clusters, limited natural palette. Fully transparent surroundings and under rails, no ground scene. No words, background, watermark or multiple views. This single fence segment will repeat across the farm edge."
+    }
+  ]
+}

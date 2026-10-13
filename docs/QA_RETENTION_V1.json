@@ -6,7 +6,7 @@
   "groups": [
     {
       "topic": "농사 확장·경제·레벨",
-      "latest": ["deploy-farming-v1-qa", "farming-progression-v1", "farming-expansion-v1"],
+      "latest": ["farm-orders-v1", "deploy-farming-v1-qa", "farming-progression-v1", "farming-expansion-v1"],
       "previous": ["deploy-farm-ui-qa"]
     },
     {

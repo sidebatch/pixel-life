@@ -1,0 +1,65 @@
+[
+  {
+    "id": "scarecrow",
+    "source": "assets/farming/decorations/source-v1/scarecrow.png",
+    "sourceSize": [
+      1167,
+      1348
+    ],
+    "sourceBounds": {
+      "x": 92,
+      "y": 128,
+      "width": 983,
+      "height": 1092
+    },
+    "output": "assets/farming/decorations/scarecrow-v1.png",
+    "packedBounds": {
+      "x": 7,
+      "y": 6,
+      "width": 81,
+      "height": 90
+    }
+  },
+  {
+    "id": "sign",
+    "source": "assets/farming/decorations/source-v1/sign.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "sourceBounds": {
+      "x": 299,
+      "y": 322,
+      "width": 657,
+      "height": 674
+    },
+    "output": "assets/farming/decorations/sign-v1.png",
+    "packedBounds": {
+      "x": 7,
+      "y": 12,
+      "width": 82,
+      "height": 84
+    }
+  },
+  {
+    "id": "fence",
+    "source": "assets/farming/decorations/source-v1/fence.png",
+    "sourceSize": [
+      1774,
+      887
+    ],
+    "sourceBounds": {
+      "x": 45,
+      "y": 209,
+      "width": 1684,
+      "height": 520
+    },
+    "output": "assets/farming/decorations/fence-v1.png",
+    "packedBounds": {
+      "x": 0,
+      "y": 66,
+      "width": 96,
+      "height": 30
+    }
+  }
+]

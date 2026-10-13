@@ -1,5 +1,8 @@
 const ASSET_URLS = Object.freeze({
   farmSoil:'assets/farming/terrain/soil-v1.png',
+  farmScarecrow:'assets/farming/decorations/scarecrow-v1.png',
+  farmSign:'assets/farming/decorations/sign-v1.png',
+  farmFence:'assets/farming/decorations/fence-v1.png',
   bridge: 'assets/world/bridge-deck-v1.png',
   bridgePost:'assets/world/bridge-post-v1.png',
   tree: 'assets/world/tree.png',

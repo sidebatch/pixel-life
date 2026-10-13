@@ -18,6 +18,8 @@ const scriptFiles = [
   'src/data/fishing-gear-data.js',
   'src/data/life-skill-data.js',
   'src/data/life-content-data.js',
+  'src/data/farm-orders-data.js',
+  'src/farm-orders.js',
   'src/data/tree-dex-data.js',
   'src/data/sword-data.js',
   'src/data/farming-data.js',
@@ -119,7 +121,7 @@ assert(trialContext.__trialValid&&!trialContext.__trialInvalid&&trialContext.__t
   'Trial parts must switch independently through appearance IDs without changing saved game state');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 20, 'Fish dex, five-world tree dex, inventory, appearance, and market tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 22, 'Fish dex, tree dex, inventory, appearance, market and farm tabs must be accessible');
 const pwaManifest=JSON.parse(read('manifest.webmanifest'));
 assert(pwaManifest.display==='standalone'&&pwaManifest.orientation==='portrait-primary'&&
   pwaManifest.id==='./?app=pixel-life-v2'&&pwaManifest.start_url==='./?source=pwa-v2'&&pwaManifest.scope==='./'&&
@@ -153,7 +155,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 442, `Expected 442 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 445, `Expected 445 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -1958,6 +1960,7 @@ checkCharacterStandard();
 checkSwordStandard();
 await import('./qa-farming-layout.mjs');
 await import('./qa-farming-progression.mjs');
+await import('./qa-farm-orders.mjs');
 await import('./qa-life-skill-growth.mjs');
 await import('./qa-fishing-expansion-data.mjs');
 await import('./qa-fishing-baseline.mjs');

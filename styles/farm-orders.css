@@ -1,0 +1,22 @@
+.farmOrderCard,.farmDecorationCard{padding:15px;border:1px solid rgba(239,216,154,.35);border-radius:17px;background:linear-gradient(160deg,rgba(59,87,66,.95),rgba(26,51,47,.98));color:#f2f7e8}
+.farmOrderCard h3,.farmDecorationCard h3{margin:7px 0 14px;font-size:18px}
+.farmOrderLabel{font-size:11px;color:#f4d990;font-weight:850}
+.farmOrderRequirements{display:grid;gap:9px}
+.farmOrderRequirement{display:flex;align-items:center;gap:10px;padding:9px;border-radius:12px;background:rgba(0,0,0,.18);font-size:13px}
+.farmOrderRequirement .lifeItemIcon{width:40px;height:40px;flex:none}
+.farmOrderRequirement>span{margin-left:auto;white-space:nowrap;font-size:11px;color:#e6c895}
+.farmOrderRequirement.ready>span{color:#bde6b1}
+.farmOrderRewards{display:flex;justify-content:space-between;gap:8px;margin:16px 0;color:#ffe5a5;font-size:12px;flex-wrap:wrap}
+.farmOrderCard button,.farmDecorationCard button,.farmViewLink{min-height:44px;padding:9px 12px;border:1px solid #efd79e;border-radius:11px;background:linear-gradient(180deg,#e3b662,#bb8841);color:#2c251b;font:850 13px system-ui;cursor:pointer}
+.farmOrderCard>button,.farmViewLink{width:100%}
+.farmOrderCard button:disabled,.farmDecorationCard button:disabled{opacity:.5;cursor:default}
+.farmOrderNote{margin:10px 0 0;font-size:11px;color:#c3d8c4}
+.farmViewLink{margin-top:9px;background:rgba(255,255,255,.08);color:#f2e4ba}
+.farmDecorationCard{display:grid;grid-template-columns:70px minmax(0,1fr);gap:13px;margin-bottom:10px}
+.farmDecorationCard>img{width:70px;height:76px;object-fit:contain;image-rendering:pixelated;align-self:center}
+.farmDecorationCard h3{margin:0 0 7px;font-size:16px}
+.farmDecorationCard p{margin:0 0 8px;font-size:11px;line-height:1.5;color:#cfe0cd}
+.farmDecorationCard strong{display:block;margin-bottom:8px;font-size:11px;color:#f1d59c}
+.farmDecorationCard button{width:100%;font-size:12px}
+#farmSkillCard,#lifeDecor{flex-shrink:0}
+@media(max-width:360px){.farmDecorationCard{padding:11px;grid-template-columns:56px minmax(0,1fr);gap:9px}.farmDecorationCard>img{width:56px;height:68px}.farmOrderCard{padding:12px}.farmOrderRequirement{gap:6px;padding:7px}}

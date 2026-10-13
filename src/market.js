@@ -1,6 +1,7 @@
 const MARKET_FISH_BY_ID=new Map(FISH_DATA.map(fish=>[fish.id,fish]));
 const MARKET_SHOPS=Object.freeze({
-  elli:{name:'엘리의 상점',views:['fish','crops','seeds','rods'],defaultView:'fish'},
+  elli:{name:'엘리의 상점',views:['fish','crops','seeds','rods','orders','decorations'],defaultView:'fish'},
+  farm:{name:'농장 꾸미기',views:['decorations'],defaultView:'decorations'},
   workshop:{name:'준의 도구점',views:['wood','axes'],defaultView:'wood'}
 });
 const marketState={open:false,shop:'elli',view:'fish',selection:new Map(),goodsSelection:new Map(),message:''};
@@ -305,24 +306,29 @@ function renderMarket(){
     const active=button.dataset.marketView===marketState.view;
     button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));
   });
-  document.querySelector('.marketTabs').style.gridTemplateColumns=`repeat(${shop.views.length},minmax(0,1fr))`;
+  document.querySelector('.marketTabs').style.gridTemplateColumns=`repeat(${Math.min(3,shop.views.length)},minmax(0,1fr))`;
   document.getElementById('marketShopName').textContent=shop.name;
   document.getElementById('marketPanel').setAttribute('aria-label',shop.name);
-  document.getElementById('marketTitle').textContent={fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 · 수리',wood:'목재 판매',axes:'도끼 · 귀환 도구'}[marketState.view];
+  document.getElementById('marketTitle').textContent={fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 · 수리',wood:'목재 판매',axes:'도끼 · 귀환 도구',orders:'농장 주문',decorations:'농장 꾸미기'}[marketState.view];
   document.querySelector('.marketGreeting').textContent={fish:'엘리: 어떤 물고기를 팔고 싶어?',
     crops:'엘리: 수확한 작물을 보여 줘!',seeds:'엘리: 농장에 심을 씨앗을 골라 봐!',rods:'엘리: 낚싯대는 조금만 닳아도 고쳐 줄 수 있어!',
-    wood:'준: 목재를 가져왔어?',axes:`준: 도끼를 고치고 ${VILLAGE_RETURN_ITEM.name}도 챙겨 가!`}[marketState.view];
-  document.querySelector('.marketRule').textContent=marketState.view==='fish'?'같은 어종은 먼저 낚은 물고기부터 판매돼요.':
+    wood:'준: 목재를 가져왔어?',axes:`준: 도끼를 고치고 ${VILLAGE_RETURN_ITEM.name}도 챙겨 가!`,
+    orders:'엘리: 농장에서 키운 작물들을 부탁해!',decorations:'납품으로 모은 교환권으로 농장을 꾸며보세요.'}[marketState.view];
+  document.querySelector('.marketRule').textContent=marketState.view==='orders'?'필요한 작물을 모아 엘리에게 납품하세요.':
+    marketState.view==='decorations'?'교환한 소품은 농장에서 설치하거나 회수할 수 있어요.':
+    marketState.view==='fish'?'같은 어종은 먼저 낚은 물고기부터 판매돼요.':
     marketState.view==='crops'?'수확한 작물을 원하는 수량만큼 팔 수 있어요.':
     marketState.view==='wood'?'목재를 원하는 수량만큼 팔 수 있어요.':
     marketState.view==='axes'?`도끼는 닳은 만큼 언제든 수리할 수 있고, ${VILLAGE_RETURN_ITEM.name}은 재료 탭에서 사용해요.`:
     marketState.view==='rods'?'물고기와 코인으로 낚싯대를 구매해요. 도감 기록은 남고 장착은 가방에서 해 주세요.':'씨앗을 사서 햇살 농장의 빈 밭에 심어 보세요.';
   document.getElementById('marketMessage').textContent=marketState.message;
-  const noSale=['seeds','axes','rods'].includes(marketState.view);
+  const noSale=['seeds','axes','rods','orders','decorations'].includes(marketState.view);
   document.querySelector('.marketTotalLine').hidden=noSale;
   document.getElementById('marketSellBtn').hidden=noSale;
   document.getElementById('marketTotalLabel').textContent=marketState.view==='fish'?'선택한 물고기':marketState.view==='wood'?'선택한 목재':'선택한 작물';
   document.getElementById('marketSellBtn').textContent=marketState.view==='fish'?'선택한 물고기 판매':marketState.view==='wood'?'선택한 목재 판매':'선택한 작물 판매';
+  if(marketState.view==='orders'){ensureFarmOrder();renderFarmOrdersMarket();return;}
+  if(marketState.view==='decorations'){renderFarmDecorationsMarket();return;}
   if(marketState.view==='seeds'){renderSeedMarket();return;}
   if(marketState.view==='rods'){renderRodMarket();return;}
   if(marketState.view==='axes'){renderForestryMarket();return;}
@@ -440,6 +446,16 @@ if(typeof document!=='undefined'){
     renderMarket();document.getElementById('marketList').scrollTop=0;
   }));
   document.getElementById('marketList').addEventListener('click',event=>{
+    if(marketState.view==='orders'||marketState.view==='decorations'){
+      const button=event.target.closest('[data-farm-action]');if(!button||button.disabled)return;
+      const action=button.dataset.farmAction;
+      if(action==='deliver')deliverFarmOrder(button.dataset.orderId);
+      else if(action==='exchange')exchangeFarmDecoration(button.dataset.decorationId);
+      else if(action==='place'||action==='remove')setFarmDecorationPlaced(button.dataset.decorationId,action==='place');
+      else if(action==='show-decorations'){marketState.view='decorations';marketState.message='';renderMarket();}
+      else if(action==='retry-order'){marketState.message='';renderMarket();}
+      return;
+    }
     if(marketState.view==='axes'){
       if(marketState.shop!=='workshop') return;
       const returnItemButton=event.target.closest('[data-buy-return-item]');

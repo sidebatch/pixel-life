@@ -20,7 +20,7 @@ async function check({preview=false,fail='',invalid=false,rigFailure=false}={}){
   for(const target of ['imgs','fishImgs','forestTreeImgs','forestStumpImgs','characterLayerImgs',
     'characterBaselineLegacyImgs','characterToolImgs','lifeItemImgs','matureCropImgs','youngCropImgs','npcImgs'])context[target]={};
   for(const urls of ['ASSET_URLS','BUILDING_URLS','FISH_URLS','FOREST_TREE_URLS','FOREST_STUMP_URLS',
-    'CHARACTER_LAYER_URLS','CHARACTER_BASELINE_LEGACY_URLS','CHARACTER_TOOL_URLS','SWORD_TOOL_URLS',
+    'CHARACTER_LAYER_URLS','CHARACTER_BASELINE_LEGACY_URLS','CHARACTER_TOOL_URLS','SWORD_TOOL_URLS','SICKLE_TOOL_URLS',
     'LIFE_ITEM_URLS','MATURE_CROP_URLS','YOUNG_CROP_URLS','NPC_SHEET_URLS'])context[urls]={one:urls};
   vm.createContext(context);vm.runInContext(source,context);
   let settled=false,error;
@@ -32,7 +32,7 @@ async function check({preview=false,fail='',invalid=false,rigFailure=false}={}){
     pending.splice(0).forEach(done=>done());await new Promise(resolve=>setImmediate(resolve));
   }
   assert(settled,'Loading hung');await loading;
-  const total=12+(preview?1:0)+6+1;
+  const total=13+(preview?1:0)+6+1;
   assert(progress.every((p,i)=>p.total===total&&p.completed<=total&&(i===0||p.completed===progress[i-1].completed+1)));
   if(fail&&fail!=='NPC_SHEET_URLS'||invalid||rigFailure){assert(error);assert(progress.at(-1).completed<total);}
   else{assert(!error);assert.equal(progress.at(-1).completed,total);}

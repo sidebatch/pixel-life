@@ -42,7 +42,7 @@ function tryMove(d){
   player.x=nx;player.y=ny;player.t=0;player.moving=true;
 }
 function canNpcMove(n,nx,ny){
-  if(!inside(nx,ny) || blocked.has(key(nx,ny))) return false;
+  if(!inside(nx,ny)||blocked.has(key(nx,ny))) return false;
   // Building Standard 1.0: NPC roaming must never occupy a door approach tile.
   if(buildings.some(b=>b.entrance.approach.x===nx && b.entrance.approach.y===ny)) return false;
   const playerDist=Math.abs(nx-player.x)+Math.abs(ny-player.y);

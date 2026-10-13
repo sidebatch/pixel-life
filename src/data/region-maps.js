@@ -561,6 +561,9 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
     paths:[
       {x1:1,y1:24,x2:13,y2:24},{x1:11,y1:17,x2:11,y2:31},
       {x1:11,y1:20,x2:21,y2:20},{x1:11,y1:28,x2:21,y2:28},
+      {x1:14,y1:21,x2:22,y2:21},{x1:14,y1:26,x2:22,y2:26},
+      {x1:14,y1:21,x2:14,y2:26},{x1:16,y1:21,x2:16,y2:26},
+      {x1:18,y1:21,x2:18,y2:26},{x1:20,y1:21,x2:20,y2:26},
       {x1:22,y1:20,x2:22,y2:31}
     ],
     stoneAreas:[],waterAreas:[{id:'farm_pond',x:27,y:13,w:11,h:15,cutCorners:true,fishingHabitat:'pond'}],
@@ -579,7 +582,7 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
       {axis:'y',from:3,to:44,step:2,fixed:62,gaps:[]}
     ],
     trees:[{x:8,y:14},{x:15,y:14},{x:20,y:15},{x:42,y:19},{x:45,y:30},{x:18,y:37}],
-    farmPlots:Array.from({length:16},(_,index)=>({id:`farm_${String(index+1).padStart(2,'0')}`,x:15+index%4,y:22+Math.floor(index/4)})),
+    farmPlots:Array.from({length:16},(_,index)=>({id:`farm_${String(index+1).padStart(2,'0')}`,x:15+(index%4)*2,y:22+Math.floor(index/4)})),
     exits:[{x:1,y:24,to:'lilacVillage',entry:{x:60,y:24,face:'left'},label:'마을로'}]
   }),
   mountainLake:Object.freeze({

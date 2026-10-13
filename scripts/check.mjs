@@ -20,6 +20,7 @@ const scriptFiles = [
   'src/data/life-content-data.js',
   'src/data/tree-dex-data.js',
   'src/data/sword-data.js',
+  'src/data/farming-data.js',
   'src/data/voyage-data.js',
   'src/world-time.js',
   'src/weather.js',
@@ -73,7 +74,7 @@ const freshContext={WORLD_DEFINITION:{tileSize:48,width:64,height:48},
   document:{getElementById:()=>({width:576,height:1024,getContext:()=>({})})},
   DEFAULT_FISHING_ROD_ID:'rod.basic',DEFAULT_FORESTRY_AXE_ID:'axe.basic'};
 vm.createContext(freshContext);
-vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
+vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/data/farming-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/config.js')}\nglobalThis.__fresh=GAME_STATE;`,freshContext);
 assert(freshContext.__fresh.progression.coins===0&&freshContext.__fresh.progression.fishing.level===1&&
   freshContext.__fresh.progression.logging.level===1&&
   freshContext.__fresh.progression.fishing.equippedRodId==='rod.basic'&&
@@ -102,7 +103,7 @@ assert(freshContext.__legacyWardrobe.ownedOutfitIds.length===3&&freshContext.__l
   freshContext.__wardrobeTrial.outfitId==='outfit.traveler'&&freshContext.__wardrobeTrial.backpackId==='pack.traveler',
   'Legacy and selected temporary appearances must restore independently while trial IDs stay excluded');
 vm.createContext(trialContext);
-vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/config.js')}\n
+vm.runInContext(`${read('src/assets.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/data/farming-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/config.js')}\n
   const trialBefore=JSON.stringify(GAME_STATE);
   globalThis.__trialValid=setCharacterAppearancePreview(['outfitId','hairId','backpackId']);
   globalThis.__trialAppearance=getCharacterRenderAppearance();
@@ -151,7 +152,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 424, `Expected 424 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 426, `Expected 426 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -189,7 +190,7 @@ for(const assetPath of assetPaths.filter(asset=>asset.startsWith('assets/forestr
   const compactAxes=['black-iron','rune','spirit','moonlight','starlight','primordial'];
   const compactAxe=compactAxes.some(id=>assetPath.endsWith(`/axes/${id}.png`));
   const expected=compactAxe?'384x384':assetPath.includes('/axes/')?'1254x1254':assetPath.includes('/chop/')?'640x1280':
-    assetPath.includes('/trees/')?'120x144':'96x96';
+    assetPath.includes('/trees/')?'120x144':assetPath.includes('/terrain/')?'48x48':'96x96';
   assert(actual===expected,`Wrong life asset size: ${assetPath} (${actual}, expected ${expected})`);
   assert([4,6].includes(bytes[25]),`Life asset must have an alpha channel: ${assetPath}`);
 }
@@ -721,7 +722,7 @@ const saveContext={
   }
 };
 vm.createContext(saveContext);
-vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/life-skills.js')}\n`+
+vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/fishing-habitat-data.js')}\n${read('src/data/fish-data.js')}\n${read('src/data/fishing-gear-data.js')}\n${read('src/data/life-skill-data.js')}\n${read('src/data/life-content-data.js')}\n${read('src/data/character-rig-data.js')}\n${read('src/data/sword-data.js')}\n${read('src/data/farming-data.js')}\n${read('src/life-skills.js')}\n`+
   `${read('src/data/tree-dex-data.js')}\n`+
   `const DEFAULT_OUTFIT_ID='outfit.traveler';const CHARACTER_OUTFIT_BY_ID=new Map([[DEFAULT_OUTFIT_ID,{id:DEFAULT_OUTFIT_ID}]]);\n`+
   `const CHARACTER_PARTS={body:new Map([['body.starter',{}]]),hair:new Map([['hair.brown',{}]]),backpack:new Map([['pack.traveler',{}]])};\n`+
@@ -946,6 +947,8 @@ inventoryContext.getOwnedForestryAxes=()=>[{id:'axe.basic',name:'기본 도끼',
 inventoryContext.getForestryAxeDurability=axe=>axe.id==='axe.basic'?{infinite:true,broken:false,current:null,max:null}:{infinite:false,broken:false,current:180,max:180};
 inventoryContext.getEquippedSword=()=>({id:'sword.basic',name:'기본 검',asset:'basic'});
 inventoryContext.getOwnedSwords=()=>[{id:'sword.basic',name:'기본 검',asset:'basic'}];
+inventoryContext.FARM_SICKLE={id:'sickle.basic',name:'기본 낫',asset:'basic'};
+inventoryContext.SICKLE_TOOL_URLS={'sickle.basic':'/sickle.png'};
 inventoryContext.SWORD_TOOL_URLS={'sword.basic':'/sword.png'};
 inventoryContext.FORESTRY_AXE_URLS={basic:'/axe.png',iron:'/iron.png'};
 inventoryContext.GAME_STATE.appearance={outfitId:'outfit.traveler',ownedOutfitIds:['outfit.traveler'],activeTool:'axe'};
@@ -960,7 +963,8 @@ assert(inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 검, 장착하기"')&&
   !inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('fishing/rods/basic.png')&&
-  (inventoryScrollNode.innerHTML.match(/class="inventoryInfoButton"/g)||[]).length===4&&
+  inventoryScrollNode.innerHTML.includes('aria-label="기본 낫, 장착하기"')&&
+  (inventoryScrollNode.innerHTML.match(/class="inventoryInfoButton"/g)||[]).length===5&&
   !inventoryScrollNode.innerHTML.includes('inventoryItemCount'),
   'Owned tools must use image cards, one selection mark and separate info buttons without counts, clothes or duplicate hand picker');
 inventoryContext.saveGame=()=>true;
@@ -1071,7 +1075,7 @@ vm.runInContext(`Math.random=()=>0;const testTree=REGION_WORLDS.oldForest.trees.
   `globalThis.__doublePlant=plantFarmCrop(lockedPlot,'carrot');`+
   `GAME_STATE.world.plots[lockedPlot.id].plantedAt=Date.now()-LIFE_CROP_BY_ID.get('carrot').growMs-1;`+
   `globalThis.__offlinePhase=getFarmPlotPhase(lockedPlot);`+
-  `globalThis.__harvested=harvestFarmCrop(lockedPlot);globalThis.__doubleHarvest=harvestFarmCrop(lockedPlot);`+
+  `GAME_STATE.appearance.activeTool='sickle';globalThis.player={x:lockedPlot.x-1,y:lockedPlot.y};globalThis.__harvested=harvestFarmCrop(lockedPlot);globalThis.__doubleHarvest=harvestFarmCrop(lockedPlot);`+
   `globalThis.__cropCount=lifeItemCount('crop','carrot');globalThis.__farmCoins=GAME_STATE.progression.coins;`,lifeContext);
 assert(lifeContext.__hits.join(',')==='true,true,true,true,true,false'&&lifeContext.__logs===0&&
   lifeContext.__regrown.hp===100,'Trees must take five hits, allow a zero-item result, and regrow from wall-clock time');
@@ -1270,7 +1274,7 @@ vm.runInContext(`GAME_STATE.regionId='sunnyFields';const extraPlot=REGION_WORLDS
   `globalThis.__extraCropResults=['turnip','onion','cabbage','wheat','tomato','pumpkin'].map(id=>{`+
   `addLifeItem('seed',id,1);const planted=plantFarmCrop(extraPlot,id);`+
   `GAME_STATE.world.plots[extraPlot.id].plantedAt=Date.now()-LIFE_CROP_BY_ID.get(id).growMs-1;`+
-  `const ready=getFarmPlotPhase(extraPlot)==='READY';const harvested=harvestFarmCrop(extraPlot);`+
+  `GAME_STATE.appearance.activeTool='sickle';globalThis.player={x:extraPlot.x-1,y:extraPlot.y};const ready=getFarmPlotPhase(extraPlot)==='READY';const harvested=harvestFarmCrop(extraPlot);`+
   `return planted&&ready&&harvested&&lifeItemCount('crop',id)>0&&lifeItemIconMarkup('crop',id).includes('farming/harvest/'+id+'.png');});`,lifeContext);
 assert(lifeContext.__extraCropResults.length===6&&lifeContext.__extraCropResults.every(Boolean),
   'All six added crops must plant, mature offline, harvest, and show their own inventory icon');
@@ -1357,7 +1361,7 @@ const farmDrawCalls=[];
 const farmIds=['carrot','turnip','potato','onion','cabbage','wheat','corn','tomato','strawberry','pumpkin'];
 const farmNow=Date.now();
 const farmDrawContext={
-  GAME_STATE:{regionId:'sunnyFields'},TILE:48,camX:0,camY:0,
+  GAME_STATE:{regionId:'sunnyFields'},TILE:48,camX:0,camY:0,imgs:{farmSoil:{soil:true}},
   WORLD_DEFINITION:{farmPlots:farmIds.flatMap((crop,index)=>[
     {x:index,y:0,crop,phase:'GROWING',elapsed:100},
     {x:index,y:1,crop,phase:'GROWING',elapsed:3000},
@@ -1370,7 +1374,7 @@ const farmDrawContext={
   getFarmPlotPhase:plot=>plot.phase,
   getFarmPlotState:plot=>({cropId:plot.crop,plantedAt:farmNow-plot.elapsed}),
   ctx:{save(){},restore(){},fillRect(){},strokeRect(){},beginPath(){},arc(){},stroke(){},
-    drawImage(sprite,_x,_y,width,height){farmDrawCalls.push({id:sprite.id,stage:sprite.stage,width,height});}}
+    drawImage(sprite,_x,_y,width,height){if(!sprite.soil)farmDrawCalls.push({id:sprite.id,stage:sprite.stage,width,height});}}
 };
 vm.createContext(farmDrawContext);
 vm.runInContext(`${read('src/rendering.js')}\ndrawFarmGround();`,farmDrawContext);
@@ -1483,8 +1487,9 @@ for(const [pose,definition] of Object.entries(rig.poses))for(const name of ['Bod
   characterContext.characterLayerImgs[pose+name]={id:pose+name,width:definition.columns*96,height:384};
 for(const key of Object.keys(rig.tools))characterContext.characterToolImgs[key]={id:key,width:96,height:96};
 characterContext.characterToolImgs['sword.basic']={id:'sword.basic',width:96,height:96};
+characterContext.characterToolImgs['sickle.basic']={id:'sickle.basic',width:96,height:96};
 vm.createContext(characterContext);
-vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/data/sword-data.js')+'\n'+read('src/character.js')+'\n'+read('src/rendering.js'),characterContext);
+vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/data/sword-data.js')+'\n'+read('src/data/farming-data.js')+'\n'+read('src/character.js')+'\n'+read('src/rendering.js'),characterContext);
 vm.runInContext('validateCharacterRigAssets();',characterContext);
 for(const [pose,definition] of Object.entries(rig.poses)){
   for(const face of ['down','right','left','up'])for(let frame=0;frame<definition.columns;frame++){
@@ -1817,6 +1822,7 @@ const validationScripts = [
   'src/assets.js',
   'src/data/character-rig-data.js',
   'src/data/sword-data.js',
+  'src/data/farming-data.js',
   'src/data/world-map.js',
   'src/data/region-maps.js',
   'src/data/fishing-habitat-data.js',
@@ -1940,13 +1946,14 @@ const accessibility=vm.runInContext(`Object.values(REGION_WORLDS).map(def=>{
   const near=point=>[[0,1],[0,-1],[1,0],[-1,0]].some(([dx,dy])=>seen.has(key(point.x+dx,point.y+dy)));
   return {id:def.id,exits:(REGION_EXITS[def.id]||[]).every(exit=>seen.has(key(exit.x,exit.y))),
     fishing:near(def.fishingSpot),trees:trees.filter(tree=>tree.interactable).every(near),
-    plots:(def.farmPlots||[]).every(plot=>seen.has(key(plot.x,plot.y)))};
+    plots:(def.farmPlots||[]).every(near)};
 })`,validationContext);
 assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&region.plots),
   `Each region must have reachable exits, fishing shore, resource trees, and plots: ${JSON.stringify(accessibility)}`);
 
 checkCharacterStandard();
 checkSwordStandard();
+await import('./qa-farming-layout.mjs');
 await import('./qa-life-skill-growth.mjs');
 await import('./qa-fishing-expansion-data.mjs');
 await import('./qa-fishing-baseline.mjs');

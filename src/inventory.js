@@ -58,6 +58,7 @@ function inventoryWearable(type,id){
   const appearance=normalizeSavedAppearance(GAME_STATE.appearance);
   if(type==='axe')return getOwnedForestryAxes().find(item=>item.id===id)||null;
   if(type==='rod')return FISHING_RODS.find(item=>item.id===id&&isFishingRodUnlocked(item))||null;
+  if(type==='sickle')return id===FARM_SICKLE.id?FARM_SICKLE:null;
   if(type==='sword')return getOwnedSwords().find(item=>item.id===id)||null;
   if(type==='outfit')return appearance.ownedOutfitIds.includes(id)?CHARACTER_OUTFIT_BY_ID.get(id):null;
   if(type==='backpack')return appearance.ownedBackpackIds.includes(id)?CHARACTER_PARTS.backpack.get(id):null;
@@ -76,7 +77,7 @@ function equipInventoryAppearance(type,id){
 
 function inventoryWearableArt(type,item){
   const url=type==='axe'?FORESTRY_AXE_URLS[item.asset]:type==='rod'?FISHING_ROD_URLS[item.asset]:
-    type==='sword'?SWORD_TOOL_URLS[item.id]:
+    type==='sword'?SWORD_TOOL_URLS[item.id]:type==='sickle'?SICKLE_TOOL_URLS[item.id]:
     inventoryAppearanceIcon(type,item.id||'pack.traveler')||item.iconUrl;
   return `<img src="${url}" alt="">`;
 }
@@ -95,7 +96,7 @@ function inventoryWearableCard(type,item,equipped){
 }
 
 function selectHeldTool(tool){
-  if(!['axe','rod','sword'].includes(tool)) return false;
+  if(!['axe','rod','sword','sickle'].includes(tool)) return false;
   if(tool==='rod'&&getFishingRodDurability()?.broken)return false;
   if((typeof isChoppingTree==='function'&&isChoppingTree())||
     (typeof isFishingActive==='function'&&isFishingActive()))return false;
@@ -160,11 +161,12 @@ function renderInventoryEquipment(){
   const equippedSword=getEquippedSword();
   const appearance=normalizeSavedAppearance(GAME_STATE.appearance);
   document.getElementById('inventorySummary').textContent=appearance.activeTool==='none'?'장착 없음 · 망가진 도끼는 준의 도구점에서 수리':
-    `장착 ${appearance.activeTool==='rod'?equippedRod.name:appearance.activeTool==='sword'?equippedSword.name:equippedAxe.name}`;
+    `장착 ${appearance.activeTool==='rod'?equippedRod.name:appearance.activeTool==='sword'?equippedSword.name:appearance.activeTool==='sickle'?FARM_SICKLE.name:equippedAxe.name}`;
   const equipment=[
     ...getOwnedForestryAxes().map(axe=>inventoryWearableCard('axe',axe,appearance.activeTool==='axe'&&axe.id===equippedAxe.id)),
     ...rods.map(rod=>inventoryWearableCard('rod',rod,appearance.activeTool==='rod'&&rod.id===equippedRod.id)),
-    ...getOwnedSwords().map(sword=>inventoryWearableCard('sword',sword,appearance.activeTool==='sword'&&sword.id===equippedSword.id))
+    ...getOwnedSwords().map(sword=>inventoryWearableCard('sword',sword,appearance.activeTool==='sword'&&sword.id===equippedSword.id)),
+    inventoryWearableCard('sickle',FARM_SICKLE,appearance.activeTool==='sickle')
   ];
   document.getElementById('inventoryScroll').innerHTML=`<div class="inventoryItemGrid">${equipment.join('')}</div>`;
 }
@@ -187,8 +189,9 @@ function openInventoryDetail(type,id,options={}){
   const equipped=type==='axe'?appearance.activeTool==='axe'&&getEquippedForestryAxe().id===id:
     type==='rod'?appearance.activeTool==='rod'&&getEquippedFishingRod().id===id:
     type==='sword'?appearance.activeTool==='sword'&&getEquippedSword().id===id:
+    type==='sickle'?appearance.activeTool==='sickle':
     appearance[type==='outfit'?'outfitId':'backpackId']===id;
-  const labels={axe:'벌목 도구',rod:'낚시 도구',sword:'검',outfit:'옷',backpack:'가방'};
+  const labels={axe:'벌목 도구',rod:'낚시 도구',sword:'검',sickle:'농사 도구',outfit:'옷',backpack:'가방'};
   const axeDurability=type==='axe'?getForestryAxeDurability(item):null;
   const rodDurability=type==='rod'?getFishingRodDurability(item):null;
   const effects=type==='rod'?[...fishingRodEffectLabels(item),rodDurability.infinite?'내구도 무제한':`내구도 ${rodDurability.current} / ${rodDurability.max}`,
@@ -196,7 +199,7 @@ function openInventoryDetail(type,id,options={}){
     type==='axe'?[`타격 힘 ${item.damage}`,axeDurability.infinite?'내구도 무제한':`내구도 ${axeDurability.current} / ${axeDurability.max}`,
       `벨 수 있는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`]:
     type==='sword'?[`검 단계 ${item.tier}`,nextSword()?'다음 검은 추후 구매 가능':'상위 검과 전투 콘텐츠는 추후 추가 예정']:
-    ['외형용 · 능력치 변화 없음'];
+    type==='sickle'?['다 자란 작물 한 칸 수확','내구도 무제한']:['외형용 · 능력치 변화 없음'];
   const description=item.description||(type==='axe'?'나무를 베는 도끼. 장착한 도끼의 힘으로 나무에 피해를 줍니다.':'여행자의 기본 의상. 걷기·낚시·벌목 동작에 함께 적용돼요.');
   document.getElementById('inventoryDetailContent').innerHTML=`<div class="inventoryDetailHero">
     <span>${inventoryWearableArt(type,{...item,id})}</span><div><small>${labels[type]}</small><h3 id="inventoryDetailTitle">${item.name}</h3></div></div>
@@ -319,12 +322,13 @@ if(typeof document!=='undefined'){
       const success=card.dataset.equipType==='rod'?equipFishingRod(card.dataset.equipId):
         card.dataset.equipType==='axe'?equipForestryAxe(card.dataset.equipId):
         card.dataset.equipType==='sword'?equipSword(card.dataset.equipId):
+        card.dataset.equipType==='sickle'?selectHeldTool('sickle'):
         equipInventoryAppearance(card.dataset.equipType,card.dataset.equipId);
       if(success){
         renderInventory();
         const equipKind=card.dataset.equipType;
         if(equipKind==='rod'){if(typeof playEquipRodSound==='function')playEquipRodSound();}
-        else if(equipKind==='axe'||equipKind==='sword'){if(typeof playEquipWeaponSound==='function')playEquipWeaponSound();}
+        else if(equipKind==='axe'||equipKind==='sword'||equipKind==='sickle'){if(typeof playEquipWeaponSound==='function')playEquipWeaponSound();}
         else if(typeof playEquipClothesSound==='function')playEquipClothesSound();
         document.getElementById('inventorySummary').textContent=`${inventoryWearable(card.dataset.equipType,card.dataset.equipId).name} 장착`;
         const selected=document.querySelector(`[data-equip-id="${card.dataset.equipId}"]`);

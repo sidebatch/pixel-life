@@ -258,6 +258,7 @@ async function loadAll(onProgress=()=>{}){
       [[characterBaselineLegacyImgs,CHARACTER_BASELINE_LEGACY_URLS]]:[]),
     [characterToolImgs,CHARACTER_TOOL_URLS],
     [characterToolImgs,SWORD_TOOL_URLS],
+    [characterToolImgs,SICKLE_TOOL_URLS],
     [lifeItemImgs,LIFE_ITEM_URLS],
     [matureCropImgs,MATURE_CROP_URLS],
     [youngCropImgs,YOUNG_CROP_URLS],

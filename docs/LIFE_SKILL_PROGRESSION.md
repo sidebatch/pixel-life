@@ -1,9 +1,11 @@
 # Pixel Life — Life Skill Progression System v1.0
+
+2026-10-13 농장 정비 v1: 지정 부지/통로/밭 상시 충돌/기본 제공 낫은 로컬 구현됐다. 농사 XP/레벨/상위 낫/작물 도감은 미구현이며 Farming 독립 여부도 아직 결정 전이다. 상세는 [FARMING_LAYOUT_V1.md](FARMING_LAYOUT_V1.md)를 따른다.
 ## 다른 세션/Work 인수인계 문서
 
 2026-10-12 적용: [LIFE_SKILL_GROWTH_BALANCE.md](LIFE_SKILL_GROWTH_BALANCE.md)의 성장 v2가 현행 수치/저장 기준이다. 완전 벌목 XP 7~18, Lv.80 이후 공통 요구량 증가, Lv.100 누적 187,230 XP와 기존 레벨·바·숙련도 보존을 적용했다. 아래 예시 XP/요구량은 현행 수치표로 사용하지 않는다.
 
-2026-10-12 현재 승인 경계: 낚시·벌목 독립 성장/공통 UI는 구현됐다. 농사는 작물 10종의 심기·성장·수확/판매·저장만 있고 XP/레벨/낫/작물 도감은 없다. Farming 독립 vs Gathering 포함은 아직 사용자 결정 전이며 독립 농사는 assistant 추천일 뿐 확정안이 아니다. 다음 세션은 [HANDOFF.md](HANDOFF.md)의 다음 작업 순서를 먼저 확인한다.
+2026-10-13 현재 승인 경계: 낚시·벌목 독립 성장/공통 UI는 구현됐다. 농사는 작물 10종의 심기·성장·수확/판매·저장에 로컬 농장 정비와 기본 낫이 추가됐으며 XP/레벨/상위 낫/작물 도감은 없다. Farming 독립 vs Gathering 포함은 아직 사용자 결정 전이며 독립 농사는 assistant 추천일 뿐 확정안이 아니다. 다음 세션은 [HANDOFF.md](HANDOFF.md)의 다음 작업 순서를 먼저 확인한다.
 
 이 문서는 Pixel Life 오픈월드 게임의 생활 스킬 성장 시스템 확정안이다.
 이후 구현 및 UI 작업은 아래 원칙을 기준으로 진행한다.

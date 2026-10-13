@@ -13,10 +13,10 @@ function validateCharacterRigAssets(){
     if(!image||image.width!==96||image.height!==96||tool.nativeLength<=0)
       throw new Error(`Character tool does not match rig: ${key}`);
   }
-  for(const key of Object.keys(SWORD_TOOLS)){
+  for(const key of Object.keys({...SWORD_TOOLS,...SICKLE_TOOLS})){
     const image=characterToolImgs[key];
     if(!image||image.width!==96||image.height!==96)
-      throw new Error(`Sword tool does not match rig: ${key}`);
+      throw new Error(`Action tool does not match rig: ${key}`);
   }
   for(const [part,entries] of Object.entries(CHARACTER_PARTS)){
     const required=part==='body'?['Body','Head','Grip']:part==='hair'?['Hair']:['Backpack'];
@@ -33,10 +33,10 @@ function validateCharacterRigAssets(){
 function getCharacterPose(){
   const face=player.face||'down';
   if(lifeUi.chop?.regionId===GAME_STATE.regionId){
-    const sword=lifeUi.chop.mode==='sword';
-    return {pose:sword?'sword':'chop',face,
+    const sword=lifeUi.chop.mode==='sword',sickle=lifeUi.chop.mode==='sickle';
+    return {pose:sword?'sword':sickle?'sickle':'chop',face,
       frame:tNow-lifeUi.chop.startedAt<(sword?SWORD_SWING_TIMING:FORESTRY_CHOP_TIMING).impactMs?0:1,
-      tool:sword?'sword':'axe'};
+      tool:sword?'sword':sickle?'sickle':'axe'};
   }
   if(typeof isFishingActive==='function'&&isFishingActive()){
     const phase=fishingState.phase;
@@ -66,16 +66,16 @@ function getCharacterWalkHeadAlignment(pose){
 }
 
 function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
-  const frame=(pose.pose==='sword'?SWORD_ACTION:CHARACTER_RIG.poses[pose.pose]).frames[pose.face][pose.frame];
+  const frame=(pose.pose==='sword'?SWORD_ACTION:pose.pose==='sickle'?SICKLE_ACTION:CHARACTER_RIG.poses[pose.pose]).frames[pose.face][pose.frame];
   const asset=pose.tool==='rod'?getEquippedFishingRod().asset:
-    pose.tool==='sword'?getEquippedSword().asset:getEquippedForestryAxe().asset;
-  const key=`${pose.tool}.${asset}`,tool=pose.tool==='sword'?SWORD_TOOLS[key]:CHARACTER_RIG.tools[key];
+    pose.tool==='sword'?getEquippedSword().asset:pose.tool==='sickle'?FARM_SICKLE.asset:getEquippedForestryAxe().asset;
+  const key=`${pose.tool}.${asset}`,tool=pose.tool==='sword'?SWORD_TOOLS[key]:pose.tool==='sickle'?SICKLE_TOOLS[key]:CHARACTER_RIG.tools[key];
   if(!tool) return null;
   const unit=CHARACTER_RIG.renderSize/CHARACTER_RIG.cell;
   const x=actorX+(frame.grip[0]+getCharacterWalkAlignment(pose)-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
   const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):
-    pose.tool==='sword'?swordTargetLength(tool,pose.pose):pose.pose==='chop'?34:26)*unit;
+    pose.tool==='sword'?swordTargetLength(tool,pose.pose):pose.tool==='sickle'?(pose.pose==='sickle'?tool.swingLength:tool.carryLength):pose.pose==='chop'?34:26)*unit;
   // Front/back carry and swings show a narrow three-quarter edge, not the broad
   // side. Keep the right-hand pivot and shaft length; side views stay intact.
   const frontBackCarry=pose.tool==='axe'&&pose.pose==='walk'&&
@@ -98,7 +98,7 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
 function drawCharacterTool(transform){
   const image=transform&&characterToolImgs[transform.key];
   if(!image) return;
-  const tool=SWORD_TOOLS[transform.key]||CHARACTER_RIG.tools[transform.key];
+  const tool=SWORD_TOOLS[transform.key]||SICKLE_TOOLS[transform.key]||CHARACTER_RIG.tools[transform.key];
   ctx.save();ctx.translate(transform.x,transform.y);
   if(transform.edgeScale<1){
     // Foreshorten only the dimension across the handle axis. Squashing the
@@ -112,7 +112,7 @@ function drawCharacterTool(transform){
 }
 
 function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
-  const definition=pose.pose==='sword'?SWORD_ACTION:CHARACTER_RIG.poses[pose.pose],cell=CHARACTER_RIG.cell;
+  const definition=pose.pose==='sword'?SWORD_ACTION:pose.pose==='sickle'?SICKLE_ACTION:CHARACTER_RIG.poses[pose.pose],cell=CHARACTER_RIG.cell;
   const row={down:0,right:1,left:2,up:3}[pose.face],size=CHARACTER_RIG.renderSize;
   const x=actorX-CHARACTER_RIG.feet[0]*size/cell;
   const y=actorY+20-CHARACTER_RIG.feet[1]*size/cell;
@@ -131,8 +131,8 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
     // Chop source art has wider heads on some impact frames despite equal
     // cell/feet dimensions. Keep the same head dimensions, but translate/tilt
     // it around the neck with the torso instead of freezing it in place.
-    const stableChopHead=(pose.pose==='chop'||pose.pose==='sword')&&(name==='Head'||name==='Hair');
-    const artPose=pose.pose==='sword'?'chop':pose.pose;
+    const stableChopHead=(pose.pose==='chop'||pose.pose==='sword'||pose.pose==='sickle')&&(name==='Head'||name==='Hair');
+    const artPose=pose.pose==='sword'||pose.pose==='sickle'?'chop':pose.pose;
     const layerPose=stableChopHead?'walk':artPose;
     const layerFrame=stableChopHead?0:pose.frame;
     const part=['Body','Head','Grip'].includes(name)?'body':name==='Hair'?'hair':name==='Backpack'?'backpack':null;
@@ -165,7 +165,7 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   if(!transform?.behind&&!toolOverHair)drawCharacterTool(transform);
   // A raised preparation hand passes behind the head. Drawing all gripping
   // hands last made this skin patch look like an exposed bald rear skull.
-  const handBehindHead=(pose.pose==='chop'||pose.pose==='sword'||pose.pose==='fish')&&pose.frame===0;
+  const handBehindHead=(pose.pose==='chop'||pose.pose==='sword'||pose.pose==='sickle'||pose.pose==='fish')&&pose.frame===0;
   if(handBehindHead)drawLayer('Grip');
   drawLayer('Head');drawLayer('Hair');
   if(toolOverHair)drawCharacterTool(transform);

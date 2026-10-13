@@ -1,4 +1,5 @@
 const ASSET_URLS = Object.freeze({
+  farmSoil:'assets/farming/terrain/soil-v1.png',
   bridge: 'assets/world/bridge-deck-v1.png',
   bridgePost:'assets/world/bridge-post-v1.png',
   tree: 'assets/world/tree.png',
@@ -210,6 +211,7 @@ const CHARACTER_TOOL_URLS=Object.freeze({
   'rod.abyssal':'assets/player/rig-v1/tools/rod-abyssal.png',
   'rod.aurora':'assets/player/rig-v1/tools/rod-aurora.png'
 });
+const SICKLE_TOOL_URLS=Object.freeze({'sickle.basic':'assets/player/sickle-v1/basic.png'});
 const SWORD_TOOL_URLS=Object.freeze({
   'sword.basic':'assets/player/sword-v1/basic.png'
 });

@@ -410,19 +410,26 @@ function drawRouteSignpost(post){
   ctx.restore();
 }
 
-function drawFarmGround(){
+function drawMatureFarmCrop(plot){
+  const crop=LIFE_CROP_BY_ID.get(getFarmPlotState(plot).cropId);
+  if(!crop||getFarmPlotPhase(plot)!=='READY')return;
+  const x=Math.round(plot.x*TILE-camX),y=Math.round(plot.y*TILE-camY),size=58;
+  const bottomRatio=crop.id==='corn'?.96:crop.id==='potato'?.9:.84;
+  ctx.drawImage(matureCropImgs[crop.id],Math.round(x+(TILE-size)/2),Math.round(y+43-size*bottomRatio),size,size);
+  ctx.fillStyle='#fff2b1';ctx.fillRect(x+37,y+8,4,4);
+}
+
+function drawFarmGround(options={}){
   if(GAME_STATE.regionId!=='sunnyFields') return;
   for(const plot of WORLD_DEFINITION.farmPlots){
     const x=Math.round(plot.x*TILE-camX),y=Math.round(plot.y*TILE-camY);
     const phase=getFarmPlotPhase(plot),state=getFarmPlotState(plot);
     ctx.save();
     const locked=phase==='LOCKED';
-    // Keep unavailable plots in the same soil family as growing plots; only
-    // desaturate them and add a small lock instead of a separate grey tile.
-    ctx.fillStyle=locked?'#4a6047':'#50382b';ctx.fillRect(x+7,y+5,34,38);ctx.fillRect(x+4,y+9,40,30);
-    ctx.fillStyle=locked?'#637554':'#755037';ctx.fillRect(x+7,y+9,34,30);
-    ctx.fillStyle=locked?'#7b8962':'#94643e';
-    for(let line=0;line<3;line++) ctx.fillRect(x+10,y+13+line*10,28,3);
+    // A continuous pixel soil strip with rough grassy edges, rather than UI cards.
+    ctx.globalAlpha=locked?.55:1;
+    ctx.drawImage(imgs.farmSoil,x,y,TILE,TILE);
+    ctx.globalAlpha=1;
     if(phase==='LOCKED'){
       ctx.fillStyle='#d9dcc3';ctx.fillRect(x+20,y+23,9,8);
       ctx.strokeStyle='#d9dcc3';ctx.lineWidth=2;ctx.beginPath();ctx.arc(x+24.5,y+22,4,Math.PI,0);ctx.stroke();
@@ -440,16 +447,13 @@ function drawFarmGround(){
           ctx.fillStyle='#3e6934';ctx.fillRect(x+23,y+22,3,15);
           ctx.fillStyle='#72b84c';ctx.fillRect(x+16,y+22,8,4);ctx.fillRect(x+25,y+19,8,4);
           ctx.fillStyle='#96d268';ctx.fillRect(x+18,y+21,5,2);ctx.fillRect(x+27,y+18,5,2);
+        }else if(phase==='READY'){
+          if(options.includeReady!==false)drawMatureFarmCrop(plot);
         }else{
-          const ready=phase==='READY';
-          const sprite=ready?matureCropImgs[crop.id]:youngCropImgs[crop.id];
-          const size=ready?58:48;
-          const bottomRatio=ready&&crop.id==='corn'?.96:ready&&crop.id==='potato'?.9:.84;
+          const sprite=youngCropImgs[crop.id];
+          const size=48,bottomRatio=.84;
           const drawX=Math.round(x+(TILE-size)/2),drawY=Math.round(y+43-size*bottomRatio);
           ctx.drawImage(sprite,drawX,drawY,size,size);
-        }
-        if(phase==='READY'){
-          ctx.fillStyle='#fff2b1';ctx.fillRect(x+37,y+8,4,4);
         }
       }
     }
@@ -872,7 +876,7 @@ function drawWorld(){
   // Visual terrain is blended independently from the reliable tile movement/collision logic.
   const voyageSea=typeof drawVoyageSea==='function'&&WORLD_DEFINITION.voyageDeck&&drawVoyageSea();
   if(!voyageSea)drawTerrain();
-  drawFarmGround();
+  drawFarmGround({includeReady:false});
   drawRegionExits();
 
   // Water shimmer travels across the whole pond instead of restarting in every cell.
@@ -911,6 +915,9 @@ function drawWorld(){
   // Buildings participate in the SAME Y-sort as trees/actors.
   // Building Standard 3.0: the depth line is independent from sprite size and door position.
   const renderables=[];
+  if(GAME_STATE.regionId==='sunnyFields')for(const plot of WORLD_DEFINITION.farmPlots){
+    if(getFarmPlotPhase(plot)==='READY')renderables.push({y:(plot.y+1)*TILE,draw:()=>drawMatureFarmCrop(plot)});
+  }
   if(WORLD_DEFINITION.voyageDeck)renderables.push({y:(WORLD_DEFINITION.voyageDeck.cabin.y+WORLD_DEFINITION.voyageDeck.cabin.h)*TILE,draw:drawVoyageCabin});
   buildings.forEach(b=>{
     const localDepth=(b.depthLine ?? b.h);

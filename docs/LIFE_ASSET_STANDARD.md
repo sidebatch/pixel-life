@@ -1,5 +1,7 @@
 # 벌목·농사 이미지 규격
 
+2026-10-13 추가: 지정 농장의 흙 타일 `assets/farming/terrain/soil-v1.png`는 48×48 투명 PNG, 기본 낫 `assets/player/sickle-v1/basic.png`는 96×96 투명 PNG다. 코드 기반 픽셀 도형 원본은 `scripts/prepare-farm-pixel-assets.mjs`, 실제 도구 grip/tip·동작 규격은 `src/data/farming-data.js`와 [FARMING_LAYOUT_V1.md](FARMING_LAYOUT_V1.md)다. 기존 작물 그림은 보존한다.
+
 2026-09-24 기준. 생활 콘텐츠 PNG는 투명 배경의 독립 파일이다. 게임 타일은 48×48이며 Canvas에서 픽셀 스냅으로 그린다.
 
 | 용도 | 게임 경로 | 크기 | 연결 위치 |

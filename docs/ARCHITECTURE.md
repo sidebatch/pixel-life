@@ -1,5 +1,7 @@
 # Pixel Life Architecture
 
+2026-10-13 농장 정비 v1은 [FARMING_LAYOUT_V1.md](FARMING_LAYOUT_V1.md)를 따른다. src/data/farming-data.js는 기본 낫 데이터/독립 동작을, life-content.js는 통로에서의 수확을, world.js는 소유/작물 상태와 무관한 밭의 고정 이동 차단을 담당한다. 밭 부지는 기존 ID로 저장하며 성숙 작물은 rendering.js의 깊이 정렬에 참여한다. 농사 XP/레벨은 미연결이다.
+
 현재 구현 정리: 2026-10-12. 과거 이력보다 [HANDOFF.md](HANDOFF.md)의 최신 기준과 실제 코드를 우선한다.
 
 ## 목표
@@ -63,7 +65,7 @@ F3 또는 URL의 `?debug`로 충돌 타일, 그리드, 건물 footprint, 문, �
 
 ### `src/character.js` / `src/data/character-rig-data.js`
 
-플레이어 그림은 걷기·벌목·낚시·검 모두 96×96 셀/같은 발 기준을 사용한다. body/head/hair/outfit/backpack/grip PNG를 합성하고 각 무기의 실제 손잡이 피벗을 프레임별 손에 연결한다. 위쪽 도구는 몸 뒤에, 그립 손은 도구 위에 그린다. 낚싯줄은 같은 변환으로 구한 낚싯대 끝을 사용한다. 최초 rig 생성은 `scripts/pack-character-rig.mjs`, 현행 승인 기준 PNG의 재현은 `scripts/pack-character-baseline-v2.mjs`가 맡는다. 런타임 색상 마스크 분리는 사용하지 않는다. 외형 저장·등록은 `src/config.js`/`src/save.js`, 도구 선택은 `src/inventory.js`에 있다. 새 제작물의 규격은 `docs/CHARACTER_ASSET_STANDARD.md`와 `docs/character-standard-v4.json`을 따르고 검은 `docs/SWORD_ACTION_STANDARD.md`를 추가로 따른다. `docs/CHARACTER_APPEARANCE.md`는 과거 제작 이력이다.
+플레이어 그림은 걷기·벌목·낚시·검 모두 96×96 셀/같은 발 기준을 사용한다. body/head/hair/outfit/backpack/grip PNG를 합성하고 각 무기의 실제 손잡이 피벗을 프레임별 손에 연결한다. 위쪽 도구는 몸 뒤에, 그립 손은 도구 위에 그린다. 낚싯줄은 같은 변환으로 구한 낚싯대 끝을 사용한다. 최초 rig 생성은 `scripts/pack-character-rig.mjs`, 현행 승인 기준 PNG의 재현은 `scripts/pack-character-baseline-v2.mjs`가 맡는다. 런타임 색상 마스크 분리는 사용하지 않는다. 외형 저장·등록은 `src/config.js`/`src/save.js`, 도구 선택은 `src/inventory.js`에 있다. 새 제작물의 규격은 `docs/CHARACTER_ASSET_STANDARD.md`와 `docs/character-standard-v5.json`을 따르고 검은 `docs/SWORD_ACTION_STANDARD.md`를 추가로 따른다. `docs/CHARACTER_APPEARANCE.md`는 과거 제작 이력이다.
 
 ### `src/interactions.js`
 

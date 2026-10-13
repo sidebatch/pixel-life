@@ -164,7 +164,7 @@ function renderSeedMarket(){
     <span class="marketGoodsIcon" aria-hidden="true">${lifeItemIconMarkup('seed',crop.id,crop.icon)}</span>
     <div class="marketFishBody"><div class="marketFishTop"><b>${crop.name} 씨앗</b><span>보유 ${lifeItemCount('seed',crop.id)}개</span></div>
       <small>${Math.round(crop.growMs/60000)}분 성장 · ${crop.seedPrice.toLocaleString()}코인</small>
-      <div class="marketFishBottom"><span>수확 ${crop.harvestMin}~${crop.harvestMax}개</span>
+      <div class="marketFishBottom"><span>농장 부지에 심는 씨앗</span>
         <button type="button" class="marketSeedBuy" data-seed-id="${crop.id}" ${GAME_STATE.progression.coins>=crop.seedPrice?'':'disabled'}>구매</button>
       </div></div></div>`).join('');
   list.scrollTop=scrollTop;

@@ -63,7 +63,8 @@ function activateWorldInteraction(interaction){
     case 'sign':return showDialog('표지판','↑ 고대 숲 · ↓ 오래된 숲 · → 햇살 농장 · ← 바람결 해안 항구 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
     case 'routeSign':return showDialog('나무 팻말',interaction.target.arrow+' '+interaction.target.label);
     case 'tree':return GAME_STATE.appearance?.activeTool==='sword'?startSwordSwing():startTreeChop(interaction.target);
-    case 'farm':return openFarmPlot(interaction.target);
+    case 'farm':return getFarmPlotPhase(interaction.target)==='READY'&&GAME_STATE.appearance?.activeTool==='sickle'?
+      startFarmHarvest(interaction.target):openFarmPlot(interaction.target);
     case 'fishing':return startFishing();
     case 'building':return showDialog(interaction.target.name,interaction.target.dialog);
   }

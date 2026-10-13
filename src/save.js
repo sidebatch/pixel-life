@@ -288,7 +288,7 @@ function normalizeSavedAppearance(rawAppearance){
     outfitId:ownedOutfitIds.includes(source.outfitId)?source.outfitId:DEFAULT_OUTFIT_ID,
     ownedOutfitIds,
     ownedBackpackIds,
-    activeTool:['axe','rod','sword','none'].includes(source.activeTool)?source.activeTool:'axe'
+    activeTool:['axe','rod','sword','sickle','none'].includes(source.activeTool)?source.activeTool:'axe'
   };
 }
 

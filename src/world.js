@@ -104,6 +104,9 @@ function buildWorldRegion(definition){
     }
   }
   definition.trees.forEach(tree=>addTree(tree.x,tree.y,tree));
+  // Farm beds are work surfaces. Always approach from the adjoining lanes,
+  // regardless of ownership, planting or harvest state.
+  for(const plot of definition.farmPlots||[])blocked.add(key(plot.x,plot.y));
   // Signposts are placed only in clear roadside tiles; never displace a saved tree.
   routeSigns.push(...(definition.routeSigns||[]).map(s=>({...s})));
   for(const post of routeSigns){

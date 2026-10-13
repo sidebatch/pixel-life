@@ -325,6 +325,31 @@ function farmExpansionCost(){
   return LIFE_CONTENT.farmExpansionCosts[unlocked-LIFE_CONTENT.initialFarmPlots]||null;
 }
 
+function isFarmPlotReachable(plot){
+  return !!plot&&GAME_STATE.regionId==='sunnyFields'&&
+    Math.abs(player.x-plot.x)+Math.abs(player.y-plot.y)===1;
+}
+
+function startFarmHarvest(plot){
+  if(!isFarmPlotReachable(plot)||getFarmPlotPhase(plot)!=='READY'||
+    GAME_STATE.appearance?.activeTool!=='sickle'||lifeUi.chop||player.moving||menuOpen||dialogOpen||
+    (typeof isFishingActive==='function'&&isFishingActive()))return false;
+  clearMovement();
+  lifeUi.chop={mode:'sickle',plot,regionId:GAME_STATE.regionId,startedAt:performance.now(),struck:false};
+  return true;
+}
+
+function keepFarmPlayerOnWalkway(){
+  // Recover an old/debug position on any bed without altering its ownership
+  // or crop. Normal movement never enters a bed, even when it is empty.
+  if(GAME_STATE.regionId!=='sunnyFields'||player.moving||!farmPlotAt(player.x,player.y))return;
+  const next=[[-1,0],[1,0],[0,-1],[0,1]].map(([dx,dy])=>({x:player.x+dx,y:player.y+dy}))
+    .find(tile=>!isBlocked(tile.x,tile.y));
+  if(!next)return;
+  clearMovement();player.x=next.x;player.y=next.y;
+  player.px=next.x*TILE+TILE/2;player.py=next.y*TILE+TILE/2;
+}
+
 function buyFarmPlot(plot){
   if(getFarmPlotPhase(plot)!=='LOCKED') return false;
   const cost=farmExpansionCost();
@@ -359,7 +384,7 @@ function plantFarmCrop(plot,cropId){
 }
 
 function harvestFarmCrop(plot){
-  if(getFarmPlotPhase(plot)!=='READY') return false;
+  if(!isFarmPlotReachable(plot)||GAME_STATE.appearance?.activeTool!=='sickle'||getFarmPlotPhase(plot)!=='READY') return false;
   const state=getFarmPlotState(plot),crop=LIFE_CROP_BY_ID.get(state.cropId);
   if(!crop) return false;
   const quantity=crop.harvestMin+Math.floor(Math.random()*(crop.harvestMax-crop.harvestMin+1));
@@ -380,7 +405,8 @@ function farmPlotAt(x,y){
 
 function farmPlotActionLabel(plot){
   const phase=getFarmPlotPhase(plot);
-  return {LOCKED:'밭 확장',EMPTY:'씨앗 심기',GROWING:'작물 살펴보기',READY:'수확'}[phase];
+  return {LOCKED:'농장 부지 구매',EMPTY:'씨앗 심기',GROWING:'작물 살펴보기',
+    READY:GAME_STATE.appearance?.activeTool==='sickle'?'낫으로 수확':'기본 낫 장착'}[phase];
 }
 
 function renderLifePanel(){
@@ -394,8 +420,8 @@ function renderLifePanel(){
   if(phase==='LOCKED'){
     const cost=farmExpansionCost();
     const affordable=cost&&GAME_STATE.progression.coins>=cost.coins&&totalLogCount()>=cost.logs;
-    info.textContent=`이 밭을 확장하면 앞으로 계속 사용할 수 있어요. 보유 ${GAME_STATE.progression.coins.toLocaleString()}코인 · 목재 ${totalLogCount()}개`;
-    actions.innerHTML=`<button type="button" data-life-action="unlock" ${affordable?'':'disabled'}>밭 확장 · ${cost?.coins.toLocaleString()||0}코인${cost?.logs?` + 목재 ${cost.logs}개`:''}</button>`;
+    info.textContent=`농장의 지정 부지를 구매하면 계속 경작할 수 있어요. 보유 ${GAME_STATE.progression.coins.toLocaleString()}코인 · 목재 ${totalLogCount()}개`;
+    actions.innerHTML=`<button type="button" data-life-action="unlock" ${affordable?'':'disabled'}>부지 구매 · ${cost?.coins.toLocaleString()||0}코인${cost?.logs?` + 목재 ${cost.logs}개`:''}</button>`;
   }else if(phase==='EMPTY'){
     info.textContent='씨앗을 고르면 시간이 지나 자동으로 자라요.';
     actions.innerHTML=LIFE_CONTENT.crops.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}" ${lifeItemCount('seed',item.id)?'':'disabled'}>${lifeItemIconMarkup('seed',item.id,item.icon)} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');
@@ -404,13 +430,14 @@ function renderLifePanel(){
     info.textContent=`${crop.name}이 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요. 게임을 꺼도 자라요.`;
     actions.innerHTML='';
   }else{
-    info.textContent=`${crop.name}을 수확할 수 있어요!`;
-    actions.innerHTML=`<button type="button" data-life-action="harvest">${crop.name} 수확하기</button>`;
+    const equipped=GAME_STATE.appearance?.activeTool==='sickle';
+    info.textContent=`${crop.name}이 다 자랐어요. 옆길에서 기본 낫으로 수확하세요.`;
+    actions.innerHTML=`<button type="button" data-life-action="${equipped?'harvest':'equip-sickle'}">${equipped?`${crop.name} 낫으로 수확`:'기본 낫 장착'}</button>`;
   }
 }
 
 function openFarmPlot(plot,options={}){
-  if(!plot||lifeUi.open||(typeof isFishingActive==='function'&&isFishingActive())) return;
+  if(!isFarmPlotReachable(plot)||lifeUi.open||lifeUi.chop||player.moving||(typeof isFishingActive==='function'&&isFishingActive())) return;
   toggleMenu(false);clearMovement();menuOpen=true;
   lifeUi.open=true;lifeUi.plotId=plot.id;
   renderLifePanel();
@@ -431,13 +458,15 @@ function closeFarmPlot(options={}){
 function isFarmPlotOpen(){return lifeUi.open;}
 
 function updateLifeContentUi(now){
+  keepFarmPlayerOnWalkway();
   const chop=lifeUi.chop;
   if(chop){
     if(chop.regionId!==GAME_STATE.regionId){lifeUi.chop=null;return;}
     const elapsed=now-chop.startedAt;
-    const timing=chop.mode==='sword'?SWORD_SWING_TIMING:FORESTRY_CHOP_TIMING;
+    const timing=chop.mode==='sword'?SWORD_SWING_TIMING:chop.mode==='sickle'?FARM_HARVEST_TIMING:FORESTRY_CHOP_TIMING;
     if(!chop.struck&&elapsed>=timing.impactMs){
       chop.struck=true;
+      if(chop.mode==='sickle'&&chop.plot)harvestFarmCrop(chop.plot);
       if(chop.tree){
         const cut=getTreeState(chop.tree).hp<=getEquippedForestryAxe().damage;
         if(hitResourceTree(chop.tree)) playForestryChopSound(cut);
@@ -460,7 +489,13 @@ if(typeof document!=='undefined'){
     if(!plot) return;
     if(button.dataset.lifeAction==='unlock') buyFarmPlot(plot);
     else if(button.dataset.lifeAction==='plant') plantFarmCrop(plot,button.dataset.cropId);
-    else if(button.dataset.lifeAction==='harvest') harvestFarmCrop(plot);
+    else if(button.dataset.lifeAction==='equip-sickle'){
+      if(selectHeldTool('sickle'))renderLifePanel();
+      else showLifeToast('낫을 장착하지 못했어요');
+    }
+    else if(button.dataset.lifeAction==='harvest'){
+      closeFarmPlot();startFarmHarvest(plot);
+    }
   });
   document.getElementById('game').addEventListener('click',event=>{
     if(GAME_STATE.regionId!=='sunnyFields'||menuOpen||dialogOpen||isFishingActive()) return;
@@ -468,6 +503,9 @@ if(typeof document!=='undefined'){
     const x=Math.floor((event.clientX-rect.left)*VIEW_W/rect.width+camX);
     const y=Math.floor((event.clientY-rect.top)*VIEW_H/rect.height+camY);
     const plot=farmPlotAt(Math.floor(x/TILE),Math.floor(y/TILE));
-    if(plot&&Math.abs(player.x-plot.x)+Math.abs(player.y-plot.y)<=1) openFarmPlot(plot);
+    if(isFarmPlotReachable(plot)){
+      if(getFarmPlotPhase(plot)==='READY'&&GAME_STATE.appearance?.activeTool==='sickle')startFarmHarvest(plot);
+      else openFarmPlot(plot);
+    }
   });
 }

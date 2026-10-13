@@ -38,7 +38,9 @@
     "qa:forestry:balance": "node scripts/simulate-forestry-balance.mjs",
     "test": "npm run check && npm run build",
     "qa:growth": "node scripts/qa-life-skill-growth.mjs",
-    "qa:growth:browser": "node scripts/qa-life-skill-growth-browser.mjs"
+    "qa:growth:browser": "node scripts/qa-life-skill-growth-browser.mjs",
+    "qa:farming": "node scripts/qa-farming-layout.mjs",
+    "qa:farming:browser": "node scripts/qa-farming-layout-browser.mjs"
   },
   "engines": {
     "node": ">=20"

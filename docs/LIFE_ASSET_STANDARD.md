@@ -1,6 +1,6 @@
 # 벌목·농사 이미지 규격
 
-2026-10-13 신규 로컬 소품: 허수아비·농장 표지판·꽃 울타리, assets/farming/decorations/*-v1.png 3종/96×96 투명 PNG. 내장 image_gen 제작 원본/전체 프롬프트/패킹 명세는 source-v1/에 보존하고 scripts/pack-farm-decorations-v1.mjs로 재현한다. 배치/충돌/경제/UI/검증은 [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md)를 따른다.
+2026-10-13 신규 공개 소품: 허수아비·농장 표지판·꽃 울타리, assets/farming/decorations/*-v1.png 3종/96×96 투명 PNG. 내장 image_gen 제작 원본/전체 프롬프트/패킹 명세는 source-v1/에 보존하고 scripts/pack-farm-decorations-v1.mjs로 재현한다. 배치/충돌/경제/UI/검증은 [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md)를 따른다. 사용자 요청으로 공개 배포했고 새 그림도 공개 단일 HTML에 포함된다.
 
 2026-10-13 로컬 작물 확장: 비트(기존 turnip 경로 유지), 상추·오이·가지·고추 추가로 14종. 새 4종의 씨앗/어린 잎/완성 식물/수확물 16개는 내장 image_gen으로 제작해 96px로 패킹했다. 원본·프롬프트·명세는 `assets/farming/source/expansion-v1/`, 재현은 `scripts/pack-farming-expansion-v1.mjs`, 가격·검증·배포 상태는 [FARMING_CROPS_BALANCE_V1.md](FARMING_CROPS_BALANCE_V1.md)다. 아래 ZIP 및 최초 10종 제작 내용은 보존한 이력이다.
 

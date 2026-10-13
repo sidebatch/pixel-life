@@ -2,6 +2,20 @@
 
 현재 배포 계약 정리: 2026-10-13.
 
+## 2026-10-13 농장 주문·교환권·꾸미기 공개 배포 완료
+
+사용자 ‘배포해주세요’ 요청으로 엘리 상점의 랜덤 주문 1개/재접속 유지·납품 후 다음 주문, 판매가보다 높은 코인/농장 교환권, 농사 레벨/보유 부지에 따른 1·2·3종 주문, 허수아비·표지판·꽃 울타리의 교환/지정 설치/회수·저장을 공개 배포했다.
+
+- 게임 변경 커밋: [f1a37af](https://github.com/sidebatch/pixel-life/commit/f1a37aff4754cff12cf28b06785258efc3d658b8)
+- 성공 배포: [Deploy GitHub Pages #38444649859](https://github.com/sidebatch/pixel-life/actions/runs/38444649859), build/deploy success.
+- 빌드 HTML 20,290,574 bytes, 공개 전체 8파일/37,757,736 bytes 로컬·공개 SHA-256 일치, 캐시 pixel-life-61b8656eecda.
+- 전체 검사 51 scripts/141 UI ids/445 assets/74 fish와 3,500개 주문 단계/경제/저장 사례·납품 20회·실패 복원 통과.
+- 공개 393/320px 실제 단일 주문/납품·정확한 보상/단계 전환, 3종 교환·설치/회수/재설치, 모든 통로/밭 접근/출구, 기존 저장/재접속/뒤로가기·버튼 크기 검사 통과.
+- 공개 농사 성장 회귀: 실제 수확 XP, Lv.2/6/100/숙련도·진행률, 구매/판매 무XP·기본 설명 제거/보상 설명 유지·실패 복원·저장 통과.
+- 공개 PWA: 설치 조건 오류 없음·새 캐시·오프라인 재실행/음악 Range 206·100 bytes, 강제 재로딩 없음.
+
+규칙은 [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md), 결과는 output/deploy-farm-orders-v1-qa/{deployment.json,public-files.json,public-orders/report.json,public-growth/report.json,pwa-public.json}. 설치 앱은 완전히 종료 후 다시 열고 저장을 삭제하지 않는다.
+
 ## 2026-10-13 작물 확장·농사 레벨 공개 배포 완료
 
 사용자 요청으로 비트 이름(기존 turnip ID/저장 유지), 상추·오이·가지·고추를 더한 작물 14종, 씨앗값/판매가 균형, 독립 농사 Lv.1–100/숙련도·수확 XP/진행률과 레벨업 기본 ‘실력이 늘었어요!’ 문구 제거를 공개 배포 완료했다. 성장 안내의 ‘게임을 꺼도 자라요’ 문구도 제거했다.

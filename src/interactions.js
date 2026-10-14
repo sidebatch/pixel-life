@@ -27,7 +27,7 @@ function resolveWorldInteraction(tile=facingTile()){
   const exit=regionExitAt(tile.x,tile.y);
   if(exit) return {kind:'exit',label:exit.label,target:exit};
   const npc=npcs.find(n=>n.x===tile.x&&n.y===tile.y);
-  if(npc) return {kind:npc.id==='elli'?'market':npc.id==='jun'?'workshopMarket':npc.role==='stylist'?'characterStyle':'npc',label:npc.role==='stylist'?'외형 변경':['elli','jun'].includes(npc.id)?'상점':'대화',target:npc};
+  if(npc) return {kind:npc.id==='elli'?'market':npc.id==='jun'?'workshopMarket':npc.role==='farmMerchant'?'farmMarket':npc.role==='stylist'?'characterStyle':'npc',label:npc.role==='stylist'?'외형 변경':['elli','jun'].includes(npc.id)||npc.role==='farmMerchant'?'상점':'대화',target:npc};
   const harborFeature=harborFeatureAt(tile.x,tile.y);
   if(harborFeature) return harborFeature;
   if(tile.x===sign.x&&tile.y===sign.y) return {kind:'sign',label:'표지판'};
@@ -48,7 +48,7 @@ function resolveWorldInteraction(tile=facingTile()){
   if(plot) return {kind:'farm',label:farmPlotActionLabel(plot),target:plot};
   if(waterSet.has(key(tile.x,tile.y))&&GAME_STATE.appearance?.activeTool==='rod') return {kind:'fishing',label:'낚시'};
   const building=buildingForPlayerInteraction();
-  if(building) return {kind:'building',label:building.interactionLabel||'들어가기',target:building};
+  if(building) return {kind:building.serviceKey==='farmSupply'?'farmMarket':'building',label:building.interactionLabel||'들어가기',target:building};
   return null;
 }
 
@@ -57,6 +57,7 @@ function activateWorldInteraction(interaction){
     case 'exit':return enterWorldRegion(interaction.target);
     case 'market':return openMarket();
     case 'workshopMarket':return openMarket({shop:'workshop'});
+    case 'farmMarket':return openMarket({shop:'haru'});
     case 'characterStyle':return openCharacterStyle();
     case 'npc':return ['captain','voyageCaptain'].includes(interaction.target.role)?openHarbor():showDialog(interaction.target.name,interaction.target.dialog);
     case 'ticketBooth':return openHarbor();
@@ -331,7 +332,7 @@ function actionButtonPresentation(){
       return result('sickle',GAME_STATE.appearance?.activeTool==='sickle'?'수확':'낫 장착 필요');
     }
     if(kind==='fishing')return result('rod','낚시');
-    if(['market','workshopMarket','ticketBooth'].includes(kind))return result('basket',label);
+    if(['market','workshopMarket','farmMarket','ticketBooth'].includes(kind))return result('basket',label);
     if(['npc','characterStyle','building'].includes(kind))return result('chat',label);
     if(['sign','routeSign'].includes(kind))return result('read','읽기');
     if(kind==='exit')return result('move',label);

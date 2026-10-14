@@ -1,0 +1,31 @@
+/* Keep all/reset together even when a narrow sale row wraps. */
+.marketSelectionActions{display:flex;flex:none;gap:5px}
+.marketReset{color:#d2e1d8;background:rgba(255,255,255,.035)}
+.marketSelectionActions button:focus-visible{outline:2px solid #fff0b5;outline-offset:2px}
+.marketRule:empty{display:none}
+/* Artwork and item information form one centered row; controls span the card. */
+.marketFishRow{grid-template-columns:64px minmax(0,1fr);align-items:center;column-gap:12px;row-gap:10px;padding:12px}
+.marketFishRow>.marketGoodsIcon,.marketFishRow>img{justify-self:center;align-self:center;width:64px;height:64px}
+.marketFishRow .marketGoodsIcon .lifeItemIcon{width:60px;height:60px}
+.marketFishRow .marketFishTop{flex-direction:column;align-items:flex-start;gap:3px}
+.marketFishRow .marketFishTop b{max-width:100%;font-size:14px}
+.marketFishRow .marketFishBody>small{margin-top:4px;line-height:1.4}
+.marketSaleRow .marketRowTotal{display:block;margin:6px 0 0;color:#bfd4c7;font-size:10px;font-weight:700;white-space:normal}
+.marketSaleRow .marketRowTotal b{margin-left:4px;color:#ffe09a;font-size:12px;font-weight:900}
+.marketSaleRow>.marketFishBottom{grid-column:1/-1;justify-content:space-between;gap:8px;margin:0;padding-top:10px;border-top:1px solid rgba(255,255,255,.1)}
+.marketSaleRow .marketQty button{width:38px;height:38px}
+.marketSaleRow .marketQty strong{min-width:38px}
+.marketSaleRow .marketAll{height:38px;padding:0 12px;font-size:11px}
+.marketPurchaseRow .marketSeedBuy{width:100%;min-height:38px;margin:0;font-size:12px}
+.marketPurchaseRow .marketFishBottom{margin-top:8px}
+.marketEquipmentCard summary>img{justify-self:center;align-self:center}
+@media(max-width:360px){.marketFishRow{grid-template-columns:56px minmax(0,1fr);column-gap:10px;padding:10px}.marketFishRow>.marketGoodsIcon,.marketFishRow>img{width:56px;height:56px}.marketFishRow .marketGoodsIcon .lifeItemIcon{width:52px;height:52px}.marketSaleRow .marketQty button{width:34px}.marketSaleRow .marketQty strong{min-width:34px}.marketSaleRow .marketAll{padding:0 10px}}
+/* Collection detail cards use a central, large image like discovery cards. */
+.fishDexModalSheet .fishDexDetailHero{flex-direction:column;gap:9px;text-align:center}
+.fishDexModalSheet .fishDexDetailHero>span{flex:none;width:208px;max-width:100%;height:180px;border-radius:50%;background:radial-gradient(circle,rgba(211,232,150,.2),rgba(101,173,137,.06) 62%,transparent 73%);font-size:76px}
+.fishDexModalSheet .fishDexDetailHero>span img{width:190px;max-width:100%;height:166px;object-fit:contain;filter:drop-shadow(0 8px 6px rgba(0,0,0,.32))}
+.fishDexModalSheet .treeDexDetailHero>span{height:210px}
+.fishDexModalSheet .treeDexDetailHero>span img{width:172px;height:200px}
+.fishDexModalSheet .fishDexDetailHero h3{margin-top:3px;font-size:25px}
+.fishDexModalSheet .fishDexDetailHero small{font-size:11px}
+.fishDexModalSheet .fishDexDetail>p{text-align:center}

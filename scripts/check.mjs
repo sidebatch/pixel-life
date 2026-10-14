@@ -155,7 +155,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 450, `Expected 450 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 452, `Expected 452 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -1664,13 +1664,13 @@ assert((seedMarketNodes.marketList.innerHTML.match(/data-seed-id=/g)||[]).length
   cropCatalog.crops.every(({id})=>seedMarketNodes.marketList.innerHTML.includes(`data-seed-id="${id}"`)),
   'Seed shop must list all fourteen crops');
 marketContext.GAME_STATE.inventory.push({type:'material',id:'oak_log',quantity:2},{type:'crop',id:'carrot',quantity:3});
-vm.runInContext(`marketState.shop='elli';marketState.view='crops';renderGoodsMarket();globalThis.__cropRows=document.getElementById('marketList').innerHTML;`+
+vm.runInContext(`marketState.shop='haru';marketState.view='crops';renderGoodsMarket();globalThis.__cropRows=document.getElementById('marketList').innerHTML;`+
   `marketState.shop='workshop';marketState.view='wood';renderGoodsMarket();globalThis.__woodRows=document.getElementById('marketList').innerHTML;`+
   `marketState.goodsSelection.set('crop:carrot',1);globalThis.__wrongShopSale=sellSelectedGoods();marketState.goodsSelection.clear();`,marketContext);
 assert(marketContext.__cropRows.includes('data-good-key="crop:carrot"')&&!marketContext.__cropRows.includes('data-good-key="material:oak_log"')&&
   marketContext.__woodRows.includes('data-good-key="material:oak_log"')&&!marketContext.__woodRows.includes('data-good-key="crop:carrot"')&&
   !marketContext.__wrongShopSale,
-  'Ellie must show only crops and Jun must show only logs, with cross-shop selling rejected');
+  'Haru must show only crops and Jun must show only logs, with cross-shop selling rejected');
 marketContext.GAME_STATE.inventory.splice(-2);
 vm.runInContext(`marketState.shop='elli';marketState.view='fish';`,marketContext);
 marketContext.GAME_STATE.progression.logging={level:1};

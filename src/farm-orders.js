@@ -57,7 +57,7 @@ function ensureFarmOrder(){
 
 function deliverFarmOrder(expectedId){
   const state=GAME_STATE.progression.farmOrders,order=state.current;
-  if(marketState.shop!=='elli'||marketState.view!=='orders'||!order||order.id!==expectedId||
+  if(marketState.shop!=='haru'||marketState.view!=='orders'||!order||order.id!==expectedId||
     !order.requirements.every(row=>lifeItemCount('crop',row.cropId)>=row.quantity)||
     !Number.isSafeInteger(GAME_STATE.progression.coins+order.coins)||state.tickets+order.tickets>FARM_ORDER_RULES.maxTickets||
     state.completed>=9999999)return false;
@@ -75,7 +75,7 @@ function deliverFarmOrder(expectedId){
 
 function exchangeFarmDecoration(id){
   const state=GAME_STATE.progression.farmOrders,item=FARM_DECOR_BY_ID.get(id);
-  if(!['elli','farm'].includes(marketState.shop)||marketState.view!=='decorations'||!item||
+  if(!['haru','farm'].includes(marketState.shop)||marketState.view!=='decorations'||!item||
     state.ownedDecorationIds.includes(id)||state.tickets<item.cost)return false;
   const success=commitLifeChange(()=>{state.tickets-=item.cost;state.ownedDecorationIds.push(id);return true;});
   marketState.message=success?`${item.name}을 받았어요. 농장에서 설치해 보세요.`:'저장하지 못했어요. 다시 시도해 주세요.';
@@ -120,7 +120,7 @@ function renderFarmOrdersMarket(){
   const list=document.getElementById('marketList');
   if(!order){list.innerHTML=skillCardMarkup('farming')+'<div class="farmOrderCard"><p>주문을 저장하지 못했어요.</p><button data-farm-action="retry-order" type="button">다시 불러오기</button></div>';return;}
   const ready=order.requirements.every(row=>lifeItemCount('crop',row.cropId)>=row.quantity);
-  list.innerHTML=skillCardMarkup('farming')+`<section class="farmOrderCard"><span class="farmOrderLabel">엘리의 식재료 주문</span><h3>이 작물들을 부탁해!</h3>
+  list.innerHTML=skillCardMarkup('farming')+`<section class="farmOrderCard"><span class="farmOrderLabel">하루의 식재료 주문</span><h3>이 작물들을 부탁해!</h3>
     <div class="farmOrderRequirements">${order.requirements.map(row=>{
       const crop=LIFE_CROP_BY_ID.get(row.cropId),count=lifeItemCount('crop',row.cropId),enough=count>=row.quantity;
       return `<div class="farmOrderRequirement${enough?' ready':''}">${lifeItemIconMarkup('crop',crop.id,crop.icon)}<b>${crop.name}</b><span>보유 ${count} / ${row.quantity}개</span></div>`;

@@ -5,6 +5,11 @@
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
     {
+      "topic": "상점 분리·선택 취소·도감 상세",
+      "latest": ["deploy-shop-dex-qa", "shop-dex-polish-v1"],
+      "previous": []
+    },
+    {
       "topic": "터치 조작부 디자인",
       "latest": [
         "deploy-controls-decorations-qa",

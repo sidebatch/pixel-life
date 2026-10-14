@@ -492,9 +492,6 @@ function drawResourceTree(tree){
   }
   const sway=hit?Math.round(Math.sin(tNow/28)*4):0;
   drawWorldTree(tree,sway);
-  if(Math.abs(player.x-tree.x)+Math.abs(player.y-tree.y)<=1){
-    ctx.fillStyle='#f4d179';ctx.fillRect(x+30,y+29,6,8);
-  }
   if(state.hp<FORESTRY_TREES[tree.species].maxHp||hit) drawTreeHpBar(tree,state.hp);
 }
 function drawWorldTree(tree,sway=0){

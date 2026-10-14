@@ -23,7 +23,7 @@ try{
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
     assert.deepEqual(await page.evaluate(()=>({inventory:GAME_STATE.inventory,coins:GAME_STATE.progression.coins,plot:GAME_STATE.world.plots.farm_01,farming:GAME_STATE.progression.farming})),legacy);
     assert.equal(await page.evaluate(()=>GAME_STATE.progression.farmOrders.tickets),0);
-    await page.evaluate(()=>{enterWorldRegion({to:'lilacVillage',entry:{x:42,y:31,face:'up'}});openMarket();});
+    await page.evaluate(()=>{enterWorldRegion({to:'sunnyFields',entry:{x:9,y:24,face:'up'}});interact();});
     await page.locator('[data-market-view="orders"]').click();
     assert.equal(await page.locator('[data-order-id]').count(),1);
     const first=await page.evaluate(()=>JSON.parse(JSON.stringify(GAME_STATE.progression.farmOrders.current)));
@@ -32,7 +32,7 @@ try{
     assert.equal(await page.locator('[data-farm-action="deliver"]').isEnabled(),ready);
     await page.screenshot({path:path.join(out,'first-order-'+width+'.png')});
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
-    await page.evaluate(()=>openMarket());await page.locator('[data-market-view="orders"]').click();
+    await page.evaluate(()=>openMarket({shop:'haru'}));await page.locator('[data-market-view="orders"]').click();
     assert.deepEqual(await page.evaluate(()=>GAME_STATE.progression.farmOrders.current),first);
     const transactions=[],decorationIds=await page.evaluate(()=>FARM_DECORATIONS.map(item=>item.id));
     assert.equal(decorationIds.length,8);
@@ -75,7 +75,7 @@ try{
       const cost=await page.evaluate(id=>FARM_DECOR_BY_ID.get(id).cost,id);
       await page.locator('[data-farm-action="exchange"][data-decoration-id="'+id+'"]').click();
       assert.equal(await page.evaluate(()=>GAME_STATE.progression.farmOrders.tickets),before-cost);
-      assert(await page.locator('[data-farm-action="place"][data-decoration-id="'+id+'"]').isDisabled());
+      assert(await page.locator('[data-farm-action="place"][data-decoration-id="'+id+'"]').isEnabled());
     }
     await page.locator('#marketClose').click();await page.waitForFunction(()=>!isMarketOpen()&&!window.history.state?.pixelLifeOverlay);
     await page.evaluate(()=>{

@@ -1,0 +1,36 @@
+{
+  "tool": "built-in imagegen",
+  "packing": "alpha crop and binary-alpha nearest-neighbor; no raster art drawn in code",
+  "house": {
+    "file": "assets/buildings/farm-shop-v1.png",
+    "width": 160,
+    "height": 167,
+    "crop": {
+      "x": 84,
+      "y": 111,
+      "width": 1032,
+      "height": 1080
+    },
+    "sourceDoorCenterX": 600,
+    "doorCenterX": 80,
+    "groundOffsetY": 12,
+    "drawW": 240,
+    "drawH": 250.5
+  },
+  "npc": {
+    "file": "assets/npcs/haru-v1.png",
+    "width": 288,
+    "height": 384,
+    "cell": 96,
+    "feetY": 88,
+    "maxBodyHeight": 66,
+    "rows": [
+      "down",
+      "left",
+      "right",
+      "up"
+    ],
+    "stationary": true,
+    "frames": "one idle portrait per direction repeated in three columns; roam=0"
+  }
+}

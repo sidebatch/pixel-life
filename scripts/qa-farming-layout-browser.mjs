@@ -151,7 +151,7 @@ try{
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
     assert.deepEqual(await page.evaluate(()=>JSON.parse(JSON.stringify(GAME_STATE.world.plots))),stored);
     assert.equal(await page.evaluate(()=>GAME_STATE.appearance.activeTool),'sickle');
-    await page.evaluate(()=>{openMarket();marketState.view='seeds';renderMarket();});
+    await page.evaluate(()=>{openMarket({shop:'haru'});marketState.view='seeds';renderMarket();});
     const seedText=await page.locator('#marketList').innerText();
     assert(!/수확\s*\d+\s*[~～-]\s*\d+개/.test(seedText));assert(seedText.includes('분 성장'));
     await page.screenshot({path:path.join(out,`seed-market-${width}.png`)});

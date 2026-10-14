@@ -6,7 +6,7 @@ const context=forestWorldContext(),storage=new Map();context.document=undefined;
 context.performance={now:()=>0};context.window={addEventListener(){}};context.setTimeout=()=>0;context.clearTimeout=()=>{};
 context.localStorage={getItem:key=>storage.get(key)||null,setItem(key,value){if(context.failSave)throw Error('quota');storage.set(key,String(value));}};
 context.renderMarket=()=>{};context.setMarketCoinDisplay=()=>{};context.playMarketSaleSound=()=>{};context.showSkillXpFeedback=()=>{};
-context.marketState={shop:'elli',view:'orders',message:''};
+context.marketState={shop:'haru',view:'orders',message:''};
 const files=['src/data/farm-orders-data.js','src/farm-orders.js','src/data/fish-data.js','src/data/tree-dex-data.js','src/data/farming-data.js',
   'src/life-skills.js','src/save.js','src/simulation.js','src/life-content.js'];
 vm.runInContext(files.map(file=>fs.readFileSync(file,'utf8')).join('\n')+

@@ -1,6 +1,7 @@
 const MARKET_FISH_BY_ID=new Map(FISH_DATA.map(fish=>[fish.id,fish]));
 const MARKET_SHOPS=Object.freeze({
-  elli:{name:'엘리의 상점',views:['fish','crops','seeds','rods','orders','decorations'],defaultView:'fish'},
+  elli:{name:'엘리의 상점',views:['fish','rods'],defaultView:'fish'},
+  haru:{name:'하루의 농사 상점',views:['seeds','crops','orders','decorations'],defaultView:'seeds'},
   farm:{name:'농장 꾸미기',views:['decorations'],defaultView:'decorations'},
   workshop:{name:'준의 도구점',views:['wood','axes'],defaultView:'wood'}
 });
@@ -143,30 +144,31 @@ function renderGoodsMarket(){
   const list=document.getElementById('marketList'),scrollTop=list.scrollTop;
   list.innerHTML=(marketState.view==='crops'?skillCardMarkup('farming'):'')+(goods.length?goods.map(item=>{
     const itemKey=`${item.type}:${item.id}`,selected=marketState.goodsSelection.get(itemKey)||0;
-    return `<div class="marketFishRow" data-good-key="${itemKey}">
+    return `<div class="marketFishRow marketSaleRow" data-good-key="${itemKey}">
       <span class="marketGoodsIcon" aria-hidden="true">${lifeItemIconMarkup(item.type,item.id,item.definition.icon)}</span>
       <div class="marketFishBody"><div class="marketFishTop"><b>${item.definition.name}</b><span>보유 ${item.count}개</span></div>
-      <small>한 개 ${item.definition.price.toLocaleString()}</small>
+      <small>개당 ${item.definition.price.toLocaleString()}코인</small>
+      <span class="marketRowTotal">판매 합계 <b>${(selected*item.definition.price).toLocaleString()}코인</b></span></div>
       <div class="marketFishBottom"><div class="marketQty">
         <button type="button" data-good-action="minus" aria-label="${item.definition.name} 판매 수량 줄이기" ${selected?'':'disabled'}>−</button>
         <strong>${selected}</strong><button type="button" data-good-action="plus" aria-label="${item.definition.name} 판매 수량 늘리기" ${selected<item.count?'':'disabled'}>+</button></div>
-        <button type="button" class="marketAll" data-good-action="all" ${selected<item.count?'':'disabled'}>전부</button>
-        <span class="marketRowTotal">${(selected*item.definition.price).toLocaleString()}</span></div></div></div>`;
+        <div class="marketSelectionActions"><button type="button" class="marketAll" data-good-action="all" aria-label="${item.definition.name} 전부 선택" ${selected<item.count?'':'disabled'}>전부</button>
+        <button type="button" class="marketAll marketReset" data-good-action="reset" aria-label="${item.definition.name} 판매 수량 초기화" ${selected?'':'disabled'}>취소</button></div>
+      </div></div>`;
   }).join(''):`<div class="marketEmpty"><span>${marketState.view==='wood'?'🪵':'🌾'}</span><b>판매할 ${marketState.view==='wood'?'목재가':'작물이'} 없어요</b><p>${marketState.view==='wood'?'숲에서 나무를 베어 보세요.':'농장에서 작물을 수확해 보세요.'}</p></div>`);
   list.scrollTop=scrollTop;
-  document.getElementById('marketTotal').textContent=`${plan?.count||0}개 · ${(plan?.total||0).toLocaleString()}`;
+  document.getElementById('marketTotal').textContent=`${plan?.count||0}개 · ${(plan?.total||0).toLocaleString()}코인`;
   document.getElementById('marketSellBtn').disabled=!plan||plan.count===0;
 }
 
 function renderSeedMarket(){
   document.getElementById('marketStock').textContent='씨앗은 한 번에 1개씩 살 수 있어요';
   const list=document.getElementById('marketList'),scrollTop=list.scrollTop;
-  list.innerHTML=skillCardMarkup('farming')+LIFE_CONTENT.crops.map(crop=>`<div class="marketFishRow">
+  list.innerHTML=skillCardMarkup('farming')+LIFE_CONTENT.crops.map(crop=>`<div class="marketFishRow marketPurchaseRow">
     <span class="marketGoodsIcon" aria-hidden="true">${lifeItemIconMarkup('seed',crop.id,crop.icon)}</span>
     <div class="marketFishBody"><div class="marketFishTop"><b>${crop.name} 씨앗</b><span>보유 ${lifeItemCount('seed',crop.id)}개</span></div>
-      <small>${Math.round(crop.growMs/60000)}분 성장 · ${crop.seedPrice.toLocaleString()}코인</small>
-      <div class="marketFishBottom"><span>농장 부지에 심는 씨앗</span>
-        <button type="button" class="marketSeedBuy" data-seed-id="${crop.id}" ${GAME_STATE.progression.coins>=crop.seedPrice?'':'disabled'}>구매</button>
+      <div class="marketFishBottom">
+        <button type="button" class="marketSeedBuy" data-seed-id="${crop.id}" ${GAME_STATE.progression.coins>=crop.seedPrice?'':'disabled'}>구매 · ${crop.seedPrice.toLocaleString()}코인</button>
       </div></div></div>`).join('');
   list.scrollTop=scrollTop;
 }
@@ -220,12 +222,12 @@ function renderForestryMarket(){
       action:owned?repairAction:`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${axe.name} 구매</button>`});
   }).join('');
   const returnItemCount=lifeItemCount('consumable',VILLAGE_RETURN_ITEM.id);
-  const returnItem=`<div class="marketFishRow" data-return-item="${VILLAGE_RETURN_ITEM.id}">
+  const returnItem=`<div class="marketFishRow marketPurchaseRow" data-return-item="${VILLAGE_RETURN_ITEM.id}">
     <span class="marketGoodsIcon" aria-hidden="true">${VILLAGE_RETURN_ITEM.icon}</span>
     <div class="marketFishBody"><div class="marketFishTop"><b>${VILLAGE_RETURN_ITEM.name}</b><span>보유 ${returnItemCount.toLocaleString()}개</span></div>
-      <small>어디서든 사용하면 마을 북쪽 입구로 돌아와요 · ${VILLAGE_RETURN_ITEM.price.toLocaleString()}코인</small>
+      <small>어디서든 사용하면 마을 북쪽 입구로 돌아와요</small>
       <div class="marketFishBottom"><span>사용할 때 1개 소모</span>
-        <button type="button" class="marketSeedBuy" data-buy-return-item="${VILLAGE_RETURN_ITEM.id}" ${GAME_STATE.progression.coins>=VILLAGE_RETURN_ITEM.price?'':'disabled'}>구매</button>
+        <button type="button" class="marketSeedBuy" data-buy-return-item="${VILLAGE_RETURN_ITEM.id}" ${GAME_STATE.progression.coins>=VILLAGE_RETURN_ITEM.price?'':'disabled'}>구매 · ${VILLAGE_RETURN_ITEM.price.toLocaleString()}코인</button>
       </div></div></div>`;
   document.getElementById('marketList').innerHTML=`${skillCardMarkup('logging')}${returnItem}${catalog}`;
 }
@@ -264,7 +266,7 @@ function renderRodMarket(){
 }
 
 function buyMarketSeed(cropId){
-  if(marketState.shop!=='elli'||marketState.view!=='seeds') return false;
+  if(marketState.shop!=='haru'||marketState.view!=='seeds') return false;
   const crop=LIFE_CROP_BY_ID.get(cropId);
   if(!crop||GAME_STATE.progression.coins<crop.seedPrice) return false;
   const success=commitLifeChange(()=>{
@@ -278,7 +280,7 @@ function buyMarketSeed(cropId){
 }
 
 function sellSelectedGoods(){
-  if(!((marketState.shop==='elli'&&marketState.view==='crops')||
+  if(!((marketState.shop==='haru'&&marketState.view==='crops')||
     (marketState.shop==='workshop'&&marketState.view==='wood'))) return false;
   const type=marketState.view==='wood'?'material':'crop';
   if([...marketState.goodsSelection.keys()].some(key=>!key.startsWith(`${type}:`))) return false;
@@ -306,21 +308,21 @@ function renderMarket(){
     const active=button.dataset.marketView===marketState.view;
     button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));
   });
-  document.querySelector('.marketTabs').style.gridTemplateColumns=`repeat(${Math.min(3,shop.views.length)},minmax(0,1fr))`;
+  document.querySelector('.marketTabs').style.gridTemplateColumns=`repeat(${shop.views.length===4?2:Math.min(3,shop.views.length)},minmax(0,1fr))`;
   document.getElementById('marketShopName').textContent=shop.name;
   document.getElementById('marketPanel').setAttribute('aria-label',shop.name);
   document.getElementById('marketTitle').textContent={fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 · 수리',wood:'목재 판매',axes:'도끼 · 귀환 도구',orders:'농장 주문',decorations:'농장 꾸미기'}[marketState.view];
   document.querySelector('.marketGreeting').textContent={fish:'엘리: 어떤 물고기를 팔고 싶어?',
-    crops:'엘리: 수확한 작물을 보여 줘!',seeds:'엘리: 농장에 심을 씨앗을 골라 봐!',rods:'엘리: 낚싯대는 조금만 닳아도 고쳐 줄 수 있어!',
+    crops:'하루: 수확한 작물을 보여 줘!',seeds:'하루: 어떤 씨앗이 필요해?',rods:'엘리: 낚싯대는 조금만 닳아도 고쳐 줄 수 있어!',
     wood:'준: 목재를 가져왔어?',axes:`준: 도끼를 고치고 ${VILLAGE_RETURN_ITEM.name}도 챙겨 가!`,
-    orders:'엘리: 농장에서 키운 작물들을 부탁해!',decorations:'납품으로 모은 교환권으로 농장을 꾸며보세요.'}[marketState.view];
-  document.querySelector('.marketRule').textContent=marketState.view==='orders'?'필요한 작물을 모아 엘리에게 납품하세요.':
+    orders:'하루: 농장에서 키운 작물들을 부탁해!',decorations:'납품으로 모은 교환권으로 농장을 꾸며보세요.'}[marketState.view];
+  document.querySelector('.marketRule').textContent=marketState.view==='orders'?'필요한 작물을 모아 하루에게 납품하세요.':
     marketState.view==='decorations'?'교환한 소품은 농장에서 설치하거나 회수할 수 있어요.':
     marketState.view==='fish'?'같은 어종은 먼저 낚은 물고기부터 판매돼요.':
     marketState.view==='crops'?'수확한 작물을 원하는 수량만큼 팔 수 있어요.':
     marketState.view==='wood'?'목재를 원하는 수량만큼 팔 수 있어요.':
     marketState.view==='axes'?`도끼는 닳은 만큼 언제든 수리할 수 있고, ${VILLAGE_RETURN_ITEM.name}은 재료 탭에서 사용해요.`:
-    marketState.view==='rods'?'물고기와 코인으로 낚싯대를 구매해요. 도감 기록은 남고 장착은 가방에서 해 주세요.':'씨앗을 사서 햇살 농장의 빈 밭에 심어 보세요.';
+    marketState.view==='rods'?'물고기와 코인으로 낚싯대를 구매해요. 도감 기록은 남고 장착은 가방에서 해 주세요.':'';
   document.getElementById('marketMessage').textContent=marketState.message;
   const noSale=['seeds','axes','rods','orders','decorations'].includes(marketState.view);
   document.querySelector('.marketTotalLine').hidden=noSale;
@@ -355,22 +357,23 @@ function renderMarket(){
         maxPrice:Math.max(range.maxPrice,entry.price)
       }),{minPrice:Infinity,maxPrice:0});
       const lineTotal=selected?planFishSale(new Map([[group.fish.id,selected]])).total:0;
-      return `<div class="marketFishRow" data-fish-id="${group.fish.id}">
+      return `<div class="marketFishRow marketSaleRow" data-fish-id="${group.fish.id}">
         <img src="${getFishImageUrl(group.fish)}" alt="">
         <div class="marketFishBody">
           <div class="marketFishTop"><b>${group.fish.name}</b><span>보유 ${group.count.toLocaleString()}마리</span></div>
-          <small>한 마리 ${minPrice===maxPrice?minPrice.toLocaleString():`${minPrice.toLocaleString()}~${maxPrice.toLocaleString()}`}</small>
+          <small>마리당 ${minPrice===maxPrice?minPrice.toLocaleString():`${minPrice.toLocaleString()}~${maxPrice.toLocaleString()}`}코인</small>
+          <span class="marketRowTotal">판매 합계 <b>${lineTotal.toLocaleString()}코인</b></span>
+        </div>
           <div class="marketFishBottom">
             <div class="marketQty"><button type="button" data-market-action="minus" aria-label="${group.fish.name} 판매 수량 줄이기" ${selected===0?'disabled':''}>−</button><strong>${selected}</strong><button type="button" data-market-action="plus" aria-label="${group.fish.name} 판매 수량 늘리기" ${selected>=group.count?'disabled':''}>+</button></div>
-            <button type="button" class="marketAll" data-market-action="all" aria-label="${group.fish.name} 전부 선택" ${selected>=group.count?'disabled':''}>전부</button>
-            <span class="marketRowTotal">${selected?lineTotal.toLocaleString():'0'}</span>
+            <div class="marketSelectionActions"><button type="button" class="marketAll" data-market-action="all" aria-label="${group.fish.name} 전부 선택" ${selected>=group.count?'disabled':''}>전부</button>
+            <button type="button" class="marketAll marketReset" data-market-action="reset" aria-label="${group.fish.name} 판매 수량 초기화" ${selected?'':'disabled'}>취소</button></div>
           </div>
-        </div>
       </div>`;
     }).join('');
   }
   list.scrollTop=scrollTop;
-  document.getElementById('marketTotal').textContent=`${plan?.count||0}마리 · ${Number(plan?.total||0).toLocaleString()}`;
+  document.getElementById('marketTotal').textContent=`${plan?.count||0}마리 · ${Number(plan?.total||0).toLocaleString()}코인`;
   document.getElementById('marketSellBtn').disabled=!plan||plan.count===0;
 }
 
@@ -517,19 +520,19 @@ if(typeof document!=='undefined'){
       const [type,id]=(itemKey||'').split(':');
       const count=lifeItemCount(type,id),selected=marketState.goodsSelection.get(itemKey)||0;
       if(!count) return;
-      const next=button.dataset.goodAction==='all'?count:
+      const next=button.dataset.goodAction==='reset'?0:button.dataset.goodAction==='all'?count:
         Math.max(0,Math.min(count,selected+(button.dataset.goodAction==='plus'?1:-1)));
       if(next) marketState.goodsSelection.set(itemKey,next);
       else marketState.goodsSelection.delete(itemKey);
       marketState.message='';renderMarket();return;
     }
     const button=event.target.closest('[data-market-action]');
-    if(!button) return;
+    if(!button||button.disabled) return;
     const id=button.closest('[data-fish-id]')?.dataset.fishId;
     const group=groupInventoryFish().find(entry=>entry.fish.id===id);
     if(!group) return;
     const selected=marketState.selection.get(id)||0;
-    const next=button.dataset.marketAction==='all'?group.count:
+    const next=button.dataset.marketAction==='reset'?0:button.dataset.marketAction==='all'?group.count:
       Math.max(0,Math.min(group.count,selected+(button.dataset.marketAction==='plus'?1:-1)));
     if(next) marketState.selection.set(id,next);
     else marketState.selection.delete(id);

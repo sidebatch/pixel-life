@@ -62,7 +62,7 @@ try{
     await page.locator('[data-life-action="plant"][data-crop-id="carrot"]').click();
     await page.waitForFunction(()=>!isFarmPlotOpen());
     assert.equal(await page.evaluate(()=>GAME_STATE.progression.farming.totalXp),beforeXp);
-    await page.evaluate(()=>{openMarket();marketState.view='seeds';renderMarket();});
+    await page.evaluate(()=>{openMarket({shop:'haru'});marketState.view='seeds';renderMarket();});
     assert.equal(await page.locator('#marketList [data-skill-card="farming"]').count(),1);
     assert.equal(await page.locator('[data-seed-id]').count(),14);
     await page.locator('[data-seed-id="chili"]').click();

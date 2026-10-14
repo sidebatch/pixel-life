@@ -1,5 +1,7 @@
 # Pixel Life 문서 안내
 
+최신 로컬 변경은 [농사 상점 분리·판매 취소·도감 큰 그림](SHOP_DEX_POLISH_V1.md)이다. 2026-10-14 구현/검증 완료, 공개 배포 전이며 아래 공개 상태는 직전 버전이다.
+
 2026-10-14 공개 배포 완료: 농장 소품 총 8종과 작고 반투명한 원형 조작부/상황별 실제 장비 그림을 반영했다. 게임 변경 커밋 [2e3e911](https://github.com/sidebatch/pixel-life/commit/2e3e911be1e3b4e6a552fb5b35afe48430c2a1c6), PWA `8c63f7ac8b6f`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38522575702). 공개 파일/저장·터치/PWA 검증을 통과했으며 기존 진행은 유지한다.
 
 새 세션은 [HANDOFF.md](HANDOFF.md)부터 읽는다. 현행 상태·사용자 결정·검증을 먼저 확인하고, 이전 배포/시안은 [별도 이력](HANDOFF_RELEASE_HISTORY_2026_10_14.md)과 DEPLOYMENT.md에서 참고한다.
@@ -16,6 +18,7 @@
 
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
+| 농사 상점·판매·도감 | [SHOP_DEX_POLISH_V1.md](SHOP_DEX_POLISH_V1.md) | 하루 농가/NPC·엘리 역할 분리·선택 초기화·큰 그림·원화/검증 |
 | 농장 주문·교환권 | [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md) | 랜덤 1개/납품·보상/주문 단계/저장 |
 | 농장 소품 8종 | [FARM_DECORATIONS_EXPANSION_V1.md](FARM_DECORATIONS_EXPANSION_V1.md) | 가격·고정 좌표/충돌/원본·프롬프트/검증 |
 | 현재 조작부 | [TOUCH_CONTROLS_V1.md](TOUCH_CONTROLS_V1.md) | 원형/반투명·상황별 실제 장비 그림·터치 검증 |

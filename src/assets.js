@@ -344,7 +344,8 @@ const NPC_SHEET_URLS = Object.freeze({
   jun: 'assets/npcs/jun.png',
   luca: 'assets/npcs/luca-v1.png',
   sora: 'assets/npcs/sora-v1.png',
-  eden: 'assets/npcs/eden-v1.png'
+  eden: 'assets/npcs/eden-v1.png',
+  haru: 'assets/npcs/haru-v1.png'
 });
 
 const PLAYER_SHEET_URL = 'assets/player/player.png';
@@ -357,7 +358,8 @@ const BUILDING_URLS = Object.freeze({
   buildingInn: 'assets/buildings/inn-v1.png',
   buildingAtelier: 'assets/buildings/atelier-v1.png',
   buildingGardener: 'assets/buildings/gardener-v1.png',
-  buildingVeranda: 'assets/buildings/veranda-v1.png'
+  buildingVeranda: 'assets/buildings/veranda-v1.png',
+  buildingFarmShop: 'assets/buildings/farm-shop-v1.png'
 });
 
 const FISH_URLS = Object.freeze({

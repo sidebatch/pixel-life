@@ -47,7 +47,7 @@ let WORLD_DEFINITION = Object.freeze({
   npcs: [
     {id:'mina',x:28,y:23,homeX:28,homeY:23,name:'미나',role:'villager',sprite:'mina',scale:1.00,face:'down',moving:false,wait:900,roam:3,dialog:'안녕! 연못 산책 중이었어. 물가에 가면 낚시를 시작할 수 있어.'},
     {id:'thomas',x:26,y:29,homeX:26,homeY:29,name:'토마스',role:'fisherman',sprite:'thomas',scale:1.00,face:'left',moving:false,wait:1400,roam:2,dialog:'낚시는 서두르면 안 돼. 물결을 잘 보면 입질 타이밍이 보여.'},
-    {id:'elli',x:29,y:38,homeX:29,homeY:38,name:'엘리',role:'merchant',sprite:'elli',scale:1.00,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 물고기와 수확물을 팔거나 씨앗과 낚싯대를 살 수 있어.'},
+    {id:'elli',x:29,y:38,homeX:29,homeY:38,name:'엘리',role:'merchant',sprite:'elli',scale:1.00,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 물고기를 팔거나 낚싯대를 사고 수리할 수 있어. 씨앗과 농장 주문은 햇살 농장의 하루를 찾아가 봐.'},
     {id:'noah',x:23,y:24,homeX:23,homeY:24,name:'노아',role:'guide',sprite:'noah',scale:1.00,face:'right',moving:false,wait:2200,roam:3,dialog:'남쪽은 오래된 숲, 북쪽은 신비한 고대 숲이야. 동쪽은 농장, 서쪽은 항구로 이어져.'},
     {id:'hana',x:31,y:27,homeX:31,homeY:27,name:'하나',role:'stylist',sprite:'hana',scale:1.00,face:'down',moving:false,wait:1200,roam:0,dialog:'안녕! 이안·리아 중 원하는 모습으로 바꿔 줄게. 옷과 가방은 그대로야.'},
     {id:'jun',x:30,y:20,homeX:30,homeY:20,name:'준',role:'toolMerchant',sprite:'jun',scale:1.00,face:'down',moving:false,wait:1600,roam:0,dialog:'목재를 팔거나 도끼를 업그레이드하고 싶으면 말해 줘.'},

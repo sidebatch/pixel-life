@@ -29,7 +29,7 @@ try{
     await page.evaluate(()=>{
       GAME_STATE.inventory=[];GAME_STATE.progression.coins=10000;GAME_STATE.appearance.activeTool='sickle';
       GAME_STATE.world.plots.farm_01={unlocked:true,cropId:null,plantedAt:null};
-      openMarket({view:'seeds'});marketState.view='seeds';renderMarket();
+      openMarket({shop:'haru'});marketState.view='seeds';renderMarket();
     });
     assert.equal(await page.locator('[data-seed-id]').count(),14);
     assert(!(await page.locator('#marketList').innerText()).includes('순무'));
@@ -57,7 +57,7 @@ try{
       await page.waitForFunction(()=>getFarmPlotPhase(farmPlotAt(15,22))==='EMPTY'&&!isChoppingTree()&&!isFarmPlotOpen());
       const quantity=await page.evaluate(id=>{Math.random=globalThis.farmingOriginalRandom;return lifeItemCount('crop',id);},crop.id);
       assert.equal(quantity,width===320?crop.harvestMax:crop.harvestMin);
-      await page.evaluate(()=>{openMarket();marketState.view='crops';renderMarket();});
+      await page.evaluate(()=>{openMarket({shop:'haru'});marketState.view='crops';renderMarket();});
       await page.locator('[data-good-key="crop:'+crop.id+'"] [data-good-action="all"]').click();
       await page.locator('#marketSellBtn').click();
       const after=await page.evaluate(()=>GAME_STATE.progression.coins);

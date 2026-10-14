@@ -1,6 +1,6 @@
 # 농장 주문·교환권·꾸미기 v1
 
-현재 주문은 랜덤 1개 자동 지급/완료 후 다음 주문/재접속 유지다. 교환권 소품은 총 8종이며 가격·좌표·그림은 [소품 확장 기준](FARM_DECORATIONS_EXPANSION_V1.md)을 따른다. 기존 농사 레벨/14종·저장은 유지한다. 최초 3종 공개 배포는 f1a37af/61b8656eecda였으며 2026-10-14 확장 공개 배포를 진행 중이다.
+현재 주문은 랜덤 1개 자동 지급/완료 후 다음 주문/재접속 유지다. 교환권 소품은 총 8종이며 가격·좌표·그림은 [소품 확장 기준](FARM_DECORATIONS_EXPANSION_V1.md)을 따른다. 기존 농사 레벨/14종·저장은 유지한다. 최초 3종 공개 배포는 f1a37af/61b8656eecda였으며 2026-10-14 소품 8종/조작부 확장 공개 배포도 완료했다. 게임 변경 커밋 [2e3e911](https://github.com/sidebatch/pixel-life/commit/2e3e911be1e3b4e6a552fb5b35afe48430c2a1c6), PWA `8c63f7ac8b6f`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38522575702).
 
 ## 이용 방법
 

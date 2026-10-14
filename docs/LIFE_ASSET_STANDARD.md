@@ -1,6 +1,6 @@
 # 벌목·농사 이미지 규격
 
-2026-10-13 최신 로컬: 사용자 요청으로 꽃 화분(2장)·건초 더미(4장)·나무 물통(6장)·나무 벤치(10장)·작은 우물(12장)을 추가해 교환권 소품이 총 8종이다. 기존 주문/소품 보유·설치와 교환권 저장을 유지한다. 새 5종은 아직 공개 배포 전이며 아래는 기존 3종 공개 기록이다. [가격·좌표·그림·검증](FARM_DECORATIONS_EXPANSION_V1.md).
+2026-10-14 현재 소품은 총 8종으로 공개 배포했다. 추가 꽃 화분/건초/물통/벤치/우물의 96px PNG·생성 원본/프롬프트/패킹은 [FARM_DECORATIONS_EXPANSION_V1.md](FARM_DECORATIONS_EXPANSION_V1.md)를 따른다. 조작 버튼은 캐릭터의 기존 장비 PNG를 그대로 재사용하며 새 도구 그림을 만들지 않는다.
 
 2026-10-13 신규 공개 소품: 허수아비·농장 표지판·꽃 울타리, assets/farming/decorations/*-v1.png 3종/96×96 투명 PNG. 내장 image_gen 제작 원본/전체 프롬프트/패킹 명세는 source-v1/에 보존하고 scripts/pack-farm-decorations-v1.mjs로 재현한다. 배치/충돌/경제/UI/검증은 [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md)를 따른다. 사용자 요청으로 공개 배포했고 새 그림도 공개 단일 HTML에 포함된다.
 

@@ -1,6 +1,6 @@
 # 농장 소품 확장 v1
 
-2026-10-13 사용자가 ‘교환권으로 더 많은 객체를 설치할 수 있게 몇 개 더 만들어주세요’로 요청했다. 꽃 화분·건초 더미·나무 물통·나무 벤치·작은 우물 5종을 추가해 총 8종을 로컬 구현했다. 새 5종은 아직 공개 배포 전이며 공개 게임은 기존 3종/PWA 61b8656eecda다.
+2026-10-13 사용자가 ‘교환권으로 더 많은 객체를 설치할 수 있게 몇 개 더 만들어주세요’로 요청했다. 꽃 화분·건초 더미·나무 물통·나무 벤치·작은 우물 5종을 추가해 총 8종으로 구현하고 2026-10-14 사용자 요청으로 공개 배포·검증했다. 게임 변경 커밋 [2e3e911](https://github.com/sidebatch/pixel-life/commit/2e3e911be1e3b4e6a552fb5b35afe48430c2a1c6), PWA `8c63f7ac8b6f`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38522575702). 기존 3종/주문·교환권·저장을 보존한다.
 
 ## 교환과 설치
 
@@ -36,3 +36,7 @@
 - 배포용 로컬 빌드: 20,378,292 bytes, PWA b7849ed1e512. 새 그림 5종은 단일 HTML에 포함된다.
 - 393×780/320×568 배포용 로컬 HTML: 실제 납품으로 50장 이상 획득→8종 교환→설치→재접속→8종 회수/재설치, 정확한 소비/보상·주문 단계·실패 복원/이력·44px 버튼·가로 넘침 없음 통과. 실제 사용자 저장과 분리된 컨텍스트다.
 - 결과/화면: output/farm-decorations-expansion-v1/{source-check.txt,browser-built/report.json,browser-built/decorated-farm-393.png,browser-built/garden-corner-393.png,decorations.png}.
+
+## 공개 배포 검증 (2026-10-14)
+
+게임 변경 커밋 [2e3e911](https://github.com/sidebatch/pixel-life/commit/2e3e911be1e3b4e6a552fb5b35afe48430c2a1c6), PWA `8c63f7ac8b6f`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38522575702). 공개 전체 8파일/37,853,144 bytes가 로컬과 SHA-256 일치한다. 393/320px 실제 납품 보상→8종 교환/설치/재접속/전체 회수·재설치, 모든 밭/통로/출구·기존 저장/실패 복원/이력을 확인했다. 결과: output/deploy-controls-decorations-qa/{deployment.json,public-files.json,public-orders/report.json,pwa-public.json}.

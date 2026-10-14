@@ -1,6 +1,20 @@
 # Deployment
 
-현재 배포 계약 정리: 2026-10-13.
+현재 배포 계약 정리: 2026-10-14.
+
+## 2026-10-14 농장 소품 8종·상황별 장비 버튼 공개 배포 완료
+
+사용자 ‘배포해주세요. 그리고 문서도 정리’ 요청으로 새 소품 5종과 최종 원형 조작부/실제 장비 그림을 함께 배포했다. 각진 나무 시안과 선으로 그린 낫/도끼/낚싯대·버튼 안 ‘행동’ 글자는 현행에 포함하지 않는다.
+
+- 게임 변경 커밋 [2e3e911](https://github.com/sidebatch/pixel-life/commit/2e3e911be1e3b4e6a552fb5b35afe48430c2a1c6), PWA `8c63f7ac8b6f`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38522575702).
+- Actions #38522575702 build/deploy success. 전체 검사 51 scripts/141 UI ids/450 assets/74 fish와 기존 캐릭터/검·낫/생활/저장 통과.
+- HTML 20,385,982 bytes. 공개 8파일/37,853,144 bytes가 로컬과 SHA-256 일치한다.
+- 공개 393/320px: 실제 납품→50장 이상 교환권→8종 교환/설치·전체 회수·재설치/재접속, 기존 저장·실패 복원, 모든 통로/밭·출구, 스크롤/이력 통과.
+- 공개 393/320/430px: 기존 이동/정지·버튼 영역/원형/글자 없음·문맥 안내, 실제 수확/낚시 시작·입질·취소/대화·메뉴 터치와 낫/검·도끼/낚싯대 20종의 정확한 캐릭터 그림 일치 통과.
+- 공개 PWA: 설치 조건 오류 없음·새 캐시 7항목, 오프라인 재실행/음악 Range 206·100 bytes, 강제 재로딩 없음.
+- README/문서 안내/인수인계의 현재 상태·기준 링크를 정리했다. 누적된 이전 인수인계 앞부분은 HANDOFF_RELEASE_HISTORY_2026_10_14.md에 인용으로 보존한다. 소품 표는 현재 8종이다.
+
+결과: output/deploy-controls-decorations-qa/{deployment.json,public-files.json,public-orders/report.json,public-controls/report.json,pwa-public.json}. 설치 앱은 완전히 종료 후 다시 열고 저장을 삭제하지 않는다.
 
 ## 2026-10-13 농장 주문·교환권·꾸미기 공개 배포 완료
 

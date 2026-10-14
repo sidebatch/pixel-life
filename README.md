@@ -1,6 +1,6 @@
 # Pixel Life
 
-2026-10-14 현재 기준: 교환권 농장 소품 총 8종과 작고 반투명한 원형 조작부/상황별 실제 장비 그림이다. 사용자 요청으로 공개 배포를 진행 중이며 완료 기록은 [배포 기록](docs/DEPLOYMENT.md)에 갱신한다. 기존 저장과 진행은 유지한다.
+2026-10-14 공개 배포 완료: 농장 소품 총 8종과 작고 반투명한 원형 조작부/상황별 실제 장비 그림을 반영했다. 게임 변경 커밋 [2e3e911](https://github.com/sidebatch/pixel-life/commit/2e3e911be1e3b4e6a552fb5b35afe48430c2a1c6), PWA `8c63f7ac8b6f`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38522575702). 공개 파일/저장·터치/PWA 검증을 통과했으며 기존 진행은 유지한다.
 
 - [농장 주문·교환권](docs/FARM_ORDERS_V1.md) · [소품 8종](docs/FARM_DECORATIONS_EXPANSION_V1.md) · [조작 버튼](docs/TOUCH_CONTROLS_V1.md)
 - [현재 인수인계](docs/HANDOFF.md) · [문서 안내](docs/README.md) · [이전 변경 기록](docs/HANDOFF_RELEASE_HISTORY_2026_10_14.md)

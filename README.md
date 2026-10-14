@@ -1,8 +1,6 @@
 # Pixel Life
 
-최신 로컬 변경(2026-10-14, 공개 배포 전): 햇살 농장의 하루 상점으로 농사 기능 분리, 씨앗 설명 정리, 판매 수량 취소, 도감 큰 그림, 나무 인접 표시 제거. [구현·그림·검증 기록](docs/SHOP_DEX_POLISH_V1.md). 아래 공개 배포 기록은 직전 버전이다.
-
-2026-10-14 공개 배포 완료: 농장 소품 총 8종과 작고 반투명한 원형 조작부/상황별 실제 장비 그림을 반영했다. 게임 변경 커밋 [2e3e911](https://github.com/sidebatch/pixel-life/commit/2e3e911be1e3b4e6a552fb5b35afe48430c2a1c6), PWA `8c63f7ac8b6f`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38522575702). 공개 파일/저장·터치/PWA 검증을 통과했으며 기존 진행은 유지한다.
+2026-10-14 공개 배포 완료: 하루의 농사 상점/농가·상인, 씨앗 설명 정리, 판매 수량 취소, 큰 도감 상세, 나무 인접 표시 제거와 상점 가격/그림 배치를 반영했다. 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611). 기존 저장과 공개 상점/거래·주문/꾸미기·PWA 검증을 통과했다. [변경 기준](docs/SHOP_DEX_POLISH_V1.md)
 
 - [농장 주문·교환권](docs/FARM_ORDERS_V1.md) · [소품 8종](docs/FARM_DECORATIONS_EXPANSION_V1.md) · [조작 버튼](docs/TOUCH_CONTROLS_V1.md)
 - [현재 인수인계](docs/HANDOFF.md) · [문서 안내](docs/README.md) · [이전 변경 기록](docs/HANDOFF_RELEASE_HISTORY_2026_10_14.md)

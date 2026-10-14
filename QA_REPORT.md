@@ -1,5 +1,14 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-14 농사 상점·판매 UI·도감 공개 배포 완료
+
+- 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611).
+- 전체 검사/빌드/Pages 성공: 51 scripts/141 UI IDs/452 assets/74 fish. HTML 20,476,579 bytes, 공개 8파일/37,943,741 bytes와 SHA-256 일치.
+- 공개 393/320px 하루/NPC·농가 문/씨앗 14종·상점 분리/잘못된 상점 거래 거부·판매 전부/취소/부분 판매·가격/그림·큰 도감/미발견 보호·기존 저장/진행 주문 유지 통과.
+- 공개 14종 실제 구매/심기/수확/판매·실패 복원, 주문 납품/보상/소품 8종 교환/설치/회수/재접속·통로/밭/출구·원격 꾸미기 이력 통과.
+- 공개 PWA 설치 오류 없음·새 캐시/7항목·오프라인 음악 Range 206/100 bytes·강제 재로딩 없음 통과.
+- 기준 [SHOP_DEX_POLISH_V1.md](docs/SHOP_DEX_POLISH_V1.md), 결과 output/deploy-shop-dex-qa/. 설치 앱은 완전히 종료 후 다시 열고 저장을 삭제하지 않는다.
+
 ## 2026-10-14 농사 상점·판매 선택 취소·큰 도감 로컬 검증
 
 - **공개 배포 전.** 가격/그림 후속 배치를 포함한 로컬 dist 20,476,579 bytes/PWA `a5ea86ec2184`, 현재 공개는 직전 `94e5431`.

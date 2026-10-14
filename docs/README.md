@@ -1,8 +1,6 @@
 # Pixel Life 문서 안내
 
-최신 로컬 변경은 [농사 상점 분리·판매 취소·도감 큰 그림](SHOP_DEX_POLISH_V1.md)이다. 2026-10-14 구현/검증 완료, 공개 배포 전이며 아래 공개 상태는 직전 버전이다.
-
-2026-10-14 공개 배포 완료: 농장 소품 총 8종과 작고 반투명한 원형 조작부/상황별 실제 장비 그림을 반영했다. 게임 변경 커밋 [2e3e911](https://github.com/sidebatch/pixel-life/commit/2e3e911be1e3b4e6a552fb5b35afe48430c2a1c6), PWA `8c63f7ac8b6f`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38522575702). 공개 파일/저장·터치/PWA 검증을 통과했으며 기존 진행은 유지한다.
+2026-10-14 공개 배포 완료: 하루의 농사 상점/농가·상인, 씨앗 설명 정리, 판매 수량 취소, 큰 도감 상세, 나무 인접 표시 제거와 상점 가격/그림 배치를 반영했다. 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611). 기존 저장과 공개 상점/거래·주문/꾸미기·PWA 검증을 통과했다. [변경 기준](SHOP_DEX_POLISH_V1.md)
 
 새 세션은 [HANDOFF.md](HANDOFF.md)부터 읽는다. 현행 상태·사용자 결정·검증을 먼저 확인하고, 이전 배포/시안은 [별도 이력](HANDOFF_RELEASE_HISTORY_2026_10_14.md)과 DEPLOYMENT.md에서 참고한다.
 

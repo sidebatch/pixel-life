@@ -1,6 +1,6 @@
 # 농사 상점 분리·판매 선택 취소·도감 큰 그림
 
-2026-10-14 로컬 구현/브라우저 검증 완료. **공개 배포 전**이며 공개 게임은 이전 `94e5431` 배포를 유지한다. 후속 가격/그림 배치를 포함한 로컬 빌드는 `dist/index.html` 20,476,579바이트, PWA `a5ea86ec2184`다.
+2026-10-14 공개 배포 완료: 하루의 농사 상점/농가·상인, 씨앗 설명 정리, 판매 수량 취소, 큰 도감 상세, 나무 인접 표시 제거와 상점 가격/그림 배치를 반영했다. 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611). 기존 저장과 공개 상점/거래·주문/꾸미기·PWA 검증을 통과했다. HTML 20,476,579 bytes, 공개 8파일/37,943,741 bytes가 로컬 dist와 SHA-256까지 일치한다.
 
 ## 사용자 요청과 현재 동작
 
@@ -41,4 +41,4 @@
 - 캡처·결과: `output/shop-dex-polish-v1/{browser,orders,economy,controls}/`, 최종 전체 검사 `check.txt`.
 - 가격/그림 배치 후 `layout-browser`와 `layout-economy`에서 기존 상점/거래·취소/저장 검사 및 14종 구매·수확·판매를 재실행했다. 393/320px 씨앗·물고기·목재 화면을 시각 확인했고 새 수량 조작 영역과 구매 버튼이 정상 동작한다.
 
-이번 검증은 모바일 크기 브라우저/로컬 빌드다. 공개 배포·공개 PWA/실제 기기 확인을 완료했다고 표시하지 않는다.
+공개 배포 검증: 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611). 공개 393/320px 상점·거래/재접속·주문/꾸미기·도감 및 설치 조건/캐시/오프라인 음악 Range 206·100 bytes/강제 재로딩 없음 통과. 결과는 output/deploy-shop-dex-qa/. 실제 기기 확인으로 표현하지 않는다.

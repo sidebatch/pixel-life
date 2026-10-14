@@ -1,0 +1,107 @@
+[
+  {
+    "id": "flowerpot",
+    "source": "assets/farming/decorations/source-expansion-v1/flowerpot.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "sourceBounds": {
+      "x": 196,
+      "y": 205,
+      "width": 872,
+      "height": 886
+    },
+    "output": "assets/farming/decorations/flowerpot-v1.png",
+    "packedBounds": {
+      "x": 6,
+      "y": 12,
+      "width": 83,
+      "height": 84
+    }
+  },
+  {
+    "id": "haybale",
+    "source": "assets/farming/decorations/source-expansion-v1/haybale.png",
+    "sourceSize": [
+      1536,
+      1024
+    ],
+    "sourceBounds": {
+      "x": 331,
+      "y": 292,
+      "width": 934,
+      "height": 531
+    },
+    "output": "assets/farming/decorations/haybale-v1.png",
+    "packedBounds": {
+      "x": 6,
+      "y": 48,
+      "width": 84,
+      "height": 48
+    }
+  },
+  {
+    "id": "waterbarrel",
+    "source": "assets/farming/decorations/source-expansion-v1/waterbarrel.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "sourceBounds": {
+      "x": 321,
+      "y": 249,
+      "width": 614,
+      "height": 768
+    },
+    "output": "assets/farming/decorations/waterbarrel-v1.png",
+    "packedBounds": {
+      "x": 14,
+      "y": 12,
+      "width": 67,
+      "height": 84
+    }
+  },
+  {
+    "id": "bench",
+    "source": "assets/farming/decorations/source-expansion-v1/bench.png",
+    "sourceSize": [
+      1774,
+      887
+    ],
+    "sourceBounds": {
+      "x": 335,
+      "y": 162,
+      "width": 1105,
+      "height": 543
+    },
+    "output": "assets/farming/decorations/bench-v1.png",
+    "packedBounds": {
+      "x": 0,
+      "y": 49,
+      "width": 96,
+      "height": 47
+    }
+  },
+  {
+    "id": "well",
+    "source": "assets/farming/decorations/source-expansion-v1/well.png",
+    "sourceSize": [
+      1254,
+      1254
+    ],
+    "sourceBounds": {
+      "x": 305,
+      "y": 225,
+      "width": 645,
+      "height": 840
+    },
+    "output": "assets/farming/decorations/well-v1.png",
+    "packedBounds": {
+      "x": 12,
+      "y": 4,
+      "width": 71,
+      "height": 92
+    }
+  }
+]

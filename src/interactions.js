@@ -263,9 +263,21 @@ if(!window.PointerEvent){
   joystick.addEventListener('touchcancel',endTouch,{passive:false});
 }
 
+// A press can open a panel under the finger before its synthetic click arrives.
+// Consume that same press's click so it cannot activate the newly exposed panel.
+let pendingControlClick=null;
+window.addEventListener('pointerdown',()=>{pendingControlClick=null;},true);
+window.addEventListener('click',event=>{
+  const pending=pendingControlClick;pendingControlClick=null;
+  if(!pending||event.detail===0||performance.now()-pending.at>700)return;
+  if(Math.hypot(event.clientX-pending.x,event.clientY-pending.y)>12)return;
+  event.preventDefault();event.stopImmediatePropagation();
+},true);
 function pulseButton(id,fn){
   const b=document.getElementById(id);if(!b)return;
-  b.addEventListener('pointerdown',e=>{e.preventDefault();fn();});
+  b.addEventListener('pointerdown',e=>{
+    e.preventDefault();pendingControlClick={x:e.clientX,y:e.clientY,at:performance.now()};fn();
+  });
 }
 pulseButton('btnA',interact);
 const fishingCancelButton=document.getElementById('fishingCancelBtn');
@@ -290,14 +302,73 @@ document.getElementById('closeMenu').addEventListener('click',()=>toggleMenu(fal
 document.getElementById('menuDismiss').addEventListener('click',()=>toggleMenu(false));
 document.getElementById('coinCount').textContent=Number(GAME_STATE.progression.coins||0).toLocaleString();
 
-function contextInfo(){
-  if(typeof isFishingActive==='function'&&isFishingActive())
-    return typeof getFishingContextText==='function'?getFishingContextText():'';
-  return resolveWorldInteraction()?.label||'';
+const ACTION_ICON_PATHS=Object.freeze({
+  hand:'M9 13V5a2 2 0 0 1 4 0v7m0-2h2a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v1c0 4-2 6-6 6h-1c-2 0-3-1-4-3l-3-5a2 2 0 0 1 3-2l1 1',
+  chat:'M4 4h16v11H9l-5 5V4Z M8 8h8 M8 11h5',
+  seed:'M12 21v-8 M12 16C5 16 3 10 3 7c6 0 9 3 9 9Z M12 13c0-6 3-9 9-9 0 6-3 9-9 9Z',
+  basket:'M4 10h16l-2 10H6L4 10Z M8 10l4-7 4 7 M9 14v3 M15 14v3',
+  read:'M5 3h11l3 3v15H5V3Z M8 9h8 M8 13h8 M8 17h5',
+  move:'M4 12h16 M14 6l6 6-6 6',
+  confirm:'M5 12l4 4L19 6'
+});
+function actionButtonPresentation(){
+  const result=(icon,label='',aria=label||'상호작용')=>({icon,label,aria});
+  if(typeof isFishingActive==='function'&&isFishingActive()){
+    const label=(typeof getFishingContextText==='function'?getFishingContextText():'')||
+      (typeof fishingState!=='undefined'&&fishingState.phase==='bite'?'낚기':'');
+    return result('rod',label,label||'낚시');
+  }
+  if(dialogOpen)return result('confirm','확인');
+  const interaction=resolveWorldInteraction();
+  if(interaction){
+    const {kind,label,target}=interaction;
+    if(kind==='tree')return result(GAME_STATE.appearance?.activeTool==='sword'?'sword':'axe',label.split(' · ').slice(1).join(' · ')||label);
+    if(kind==='farm'){
+      const phase=getFarmPlotPhase(target);
+      if(phase==='LOCKED')return result('basket','부지 구매');
+      if(phase==='EMPTY')return result('seed','심기');
+      if(phase==='GROWING')return result('seed','살펴보기');
+      return result('sickle',GAME_STATE.appearance?.activeTool==='sickle'?'수확':'낫 장착 필요');
+    }
+    if(kind==='fishing')return result('rod','낚시');
+    if(['market','workshopMarket','ticketBooth'].includes(kind))return result('basket',label);
+    if(['npc','characterStyle','building'].includes(kind))return result('chat',label);
+    if(['sign','routeSign'].includes(kind))return result('read','읽기');
+    if(kind==='exit')return result('move',label);
+  }
+  const tool=GAME_STATE.appearance?.activeTool;
+  const icon=['axe','sickle','rod','sword'].includes(tool)?tool:'hand';
+  return result(icon,'',{axe:'도끼 사용',sickle:'낫 사용',rod:'낚싯대 사용',sword:'검 사용',hand:'상호작용'}[icon]);
+}
+function contextInfo(){return actionButtonPresentation().label;}
+function actionButtonToolArt(icon){
+  if(icon==='axe'){
+    const key=getEquippedForestryAxe().id;return {key,url:CHARACTER_TOOL_URLS[key]};
+  }
+  if(icon==='rod'){
+    const key=getEquippedFishingRod().id;return {key,url:CHARACTER_TOOL_URLS[key]};
+  }
+  if(icon==='sickle')return {key:FARM_SICKLE.id,url:SICKLE_TOOL_URLS[FARM_SICKLE.id]};
+  if(icon==='sword'){
+    const key=getEquippedSword().id;return {key,url:SWORD_TOOL_URLS[key]};
+  }
+  return null;
 }
 function refreshContext(){
   const chip=document.getElementById('contextChip');
-  const text=contextInfo();chip.textContent=text;chip.classList.toggle('show',!!text);
+  const action=actionButtonPresentation(),text=action.label;
+  chip.textContent=text;chip.classList.toggle('show',!!text);
+  const button=document.getElementById('btnA');
+  const toolArt=actionButtonToolArt(action.icon),toolImage=button.querySelector('.actionToolIcon'),symbol=button.querySelector('.actionIcon');
+  if(toolArt){
+    if(toolImage.getAttribute('src')!==toolArt.url)toolImage.setAttribute('src',toolArt.url);
+    toolImage.hidden=false;symbol.setAttribute('hidden','');button.dataset.actionTool=toolArt.key;
+  }else{
+    if(button.dataset.actionIcon!==action.icon)symbol.querySelector('path').setAttribute('d',ACTION_ICON_PATHS[action.icon]);
+    toolImage.hidden=true;symbol.removeAttribute('hidden');delete button.dataset.actionTool;
+  }
+  button.dataset.actionIcon=action.icon;
+  if(button.getAttribute('aria-label')!==action.aria)button.setAttribute('aria-label',action.aria);
   const cancel=document.getElementById('fishingCancelBtn');
   const fishingActive=typeof isFishingActive==='function'&&isFishingActive();
   const canCancel=fishingActive&&

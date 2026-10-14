@@ -34,8 +34,10 @@ try{
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
     await page.evaluate(()=>openMarket());await page.locator('[data-market-view="orders"]').click();
     assert.deepEqual(await page.evaluate(()=>GAME_STATE.progression.farmOrders.current),first);
-    const transactions=[];
-    while(await page.evaluate(()=>GAME_STATE.progression.farmOrders.tickets)<16){
+    const transactions=[],decorationIds=await page.evaluate(()=>FARM_DECORATIONS.map(item=>item.id));
+    assert.equal(decorationIds.length,8);
+    const decorationBudget=await page.evaluate(()=>FARM_DECORATIONS.reduce((sum,item)=>sum+item.cost,0));
+    while(await page.evaluate(()=>GAME_STATE.progression.farmOrders.tickets)<decorationBudget){
       const before=await page.evaluate(()=>{
         const state=GAME_STATE.progression.farmOrders,order=JSON.parse(JSON.stringify(state.current));
         order.requirements.forEach(row=>{const missing=row.quantity-lifeItemCount('crop',row.cropId);if(missing>0)addLifeItem('crop',row.cropId,missing);});
@@ -68,7 +70,7 @@ try{
     });assert(rollback);
     await page.locator('[data-market-view="decorations"]').click();
     await page.screenshot({path:path.join(out,'rewards-'+width+'.png')});
-    for(const id of ['scarecrow','sign','fence']){
+    for(const id of decorationIds){
       const before=await page.evaluate(()=>GAME_STATE.progression.farmOrders.tickets);
       const cost=await page.evaluate(id=>FARM_DECOR_BY_ID.get(id).cost,id);
       await page.locator('[data-farm-action="exchange"][data-decoration-id="'+id+'"]').click();
@@ -82,8 +84,8 @@ try{
     await page.locator('#lifeDecor').click();await page.waitForFunction(()=>isMarketOpen()&&!isFarmPlotOpen());
     assert.equal(await page.locator('#marketShopName').innerText(),'농장 꾸미기');
     assert.equal(await page.locator('[data-market-view]:visible').count(),1);
-    for(const id of ['scarecrow','sign','fence'])await page.locator('[data-farm-action="place"][data-decoration-id="'+id+'"]').click();
-    assert.equal(await page.evaluate(()=>GAME_STATE.progression.farmOrders.placedDecorationIds.length),3);
+    for(const id of decorationIds)await page.locator('[data-farm-action="place"][data-decoration-id="'+id+'"]').click();
+    assert.equal(await page.evaluate(()=>GAME_STATE.progression.farmOrders.placedDecorationIds.length),8);
     const placementRollback=await page.evaluate(()=>{
       const before=JSON.stringify(GAME_STATE.progression.farmOrders),keys=[...blocked].sort().join('|'),original=saveGame;
       saveGame=()=>false;let removed;try{removed=setFarmDecorationPlaced('fence',false);}finally{saveGame=original;}
@@ -101,21 +103,28 @@ try{
         objects:FARM_DECORATIONS.every(item=>item.slots.every(slot=>isBlocked(slot.x,slot.y))),exit:seen.has(key(1,24))};
     });assert(layout.lanes&&layout.beds&&layout.objects&&layout.exit);
     await page.screenshot({path:path.join(out,'decorated-farm-'+width+'.png')});
+    await page.evaluate(()=>{
+      player.x=22;player.y=28;player.px=22*TILE+24;player.py=28*TILE+24;
+      const camera=getWorldCameraTarget();camX=camera.x;camY=camera.y;drawWorld();
+    });
+    await page.screenshot({path:path.join(out,'garden-corner-'+width+'.png')});
     const saved=await page.evaluate(()=>JSON.parse(JSON.stringify({farmOrders:GAME_STATE.progression.farmOrders,inventory:GAME_STATE.inventory,plots:GAME_STATE.world.plots,coins:GAME_STATE.progression.coins})));
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
     assert.deepEqual(await page.evaluate(()=>({farmOrders:GAME_STATE.progression.farmOrders,inventory:GAME_STATE.inventory,plots:GAME_STATE.world.plots,coins:GAME_STATE.progression.coins})),saved);
     assert(await page.evaluate(()=>FARM_DECORATIONS.every(item=>item.slots.every(slot=>isBlocked(slot.x,slot.y)))));
     await page.evaluate(()=>{player.x=14;player.y=22;player.px=14*TILE+24;player.py=22*TILE+24;openFarmPlot(farmPlotAt(15,22));});
     await page.locator('#lifeDecor').click();
-    await page.locator('[data-farm-action="remove"][data-decoration-id="fence"]').click();
-    assert(await page.evaluate(()=>FARM_DECOR_BY_ID.get('fence').slots.every(slot=>!isBlocked(slot.x,slot.y))));
-    await page.locator('[data-farm-action="place"][data-decoration-id="fence"]').click();
+    for(const id of decorationIds){
+      await page.locator('[data-farm-action="remove"][data-decoration-id="'+id+'"]').click();
+      assert(await page.evaluate(id=>FARM_DECOR_BY_ID.get(id).slots.every(slot=>!isBlocked(slot.x,slot.y)),id));
+      await page.locator('[data-farm-action="place"][data-decoration-id="'+id+'"]').click();
+    }
     const screen=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,
       buttonHeights:[...document.querySelectorAll('#marketList [data-farm-action]')].map(b=>b.getBoundingClientRect().height)}));
     assert(!screen.overflow&&screen.buttonHeights.every(height=>height>=44));
-    reports.push({width,legacyPreserved:true,firstOrder:first,transactions,rollback,placementRollback,layout,saveReload:true,screen});
+    reports.push({width,legacyPreserved:true,firstOrder:first,transactions,decorationIds,decorationBudget,rollback,placementRollback,layout,saveReload:true,screen});
     await context.close();
   }
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({base,errors,reports},null,2));
-  console.log('Farm orders browser passed: 393/320px, legacy preservation, one random saved order, exact real-button delivery/rewards/tier growth, rollback, three exchanges and world placement/removal, accessible lanes, reload and farm-panel history.');
+  console.log('Farm orders browser passed: 393/320px, legacy preservation, one random saved order, exact real-button delivery/rewards/tier growth, rollback, eight exchanges and world placement/removal, accessible lanes, reload and farm-panel history.');
 }finally{await browser.close();}

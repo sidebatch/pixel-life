@@ -1,22 +1,8 @@
 # Pixel Life 문서 안내
 
-2026-10-13 최신 공개는 [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md): 랜덤 주문 1개/납품·보상/교환권과 소품 3종의 교환·지정 배치·회수·저장을 사용자 요청으로 공개 배포했다. 게임 커밋 `f1a37af`, PWA `61b8656eecda`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38444649859). 공개 검증은 DEPLOYMENT.md에 기록했다.
+2026-10-14 현재 기준: 교환권 농장 소품 총 8종과 작고 반투명한 원형 조작부/상황별 실제 장비 그림이다. 사용자 요청으로 공개 배포를 진행 중이며 완료 기록은 [DEPLOYMENT.md](DEPLOYMENT.md)에 갱신한다. 기존 저장과 진행은 유지한다.
 
-2026-10-13 이전 농사 레벨 배포: [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md). 독립 Lv.1–100/숙련도·수확 XP·진행률·저장 호환과 14종 확장/가격·기본 ‘실력이 늘었어요!’ 문구 제거를 공개 배포 완료했다. 게임 커밋 `1c01b22` / PWA `0ffa41864680`, 배포 결과는 DEPLOYMENT.md다.
-
-2026-10-13 공개 작물은 14종이다. 비트 이름·새 4종·가격·검증은 [FARMING_CROPS_BALANCE_V1.md](FARMING_CROPS_BALANCE_V1.md)를 따른다. 아래 10종 배포 기록은 이전 이력이다.
-
-2026-10-13 농사 안내 문구·심기 창 정비 공개 배포 완료. 밭 번호를 숨기고 작물 10종의 이/가를 수정했으며 심기 성공 후 창을 닫는다. 게임 변경 커밋 `c3d333a`, PWA `30d79ba57428`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38353183885). 공개 393/320px 실제 버튼/이력/문구/저장 실패 복원·기존 수확/저장·파일/PWA 검증을 통과했다. 저장을 삭제하지 않는다.
-
-2026-10-13 사용자 요청으로 기본 낫 그림 v2 공개 배포 완료. 남녀 캐릭터에 새 곡선 날/짧은 손잡이를 적용했다. 게임 변경 커밋 `6d15ab0`, PWA `0062d37f3da2`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38350941915). 공개 파일·남녀 24프레임·393/320px 농장/저장·PWA 오프라인/음악 검증을 통과했다. 설치 앱은 완전히 종료 후 다시 열며 저장을 삭제하지 않는다.
-
-2026-10-13 사용자 요청으로 농장 정비 v1 공개 배포 완료. 게임 변경 커밋 `12e5a7d`, PWA `568667fe105c`, [배포 기록](https://github.com/sidebatch/pixel-life/actions/runs/38346705185). 공개 8파일 일치·393/320px 밭 상시 이동 차단/낫 수확/저장 보존·PWA 오프라인 실행/음악을 확인했다. 설치 앱은 완전히 종료 후 다시 열며 저장을 삭제하지 않는다.
-
-2026-10-13 공개 농장 기준: [FARMING_LAYOUT_V1.md](FARMING_LAYOUT_V1.md). 지정 부지 16칸/초기 4칸, 통로로 나눈 한 줄 밭 네 줄, 밭 자체의 상시 이동 차단, 기본 무한 낫 수확, 씨앗 수확 수량 설명 제거. 기존 소유/심은 작물은 보존했다. 농장 정비 v1도 공개 배포 완료했으며 PWA 빌드는 `568667fe105c`다. 검증 결과는 DEPLOYMENT.md에 기록했다.
-
-갱신: 2026-10-13. 성장 균형 v2는 공개 배포 완료했으며 현재 수치/저장 이행은 [LIFE_SKILL_GROWTH_BALANCE.md](LIFE_SKILL_GROWTH_BALANCE.md), 배포 검증은 [DEPLOYMENT.md](DEPLOYMENT.md)에 있다. 현재 인수인계는 간소화했으며 과거 전체 기록은 [HANDOFF_HISTORY_2026_10_12.md](HANDOFF_HISTORY_2026_10_12.md)에 보존했다.
-
-새 개발 세션에서는 먼저 [`HANDOFF.md`](HANDOFF.md)를 읽는다. 이 문서는 현재 구현 범위, 최근 검증, 남은 작업, 변경하지 말아야 할 결정을 한곳에 정리한 단일 인수인계 기준이다. 날짜가 오래된 QA·설계 기록과 내용이 다르면 `HANDOFF.md`, 실제 데이터 파일, 최신 자동 검사를 우선한다.
+새 세션은 [HANDOFF.md](HANDOFF.md)부터 읽는다. 현행 상태·사용자 결정·검증을 먼저 확인하고, 이전 배포/시안은 [별도 이력](HANDOFF_RELEASE_HISTORY_2026_10_14.md)과 DEPLOYMENT.md에서 참고한다.
 
 ## 새 세션 읽는 순서
 
@@ -30,6 +16,9 @@
 
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
+| 농장 주문·교환권 | [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md) | 랜덤 1개/납품·보상/주문 단계/저장 |
+| 농장 소품 8종 | [FARM_DECORATIONS_EXPANSION_V1.md](FARM_DECORATIONS_EXPANSION_V1.md) | 가격·고정 좌표/충돌/원본·프롬프트/검증 |
+| 현재 조작부 | [TOUCH_CONTROLS_V1.md](TOUCH_CONTROLS_V1.md) | 원형/반투명·상황별 실제 장비 그림·터치 검증 |
 | 벌목 현재 수치 | [`FORESTRY_BALANCE.md`](FORESTRY_BALANCE.md) | 나무 HP·XP·가격·도끼 피해의 현재 임시값과 이력 |
 | 벌목 10단계 | [`FORESTRY_10_STAGE_DESIGN.md`](FORESTRY_10_STAGE_DESIGN.md) | 도끼 10종·숲·내구력·수리, 도끼 제한 유지 결정과 과거 설계 구분 |
 | 나무 50종 | [`FORESTRY_TREE_CATALOG.md`](FORESTRY_TREE_CATALOG.md) | 수종 ID·이름·구간·이미지 계약·적용 상태 |
@@ -63,7 +52,7 @@
 - 보류: 낮은 도끼의 상위 나무 도전은 넣지 않고 현행 최소 도끼 제한 유지
 - 실기기 확인은 남았지만 사용자가 나중에 하기로 했다. 현재 확장을 막는 필수 선행 작업으로 삼거나 실측 없이 내구도 수치를 다시 조정하지 않는다.
 
-## 현재 낚시와 다음 개발 후보 (2026-10-12)
+## 현재 낚시와 다음 개발 후보 (2026-10-14)
 
 - 완료: 물고기 74종·10서식지·낚싯대 10종·승선권 4항로·표시 중 10분 운항·비반복 바다 연출·도감/졸업/꾸미기·마을 부분 수리·기존 저장 호환. 기본 낚싯대는 무한이며 유료 장비의 획득 마모는 내륙·해안 1 / 바다 6·8·10·12다.
 - 다음 개발 후보: 농사 도구·작물 도감/보상 → 요리 최소 루프. 독립 Farming과 수확 XP는 사용자 요청으로 구현했다. 직업 의상·주거·의뢰·전투는 별도 선택/장기 후보다.

@@ -106,7 +106,7 @@ function addFarmDecorationRenderables(renderables){
   if(GAME_STATE.regionId!=='sunnyFields')return;
   for(const id of GAME_STATE.progression.farmOrders.placedDecorationIds){
     const item=FARM_DECOR_BY_ID.get(id),image=imgs[item.asset];if(!image)continue;
-    for(const slot of item.slots){
+    for(const slot of item.renderSlots||item.slots){
       const x=Math.round(slot.x*TILE+(TILE-item.width)/2-camX),y=Math.round((slot.y+1)*TILE-item.height-camY);
       if(onScreen(slot.x*TILE,slot.y*TILE,item.width,item.height))
         renderables.push({y:(slot.y+1)*TILE,draw:()=>ctx.drawImage(image,x,y,item.width,item.height)});

@@ -13,13 +13,18 @@ vm.runInContext(files.map(file=>fs.readFileSync(file,'utf8')).join('\n')+
   "\nGAME_STATE.regionId='sunnyFields';applySaveData(createSaveData());buildWorldRegion(REGION_WORLDS.sunnyFields);player.x=14;player.y=22;"+
   "\nglobalThis.api={state:GAME_STATE,player,world:REGION_WORLDS.sunnyFields,items:FARM_DECORATIONS,crops:LIFE_CROP_BY_ID,"+
   "ensureFarmOrder,generateFarmOrder,normalizeSavedFarmOrders,createDefaultFarmOrders,deliverFarmOrder,exchangeFarmDecoration,setFarmDecorationPlaced,"+
-  "refreshFarmDecorationCollision,addLifeItem,lifeItemCount,createSaveData,applySaveData,saveGame,loadGame,buildWorldRegion,isBlocked,dirVec,"+
+  "refreshFarmDecorationCollision,addFarmDecorationRenderables,imgs,addLifeItem,lifeItemCount,createSaveData,applySaveData,saveGame,loadGame,buildWorldRegion,isBlocked,dirVec,"+
   "lifeSkillProgressFromTotal,lifeSkillTotalXpForLevel,collisionKeys:()=>[...blocked].sort()};",context);
 context.document={getElementById:()=>({textContent:'',classList:{add(){},remove(){}}})};
 const r=context.api,clone=value=>JSON.parse(JSON.stringify(value)),state=()=>clone(r.createSaveData().state),orders=()=>r.state.progression.farmOrders;
 const old=clone(r.createSaveData());delete old.state.progression.farmOrders;assert(r.applySaveData(old));
 assert.deepEqual(clone(orders()),{schemaVersion:1,tickets:0,completed:0,current:null,ownedDecorationIds:[],placedDecorationIds:[]});
 const noOrders=state();delete noOrders.progression.farmOrders;assert.deepEqual(noOrders,old.state);
+assert.equal(r.items.length,8);
+const previousSave=clone(r.createSaveData());
+previousSave.state.progression.farmOrders={schemaVersion:1,tickets:37,completed:7,current:{...clone(r.generateFarmOrder({...orders(),completed:7})),id:'farm-order-8'},
+  ownedDecorationIds:['scarecrow','sign','fence'],placedDecorationIds:['sign','fence']};
+assert(r.applySaveData(previousSave));assert.deepEqual(state(),previousSave.state);assert(r.applySaveData(old));
 const generationBefore=state();context.failSave=true;
 assert.equal(r.ensureFarmOrder(),false);assert.deepEqual(state(),generationBefore);
 context.failSave=false;
@@ -59,16 +64,27 @@ const before=state(),stored=storage.get('pixel-life.save.v2');context.failSave=t
 assert.equal(r.deliverFarmOrder(orders().current.id),false);assert.deepEqual(state(),before);assert.equal(storage.get('pixel-life.save.v2'),stored);context.failSave=false;
 context.marketState.view='decorations';
 const initialBlocked=clone(r.collisionKeys());
+orders().tickets=r.items.reduce((sum,item)=>sum+item.cost,0);
+const decorationKeys=new Set();
 for(const item of r.items){
   assert(item.slots.every(slot=>!initialBlocked.includes(slot.x+','+slot.y)));
+  for(const slot of item.slots){
+    const key=slot.x+','+slot.y;assert(!decorationKeys.has(key),'Decorations must not overlap');decorationKeys.add(key);
+    assert(!r.world.paths.some(path=>slot.x>=Math.min(path.x1,path.x2)&&slot.x<=Math.max(path.x1,path.x2)&&slot.y>=Math.min(path.y1,path.y2)&&slot.y<=Math.max(path.y1,path.y2)),'Do not occupy walking paths');
+  }
   const tickets=orders().tickets,snapshot=state();context.failSave=true;
   assert.equal(r.exchangeFarmDecoration(item.id),false);assert.deepEqual(state(),snapshot);context.failSave=false;
   assert(r.exchangeFarmDecoration(item.id));assert.equal(orders().tickets,tickets-item.cost);assert.equal(r.exchangeFarmDecoration(item.id),false);
-  r.player.x=item.slots[0].x;r.player.y=item.slots[0].y;assert.equal(r.setFarmDecorationPlaced(item.id,true),false);
+  for(const slot of item.slots){r.player.x=slot.x;r.player.y=slot.y;assert.equal(r.setFarmDecorationPlaced(item.id,true),false);}
   r.player.x=14;r.player.y=22;const beforePlacement=state(),beforeCollision=clone(r.collisionKeys());context.failSave=true;
   assert.equal(r.setFarmDecorationPlaced(item.id,true),false);assert.deepEqual(state(),beforePlacement);assert.deepEqual(clone(r.collisionKeys()),beforeCollision);context.failSave=false;
   assert(r.setFarmDecorationPlaced(item.id,true));assert(item.slots.every(slot=>r.isBlocked(slot.x,slot.y)));assert.equal(r.setFarmDecorationPlaced(item.id,true),false);
 }
+assert.equal(orders().tickets,0);
+context.onScreen=()=>true;
+for(const item of r.items)r.imgs[item.asset]={id:item.id};
+const renderables=[];r.addFarmDecorationRenderables(renderables);
+assert.equal(renderables.length,14,'Render bench/well once each, plus seven fence segments');
 const seen=new Set(),queue=[{x:3,y:24}];
 for(let i=0;i<queue.length;i++){
   const p=queue[i],key=p.x+','+p.y;if(seen.has(key)||r.isBlocked(p.x,p.y))continue;seen.add(key);
@@ -83,4 +99,4 @@ for(const item of r.items)assert(r.setFarmDecorationPlaced(item.id,false));asser
 assert.deepEqual(clone(r.normalizeSavedFarmOrders({tickets:-1,completed:2.5,ownedDecorationIds:['sign','unknown','sign'],placedDecorationIds:['scarecrow','sign']})),
   {schemaVersion:1,tickets:0,completed:0,current:null,ownedDecorationIds:['sign'],placedDecorationIds:['sign']});
 assert.equal(r.normalizeSavedFarmOrders({current:{...first,requirements:[{cropId:'missing',quantity:4}]}}).current,null);
-console.log('Farm orders passed: '+cases+' tier/economy/restore cases, one persistent order, 20 exact deliveries, stale double-submit, independent XP, transaction rollback, three exchanges/placement/reload/removal and all lanes/beds/exit accessible.');
+console.log('Farm orders passed: '+cases+' tier/economy/restore cases, one persistent order, previous three-object save preservation, 20 exact deliveries, stale double-submit, independent XP, rollback, eight exchanges/placement/reload/removal, multi-tile rendering and all lanes/beds/exit accessible.');

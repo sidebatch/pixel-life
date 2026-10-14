@@ -1,0 +1,27 @@
+{
+  "generator": "built-in image_gen",
+  "date": "2026-10-13",
+  "useCase": "stylized-concept",
+  "prompts": [
+    {
+      "id": "flowerpot",
+      "prompt": "Use case: stylized-concept. Asset type: Pixel Life farming decoration sprite. Draw ONE isolated object for a cozy top-down 2D pixel-art farming game. Front view with slight top-down perspective, no isometric diamond floor. Warm natural palette, dark brown outlines, crisp square pixel clusters, simple chunky readable silhouette, light from upper left. It must read at 48px in-game. Fully transparent background and generous 12% transparent padding. No scene, background, people, letters, numbers, watermark, alternate views or extra objects. Subject: one low rounded terracotta flower pot filled with a compact bush of pink and cream daisies and green leaves. Pot visible below foliage, flat grounded base; small attached shadow only."
+    },
+    {
+      "id": "haybale",
+      "prompt": "Use case: stylized-concept. Asset type: Pixel Life farming decoration sprite. Draw ONE isolated object for a cozy top-down 2D pixel-art farming game. Front view with slight top-down perspective, no isometric diamond floor. Warm natural palette, dark brown outlines, crisp square pixel clusters, simple chunky readable silhouette, light from upper left. It must read at 48px in-game. Fully transparent background and generous 12% transparent padding. No scene, background, people, letters, numbers, watermark, alternate views or extra objects. Subject: one compact rectangular golden hay bale, tied with two dark brown ropes, small crisp straw ends. Slight visible top and right side, horizontal bale. Simple warm yellow, ochre and brown pixel texture. Attached small shadow only."
+    },
+    {
+      "id": "waterbarrel",
+      "prompt": "Use case: stylized-concept. Asset type: Pixel Life farming decoration sprite. Draw ONE isolated object for a cozy top-down 2D pixel-art farming game. Front view with slight top-down perspective, no isometric diamond floor. Warm natural palette, dark brown outlines, crisp square pixel clusters, simple chunky readable silhouette, light from upper left. It must read at 48px in-game. Fully transparent background and generous 12% transparent padding. No scene, background, people, letters, numbers, watermark, alternate views or extra objects. Subject: one upright short wooden rain barrel, warm honey-brown vertical staves and two dark iron hoops, open elliptical top showing blue water. Small wooden spigot on front lower half. Compact round silhouette. Attached small shadow only."
+    },
+    {
+      "id": "bench",
+      "prompt": "Use case: stylized-concept. Asset type: Pixel Life farming decoration sprite. Draw ONE isolated object for a cozy top-down 2D pixel-art farming game. Front view with slight top-down perspective, no isometric diamond floor. Warm natural palette, dark brown outlines, crisp square pixel clusters, simple chunky readable silhouette, light from upper left. It must read at 48px in-game. Fully transparent background and generous 12% transparent padding. No scene, background, people, letters, numbers, watermark, alternate views or extra objects. Subject: one small rustic wooden garden bench, horizontal front-facing seating, honey-brown wood, three slats in the backrest, two sturdy legs, short armrests. Width about twice height. Slight top visible, sturdy compact silhouette. Attached small shadow only."
+    },
+    {
+      "id": "well",
+      "prompt": "Use case: stylized-concept. Asset type: Pixel Life farming decoration sprite. Draw ONE isolated object for a cozy top-down 2D pixel-art farming game. Front view with slight top-down perspective, no isometric diamond floor. Warm natural palette, dark brown outlines, crisp square pixel clusters, simple chunky readable silhouette, light from upper left. It must read at 48px in-game. Fully transparent background and generous 12% transparent padding. No scene, background, people, letters, numbers, watermark, alternate views or extra objects. Subject: one small charming farmhouse well, low circular gray stone rim with visible dark blue water, two wooden uprights holding a simple red terracotta gable roof, central horizontal winch and tiny wooden bucket hanging above water. Compact square shape, readable bold silhouette, roof smaller than overall padding. Attached small shadow only."
+    }
+  ]
+}

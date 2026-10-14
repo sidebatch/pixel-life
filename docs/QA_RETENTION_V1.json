@@ -1,13 +1,35 @@
 {
   "version": 1,
-  "date": "2026-10-13",
+  "date": "2026-10-14",
   "scope": "output only",
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
     {
+      "topic": "터치 조작부 디자인",
+      "latest": [
+        "deploy-controls-decorations-qa",
+        "controls-tool-art-v4"
+      ],
+      "previous": [
+        "controls-context-v3",
+        "controls-redesign-v2",
+        "controls-redesign-v1"
+      ]
+    },
+    {
       "topic": "농사 확장·경제·레벨",
-      "latest": ["deploy-farm-orders-v1-qa", "farm-orders-v1", "deploy-farming-v1-qa", "farming-progression-v1", "farming-expansion-v1"],
-      "previous": ["deploy-farm-ui-qa"]
+      "latest": [
+        "deploy-controls-decorations-qa",
+        "farm-decorations-expansion-v1",
+        "deploy-farm-orders-v1-qa",
+        "farm-orders-v1",
+        "deploy-farming-v1-qa",
+        "farming-progression-v1",
+        "farming-expansion-v1"
+      ],
+      "previous": [
+        "deploy-farm-ui-qa"
+      ]
     },
     {
       "topic": "다리·설산·폭포·늪",

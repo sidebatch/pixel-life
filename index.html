@@ -16,6 +16,7 @@
   <link rel="stylesheet" href="styles/game.css" />
   <link rel="stylesheet" href="styles/fish-rewards.css" />
   <link rel="stylesheet" href="styles/farm-orders.css" />
+  <link rel="stylesheet" href="styles/controls.css" />
   <!-- /build:styles -->
 </head>
 <body>
@@ -81,7 +82,7 @@
       <div id="skillLevelUpOverlay" class="skillLevelUpOverlay" aria-live="polite" aria-hidden="true" inert></div>
       <div class="controls">
         <div class="joystick" id="joystick" aria-label="이동 조이스틱">
-          <div class="joyMarks"><span class="jm up">▲</span><span class="jm down">▼</span><span class="jm left">◀</span><span class="jm right">▶</span></div>
+          <div class="joyMarks" aria-hidden="true"><span class="jm up"></span><span class="jm down"></span><span class="jm left"></span><span class="jm right"></span></div>
           <div class="stick" id="stick"></div>
         </div>
         <div class="actionCluster" id="actionCluster">
@@ -90,7 +91,12 @@
           </div>
           <div class="contextChip" id="contextChip">조사</div>
           <button class="fishingCancelBtn" id="fishingCancelBtn" aria-label="낚시 취소" hidden>× 낚시 취소</button>
-          <button class="actionBtn" id="btnA" aria-label="상호작용">✋</button>
+          <button class="actionBtn" id="btnA" aria-label="상호작용" type="button">
+            <img class="actionToolIcon" alt="" aria-hidden="true" hidden>
+            <svg class="actionIcon" viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M9 13V5a2 2 0 0 1 4 0v7m0-2h2a2 2 0 0 1 2 2v1h1a2 2 0 0 1 2 2v1c0 4-2 6-6 6h-1c-2 0-3-1-4-3l-3-5a2 2 0 0 1 3-2l1 1"/>
+            </svg>
+          </button>
         </div>
       </div>
       <div id="fishDiscoveryOverlay" class="treeDiscoveryOverlay fishDiscoveryOverlay" role="dialog" aria-modal="true" aria-labelledby="speaker" aria-hidden="true" inert>

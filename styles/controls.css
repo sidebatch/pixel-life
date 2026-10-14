@@ -1,0 +1,36 @@
+/* Quiet, rounded controls that leave the world visible underneath. */
+.controls{--joy-size:138px;--knob-size:50px;--action-size:82px}
+.controls .joystick{
+  left:max(18px,env(safe-area-inset-left));bottom:max(24px,env(safe-area-inset-bottom));
+  width:var(--joy-size);height:var(--joy-size);border:1px solid rgba(241,248,224,.38);border-radius:50%;
+  background:rgba(28,57,43,.16);box-shadow:inset 0 0 0 5px rgba(236,247,223,.035);backdrop-filter:none;
+}
+.controls .joyMarks{opacity:.62;color:#f3f6df}
+.controls .jm{width:10px;height:10px;background:currentColor;clip-path:polygon(50% 0,100% 70%,0 70%)}
+.controls .jm.up{left:50%;top:13px;transform:translateX(-50%)}
+.controls .jm.down{left:50%;bottom:13px;transform:translateX(-50%) rotate(180deg)}
+.controls .jm.left{left:13px;top:50%;transform:translateY(-50%) rotate(-90deg)}
+.controls .jm.right{right:13px;top:50%;transform:translateY(-50%) rotate(90deg)}
+.controls .stick{
+  left:calc((100% - var(--knob-size))/2);top:calc((100% - var(--knob-size))/2);
+  width:var(--knob-size);height:var(--knob-size);border:1px solid rgba(243,249,231,.65);border-radius:50%;
+  background:rgba(220,232,201,.65);box-shadow:inset 0 1px 1px rgba(255,255,241,.4),0 3px 8px rgba(18,44,28,.12);
+  transition:transform .04s linear;
+}
+.controls .actionCluster{right:max(18px,env(safe-area-inset-right));bottom:max(26px,env(safe-area-inset-bottom));width:104px;height:164px}
+.controls .actionBtn{
+  width:var(--action-size);height:var(--action-size);padding:8px 0;gap:3px;align-content:center;
+  border:1px solid rgba(230,241,209,.75);border-radius:50%;background:rgba(43,79,54,.72);
+  box-shadow:inset 0 1px 1px rgba(249,255,227,.15),0 4px 12px rgba(15,37,25,.18);
+  font:700 10px system-ui;color:#f3f6de;text-shadow:none;touch-action:manipulation;
+}
+.controls .actionIcon{display:block;width:30px;height:30px;pointer-events:none}
+.controls .actionToolIcon{display:block;width:44px;height:44px;object-fit:contain;image-rendering:pixelated;pointer-events:none}
+.controls .actionIcon[hidden],.controls .actionToolIcon[hidden]{display:none}
+.controls .actionBtn:active{transform:scale(.96);background:rgba(62,101,66,.88);filter:none}
+.controls .actionBtn:focus-visible{outline:2px solid #edf4d5;outline-offset:3px}
+.controls .roundMini{width:44px;height:44px;border:1px solid rgba(230,241,209,.4);border-radius:50%;background:rgba(43,79,54,.62);box-shadow:none;backdrop-filter:none;color:#f0f4dd;font-size:20px}
+.controls .contextChip{right:2px;bottom:calc(var(--action-size) + 10px);min-width:76px;padding:4px 8px;border:1px solid rgba(225,238,208,.3);border-radius:10px;background:rgba(29,56,39,.76);backdrop-filter:none;color:#f0f3da;font-size:10px}
+@media(max-width:430px){.controls{--joy-size:132px;--knob-size:48px;--action-size:78px}}
+@media(max-width:360px){.controls{--joy-size:120px;--knob-size:44px;--action-size:74px}.controls .joystick{left:max(14px,env(safe-area-inset-left));bottom:max(20px,env(safe-area-inset-bottom))}.controls .actionCluster{right:max(14px,env(safe-area-inset-right));bottom:max(22px,env(safe-area-inset-bottom));width:96px;height:158px}.controls .actionIcon{width:28px;height:28px}.controls .actionToolIcon{width:42px;height:42px}}
+@media(prefers-reduced-motion:reduce){.controls .stick{transition:none}}

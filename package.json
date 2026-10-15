@@ -47,6 +47,7 @@
     "qa:farming:orders-browser": "node scripts/qa-farm-orders-browser.mjs",
     "qa:controls:browser": "node scripts/qa-controls-browser.mjs",
     "qa:shop:browser": "node scripts/qa-shop-dex-polish-browser.mjs",
+    "qa:world:farm-browser": "node scripts/qa-farm-world-polish-browser.mjs",
     "qa:farming:growth": "node scripts/simulate-farming-growth.mjs",
     "qa:farming:progression-browser": "node scripts/qa-farming-progression-browser.mjs",
     "qa:farming:economy-browser": "node scripts/qa-farming-economy-browser.mjs",

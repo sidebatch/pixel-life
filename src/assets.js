@@ -345,7 +345,7 @@ const NPC_SHEET_URLS = Object.freeze({
   luca: 'assets/npcs/luca-v1.png',
   sora: 'assets/npcs/sora-v1.png',
   eden: 'assets/npcs/eden-v1.png',
-  haru: 'assets/npcs/haru-v1.png'
+  haru: 'assets/npcs/haru-v2.png'
 });
 
 const PLAYER_SHEET_URL = 'assets/player/player.png';

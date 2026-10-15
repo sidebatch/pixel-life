@@ -1,5 +1,7 @@
 # Pixel Life 문서 안내
 
+2026-10-15 로컬 최신은 [숲 바닥·하루 이전/체형·수확음·작물 그림](FARM_WORLD_POLISH_V2.md)이며 공개 배포 전이다. 아래 공개 기록은 직전 버전이다.
+
 2026-10-14 공개 배포 완료: 하루의 농사 상점/농가·상인, 씨앗 설명 정리, 판매 수량 취소, 큰 도감 상세, 나무 인접 표시 제거와 상점 가격/그림 배치를 반영했다. 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611). 기존 저장과 공개 상점/거래·주문/꾸미기·PWA 검증을 통과했다. [변경 기준](SHOP_DEX_POLISH_V1.md)
 
 새 세션은 [HANDOFF.md](HANDOFF.md)부터 읽는다. 현행 상태·사용자 결정·검증을 먼저 확인하고, 이전 배포/시안은 [별도 이력](HANDOFF_RELEASE_HISTORY_2026_10_14.md)과 DEPLOYMENT.md에서 참고한다.
@@ -16,6 +18,7 @@
 
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
+| 숲·농사 후속 정리 | [FARM_WORLD_POLISH_V2.md](FARM_WORLD_POLISH_V2.md) | 숲 사각형 제거·하루 v2/마을 이전·수확음·작물 그림 |
 | 농사 상점·판매·도감 | [SHOP_DEX_POLISH_V1.md](SHOP_DEX_POLISH_V1.md) | 하루 농가/NPC·엘리 역할 분리·선택 초기화·큰 그림·원화/검증 |
 | 농장 주문·교환권 | [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md) | 랜덤 1개/납품·보상/주문 단계/저장 |
 | 농장 소품 8종 | [FARM_DECORATIONS_EXPANSION_V1.md](FARM_DECORATIONS_EXPANSION_V1.md) | 가격·고정 좌표/충돌/원본·프롬프트/검증 |

@@ -95,7 +95,7 @@ try{
     await page.locator('#fishingCancelBtn').tap();await page.waitForFunction(()=>!isFishingActive());
     await page.evaluate(()=>{
       enterWorldRegion({to:'lilacVillage',entry:{x:42,y:31,face:'up'}});
-      const npc=npcs.find(n=>!['elli','jun'].includes(n.id)&&n.role!=='stylist'&&!['captain','voyageCaptain'].includes(n.role));
+      const npc=npcs.find(n=>!['elli','jun'].includes(n.id)&&!['stylist','farmMerchant','captain','voyageCaptain'].includes(n.role));
       const [face,[dx,dy]]=Object.entries(dirVec).find(([, [dx,dy]])=>!isBlocked(npc.x-dx,npc.y-dy));
       player.x=npc.x-dx;player.y=npc.y-dy;player.px=player.x*TILE+24;player.py=player.y*TILE+24;player.face=face;player.moving=false;refreshContext();const camera=getWorldCameraTarget();camX=camera.x;camY=camera.y;drawWorld();
     });

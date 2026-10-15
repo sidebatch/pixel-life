@@ -1,0 +1,28 @@
+{
+  "tool": "built-in imagegen edit",
+  "references": [
+    "assets/npcs/haru-v1.png",
+    "assets/npcs/jun.png"
+  ],
+  "file": "assets/npcs/haru-v2.png",
+  "width": 288,
+  "height": 384,
+  "cell": 96,
+  "feet": [
+    48,
+    88
+  ],
+  "neck": [
+    48,
+    54
+  ],
+  "maxBodyHeight": 66,
+  "rows": [
+    "down",
+    "left",
+    "right",
+    "up"
+  ],
+  "stationary": true,
+  "packing": "alpha crop, common scale, nearest neighbor; existing rig/scale unchanged"
+}

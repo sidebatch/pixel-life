@@ -32,15 +32,18 @@ try{
     assert.deepEqual(await page.evaluate(()=>({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression,world:GAME_STATE.world,collections:GAME_STATE.collections})),legacy);
     const layout=await page.evaluate(()=>{
       enterWorldRegion({to:'sunnyFields',entry:{x:9,y:24,face:'up'}});worldTime.minutes=720;
+      const farmLanes=[14,16,18,20,22].every(x=>[21,22,23,24,25,26].every(y=>!isBlocked(x,y)));
+      const farmBeds=WORLD_DEFINITION.farmPlots.every(p=>Object.values(dirVec).some(([dx,dy])=>!isBlocked(p.x+dx,p.y+dy)));
+      const oldShopRemoved=!buildings.some(b=>b.id==='farm_supply_cottage')&&!npcs.some(n=>n.id==='haru');
+      enterWorldRegion({to:'lilacVillage',entry:{x:57,y:24,face:'up'}});
       const seen=new Set(),queue=[{x:3,y:24}];
       for(let i=0;i<queue.length;i++){const p=queue[i],k=key(p.x,p.y);if(seen.has(k)||isBlocked(p.x,p.y))continue;seen.add(k);
         for(const [dx,dy] of Object.values(dirVec))queue.push({x:p.x+dx,y:p.y+dy});}
       const house=buildings.find(b=>b.id==='farm_supply_cottage'),npc=npcs.find(n=>n.id==='haru');
       const camera=getWorldCameraTarget();camX=camera.x;camY=camera.y;drawWorld();
       return {npc:!!npc&&npc.roam===0,door:seen.has(key(house.entrance.approach.x,house.entrance.approach.y)),
-        merchant:seen.has(key(9,24)),lanes:[14,16,18,20,22].every(x=>[21,22,23,24,25,26].every(y=>seen.has(key(x,y)))),
-        beds:WORLD_DEFINITION.farmPlots.every(p=>Object.values(dirVec).some(([dx,dy])=>seen.has(key(p.x+dx,p.y+dy)))),
-        exit:seen.has(key(1,24)),interaction:resolveWorldInteraction().kind};
+        merchant:seen.has(key(57,24)),lanes:farmLanes,beds:farmBeds,oldShopRemoved,
+        exit:seen.has(key(62,24)),interaction:resolveWorldInteraction().kind};
     });assert(layout.npc&&layout.door&&layout.merchant&&layout.lanes&&layout.beds&&layout.exit&&layout.interaction==='farmMarket');
     await page.screenshot({path:path.join(out,'farm-shop-'+width+'.png')});
     await page.locator('#btnA').tap();await page.waitForFunction(()=>isMarketOpen());
@@ -57,7 +60,7 @@ try{
     assert.deepEqual(await page.evaluate(()=>GAME_STATE.progression.farmOrders.current),legacy.progression.farmOrders.current);
     assert((await page.locator('.farmOrderLabel').innerText()).includes('하루'));
     await closeShop();
-    await page.evaluate(()=>{player.x=8;player.y=23;player.px=8*TILE+24;player.py=23*TILE+24;player.face='up';});
+    await page.evaluate(()=>{player.x=56;player.y=23;player.px=56*TILE+24;player.py=23*TILE+24;player.face='up';});
     await page.locator('#btnA').tap();await page.waitForFunction(()=>isMarketOpen()&&marketState.shop==='haru');await closeShop();
     await page.evaluate(()=>{enterWorldRegion({to:'lilacVillage',entry:{x:29,y:39,face:'up'}});});
     await page.locator('#btnA').tap();await page.waitForFunction(()=>isMarketOpen());

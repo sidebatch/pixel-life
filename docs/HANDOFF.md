@@ -1,5 +1,7 @@
 # Pixel Life 개발 인수인계
 
+2026-10-15 로컬 최신 구현/검증 완료, **공개 배포 전**: [FARM_WORLD_POLISH_V2.md](FARM_WORLD_POLISH_V2.md). 숲 12곳의 사각형 광장 제거, 하루 v2(공통 체형)·마을 동쪽 농장 출구 이전으로 상점 이동, 낫 수확음·재배 작물 이미지. 로컬 PWA `d3df644ac5ba`, 공개는 직전 `767920a`/`a5ea86ec2184`다. 아래 10월 14일 공개 기록과 구분한다.
+
 2026-10-14 공개 배포 완료: 하루의 농사 상점/농가·상인, 씨앗 설명 정리, 판매 수량 취소, 큰 도감 상세, 나무 인접 표시 제거와 상점 가격/그림 배치를 반영했다. 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611). 기존 저장과 공개 상점/거래·주문/꾸미기·PWA 검증을 통과했다. [변경 기준](SHOP_DEX_POLISH_V1.md)
 
 - 농장 주문/보상: [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md), 소품 8종/좌표/원본: [FARM_DECORATIONS_EXPANSION_V1.md](FARM_DECORATIONS_EXPANSION_V1.md).

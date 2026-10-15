@@ -134,7 +134,7 @@ function tileTypeAt(x,y){
   const k=key(x,y);
   if(bridgeSet.has(k)) return 'bridge';
   if(waterSet.has(k)) return 'water';
-  if(stoneSet.has(k)) return 'stone';
+  if(stoneSet.has(k)&&!FOREST_REGION_SPECIES[GAME_STATE.regionId]) return 'stone';
   if(pathSet.has(k)) return 'path';
   return 'grass';
 }

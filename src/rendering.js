@@ -228,6 +228,9 @@ function drawSwampWaterDetails(terrain){
 // PLAZA STANDARD V2: connected worn earth, scattered embedded stones, no brick rows.
 // These surfaces are decorative; stoneSet, collision and route semantics stay intact.
 function drawNaturalPlazas(terrain){
+  // Forest clearings keep their own ground; the legacy reserved areas still
+  // protect resource IDs/positions and do not draw village-style rectangles.
+  if(FOREST_REGION_SPECIES[WORLD_DEFINITION.id])return;
   for(const area of WORLD_DEFINITION.stoneAreas||[]){
     const wx=area.x*TILE,wy=area.y*TILE,w=area.w*TILE,h=area.h*TILE;
     const x=wx-camX,y=wy-camY;

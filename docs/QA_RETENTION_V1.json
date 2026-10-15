@@ -1,9 +1,10 @@
 {
   "version": 1,
-  "date": "2026-10-14",
+  "date": "2026-10-15",
   "scope": "output only",
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
+    {"topic":"숲 바닥·하루 이전/체형·수확음·작물 그림","latest":["deploy-farm-world-v2-qa","farm-world-polish-v2"],"previous":[]},
     {
       "topic": "상점 분리·선택 취소·도감 상세",
       "latest": ["deploy-shop-dex-qa", "shop-dex-polish-v1"],

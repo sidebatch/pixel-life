@@ -145,6 +145,28 @@ function playEquipWeaponSound(){return playGameSample('equipWeapon');}
 function playEquipClothesSound(){return playGameSample('equipClothes');}
 function playEquipRodSound(){return playGameSample('equipRod');}
 
+function playFarmHarvestSound(){
+  return playFishingAudio(context=>{
+    const start=context.currentTime,duration=.17;
+    // Soft leaf swish and a small harvest pop, synchronized with a saved yield.
+    const buffer=context.createBuffer(1,Math.ceil(context.sampleRate*duration),context.sampleRate);
+    const samples=buffer.getChannelData(0);
+    let noiseSeed=0x41c64e6d;
+    for(let i=0;i<samples.length;i++){
+      noiseSeed=(Math.imul(noiseSeed,1664525)+1013904223)|0;
+      samples[i]=(noiseSeed>>>0)/4294967296*2-1;
+    }
+    const swish=context.createBufferSource(),filter=context.createBiquadFilter(),gain=context.createGain();
+    swish.buffer=buffer;filter.type='bandpass';filter.frequency.setValueAtTime(1900,start);filter.frequency.exponentialRampToValueAtTime(700,start+duration);filter.Q.value=.6;
+    gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(.17,start+.025);gain.gain.exponentialRampToValueAtTime(.0001,start+duration);
+    swish.connect(filter);filter.connect(gain);gain.connect(context.destination);swish.start(start);swish.stop(start+duration);
+    const pop=context.createOscillator(),popGain=context.createGain();
+    pop.type='triangle';pop.frequency.setValueAtTime(680,start+.045);pop.frequency.exponentialRampToValueAtTime(330,start+.13);
+    popGain.gain.setValueAtTime(.0001,start);popGain.gain.exponentialRampToValueAtTime(.09,start+.055);popGain.gain.exponentialRampToValueAtTime(.0001,start+.19);
+    pop.connect(popGain);popGain.connect(context.destination);pop.start(start+.04);pop.stop(start+.2);
+  });
+}
+
 function playForestryChopSound(cut=false){
   return playFishingAudio(context=>{
     const start=context.currentTime;

@@ -3,6 +3,9 @@
 .marketReset{color:#d2e1d8;background:rgba(255,255,255,.035)}
 .marketSelectionActions button:focus-visible{outline:2px solid #fff0b5;outline-offset:2px}
 .marketRule:empty{display:none}
+.lifePanelHeader .lifeCropTitle{display:flex;align-items:center;gap:11px;margin-top:7px}
+.lifePanelHeader .lifeCropTitle .lifeItemIcon{flex:none;width:56px;height:56px;padding:5px;border:1px solid rgba(233,214,153,.28);border-radius:12px;background:rgba(255,255,255,.07)}
+.lifePanelHeader .lifeCropTitle>span{color:#fff;font-size:21px;line-height:1.2}
 /* Artwork and item information form one centered row; controls span the card. */
 .marketFishRow{grid-template-columns:64px minmax(0,1fr);align-items:center;column-gap:12px;row-gap:10px;padding:12px}
 .marketFishRow>.marketGoodsIcon,.marketFishRow>img{justify-self:center;align-self:center;width:64px;height:64px}

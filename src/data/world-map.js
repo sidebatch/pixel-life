@@ -21,6 +21,7 @@ let WORLD_DEFINITION = Object.freeze({
     { x1: 32, y1: 32, x2: 50, y2: 32 },
     { x1: 50, y1: 24, x2: 50, y2: 32 },
     { x1: 50, y1: 24, x2: 62, y2: 24 },
+    { x1: 56, y1: 23, x2: 56, y2: 24 },
     { x1: 10, y1: 20, x2: 10, y2: 24 },
     { x1: 25, y1: 11, x2: 31, y2: 11 },
     { x1: 15, y1: 34, x2: 15, y2: 36 },
@@ -45,9 +46,10 @@ let WORLD_DEFINITION = Object.freeze({
   fishingSpot: { x: 35, y: 23 },
 
   npcs: [
+    {id:'haru',x:57,y:23,homeX:57,homeY:23,name:'하루',role:'farmMerchant',residentOf:'farm_supply_cottage',sprite:'haru',scale:1,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 농장으로 가기 전에 씨앗을 챙겨 봐. 수확한 작물 판매와 주문 납품도 여기서 할 수 있어.'},
     {id:'mina',x:28,y:23,homeX:28,homeY:23,name:'미나',role:'villager',sprite:'mina',scale:1.00,face:'down',moving:false,wait:900,roam:3,dialog:'안녕! 연못 산책 중이었어. 물가에 가면 낚시를 시작할 수 있어.'},
     {id:'thomas',x:26,y:29,homeX:26,homeY:29,name:'토마스',role:'fisherman',sprite:'thomas',scale:1.00,face:'left',moving:false,wait:1400,roam:2,dialog:'낚시는 서두르면 안 돼. 물결을 잘 보면 입질 타이밍이 보여.'},
-    {id:'elli',x:29,y:38,homeX:29,homeY:38,name:'엘리',role:'merchant',sprite:'elli',scale:1.00,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 물고기를 팔거나 낚싯대를 사고 수리할 수 있어. 씨앗과 농장 주문은 햇살 농장의 하루를 찾아가 봐.'},
+    {id:'elli',x:29,y:38,homeX:29,homeY:38,name:'엘리',role:'merchant',sprite:'elli',scale:1.00,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 물고기를 팔거나 낚싯대를 사고 수리할 수 있어. 씨앗과 농장 주문은 마을 동쪽 농장 가는 길의 하루를 찾아가 봐.'},
     {id:'noah',x:23,y:24,homeX:23,homeY:24,name:'노아',role:'guide',sprite:'noah',scale:1.00,face:'right',moving:false,wait:2200,roam:3,dialog:'남쪽은 오래된 숲, 북쪽은 신비한 고대 숲이야. 동쪽은 농장, 서쪽은 항구로 이어져.'},
     {id:'hana',x:31,y:27,homeX:31,homeY:27,name:'하나',role:'stylist',sprite:'hana',scale:1.00,face:'down',moving:false,wait:1200,roam:0,dialog:'안녕! 이안·리아 중 원하는 모습으로 바꿔 줄게. 옷과 가방은 그대로야.'},
     {id:'jun',x:30,y:20,homeX:30,homeY:20,name:'준',role:'toolMerchant',sprite:'jun',scale:1.00,face:'down',moving:false,wait:1600,roam:0,dialog:'목재를 팔거나 도끼를 업그레이드하고 싶으면 말해 줘.'},
@@ -71,7 +73,7 @@ let WORLD_DEFINITION = Object.freeze({
       {x:22,y:21,v:0,s:.82,flip:false},{x:31,y:28,v:1,s:.72,flip:true},{x:49,y:21,v:0,s:.76,flip:true},
       {x:20,y:30,v:1,s:.66,flip:false},{x:28,y:30,v:0,s:.70,flip:false},{x:34,y:16,v:1,s:.64,flip:true},
       {x:8,y:33,v:0,s:.72,flip:false},{x:16,y:38,v:1,s:.68,flip:true},{x:49,y:34,v:0,s:.74,flip:false},
-      {x:55,y:18,v:1,s:.65,flip:true},{x:14,y:13,v:0,s:.70,flip:false}
+      {x:53,y:22,v:1,s:.65,flip:true},{x:14,y:13,v:0,s:.70,flip:false}
     ],
     flowers: [
       {x:30,y:22,v:0,s:.61,flip:false},{x:31,y:22,v:1,s:.55,flip:true},{x:29,y:28,v:1,s:.58,flip:false},
@@ -81,7 +83,7 @@ let WORLD_DEFINITION = Object.freeze({
       {x:28,y:12,v:0,s:.55,flip:false},{x:35,y:12,v:1,s:.55,flip:true},
       {x:6,y:41,v:1,s:.53,flip:false},{x:10,y:41,v:0,s:.57,flip:true},
       {x:15,y:42,v:1,s:.48,flip:false},{x:20,y:41,v:0,s:.53,flip:true},
-      {x:48,y:39,v:0,s:.53,flip:true},{x:54,y:22,v:1,s:.55,flip:false}
+      {x:48,y:39,v:0,s:.53,flip:true},{x:54,y:23,v:1,s:.55,flip:false}
     ],
     grassTufts: [
       {x:23,y:19,s:.38,flip:false},{x:33,y:21,s:.34,flip:true},{x:19,y:28,s:.31,flip:false},
@@ -95,6 +97,14 @@ let WORLD_DEFINITION = Object.freeze({
   },
 
   buildings: [
+    {
+      id:'farm_supply_cottage',name:'하루의 농사 상점',sprite:'buildingFarmShop',sizeFamily:'cottage',
+      x:54,y:19,w:4,h:4,drawW:240,drawH:250.5,depthLine:4,
+      artAnchor:{doorCenterX:80,groundOffsetY:12},
+      entrance:{door:{x:56,y:22},approach:{x:56,y:23},side:'center'},
+      interactType:'building',action:'openFarmMarket',interactionLabel:'상점',serviceKey:'farmSupply',interiorId:null,
+      dialog:'농장으로 가는 길에 들르는 하루의 농사 상점이다. 씨앗과 작물을 거래하고 주문을 납품할 수 있다.'
+    },
     {
       id:'home_cottage',name:'파란 지붕 집',sprite:'buildingHome',
       x:19,y:16,w:5,h:4,drawW:300,drawH:293,depthLine:4,
@@ -167,6 +177,6 @@ let WORLD_DEFINITION = Object.freeze({
     {x:50,y:5},{x:54,y:6},{x:58,y:5},{x:51,y:9},{x:56,y:10},{x:59,y:14},
     {x:5,y:28},{x:9,y:30},{x:11,y:28},{x:12,y:42},
     {x:21,y:42},{x:29,y:43},{x:35,y:44},{x:47,y:43},{x:55,y:42},{x:59,y:37},
-    {x:52,y:29},{x:57,y:31},{x:50,y:16},{x:58,y:20}
+    {x:52,y:29},{x:57,y:31},{x:50,y:16},{x:60,y:17}
   ]
 });

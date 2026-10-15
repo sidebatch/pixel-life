@@ -402,6 +402,7 @@ function harvestFarmCrop(plot){
   });
   if(!success){showLifeToast('저장하지 못했어요');return false;}
   showLifeToast(`+${quantity} ${crop.name}`,{belowSkill:true});
+  if(typeof playFarmHarvestSound==='function')playFarmHarvestSound();
   showSkillXpFeedback('farming',progressBefore,lifeSkillProgressSnapshot('farming'),gainedXp);
   renderLifePanel();return true;
 }
@@ -432,7 +433,10 @@ function renderLifePanel(){
   document.getElementById('farmSkillCard').innerHTML=skillCardMarkup('farming');
   const decorButton=document.getElementById('lifeDecor');
   if(decorButton)decorButton.textContent=`농장 꾸미기 · 교환권 ${GAME_STATE.progression.farmOrders?.tickets||0}장`;
-  document.getElementById('lifeTitle').textContent=crop?crop.name:phase==='LOCKED'?'부지 구매':'씨앗 심기';
+  const title=document.getElementById('lifeTitle');
+  title.className=crop?'lifeCropTitle':'';
+  if(crop)title.innerHTML=`${lifeItemIconMarkup('crop',crop.id,crop.icon)}<span>${crop.name}</span>`;
+  else title.textContent=phase==='LOCKED'?'부지 구매':'씨앗 심기';
   const info=document.getElementById('lifeInfo'),actions=document.getElementById('lifeActions');
   if(phase==='LOCKED'){
     const cost=farmExpansionCost();

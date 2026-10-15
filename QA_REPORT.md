@@ -1,5 +1,13 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-15 숲 바닥·하루 체형/마을 이전·수확음·작물 그림 로컬 검증
+
+- **공개 배포 전**. 로컬 HTML 20,535,809 bytes/PWA `d3df644ac5ba`. 공개는 직전 `767920a`다.
+- 전체 검사 51 scripts/141 UI IDs/452 assets/74 fish와 기존 캐릭터/도구·숲 자원/길/물/낚시·농사/저장 계약 통과.
+- 393/320px 숲 12곳에서 광장 미출력/숲 바탕/기존 자원 보존, 마을의 하루/상점 문/농장 출구·모든 건물 접근, 농장 내 기존 상점 제거, 재배 14종 이미지/빈 밭 이미지 제거 통과.
+- 실제 낫 수확 효과음 1회, 실패 복원/무음, 실제 합성 파형 RMS 0.01475·최대 진폭 0.08742 확인. 하루는 새 원화만 보정하고 기존 공통 목/발/셀/표시 배율을 유지했다.
+- 기존 상점·도감·주문/8종 꾸미기 브라우저 및 393/320/430px 조작부·실제 수확/낚시/대화·장비 20종 통과. 상세/원본/프롬프트는 [FARM_WORLD_POLISH_V2.md](docs/FARM_WORLD_POLISH_V2.md), 캡처 `output/farm-world-polish-v2/`.
+
 ## 2026-10-14 농사 상점·판매 UI·도감 공개 배포 완료
 
 - 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611).

@@ -560,7 +560,6 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
     playerSpawn:{x:3,y:24,face:'right'},
     paths:[
       {x1:1,y1:24,x2:13,y2:24},{x1:11,y1:17,x2:11,y2:31},
-      {x1:8,y1:23,x2:8,y2:24},
       {x1:11,y1:20,x2:21,y2:20},{x1:11,y1:28,x2:21,y2:28},
       {x1:14,y1:21,x2:22,y2:21},{x1:14,y1:26,x2:22,y2:26},
       {x1:14,y1:21,x2:14,y2:26},{x1:16,y1:21,x2:16,y2:26},
@@ -569,21 +568,14 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
     ],
     stoneAreas:[],waterAreas:[{id:'farm_pond',x:27,y:13,w:11,h:15,cutCorners:true,fishingHabitat:'pond'}],
     bridges:[],fishingSpot:{x:27,y:20},
-    npcs:[{id:'haru',x:9,y:23,homeX:9,homeY:23,name:'하루',role:'farmMerchant',residentOf:'farm_supply_cottage',sprite:'haru',scale:1,face:'down',moving:false,wait:1800,roam:0,dialog:'어서 와! 씨앗을 고르고 수확한 작물을 팔아 봐. 농장 주문을 납품하면 꾸미기 교환권도 줄게.'}],
+    npcs:[],
     fixedObjects:{rocks:[{x:39,y:30},{x:7,y:34}]},
     decorations:{
       bushes:[{x:4,y:20,v:0,s:.8},{x:19,y:32,v:1,s:.7},{x:39,y:18,v:0,s:.7}],
       flowers:[{x:10,y:23,v:0,s:.55},{x:24,y:26,v:1,s:.55},{x:25,y:17,v:0,s:.6}],
       grassTufts:[{x:6,y:27,s:.35},{x:20,y:18,s:.34},{x:32,y:30,s:.36}],
       reeds:[{x:26,y:19,s:.42},{x:38,y:23,s:.38}]
-    },buildings:[{
-      id:'farm_supply_cottage',name:'하루의 농사 상점',sprite:'buildingFarmShop',sizeFamily:'cottage',
-      x:6,y:19,w:4,h:4,drawW:240,drawH:250.5,depthLine:4,
-      artAnchor:{doorCenterX:80,groundOffsetY:12},
-      entrance:{door:{x:8,y:22},approach:{x:8,y:23},side:'center'},
-      interactType:'building',action:'openFarmMarket',interactionLabel:'상점',serviceKey:'farmSupply',interiorId:null,
-      dialog:'씨앗, 작물, 농장 주문과 꾸미기 소품을 다루는 하루의 농사 상점이다.'
-    }],
+    },buildings:[],
     treeLines:[
       {axis:'x',from:1,to:62,step:2,fixed:1,gaps:[]},
       {axis:'x',from:1,to:62,step:2,fixed:46,gaps:[]},

@@ -1,6 +1,6 @@
 # 농사 상점 분리·판매 선택 취소·도감 큰 그림
 
-후속 로컬 기준(2026-10-15, 공개 배포 전): [FARM_WORLD_POLISH_V2.md](FARM_WORLD_POLISH_V2.md). 하루 v2와 상점의 마을 이전·숲 바닥·수확음·재배 이미지를 추가했다. 이 문서의 10월 14일 원화/농장 좌표는 당시 공개 이력으로 보존한다.
+후속 공개 기준(2026-10-15): [FARM_WORLD_POLISH_V2.md](FARM_WORLD_POLISH_V2.md). 하루 v2·마을 이전·숲 바닥·수확음·재배 이미지를 공개 배포했다. 아래 10월 14일 원화/농장 좌표는 당시 공개 이력이다.
 
 2026-10-14 공개 배포 완료: 하루의 농사 상점/농가·상인, 씨앗 설명 정리, 판매 수량 취소, 큰 도감 상세, 나무 인접 표시 제거와 상점 가격/그림 배치를 반영했다. 게임 변경 커밋 [f16ebde](https://github.com/sidebatch/pixel-life/commit/f16ebdee291f6b5ffb0e5a4abf71e6fc44fed102), PWA `a5ea86ec2184`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38620542611). 기존 저장과 공개 상점/거래·주문/꾸미기·PWA 검증을 통과했다. HTML 20,476,579 bytes, 공개 8파일/37,943,741 bytes가 로컬 dist와 SHA-256까지 일치한다.
 

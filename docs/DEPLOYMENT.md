@@ -1,6 +1,14 @@
 # Deployment
 
-현재 배포 계약 정리: 2026-10-14.
+현재 배포 계약 정리: 2026-10-15.
+
+## 2026-10-15 숲·하루 상점·수확 피드백 공개 배포 완료
+
+- 게임 변경 커밋 [3a6d6fa](https://github.com/sidebatch/pixel-life/commit/3a6d6fa9f5d3f4bd2e6cc9087fea1cc5e443de6b), PWA `d3df644ac5ba`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38812945983).
+- 전체 검사 51 scripts/141 UI IDs/452 assets/74 fish 및 Pages build/deploy 성공. HTML 20,535,809 bytes, 공개 8파일/38,002,971 bytes와 SHA-256 일치.
+- 공개 393/320px 각각 숲 12곳의 광장 미출력/기존 자원 보존, 마을 상점/NPC·모든 문/농장 출구 접근·기존 농장 상점 제거, 작물 14종 이미지/빈 밭 제거, 실제 낫 수확음 1회·실패 복원/무음·실제 합성 파형 통과.
+- 기존 저장/진행 주문/교환권·판매 취소·8종 꾸미기 교환/설치/회수/재접속·통로와 공개 PWA 설치 조건/캐시/오프라인 음악 Range 206·100 bytes·강제 재로딩 없음 통과.
+- 기준 [FARM_WORLD_POLISH_V2.md](FARM_WORLD_POLISH_V2.md), 결과 output/deploy-farm-world-v2-qa/. 설치 앱은 완전히 종료 후 다시 열고 저장을 삭제하지 않는다.
 
 ## 2026-10-14 농사 상점·판매 UI·도감 공개 배포 완료
 

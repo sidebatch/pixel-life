@@ -1,6 +1,6 @@
 # 숲 바닥·하루 체형/상점 이전·수확음·작물 이미지
 
-2026-10-15 로컬 구현과 검증 완료, **공개 배포 전**. 공개 게임은 이전 `767920a`/PWA `a5ea86ec2184`를 유지한다. 로컬 최종 빌드 HTML 20,535,809 bytes/PWA `d3df644ac5ba`.
+2026-10-15 공개 배포 완료: 숲 12곳의 사각형 광장 제거, 하루 체형 보정과 마을 동쪽 농장길로 상점 이전, 낫 수확 효과음·재배 작물 이미지를 반영했다. 게임 변경 커밋 [3a6d6fa](https://github.com/sidebatch/pixel-life/commit/3a6d6fa9f5d3f4bd2e6cc9087fea1cc5e443de6b), PWA `d3df644ac5ba`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38812945983). 공개 상점/저장·주문/꾸미기·합성음·PWA 검증을 통과했다. HTML 20,535,809 bytes/공개 8파일 38,002,971 bytes는 로컬과 SHA-256까지 일치한다.
 
 ## 변경 내용
 
@@ -27,4 +27,8 @@
 - `qa-village-polish.mjs`: 기존 주민 그림과 마을 광장 보존, 하루 12프레임의 발/목/높이/여백/배율과 새 마을 인구·건물 수 확인.
 - 상점/도감 브라우저 393/320px 기존 재고/주문/밭·교환권 재접속, 새 NPC와 문·구매/판매·수량 취소·도감 통과. 농장 주문 브라우저의 납품/보상·8종 교환/설치/회수/저장/통로/이력 통과. 마을에서는 설치 버튼이 비활성화되고 농장에서는 설치할 수 있다.
 - 조작부 브라우저 393/320/430px: 실제 이동·수확/낚시/취소/일반 주민 대화·장비 20종 통과. 새 고정 상인을 일반 대화 주민으로 오인하던 테스트 대상을 바로잡았다.
-- 결과: `output/farm-world-polish-v2/{browser,shops,orders,controls}/`. 전체 검사 로그는 `output/farm-world-polish-check.txt`. 실제 기기/공개 배포 검증이라고 표현하지 않는다.
+- 결과: `output/farm-world-polish-v2/{browser,shops,orders,controls}/`. 전체 검사 로그는 `output/farm-world-polish-check.txt`. 추가 공개 검증은 output/deploy-farm-world-v2-qa/에 기록했다. 실제 기기 검증이라고 표현하지 않는다.
+
+## 공개 배포 확인
+
+게임 변경 커밋 [3a6d6fa](https://github.com/sidebatch/pixel-life/commit/3a6d6fa9f5d3f4bd2e6cc9087fea1cc5e443de6b), PWA `d3df644ac5ba`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38812945983). 공개 393/320px 숲 전체/상점 이전·기존 저장·주문/8종 꾸미기·작물 14종 이미지·수확음 1회/실패 무음, PWA 설치 조건/캐시/오프라인 음악 Range 206·100 bytes/강제 재로딩 없음 통과.

@@ -1,6 +1,8 @@
 # 벌목 획득·귀환·내구도·낚싯대·폭풍 표시
 
-2026-10-15 로컬 구현 및 검증 완료, **공개 배포 전**. 기존 공개 배포는 `7222fed`(게임 변경 `e5c886a`, PWA `564c82ae77ff`)다. 이번 로컬 빌드는 HTML 20,555,321 bytes / PWA `6ea80bf54583`이다.
+2026-10-15 공개 배포 완료. 게임 변경 [97e11ef](https://github.com/sidebatch/pixel-life/commit/97e11efeb54c3a282ec90ecf02e6a181f65374d8), PWA `6ea80bf54583`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38844744065). HTML 20,555,321 bytes/공개 8파일 38,022,483 bytes가 로컬과 SHA-256까지 일치한다.
+
+공개 393/320px 실제 발견·레벨업/50종·0~3개 지급/중앙 귀환·실패 복원/내구도·파손·수리/24종 번개·동작 줄이기, 낚싯대 남녀/사방향/480개 손·끝점/길이 변환, PWA 설치 조건·새 캐시·오프라인/음악 Range 206·100 bytes·강제 재로딩 없음 검증 통과. 기존 저장 버전 2를 유지한다. 결과 `output/deploy-feedback-qa/`. 아래 로컬 검증은 개발 당시 이력이며 공개 검증과 구분한다.
 
 ## 적용 내용
 
@@ -21,4 +23,4 @@
 - `qa-inventory-ui.mjs`: 빌드 393/320/1100px, 장비 22종 상세·상점 도끼 10종·실제 장착/외형·저장 실패/재접속·뒤로/앞으로 이동, 3열·정보 버튼 44px.
 - `qa-forestry-durability.mjs`: 마모/파손/마지막 타격·부분 수리와 원자적 저장 계약.
 
-결과는 `output/gameplay-feedback/`와 `output/gameplay-polish-check.log`에 있다. 번개 6회 화면과 낚싯대 전후 합성 비교를 시각 확인했다. 오류 없음. 실제 휴대폰 손 조작/음량·성능 검증과 공개 배포로 표현하지 않는다.
+결과는 `output/gameplay-feedback/`와 `output/gameplay-polish-check.log`에 있다. 번개 6회 화면과 낚싯대 전후 합성 비교를 시각 확인했다. 오류 없음. 실제 휴대폰 손 조작/음량·성능 검증과는 구분한다.

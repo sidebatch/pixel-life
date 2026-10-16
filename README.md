@@ -1,6 +1,10 @@
 # Pixel Life
 
-후속 로컬 수정(2026-10-15, **미배포**): 벌목 수량 알림, 마을 중앙 귀환, 장비/하단 내구도 바, 낚싯대 10종 두께 개선, 다양한 폭풍 번개. [내용·검증](docs/GAMEPLAY_FEEDBACK_V1.md). 아래는 직전 공개 배포 기록이다.
+2026-10-15 공개 배포 완료. 게임 변경 [97e11ef](https://github.com/sidebatch/pixel-life/commit/97e11efeb54c3a282ec90ecf02e6a181f65374d8), PWA `6ea80bf54583`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38844744065). HTML 20,555,321 bytes/공개 8파일 38,022,483 bytes가 로컬과 SHA-256까지 일치한다.
+
+벌목 50종 획득 수량(0개 포함)·발견/레벨업 뒤 알림, 귀환석 중앙 광장 도착, 장비/상세/하단 내구도 바, 낚싯대 10종 두께, 다양한 폭풍 번개를 반영했다. [내용·검증](docs/GAMEPLAY_FEEDBACK_V1.md).
+
+공개 393/320px 실제 발견·레벨업/50종·0~3개 지급/중앙 귀환·실패 복원/내구도·파손·수리/24종 번개·동작 줄이기, 낚싯대 남녀/사방향/480개 손·끝점/길이 변환, PWA 설치 조건·새 캐시·오프라인/음악 Range 206·100 bytes·강제 재로딩 없음 검증 통과. 기존 저장 버전 2를 유지한다. 결과 `output/deploy-feedback-qa/`. 아래는 직전 배포/개발 이력이다.
 
 2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다.
 

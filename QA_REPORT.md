@@ -1,8 +1,12 @@
 # Pixel Life 종합 QA 보고서
 
-## 2026-10-15 후속 로컬: 획득 표시·귀환·내구도·낚싯대·번개
+## 2026-10-15 획득 표시·귀환·내구도·낚싯대·번개 공개 배포
 
-[변경 내용과 검증](docs/GAMEPLAY_FEEDBACK_V1.md). 전체 검사/빌드, 원본·빌드 393/320px 생활 표시, 480개 낚싯대 합성 변환, 393/320/430px 도구 바, 빌드 393/320/1100px 장비 UI 검증을 통과했다. 로컬 PWA `6ea80bf54583`, HTML 20,555,321 bytes. **미배포**이며 아래 공개 기록과 구분한다. 결과 `output/gameplay-feedback/`, `output/gameplay-polish-check.log`.
+2026-10-15 공개 배포 완료. 게임 변경 [97e11ef](https://github.com/sidebatch/pixel-life/commit/97e11efeb54c3a282ec90ecf02e6a181f65374d8), PWA `6ea80bf54583`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38844744065). HTML 20,555,321 bytes/공개 8파일 38,022,483 bytes가 로컬과 SHA-256까지 일치한다.
+
+벌목 50종 획득 수량(0개 포함)·발견/레벨업 뒤 알림, 귀환석 중앙 광장 도착, 장비/상세/하단 내구도 바, 낚싯대 10종 두께, 다양한 폭풍 번개를 반영했다. [내용·검증](docs/GAMEPLAY_FEEDBACK_V1.md).
+
+공개 393/320px 실제 발견·레벨업/50종·0~3개 지급/중앙 귀환·실패 복원/내구도·파손·수리/24종 번개·동작 줄이기, 낚싯대 남녀/사방향/480개 손·끝점/길이 변환, PWA 설치 조건·새 캐시·오프라인/음악 Range 206·100 bytes·강제 재로딩 없음 검증 통과. 기존 저장 버전 2를 유지한다. 결과 `output/deploy-feedback-qa/`. 아래는 직전 배포/개발 이력이다.
 
 ## 2026-10-15 생활 UI·농장 소품·항해·효과음·폭포 통합 공개 배포
 

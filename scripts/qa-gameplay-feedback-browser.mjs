@@ -32,7 +32,14 @@ try{
     });
     await page.waitForFunction(()=>isSkillLevelUpVisible());await page.waitForTimeout(2000);
     assert(await page.evaluate(()=>lifeUi.treeLoot[0]?.message==='참나무 +3개'));
-    await page.locator('#skillLevelUpOverlay button').tap();
+    // The level card also dismisses itself after five seconds. Slow public
+    // loads/captures may reach the tap after that timer; accept that path only
+    // when the actual overlay has closed, never force a tap through the game.
+    let levelUpDismissal='automatic';
+    if(await page.evaluate(()=>isSkillLevelUpVisible())){
+      try{await page.locator('#skillLevelUpOverlay button').tap({timeout:1500});levelUpDismissal='manual';}
+      catch(error){if(await page.evaluate(()=>isSkillLevelUpVisible()))throw error;}
+    }
     await page.waitForFunction(()=>document.getElementById('lifeToast').classList.contains('show')&&document.getElementById('lifeToast').textContent==='참나무 +3개');
     const allTrees=await page.evaluate(()=>{
       cancelSkillXpFeedback();lifeUi.treeLoot=[];lifeUi.lootUntil=0;
@@ -117,7 +124,7 @@ try{
       const html=`<!doctype html><meta charset="utf-8"><style>body{background:#1d3839;color:#fff;font:16px system-ui;margin:15px}.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}img{width:100%;image-rendering:pixelated}</style><p>폭풍 번개 — 실제 렌더러의 서로 다른 6회</p><div class="grid">${frames.map(src=>`<img src="${src}">`).join('')}</div>`;
       fs.writeFileSync(path.join(out,'lightning.html'),html);const review=await context.newPage();await review.setViewportSize({width:900,height:1000});await review.setContent(html);await review.screenshot({path:path.join(out,'lightning.png'),fullPage:true});await review.close();
     }
-    reports.push({width,firstDiscoveryReceipt:true,levelUpReceipt:true,allTrees,returns,returnRollback:true,equipment,liveUpdate,brokenAndRepair:true,lightning});
+    reports.push({width,firstDiscoveryReceipt:true,levelUpReceipt:true,levelUpDismissal,allTrees,returns,returnRollback:true,equipment,liveUpdate,brokenAndRepair:true,lightning});
     await context.close();
   }
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({base,reports,errors},null,2)+'\n');

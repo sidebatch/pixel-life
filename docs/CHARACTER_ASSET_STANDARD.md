@@ -2,7 +2,7 @@
 
 현행 규격 ID: `npc-compatible-v5-rod-width-extension` · 적용일: 2026-10-15 · 기준 계약: `docs/character-standard-v5.json` · 검 동작 확장: `docs/sword-action-v1.json`
 
-사용자가 낚싯대 전체 두께 개선을 요청한 후속 로컬 변경이다. 10종에 공통으로 축 직각 폭 2배를 적용하며 기존 PNG·손/끝점·축 길이·몸/동작 좌표는 그대로다. 가방/상점/행동 버튼/하단 바도 같은 방향으로 굵게 표시한다. `approvedExtensions.rod-width-presentation-v1`과 렌더러 해시를 갱신하고 480개 합성 변환을 검증했다. 공개 배포 전이며 [상세 검증](GAMEPLAY_FEEDBACK_V1.md)을 따른다.
+사용자가 낚싯대 전체 두께 개선을 요청한 후속 공개 변경이다. 10종에 공통으로 축 직각 폭 2배를 적용하며 기존 PNG·손/끝점·축 길이·몸/동작 좌표는 그대로다. 가방/상점/행동 버튼/하단 바도 같은 방향으로 굵게 표시한다. `approvedExtensions.rod-width-presentation-v1`과 렌더러 해시를 갱신하고 480개 합성 변환을 검증했다. 공개 배포·검증을 완료했으며 [상세 검증](GAMEPLAY_FEEDBACK_V1.md)을 따른다.
 
 ## 1. 가장 중요한 원칙
 

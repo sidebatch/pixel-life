@@ -1,6 +1,8 @@
 # 성장 현황 창 v1
 
-2026-10-16 로컬 구현·검증. **아직 공개 배포 전입니다.**
+2026-10-16 성장 현황 창·상단 작은 레벨 바 공개 배포 완료. 게임 변경 [8ca3d2c](https://github.com/sidebatch/pixel-life/commit/8ca3d2ce9b5bdb647e6843bd2f98ba31fc44b156), PWA `a77615df2249`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38939472908). HTML 21,382,180 bytes/공개 8파일 38,849,342 bytes가 로컬과 SHA-256까지 일치한다.
+
+전체 검사 53 scripts/150 UI ids/481 assets/74 fish와 서버 빌드·게시 성공. 공개 320/393px 모바일·PC 1280px에서 작은 바/상세 창·실시간 레벨/XP·키보드/배경/뒤로·앞으로/재접속·저장 호출 없음/기존 데이터 유지·가방/도감 진입을 확인했다. PWA 설치 오류 없음·새 캐시·오프라인 음악 Range 206/100 bytes·강제 재로딩 없음 검증 통과. 저장 버전 2 유지. 공개 검증 결과 `output/deploy-growth-status-qa/`.
 
 여행 메뉴 → 성장 현황에서 현재 진행 가능한 낚시·벌목·농사를 한 번에 확인합니다. 별도 종합 레벨이나 새로운 성장 수치를 만들지 않고 기존 `GAME_STATE.progression`의 실제 값을 읽습니다. 아직 플레이할 수 없는 채집·채광·요리·수렵은 표시하지 않습니다.
 

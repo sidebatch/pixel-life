@@ -7,7 +7,8 @@
     {
       "topic": "성장 현황·상단 작은 레벨 바·읽기 전용 레벨/경험치·메뉴/이력/재접속",
       "latest": [
-        "growth-status-qa"
+        "growth-status-qa",
+        "deploy-growth-status-qa"
       ],
       "previous": []
     },

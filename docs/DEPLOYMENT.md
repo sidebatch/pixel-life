@@ -1,5 +1,14 @@
 # Deployment
 
+## 2026-10-16 성장 현황 창·상단 작은 레벨 바 공개 배포
+
+2026-10-16 성장 현황 창·상단 작은 레벨 바 공개 배포 완료. 게임 변경 [8ca3d2c](https://github.com/sidebatch/pixel-life/commit/8ca3d2ce9b5bdb647e6843bd2f98ba31fc44b156), PWA `a77615df2249`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38939472908). HTML 21,382,180 bytes/공개 8파일 38,849,342 bytes가 로컬과 SHA-256까지 일치한다.
+
+지역 이름 아래 작은 반투명 바에서 낚시·벌목·농사 아이콘과 현재 레벨을 확인하고, 누르면 상세 성장 현황을 연다. 여행 메뉴에서도 진입할 수 있다. 상세 창은 현재 경험치·진행률·다음 레벨까지 남은 XP·누적 XP와 Lv.100 숙련도를 표시한다. 닫힌 상태에서도 작은 바가 갱신되며 항해 시간과 알림은 겹치지 않는다. [기준·검증](GROWTH_STATUS_V1.md).
+
+전체 검사 53 scripts/150 UI ids/481 assets/74 fish와 서버 빌드·게시 성공. 공개 320/393px 모바일·PC 1280px에서 작은 바/상세 창·실시간 레벨/XP·키보드/배경/뒤로·앞으로/재접속·저장 호출 없음/기존 데이터 유지·가방/도감 진입을 확인했다. PWA 설치 오류 없음·새 캐시·오프라인 음악 Range 206/100 bytes·강제 재로딩 없음 검증 통과. 저장 버전 2 유지. 결과 `output/deploy-growth-status-qa/`. 아래는 이전 공개/개발 기록이다.
+
+
 ## 2026-10-16 작은 상점 선택창 공개 배포
 
 2026-10-16 작은 상점 선택창 공개 배포 완료. 게임 변경 [69a5442](https://github.com/sidebatch/pixel-life/commit/69a5442fca2db80e1898b145710b69635b6f16b0), PWA `8a4de087e791`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38854194121). HTML 21,372,082 bytes/공개 8파일 38,839,244 bytes가 로컬과 SHA-256까지 일치한다.

@@ -11,9 +11,9 @@ function toolHotbarBusy(){
 function toolHotbarItems(){
   const axe=getEquippedForestryAxe(),rod=getEquippedFishingRod(),sword=getEquippedSword();
   return [
-    {kind:'axe',id:axe.id,label:'도끼',name:axe.name,url:CHARACTER_TOOL_URLS[axe.id],broken:getForestryAxeDurability(axe)?.broken,
+    {kind:'axe',id:axe.id,label:'도끼',name:axe.name,url:CHARACTER_TOOL_URLS[axe.id],durability:getForestryAxeDurability(axe),broken:getForestryAxeDurability(axe)?.broken,
       owned:getOwnedForestryAxes().some(item=>item.id===axe.id)},
-    {kind:'rod',id:rod.id,label:'낚시',name:rod.name,url:CHARACTER_TOOL_URLS[rod.id],broken:getFishingRodDurability(rod)?.broken,owned:isFishingRodUnlocked(rod)},
+    {kind:'rod',id:rod.id,label:'낚시',name:rod.name,url:CHARACTER_TOOL_URLS[rod.id],durability:getFishingRodDurability(rod),broken:getFishingRodDurability(rod)?.broken,owned:isFishingRodUnlocked(rod)},
     {kind:'sickle',id:FARM_SICKLE.id,label:'낫',name:FARM_SICKLE.name,url:SICKLE_TOOL_URLS[FARM_SICKLE.id],owned:true},
     {kind:'sword',id:sword.id,label:'검',name:sword.name,url:SWORD_TOOL_URLS[sword.id],owned:getOwnedSwords().some(item=>item.id===sword.id)},
     {kind:'none',id:'none',label:'빈손',name:'빈손',owned:true}
@@ -31,11 +31,20 @@ function refreshToolHotbar(){
     toolHotbar.innerHTML=items.map((item,index)=>`<button type="button" class="toolHotbarSlot${item.broken?' broken':''}" data-quick-tool="${item.kind}" data-tool-id="${item.id}"
       aria-label="${item.name}${item.broken?' · 수리 필요':''}" aria-pressed="false" aria-keyshortcuts="${index+1}" title="${item.name} · ${index+1}번${item.broken?' · 수리 필요':''}">
       ${item.url?`<img src="${item.url}" alt="" draggable="false">`:`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${ACTION_ICON_PATHS.hand}"/></svg>`}
-      <span>${item.broken?'수리':item.label}</span></button>`).join('');
+      <span>${item.broken?'수리':item.label}</span>${equipmentDurabilityMarkup(item.durability)}</button>`).join('');
   }
   toolHotbar.classList.toggle('busy',busy);
   for(const item of items){
     const button=toolHotbar.querySelector(`[data-quick-tool="${item.kind}"]`),selected=active===item.kind,disabled=busy||!item.owned||!!item.broken;
+    const bar=button.querySelector('.equipmentDurability'),durability=item.durability;
+    if(bar&&bar.getAttribute('aria-valuenow')!==String(durability.current)){
+      const percent=Math.round(durability.current/durability.max*100);
+      bar.setAttribute('aria-valuenow',String(durability.current));
+      bar.setAttribute('aria-valuetext',`${durability.current} / ${durability.max}`);
+      bar.title=`내구도 ${durability.current} / ${durability.max}`;
+      bar.classList.toggle('low',percent<=20);bar.classList.toggle('worn',percent>20&&percent<=50);
+      bar.firstElementChild.style.width=`${percent}%`;
+    }
     if(button.disabled!==disabled)button.disabled=disabled;
     if(button.getAttribute('aria-pressed')!==String(selected)){
       button.setAttribute('aria-pressed',String(selected));button.classList.toggle('selected',selected);

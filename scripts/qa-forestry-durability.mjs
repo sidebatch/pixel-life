@@ -34,9 +34,10 @@ try{
     document.getElementById('lifeToast').classList.remove('show');
     document.getElementById('lifeToast').textContent='';
     for(let hit=0;hit<oakHits;hit++)if(!hitResourceTree(oak))throw new Error('Basic axe chop failed');
-    const noDropQuiet=!document.getElementById('lifeToast').classList.contains('show')&&
-      document.getElementById('lifeToast').textContent===''&&lifeItemCount('material','oak_log')===0;
-    if(!noDropQuiet||Object.hasOwn(GAME_STATE.progression.forestry.durabilityByAxeId,'axe.basic'))
+    const noDropDeferred=!document.getElementById('lifeToast').classList.contains('show')&&
+      document.getElementById('lifeToast').textContent===''&&lifeItemCount('material','oak_log')===0&&
+      lifeUi.treeLoot.some(receipt=>receipt.message==='참나무 +0개');
+    if(!noDropDeferred||Object.hasOwn(GAME_STATE.progression.forestry.durabilityByAxeId,'axe.basic'))
       throw new Error('Basic axe durability or no-drop feedback is wrong');
     if(isTreeDiscoveryOpen())closeTreeDiscoveryReveal({fromHistory:true});
 
@@ -51,7 +52,7 @@ try{
     if(hp!==20||getForestryAxeDurability('axe.iron').current!==0||GAME_STATE.appearance.activeTool!=='none'||
       hitResourceTree(maple)||getTreeState(maple).hp!==hp||equipForestryAxe('axe.iron'))
       throw new Error('Broken axe did not stop use and auto-unequip');
-    return {noDropQuiet,basicInfinite:true,mapleId:maple.id,hp,axeBreakSoundCount,
+    return {noDropDeferred,basicInfinite:true,mapleId:maple.id,hp,axeBreakSoundCount,
       hitCosts:[forestryAxeHitCost(FORESTRY_TREES.oak),forestryAxeHitCost(FORESTRY_TREES.maple),forestryAxeHitCost(FORESTRY_TREES.worldroot)]};
   });
   if(chopReport.axeBreakSoundCount!==1)throw new Error('Axe break sound did not play exactly once');
@@ -173,7 +174,7 @@ try{
     {region:GAME_STATE.regionId,x:player.x,y:player.y,face:player.face,
       count:lifeItemCount('consumable',VILLAGE_RETURN_ITEM.id),toast:document.getElementById('lifeToast').textContent}
   ));
-  if(returned.region!=='lilacVillage'||returned.x!==25||returned.y!==3||returned.face!=='down'||
+  if(returned.region!=='lilacVillage'||returned.x!==25||returned.y!==24||returned.face!=='down'||
     returned.count!==1||!returned.toast.includes('마을로 돌아왔어요'))
     throw new Error(`Return item use is wrong: ${JSON.stringify(returned)}`);
 
@@ -184,7 +185,7 @@ try{
     {open:isInventoryOpen(),count:lifeItemCount('consumable',VILLAGE_RETURN_ITEM.id),
       region:GAME_STATE.regionId,x:player.x,y:player.y,toast:document.getElementById('lifeToast').textContent}
   ));
-  if(homeUse.open||homeUse.count!==0||homeUse.region!=='lilacVillage'||homeUse.x!==25||homeUse.y!==3||
+  if(homeUse.open||homeUse.count!==0||homeUse.region!=='lilacVillage'||homeUse.x!==25||homeUse.y!==24||
     !homeUse.toast.includes('마을로 돌아왔어요'))
     throw new Error(`Return Stone did not consume and resolve inside the village: ${JSON.stringify(homeUse)}`);
 
@@ -203,7 +204,7 @@ try{
   if(errors.length)throw new Error(errors.join('\n'));
   const report={chopReport,restored,repaired,partialRepair,equipSoundReport,purchasedReturns,returned,homeUse,finalState};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));
-  console.log('Forestry durability browser QA passed: quiet no-drop, raised full/70% repairs, Return Stone use inside/outside village and reload');
+  console.log('Forestry durability browser QA passed: deferred zero-drop receipt, raised full/70% repairs, central Return Stone inside/outside village and reload');
 }finally{
   await browser.close();
 }

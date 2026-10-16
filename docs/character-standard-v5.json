@@ -1,5 +1,5 @@
 {
-  "id": "npc-compatible-v5-sickle-extension",
+  "id": "npc-compatible-v5-rod-width-extension",
   "created": "2026-10-13",
   "baselineCommit": "dd5cdef",
   "previewPromotionPending": false,
@@ -21,6 +21,12 @@
       "date": "2026-10-13",
       "previousRendererSha256": "7c34474552bd45d574bf5cc1c87675c07c707d53d8e7c8813c52c240c05d9634",
       "scope": "User requested basic sickle harvesting. Separate sickle action/data; all original body/grip/pose/tool metadata and PNGs preserved. Existing axe/rod/sword transforms verified unchanged."
+    },
+    {
+      "feature": "rod-width-presentation-v1",
+      "date": "2026-10-15",
+      "previousRendererSha256": "bf733862e859d90bdbc502bbdebdc3cce00cfe02dc08c60e22be8b8809c7bfde",
+      "scope": "User explicitly requested all rods to be thicker and visibly distinguishable. All 10 rods use 2x perpendicular width at draw time, sharing the original hand pivot, tip, axial length, pose and PNGs. Matching diagonal-axis projection in shop, inventory, detail, action button and hotbar. No changes to axe/sickle/sword rendering or body/feet/grip geometry."
     }
   ],
   "trialChanges": [
@@ -198,7 +204,7 @@
     }
   },
   "protectedFiles": {
-    "src/character.js": "bf733862e859d90bdbc502bbdebdc3cce00cfe02dc08c60e22be8b8809c7bfde",
+    "src/character.js": "3183f48fcd655332329ef34e773dcfa498fd6d337bc937b33be7276907ad7349",
     "assets/player/character-baseline-v2/chop-body.png": "ab117f64bf7c30c323a633ee98e13c2dc8b5b42ff01cc1797dbaffbe5604d290",
     "assets/player/character-baseline-v2/chop-hair.png": "ec9d7ea490acc39f88879608bcbe7846a72bd2fbb950f9a414c0000d56361063",
     "assets/player/character-baseline-v2/chop-head.png": "19ecdf9429f3a160798e622c5ca280244559546d49b5c3be18ae3d3a21186cb2",

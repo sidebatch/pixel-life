@@ -52,7 +52,9 @@
     "qa:farming:growth": "node scripts/simulate-farming-growth.mjs",
     "qa:farming:progression-browser": "node scripts/qa-farming-progression-browser.mjs",
     "qa:farming:economy-browser": "node scripts/qa-farming-economy-browser.mjs",
-    "qa:sickle:art": "node scripts/qa-sickle-art-browser.mjs"
+    "qa:sickle:art": "node scripts/qa-sickle-art-browser.mjs",
+    "qa:gameplay:browser": "node scripts/qa-gameplay-feedback-browser.mjs",
+    "qa:rods:presentation-browser": "node scripts/qa-rod-presentation-browser.mjs"
   },
   "engines": {
     "node": ">=20"

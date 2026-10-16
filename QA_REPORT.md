@@ -1,5 +1,9 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-15 후속 로컬: 획득 표시·귀환·내구도·낚싯대·번개
+
+[변경 내용과 검증](docs/GAMEPLAY_FEEDBACK_V1.md). 전체 검사/빌드, 원본·빌드 393/320px 생활 표시, 480개 낚싯대 합성 변환, 393/320/430px 도구 바, 빌드 393/320/1100px 장비 UI 검증을 통과했다. 로컬 PWA `6ea80bf54583`, HTML 20,555,321 bytes. **미배포**이며 아래 공개 기록과 구분한다. 결과 `output/gameplay-feedback/`, `output/gameplay-polish-check.log`.
+
 ## 2026-10-15 생활 UI·농장 소품·항해·효과음·폭포 통합 공개 배포
 
 2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다.

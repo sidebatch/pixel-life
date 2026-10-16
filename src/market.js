@@ -179,7 +179,7 @@ function equipmentCostChip(label,held,needed){
 
 function equipmentCardMarkup({id,asset,name,effect,status,details,costs='',note='',action='',active=false,open=false}){
   return `<details class="marketEquipmentCard${active?' equipped':''}" data-equipment-id="${id}" ${open?'open':''}>
-    <summary><img src="${asset}" alt=""><span class="marketEquipmentCopy"><b>${name}</b><small>${effect}</small></span><span class="marketEquipmentStatus">${status}</span></summary>
+    <summary><img src="${asset}" alt=""${id.startsWith('rod.')?' class="rodThickArt"':''}><span class="marketEquipmentCopy"><b>${name}</b><small>${effect}</small></span><span class="marketEquipmentStatus">${status}</span></summary>
     <div class="marketEquipmentDetail"><p>${details}</p>${costs?`<div class="marketEquipmentCosts">${costs}</div>`:''}${note?`<p class="marketEquipmentNote">${note}</p>`:''}${action}</div>
   </details>`;
 }

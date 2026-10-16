@@ -79,16 +79,24 @@ function inventoryWearableArt(type,item){
   const url=type==='axe'?FORESTRY_AXE_URLS[item.asset]:type==='rod'?FISHING_ROD_URLS[item.asset]:
     type==='sword'?SWORD_TOOL_URLS[item.id]:type==='sickle'?SICKLE_TOOL_URLS[item.id]:
     inventoryAppearanceIcon(type,item.id||'pack.traveler')||item.iconUrl;
-  return `<img src="${url}" alt="">`;
+  return `<img src="${url}" alt=""${type==='rod'?' class="rodThickArt"':''}>`;
+}
+
+function equipmentDurabilityMarkup(durability){
+  if(!durability||durability.infinite)return '';
+  const percent=Math.round(durability.current/durability.max*100);
+  return `<div class="equipmentDurability${percent<=20?' low':percent<=50?' worn':''}" role="progressbar" aria-label="내구도" aria-valuemin="0" aria-valuemax="${durability.max}" aria-valuenow="${durability.current}" aria-valuetext="${durability.current} / ${durability.max}" title="내구도 ${durability.current} / ${durability.max}"><i style="width:${percent}%"></i></div>`;
 }
 
 function inventoryWearableCard(type,item,equipped){
-  const broken=type==='axe'?getForestryAxeDurability(item)?.broken:type==='rod'&&getFishingRodDurability(item)?.broken;
+  const durability=type==='axe'?getForestryAxeDurability(item):type==='rod'?getFishingRodDurability(item):null;
+  const broken=durability?.broken;
   return `<div class="inventoryWearableSlot${equipped?' selected':''}">
     <button type="button" class="inventoryItemCard inventoryEquipmentCard${equipped?' equipped':''}${broken?' broken':''}" data-equip-type="${type}" data-equip-id="${item.id}" aria-pressed="${equipped}" aria-label="${item.name}${equipped?', 장착 중':broken?', 수리 필요':', 장착하기'}">
       <span class="inventoryItemArt">${inventoryWearableArt(type,item)}</span>
       ${equipped?'<span class="inventorySelectedMark" aria-hidden="true">✓</span>':''}
       ${broken?'<span class="inventoryBrokenMark" aria-hidden="true">수리</span>':''}
+      ${equipmentDurabilityMarkup(durability)}
       <span class="inventoryItemName" aria-hidden="true">${item.name}${broken?' · 수리 필요':''}</span>
     </button>
     <button type="button" class="inventoryInfoButton" data-inventory-info-type="${type}" data-inventory-info-id="${item.id}" aria-label="${item.name} 상세 정보" aria-haspopup="dialog"><span aria-hidden="true">i</span></button>
@@ -203,6 +211,7 @@ function openInventoryDetail(type,id,options={}){
   const description=item.description||(type==='axe'?'나무를 베는 도끼. 장착한 도끼의 힘으로 나무에 피해를 줍니다.':'여행자의 기본 의상. 걷기·낚시·벌목 동작에 함께 적용돼요.');
   document.getElementById('inventoryDetailContent').innerHTML=`<div class="inventoryDetailHero">
     <span>${inventoryWearableArt(type,{...item,id})}</span><div><small>${labels[type]}</small><h3 id="inventoryDetailTitle">${item.name}</h3></div></div>
+    ${equipmentDurabilityMarkup(axeDurability||rodDurability)}
     <p>${description}</p><ul>${effects.map(effect=>`<li>${effect}</li>`).join('')}</ul>
     <footer>${equipped?'✓ 현재 장착 중':axeDurability?.broken?'망가짐 · 준의 도구점에서 수리해야 다시 장착할 수 있어요.':rodDurability?.broken?'망가짐 · 마을 엘리에게서 수리해야 다시 장착할 수 있어요.':'가방에서 카드를 누르면 장착할 수 있어요.'}</footer>`;
   inventoryState.detail={type,id};

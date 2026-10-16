@@ -1085,8 +1085,8 @@ vm.runInContext(`Math.random=()=>0;const testTree=REGION_WORLDS.oldForest.trees.
 assert(lifeContext.__hits.join(',')==='true,true,true,true,true,false'&&lifeContext.__logs===0&&
   lifeContext.__regrown.hp===100,'Trees must take five hits, allow a zero-item result, and regrow from wall-clock time');
 assert(lifeContext.__treeDiscovery.count===1&&lifeContext.__treeDiscovery.total===1&&
-  lifeContext.__treeDiscovery.toast==='',
-  'A zero-item first cut must register exactly one tree species without showing a no-item toast');
+  lifeContext.__treeDiscovery.toast==='참나무 +0개',
+  'A zero-item first cut must register exactly one tree species and explicitly report the quantity');
 assert(lifeContext.__firstHitToast===''&&lifeContext.GAME_STATE.progression.logging.totalXp===7&&
   lifeContext.feedback.length===1&&lifeContext.feedback[0].skillId==='logging'&&lifeContext.feedback[0].gained===7,
   'Partial hits must stay quiet; a zero-item complete cut must still grant the approved Logging XP once');
@@ -1256,9 +1256,9 @@ vm.runInContext(`GAME_STATE.inventory=[];GAME_STATE.regionId='lilacVillage';GAME
   `globalThis.__returnedHome=useVillageReturnItem();globalThis.__returnAfter={region:GAME_STATE.regionId,x:player.x,y:player.y,`+
   `face:player.face,count:lifeItemCount('consumable',VILLAGE_RETURN_ITEM.id),coins:GAME_STATE.progression.coins};`,lifeContext);
 assert(lifeContext.__returnBought.every(Boolean)&&lifeContext.__returnHomeUsed&&lifeContext.__returnedHome&&
-  lifeContext.__returnAfter.region==='lilacVillage'&&lifeContext.__returnAfter.x===25&&lifeContext.__returnAfter.y===3&&
+  lifeContext.__returnAfter.region==='lilacVillage'&&lifeContext.__returnAfter.x===25&&lifeContext.__returnAfter.y===24&&
   lifeContext.__returnAfter.face==='down'&&lifeContext.__returnAfter.count===1&&lifeContext.__returnAfter.coins===0,
-  'Return Stones must consume one and move to the village entrance even when used inside the village');
+  'Return Stones must consume one and move to the central village square even when used inside the village');
 lifeContext.saveGame=()=>false;
 vm.runInContext(`GAME_STATE.regionId='deepForest';player.x=17;player.y=18;player.face='right';`+
   `globalThis.__failedReturn=useVillageReturnItem();globalThis.__returnRollback={region:GAME_STATE.regionId,x:player.x,y:player.y,`+

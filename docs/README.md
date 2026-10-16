@@ -1,5 +1,7 @@
 # Pixel Life 문서 안내
 
+후속 로컬 수정/검증(2026-10-15, **미배포**): [벌목 수량·중앙 귀환·내구도 바·낚싯대·번개](GAMEPLAY_FEEDBACK_V1.md). 다음 배포 대상이다. 아래는 직전 공개 배포 기록이다.
+
 2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다.
 
 - [하단 도구 바](TOOL_HOTBAR_V1.md): 도끼/낚싯대/낫/검/빈손 즉시 교체, 숫자키 1~5, 선택 장비 기억·동작/파손 제한.

@@ -1,4 +1,4 @@
-const lifeUi={plotId:null,open:false,phase:null,toastTimer:null,hit:null,chop:null,lastRefresh:0};
+const lifeUi={plotId:null,open:false,phase:null,toastTimer:null,hit:null,chop:null,lastRefresh:0,treeLoot:[],lootUntil:0};
 
 function getEquippedForestryAxe(){
   const state=GAME_STATE.progression.forestry;
@@ -194,7 +194,7 @@ function useVillageReturnItem(){
   const previousInventory=JSON.parse(JSON.stringify(GAME_STATE.inventory));
   const previousTrip=GAME_STATE.progression.voyage?.activeTrip;
   if(!removeLifeItem('consumable',VILLAGE_RETURN_ITEM.id,1)||
-    !enterWorldRegion({to:'lilacVillage',entry:{x:25,y:3,face:'down'}},{skipSave:true})){
+    !enterWorldRegion({to:'lilacVillage',entry:{x:25,y:24,face:'down'}},{skipSave:true})){
     GAME_STATE.inventory=previousInventory;
     return false;
   }
@@ -227,6 +227,26 @@ function showLifeToast(message,options={}){
   toast.classList.add('show');
   clearTimeout(lifeUi.toastTimer);
   lifeUi.toastTimer=setTimeout(()=>toast.classList.remove('show','belowSkill'),1900);
+}
+
+function flushTreeLootFeedback(){
+  if(!lifeUi.treeLoot.length||performance.now()<lifeUi.lootUntil)return;
+  const receipt=lifeUi.treeLoot[0];
+  // Discovery/level cards can outlive a toast. Keep the receipt until the
+  // overlays and their queued XP animation have finished, then show it once.
+  if((typeof menuOpen!=='undefined'&&menuOpen)||(typeof dialogOpen!=='undefined'&&dialogOpen)||
+    (typeof isSkillXpDiscoveryBlocked==='function'&&isSkillXpDiscoveryBlocked())||
+    (typeof isSkillLevelUpVisible==='function'&&isSkillLevelUpVisible())){
+    receipt.readyAt=null;return;
+  }
+  // A level card appears after the XP bar's short fill animation. Ordinary XP
+  // can share the screen with the receipt; do not delay every cut until idle.
+  if(receipt.levelUp){
+    if(receipt.readyAt===null)receipt.readyAt=performance.now()+700;
+    if(performance.now()<receipt.readyAt)return;
+  }
+  showLifeToast(lifeUi.treeLoot.shift().message,{belowSkill:true});
+  lifeUi.lootUntil=performance.now()+1900;
 }
 
 function hitResourceTree(tree){
@@ -270,13 +290,16 @@ function hitResourceTree(tree){
   if(!success){showLifeToast('저장하지 못했어요. 다시 시도해 주세요');return false;}
   lifeUi.hit={regionId:GAME_STATE.regionId,x:tree.x,y:tree.y,cut:nextHp===0,until:performance.now()+650};
   if(completed){
-    if(logs&&nextDurability!==0)showLifeToast(`${FOREST_WOOD[tree.species]} +${logs}개${firstDiscovery?' · 새 나무 도감!':''}`,{belowSkill:true});
     if(firstDiscovery&&typeof showTreeDiscoveryReveal==='function')showTreeDiscoveryReveal(tree.species);
-    showSkillXpFeedback('logging',progressBefore,lifeSkillProgressSnapshot('logging'),gainedXp);
+    const progressAfter=lifeSkillProgressSnapshot('logging');
+    showSkillXpFeedback('logging',progressBefore,progressAfter,gainedXp);
+    lifeUi.treeLoot.push({message:`${FOREST_WOOD[tree.species]} +${logs}개${nextDurability===0?' · 도끼가 망가졌어요 · 마을 도구점에서 수리해 주세요':''}`,
+      levelUp:progressAfter.level>progressBefore.level||progressAfter.mastery>progressBefore.mastery,readyAt:null});
+    flushTreeLootFeedback();
   }
   if(nextDurability===0){
     if(typeof playAxeBreakSound==='function')playAxeBreakSound();
-    showLifeToast(`${completed&&logs?`${FOREST_WOOD[tree.species]} +${logs}개 · `:''}도끼가 망가졌어요 · 마을 도구점에서 수리해 주세요`);
+    if(!completed)showLifeToast('도끼가 망가졌어요 · 마을 도구점에서 수리해 주세요');
   }
   return true;
 }
@@ -480,6 +503,7 @@ function closeFarmPlot(options={}){
 function isFarmPlotOpen(){return lifeUi.open;}
 
 function updateLifeContentUi(now){
+  flushTreeLootFeedback();
   keepFarmPlayerOnWalkway();
   const chop=lifeUi.chop;
   if(chop){

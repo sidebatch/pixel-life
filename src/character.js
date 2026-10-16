@@ -100,10 +100,11 @@ function drawCharacterTool(transform){
   if(!image) return;
   const tool=SWORD_TOOLS[transform.key]||SICKLE_TOOLS[transform.key]||CHARACTER_RIG.tools[transform.key];
   ctx.save();ctx.translate(transform.x,transform.y);
-  if(transform.edgeScale<1){
-    // Foreshorten only the dimension across the handle axis. Squashing the
-    // texture's x axis would move the grip and bend its diagonal handle.
-    ctx.rotate(transform.axisAngle);ctx.scale(1,transform.edgeScale);
+  const widthScale=transform.key.startsWith('rod.')?2:transform.edgeScale;
+  if(widthScale!==1){
+    // Change width only across the handle axis: rods read twice as thick,
+    // while the hand pivot, shaft length and fishing-line tip stay fixed.
+    ctx.rotate(transform.axisAngle);ctx.scale(1,widthScale);
     ctx.rotate(transform.rotation-transform.axisAngle);
   }else ctx.rotate(transform.rotation);
   ctx.scale(transform.mirror?-transform.scale:transform.scale,transform.scale);

@@ -5,6 +5,14 @@
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
     {
+      "topic": "벌목 수량·중앙 귀환·장비 내구도·낚싯대·번개",
+      "latest": [
+        "gameplay-feedback",
+        "gameplay-polish-check.log"
+      ],
+      "previous": []
+    },
+    {
       "topic": "생활 UI·농장·항해·효과음 통합 공개 배포",
       "latest": [
         "deploy-play-update-qa"

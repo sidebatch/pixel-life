@@ -1,4 +1,13 @@
 /* A compact row of actual held-tool art, under the existing round controls. */
+.equipmentDurability{position:absolute;right:8px;bottom:6px;left:8px;height:6px;overflow:hidden;border:1px solid rgba(235,246,221,.38);border-radius:4px;background:#182c27;pointer-events:none}
+.equipmentDurability i{display:block;height:100%;background:#86d29c;transition:width .15s linear}
+.equipmentDurability.worn i{background:#e5c16b}.equipmentDurability.low{border-color:#e49381}.equipmentDurability.low i{background:#e58872}
+.inventoryDetailContent>.equipmentDurability,#inventoryDetailContent>.equipmentDurability{position:relative;inset:auto;width:100%;height:8px;margin:12px 0}
+.inventoryEquipmentCard:has(.equipmentDurability) .inventoryItemName{bottom:17px}
+.toolHotbarSlot{position:relative}
+.toolHotbarSlot:has(.equipmentDurability){grid-template-rows:30px 10px;align-content:start}
+.toolHotbarSlot .equipmentDurability{left:5px;right:5px;bottom:3px;height:4px}
+.rodThickArt,.toolHotbarSlot[data-quick-tool="rod"] img,.controls [data-action-tool^="rod."] .actionToolIcon{transform:rotate(-45deg) scaleY(2) rotate(45deg)}
 .controls{--tool-hotbar-offset:74px}
 .controls .joystick{bottom:calc(var(--tool-hotbar-offset) + max(24px,env(safe-area-inset-bottom)))}
 .controls .actionCluster{bottom:calc(var(--tool-hotbar-offset) + max(26px,env(safe-area-inset-bottom)))}

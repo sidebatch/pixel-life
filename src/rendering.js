@@ -813,14 +813,40 @@ function drawWorldTimeEffects(){
   ctx.restore();
 }
 
+let stormLightningCache=null;
+function getStormLightningStrike(time){
+  if(sceneryMotionQuery?.matches)return null;
+  // Each window contains one independently seeded strike. Its geometry stays
+  // fixed during the flash, without consuming gameplay's random sequence.
+  const index=Math.floor(time/4800),start=index*4800+350+hash2(index+13,71)*2800;
+  const duration=300+hash2(index+29,97)*200,age=time-start;
+  if(age<0||age>duration)return null;
+  if(stormLightningCache?.index!==index){
+    const random=n=>hash2(index*37+n*19.17,113+n*7.31);
+    const count=5+Math.floor(random(1)*4),height=.4+random(2)*.46;
+    const points=[{x:.17+random(3)*.66,y:0}],branches=[];
+    for(let step=1;step<=count;step++){
+      const previous=points[step-1],direction=step%2?1:-1;
+      points.push({x:Math.max(.04,Math.min(.96,previous.x+direction*(.025+random(step+4)*.075))),y:height*step/count});
+    }
+    const branchCount=1+Math.floor(random(21)*3);
+    for(let branch=0;branch<branchCount;branch++){
+      const root=points[1+Math.floor(random(22+branch)*(count-2))],direction=random(25+branch)>.5?1:-1;
+      branches.push([root,{x:Math.max(.02,Math.min(.98,root.x+direction*(.04+random(28+branch)*.09))),y:root.y+.045},
+        {x:Math.max(.02,Math.min(.98,root.x+direction*(.08+random(31+branch)*.13))),y:Math.min(.96,root.y+.12+random(34+branch)*.12)}]);
+    }
+    stormLightningCache={index,points,branches};
+  }
+  return {...stormLightningCache,flash:Math.sin(Math.PI*age/duration)**2};
+}
+
 function drawWeatherEffects(){
   const kind=getWeatherKind();
   if(kind==='clear') return;
   const storm=kind==='storm';
   ctx.save();
-  const pulseA=Math.pow(Math.max(0,Math.sin(tNow/2300+1.2)),42);
-  const pulseB=Math.pow(Math.max(0,Math.sin(tNow/1570+2.1)),38);
-  const flash=storm?Math.max(pulseA,pulseB):0;
+  const lightning=storm?getStormLightningStrike(tNow):null;
+  const flash=lightning?.flash||0;
   ctx.fillStyle=storm
     ? `rgba(18,30,65,${(.16+.17*flash).toFixed(3)})`
     : 'rgba(75,135,172,.075)';
@@ -873,11 +899,16 @@ function drawWeatherEffects(){
     ctx.beginPath();ctx.ellipse(x,y,r*1.8,r*.65,0,0,Math.PI*2);ctx.stroke();
   }
 
-  if(storm&&flash>.18){
-    const x=80+hash2(Math.floor(tNow/1700),7)*Math.max(1,VIEW_W-160);
+  if(lightning&&flash>.18){
     ctx.globalAlpha=Math.min(.9,flash*1.5);
     ctx.strokeStyle='rgba(235,246,255,.95)';ctx.lineWidth=2;
-    ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x-18,VIEW_H*.25);ctx.lineTo(x+8,VIEW_H*.25);ctx.lineTo(x-28,VIEW_H*.58);ctx.stroke();
+    const drawBolt=points=>{
+      ctx.beginPath();ctx.moveTo(points[0].x*VIEW_W,points[0].y*VIEW_H);
+      for(const point of points.slice(1))ctx.lineTo(point.x*VIEW_W,point.y*VIEW_H);
+      ctx.stroke();
+    };
+    drawBolt(lightning.points);ctx.lineWidth=1;
+    lightning.branches.forEach(drawBolt);
   }
   ctx.globalAlpha=1;
   ctx.restore();

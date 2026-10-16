@@ -1,8 +1,10 @@
 # Pixel Life 개발 인수인계
 
-상점·아이콘 후속 변경(2026-10-16, **미배포**): [상점 서비스 선택과 지역·생활 아이콘](MARKET_SERVICES_ICONS_V1.md). NPC별 구매/판매/수리/업그레이드를 분리하고 비어 있는 서비스는 숨긴다. 수량 버튼은 취소→전부, 지역 22곳은 고유 그림, 생활 기술 7종은 게임 PNG를 사용한다.
+2026-10-16 공개 배포 완료. 게임 변경 [f59a173](https://github.com/sidebatch/pixel-life/commit/f59a173c702b9d5b4c80a0b9b28ede82cc0808f5), PWA `c18c13b2dd38`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38852791316). HTML 21,372,786 bytes/공개 8파일 38,839,948 bytes가 로컬과 SHA-256까지 일치한다.
 
-2026-10-16 후속 로컬 수정(**미배포**): [하위 도끼 단계별 위력 40/25/15/10%](FORESTRY_LOWER_AXE_V1.md), PC 숫자키 1~5/숫자패드·번호 표시, [하루/전체 NPC·플레이어 규격 점검과 원인 기록](NPC_STANDARD_AUDIT_V1.md). 기존 6 NPC 발 94→88 무손실 정렬, 하루 v3, 공통 발 렌더러/새 NPC 검사 연결. 기존 보상/마모/저장 유지. 아래는 직전 공개 배포 기록이다.
+NPC별 서비스 선택과 구매/판매/수리/업그레이드 분리·빈 메뉴 숨김·취소→전부, 지역 22곳 고유 아이콘·생활 7종 그림, 하위 도끼 단계별 위력 40/25/15/10%, PC 숫자키/숫자패드 1~5, 하루와 전체 NPC의 공통 발 등록·규격 검사를 함께 배포했다. [상점·아이콘](MARKET_SERVICES_ICONS_V1.md) · [도끼 대체 벌목](FORESTRY_LOWER_AXE_V1.md) · [캐릭터 규격/하루 원인](NPC_STANDARD_AUDIT_V1.md)
+
+서버 전체 검사 52 scripts/144 UI IDs/481 assets/74 fish와 게시 성공. 공개 모바일 320/393px·PC 1280px 서비스 선택/실제 거래·수리/빈 메뉴/저장 실패 복원·효과음·아이콘, 10 NPC 시트/120프레임/15배치·남녀 864조합·PC 키보드, 하위 도끼 해금/파손·대체 벌목/재접속/50수종 검증 통과. PWA 설치 오류 없음·새 캐시·오프라인 재실행/음악 Range 206·100 bytes·강제 재로딩 없음 확인. 기존 저장 버전 2를 유지한다. 결과 `output/deploy-market-services-qa/`. 아래는 이전 공개/개발 기록이다.
 
 2026-10-15 공개 배포 완료. 게임 변경 [97e11ef](https://github.com/sidebatch/pixel-life/commit/97e11efeb54c3a282ec90ecf02e6a181f65374d8), PWA `6ea80bf54583`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38844744065). HTML 20,555,321 bytes/공개 8파일 38,022,483 bytes가 로컬과 SHA-256까지 일치한다.
 

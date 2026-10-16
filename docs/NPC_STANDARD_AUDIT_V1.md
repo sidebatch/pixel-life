@@ -1,6 +1,8 @@
 # NPC·플레이어 규격 전수 점검과 하루 재발 원인
 
-2026-10-16 사용자 요청으로 로컬 수정·검증. **공개 배포 전**. 기존 공개는 `57317c4`(게임 변경 `97e11ef`, PWA `6ea80bf54583`)다. 현재 통합 빌드 HTML 20,622,482 bytes / PWA `0152d8973ad9`.
+2026-10-16 공개 배포 완료. 게임 변경 [f59a173](https://github.com/sidebatch/pixel-life/commit/f59a173c702b9d5b4c80a0b9b28ede82cc0808f5), PWA `c18c13b2dd38`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38852791316). HTML 21,372,786 bytes/공개 8파일 38,839,948 bytes가 로컬과 SHA-256까지 일치한다.
+
+서버 전체 검사 52 scripts/144 UI IDs/481 assets/74 fish와 게시 성공. 공개 모바일 320/393px·PC 1280px 서비스 선택/실제 거래·수리/빈 메뉴/저장 실패 복원·효과음·아이콘, 10 NPC 시트/120프레임/15배치·남녀 864조합·PC 키보드, 하위 도끼 해금/파손·대체 벌목/재접속/50수종 검증 통과. PWA 설치 오류 없음·새 캐시·오프라인 재실행/음악 Range 206·100 bytes·강제 재로딩 없음 확인. 기존 저장 버전 2를 유지한다. 결과 `output/deploy-market-services-qa/`. 아래 로컬 검증·빌드 수치는 개발 당시 기록이다.
 
 ## 왜 하루가 규격에 맞지 않게 보였나
 

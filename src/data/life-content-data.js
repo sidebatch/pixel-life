@@ -125,4 +125,9 @@ const FORESTRY_AXES=Object.freeze([
 ]);
 const FORESTRY_AXE_BY_ID=new Map(FORESTRY_AXES.map(axe=>[axe.id,axe]));
 const DEFAULT_FORESTRY_AXE_ID='axe.basic';
+const FORESTRY_LOWER_AXE_DAMAGE_MULTIPLIERS=Object.freeze([1,.4,.25,.15,.1]);
+function forestryAxeDamageMultiplier(axeTier,treeTier){
+  const gap=Math.max(0,Math.floor(treeTier-axeTier));
+  return FORESTRY_LOWER_AXE_DAMAGE_MULTIPLIERS[Math.min(gap,FORESTRY_LOWER_AXE_DAMAGE_MULTIPLIERS.length-1)];
+}
 const FORESTRY_CHOP_TIMING=Object.freeze({impactMs:270,durationMs:700});

@@ -1,5 +1,9 @@
 # Pixel Life 문서 안내
 
+상점·아이콘 후속 변경(2026-10-16, **미배포**): [상점 서비스 선택과 지역·생활 아이콘](MARKET_SERVICES_ICONS_V1.md). NPC별 구매/판매/수리/업그레이드를 분리하고 비어 있는 서비스는 숨긴다. 수량 버튼은 취소→전부, 지역 22곳은 고유 그림, 생활 기술 7종은 게임 PNG를 사용한다.
+
+후속 로컬 변경(2026-10-16, **미배포**): [하위 도끼 단계별 위력 40/25/15/10%](FORESTRY_LOWER_AXE_V1.md), PC 숫자키/숫자패드·번호 표시, [하루·NPC·플레이어 규격 감사/원인 기록](NPC_STANDARD_AUDIT_V1.md). 아래는 직전 공개 배포 기록이다.
+
 2026-10-15 공개 배포 완료. 게임 변경 [97e11ef](https://github.com/sidebatch/pixel-life/commit/97e11efeb54c3a282ec90ecf02e6a181f65374d8), PWA `6ea80bf54583`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38844744065). HTML 20,555,321 bytes/공개 8파일 38,022,483 bytes가 로컬과 SHA-256까지 일치한다.
 
 벌목 50종 획득 수량(0개 포함)·발견/레벨업 뒤 알림, 귀환석 중앙 광장 도착, 장비/상세/하단 내구도 바, 낚싯대 10종 두께, 다양한 폭풍 번개를 반영했다. [내용·검증](GAMEPLAY_FEEDBACK_V1.md).

@@ -1,5 +1,7 @@
 # 하단 도구 빠른 교체 바
 
+2026-10-16 후속 로컬(**미배포**): PC 숫자키 1=도끼/2=낚싯대/3=낫/4=검/5=빈손을 실제 검증했다. 기존 `Digit1~5` 연결에 숫자패드/문자 키값 경로와 PC용 슬롯 번호를 보강했다. 입력창/메뉴/동작 중 제한·수정키/한글 조합 중 보호를 유지한다. [동시 변경/검증](NPC_STANDARD_AUDIT_V1.md).
+
 2026-10-15 후속 공개 배포 완료: 유한 내구도 막대와 낚싯대 축 직각 두께 2배를 반영했다. [현행 기준/공개 검증](GAMEPLAY_FEEDBACK_V1.md). 아래는 이전 공개/개발 기록이다.
 
 2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다. 이 문서의 변경은 모두 공개에 반영됐다. 아래 ‘공개 전/로컬’과 단계별 빌드 수치는 개발 당시 검증 기록으로 보존한다. 현재 검증은 [DEPLOYMENT.md](DEPLOYMENT.md)를 따른다.

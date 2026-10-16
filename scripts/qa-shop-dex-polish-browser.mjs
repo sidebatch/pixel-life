@@ -49,6 +49,7 @@ try{
     await page.locator('#btnA').tap();await page.waitForFunction(()=>isMarketOpen());
     assert.equal(await page.locator('#marketShopName').innerText(),'하루의 농사 상점');
     assert.deepEqual(await page.locator('[data-market-view]:visible').evaluateAll(nodes=>nodes.map(n=>n.dataset.marketView).sort()),['crops','decorations','orders','seeds']);
+    await page.locator('[data-market-view="seeds"]').tap();
     const seedCopy=await page.locator('#marketList').innerText();assert(!seedCopy.includes('분 성장')&&!seedCopy.includes('농장 부지에 심는 씨앗'));
     assert.equal(await page.locator('[data-seed-id]').count(),14);
     await page.screenshot({path:path.join(out,'seed-shop-'+width+'.png')});
@@ -56,6 +57,7 @@ try{
     await page.locator('[data-seed-id="carrot"]').tap();
     assert.deepEqual(await page.evaluate(()=>({coins:GAME_STATE.progression.coins,quantity:lifeItemCount('seed','carrot')})),
       {coins:seedBefore.coins-seedBefore.cost,quantity:seedBefore.quantity+1});
+    await page.evaluate(()=>selectMarketView('home'));
     await page.locator('[data-market-view="orders"]').tap();
     assert.deepEqual(await page.evaluate(()=>GAME_STATE.progression.farmOrders.current),legacy.progression.farmOrders.current);
     assert((await page.locator('.farmOrderLabel').innerText()).includes('하루'));
@@ -72,6 +74,7 @@ try{
       marketState.view='decorations';const decor=exchangeFarmDecoration('sign');marketState.view=view;
       return !seed&&!crop&&!order&&!decor&&before===JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression});
     }));
+    await page.locator('[data-market-view="fish"]').tap();
     const fishId=await page.evaluate(()=>FISH_DATA[0].id),secondId=await page.evaluate(()=>FISH_DATA[1].id);
     const fishRow=page.locator('[data-fish-id="'+fishId+'"]');
     await page.locator('[data-fish-id="'+secondId+'"] [data-market-action="plus"]').tap();
@@ -88,6 +91,7 @@ try{
     await closeShop();
     await page.evaluate(()=>{enterWorldRegion({to:'lilacVillage',entry:{x:30,y:21,face:'up'}});});
     await page.locator('#btnA').tap();await page.waitForFunction(()=>isMarketOpen()&&marketState.shop==='workshop');
+    await page.locator('[data-market-view="wood"]').tap();
     const woodRow=page.locator('[data-good-key="material:oak_log"]');
     await woodRow.locator('[data-good-action="all"]').tap();assert.equal(await woodRow.locator('.marketQty strong').innerText(),'57');
     await page.screenshot({path:path.join(out,'wood-reset-'+width+'.png')});

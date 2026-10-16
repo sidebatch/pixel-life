@@ -36,12 +36,14 @@ function resolveWorldInteraction(tile=facingTile()){
   const tree=trees.find(item=>item.x===tile.x&&item.y===tile.y&&item.interactable);
   if(tree){
     const needed=FORESTRY_TREES[tree.species]?.tier||1;
+    const chopStats=forestryTreeChopStats(FORESTRY_TREES[tree.species]);
     const name=FOREST_WOOD[tree.species];
     const label=GAME_STATE.appearance?.activeTool==='sword'?`${name} · 검 휘두르기`:
       GAME_STATE.appearance?.activeTool==='none'&&getForestryAxeDurability()?.broken?`${name} · 도끼 수리 필요`:
       (GAME_STATE.appearance?.activeTool||'axe')!=='axe'?`${name} · 도끼 장착 필요`:
       !getTreeState(tree).hp?`${name} · 재생 중`:
-      getEquippedForestryAxe().tier<needed?`${name} · ${FORESTRY_AXES[needed-1].name} 필요`:`${name} · 벌목`;
+      !chopStats.unlocked?`${name} · ${FORESTRY_AXES[needed-1].name} 필요`:
+      chopStats.penalized?`${name} · 벌목 · 위력 -${chopStats.penaltyPercent}%`:`${name} · 벌목`;
     return {kind:'tree',label,target:tree};
   }
   const plot=farmPlotAt(tile.x,tile.y);

@@ -33,7 +33,7 @@ try{
     globalThis.rodCollectionBefore=JSON.stringify(GAME_STATE.collections);
     openMarket();marketState.view='rods';renderMarket();
   });
-  assert.equal(await page.locator('#marketList .marketEquipmentCard').count(),10);
+  assert.equal(await page.locator('#marketList .marketEquipmentCard').count(),4);
   for(const id of ['rod.tidal','rod.tempest','rod.abyssal','rod.aurora']){
     const card=page.locator(`#marketList [data-equipment-id="${id}"]`);
     if(!await card.evaluate(el=>el.open))await card.locator('summary').tap();

@@ -1,10 +1,32 @@
 const MARKET_FISH_BY_ID=new Map(FISH_DATA.map(fish=>[fish.id,fish]));
 const MARKET_SHOPS=Object.freeze({
-  elli:{name:'엘리의 상점',views:['fish','rods'],defaultView:'fish'},
-  haru:{name:'하루의 농사 상점',views:['seeds','crops','orders','decorations'],defaultView:'seeds'},
+  elli:{name:'엘리의 상점',views:['rods','fish','rodRepairs'],defaultView:'home'},
+  haru:{name:'하루의 농사 상점',views:['seeds','crops','orders','decorations'],defaultView:'home'},
   farm:{name:'농장 꾸미기',views:['decorations'],defaultView:'decorations'},
-  workshop:{name:'준의 도구점',views:['wood','axes'],defaultView:'wood'}
+  workshop:{name:'준의 도구점',views:['supplies','wood','axes','axeRepairs'],defaultView:'home'}
 });
+// Add a service here and to a shop's views only when it has real content.
+const MARKET_SERVICES=Object.freeze({
+  supplies:{title:'구매',subtitle:'귀환석',art:()=>LIFE_SKILL_ICON_URLS.mining,available:()=>true},
+  seeds:{title:'구매',subtitle:'씨앗',art:()=>LIFE_ITEM_URLS.carrotSeed,available:()=>LIFE_CONTENT.crops.length>0},
+  rods:{title:'구매',subtitle:'낚싯대',art:()=>LIFE_SKILL_ICON_URLS.fishing,available:()=>FISHING_RODS.some(rod=>!rod.requiresMasterReward&&!isFishingRodUnlocked(rod))},
+  fish:{title:'판매',subtitle:'물고기',art:()=>MENU_ICON_URLS.fishDex,available:()=>groupInventoryFish().length>0},
+  wood:{title:'판매',subtitle:'목재',art:()=>LIFE_ITEM_URLS.oakLog,available:()=>GAME_STATE.inventory.some(item=>item.type==='material'&&item.quantity>0&&marketGoodDefinition(item.type,item.id))},
+  crops:{title:'판매',subtitle:'작물',art:()=>LIFE_ITEM_URLS.carrotCrop,available:()=>LIFE_CONTENT.crops.some(crop=>lifeItemCount('crop',crop.id)>0)},
+  axes:{title:'업그레이드',subtitle:'도끼',art:()=>LIFE_SKILL_ICON_URLS.logging,available:()=>getOwnedForestryAxes().length<FORESTRY_AXES.length},
+  axeRepairs:{title:'수리',subtitle:'도끼',art:()=>LIFE_SKILL_ICON_URLS.logging,available:()=>getOwnedForestryAxes().some(axe=>forestryAxeRepairCost(axe)>0)},
+  rodRepairs:{title:'수리',subtitle:'낚싯대',art:()=>LIFE_SKILL_ICON_URLS.fishing,available:()=>FISHING_RODS.some(rod=>isFishingRodUnlocked(rod)&&fishingRodRepairCost(rod)>0)},
+  orders:{title:'주문',subtitle:'작물 납품',art:()=>LIFE_ITEM_URLS.wheatCrop,available:()=>true},
+  decorations:{title:'꾸미기',subtitle:'농장 소품',art:()=>ASSET_URLS.farmScarecrow,available:()=>true}
+});
+function marketAvailableViews(){return MARKET_SHOPS[marketState.shop].views.filter(view=>MARKET_SERVICES[view]?.available());}
+function selectMarketView(view){
+  if(!marketState.open||!(view==='home'||MARKET_SHOPS[marketState.shop].views.includes(view)))return;
+  if(view!=='home'&&!MARKET_SERVICES[view]?.available())return;
+  marketState.view=view;marketState.selection.clear();marketState.goodsSelection.clear();marketState.message='';
+  renderMarket();document.getElementById('marketList').scrollTop=0;
+  (view==='home'?(document.querySelector('[data-market-view]')||document.getElementById('marketClose')):document.getElementById('marketBackBtn'))?.focus();
+}
 const marketState={open:false,shop:'elli',view:'fish',selection:new Map(),goodsSelection:new Map(),message:''};
 const marketCoinAnimation={frame:null,displayed:null};
 
@@ -152,8 +174,8 @@ function renderGoodsMarket(){
       <div class="marketFishBottom"><div class="marketQty">
         <button type="button" data-good-action="minus" aria-label="${item.definition.name} 판매 수량 줄이기" ${selected?'':'disabled'}>−</button>
         <strong>${selected}</strong><button type="button" data-good-action="plus" aria-label="${item.definition.name} 판매 수량 늘리기" ${selected<item.count?'':'disabled'}>+</button></div>
-        <div class="marketSelectionActions"><button type="button" class="marketAll" data-good-action="all" aria-label="${item.definition.name} 전부 선택" ${selected<item.count?'':'disabled'}>전부</button>
-        <button type="button" class="marketAll marketReset" data-good-action="reset" aria-label="${item.definition.name} 판매 수량 초기화" ${selected?'':'disabled'}>취소</button></div>
+        <div class="marketSelectionActions"><button type="button" class="marketAll marketReset" data-good-action="reset" aria-label="${item.definition.name} 판매 수량 초기화" ${selected?'':'disabled'}>취소</button>
+        <button type="button" class="marketAll" data-good-action="all" aria-label="${item.definition.name} 전부 선택" ${selected<item.count?'':'disabled'}>전부</button></div>
       </div></div>`;
   }).join(''):`<div class="marketEmpty"><span>${marketState.view==='wood'?'🪵':'🌾'}</span><b>판매할 ${marketState.view==='wood'?'목재가':'작물이'} 없어요</b><p>${marketState.view==='wood'?'숲에서 나무를 베어 보세요.':'농장에서 작물을 수확해 보세요.'}</p></div>`);
   list.scrollTop=scrollTop;
@@ -185,11 +207,12 @@ function equipmentCardMarkup({id,asset,name,effect,status,details,costs='',note=
 }
 
 function renderForestryMarket(){
+  const repairing=marketState.view==='axeRepairs';
   const equipped=getEquippedForestryAxe(),next=nextForestryAxe();
   const axeActive=GAME_STATE.appearance?.activeTool==='axe';
   const ownedIds=new Set(getOwnedForestryAxes().map(axe=>axe.id));
   document.getElementById('marketStock').textContent=`현재 ${axeActive?equipped.name:'장착 없음'} · 벌목 Lv.${GAME_STATE.progression.logging.level}`;
-  const catalog=FORESTRY_AXES.map(axe=>{
+  const catalog=FORESTRY_AXES.filter(axe=>repairing?ownedIds.has(axe.id)&&forestryAxeRepairCost(axe)>0:!ownedIds.has(axe.id)).map(axe=>{
     const owned=ownedIds.has(axe.id),active=axeActive&&equipped.id===axe.id;
     const durability=getForestryAxeDurability(axe),repairCost=owned?forestryAxeRepairCost(axe):0;
     const available=next?.id===axe.id;
@@ -201,13 +224,12 @@ function renderForestryMarket(){
     const costs=owned?'':Object.entries(axe.materials).map(([id,count])=>
       equipmentCostChip(FOREST_WOOD[id.slice(0,-4)],lifeItemCount('material',id),count)).join('')+
       equipmentCostChip('코인',GAME_STATE.progression.coins,axe.coins);
-    const recipeNote=axe.provisionalRecipe?'목재 수량은 전체 밸런스 전 임시값이에요.':'';
     const note=owned?(durability.infinite?'기본 도끼는 내구도가 닳지 않아요.':durability.broken?
       '수리해도 자동으로 장착되지 않아요. 가방에서 다시 장착해 주세요.':
-      `닳은 만큼만 수리할 수 있어요.${recipeNote?` ${recipeNote}`:''}`):
-      !available?`이전 도끼를 먼저 구매해 주세요.${recipeNote?` ${recipeNote}`:''}`:
-      missing.length?`부족: ${missing.join(' · ')}${recipeNote?` · ${recipeNote}`:''}`:
-      `구매할 수 있어요.${recipeNote?` ${recipeNote}`:''}`;
+      '닳은 만큼만 수리할 수 있어요.'):
+      !available?'이전 도끼를 먼저 구매해 주세요.':
+      missing.length?`부족: ${missing.join(' · ')}`:
+      '구매할 수 있어요.';
     const previousAxe=FORESTRY_AXES[axe.tier-2];
     const materialKinds=Object.keys(axe.materials).length;
     const repairAction=owned&&repairCost?`<button type="button" class="marketAxeUpgrade" data-repair-axe-id="${axe.id}" ${GAME_STATE.progression.coins>=repairCost?'':'disabled'}>수리 ${repairCost.toLocaleString()}코인</button>`:'';
@@ -215,27 +237,33 @@ function renderForestryMarket(){
       effect:owned?(durability.infinite?'내구도 무제한':
         `내구도 ${durability.current} / ${durability.max}`):
         `${axe.coins.toLocaleString()}코인${materialKinds?` · 목재 ${materialKinds}종`:''}`,
-      status:active?'장착 중':durability.broken?'수리 필요':owned?'보유 중':available?'다음 도끼':'순서대로 구매',
+      status:durability.broken?'수리 필요':active?'장착 중':owned?'보유 중':available?'다음 도끼':'순서대로 구매',
       details:previousAxe?`${previousAxe.name}를 보유하면 제작이 열립니다. 높은 단계 나무일수록 한 번 칠 때 내구도가 더 많이 닳습니다.`:
         '처음부터 사용할 수 있는 기본 장비이며 내구도가 닳지 않습니다.',
       costs,note,active,open:available||durability.broken,
       action:owned?repairAction:`<button type="button" class="marketAxeUpgrade" data-axe-id="${axe.id}" ${canUpgradeForestryAxe(axe)?'':'disabled'}>${axe.name} 구매</button>`});
   }).join('');
+  document.getElementById('marketList').innerHTML=skillCardMarkup('logging')+(catalog||(repairing?'<div class="marketEmpty"><b>수리할 도끼가 없어요</b><p>모든 도끼의 내구도가 가득해요.</p></div>':'<div class="marketEmpty"><b>모든 도끼를 보유하고 있어요</b></div>'));
+}
+
+function renderSuppliesMarket(){
+  document.getElementById('marketStock').textContent='여행에 필요한 물품';
   const returnItemCount=lifeItemCount('consumable',VILLAGE_RETURN_ITEM.id);
   const returnItem=`<div class="marketFishRow marketPurchaseRow" data-return-item="${VILLAGE_RETURN_ITEM.id}">
     <span class="marketGoodsIcon" aria-hidden="true">${VILLAGE_RETURN_ITEM.icon}</span>
     <div class="marketFishBody"><div class="marketFishTop"><b>${VILLAGE_RETURN_ITEM.name}</b><span>보유 ${returnItemCount.toLocaleString()}개</span></div>
-      <small>어디서든 사용하면 마을 북쪽 입구로 돌아와요</small>
+      <small>어디서든 사용하면 마을 중앙 광장으로 돌아와요</small>
       <div class="marketFishBottom"><span>사용할 때 1개 소모</span>
         <button type="button" class="marketSeedBuy" data-buy-return-item="${VILLAGE_RETURN_ITEM.id}" ${GAME_STATE.progression.coins>=VILLAGE_RETURN_ITEM.price?'':'disabled'}>구매 · ${VILLAGE_RETURN_ITEM.price.toLocaleString()}코인</button>
       </div></div></div>`;
-  document.getElementById('marketList').innerHTML=`${skillCardMarkup('logging')}${returnItem}${catalog}`;
+  document.getElementById('marketList').innerHTML=returnItem;
 }
 
 function renderRodMarket(){
+  const repairing=marketState.view==='rodRepairs';
   const equipped=getEquippedFishingRod(),next=nextFishingRodForSale();
   document.getElementById('marketStock').textContent=`${GAME_STATE.appearance?.activeTool==='rod'?`현재 ${equipped.name}`:'낚싯대 미장착'} · 낚시 Lv.${GAME_STATE.progression.fishing.level}`;
-  const catalog=FISHING_RODS.map(rod=>{
+  const catalog=FISHING_RODS.filter(rod=>repairing?isFishingRodUnlocked(rod)&&fishingRodRepairCost(rod)>0:!isFishingRodUnlocked(rod)&&!rod.requiresMasterReward).map(rod=>{
     const owned=isFishingRodUnlocked(rod),active=GAME_STATE.appearance?.activeTool==='rod'&&equipped.id===rod.id,available=next?.id===rod.id;
     const durability=getFishingRodDurability(rod),repairCost=owned?fishingRodRepairCost(rod):0;
     const durabilityText=durability.infinite?'내구도 무제한':`내구도 ${durability.current} / ${durability.max}`;
@@ -262,7 +290,7 @@ function renderRodMarket(){
       details:`${rod.description} ${fishingRodEffectLabels(rod).join(' · ')} · ${owned?durabilityText:durability.infinite?'내구도 무제한':`최대 내구도 ${durability.max}`}${durability.infinite?'':' · 획득 시 내륙·해안 1 / 바다 6~12 감소'}`,costs,note,active,open:available||(owned&&durability.broken),
       action:repairCost?`<button type="button" class="marketAxeUpgrade" data-repair-rod-id="${rod.id}" ${GAME_STATE.regionId==='lilacVillage'&&GAME_STATE.progression.coins>=repairCost&&!isFishingActive()?'':'disabled'}>수리 · ${repairCost.toLocaleString()}코인</button>`:owned||reward?'':`<button type="button" class="marketAxeUpgrade" data-rod-id="${rod.id}" ${canPurchaseFishingRod(rod)?'':'disabled'}>${rod.name} 구매</button>`});
   }).join('');
-  document.getElementById('marketList').innerHTML=`${skillCardMarkup('fishing')}${catalog}`;
+  document.getElementById('marketList').innerHTML=skillCardMarkup('fishing')+(catalog||(repairing?'<div class="marketEmpty"><b>수리할 낚싯대가 없어요</b><p>모든 낚싯대의 내구도가 가득해요.</p></div>':'<div class="marketEmpty"><b>구매할 낚싯대를 모두 보유하고 있어요</b></div>'));
 }
 
 function buyMarketSeed(cropId){
@@ -302,38 +330,50 @@ function sellSelectedGoods(){
 
 function renderMarket(){
   const shop=MARKET_SHOPS[marketState.shop]||MARKET_SHOPS.elli;
-  if(!shop.views.includes(marketState.view)) marketState.view=shop.defaultView;
-  document.querySelectorAll('[data-market-view]').forEach(button=>{
-    button.hidden=!shop.views.includes(button.dataset.marketView);
-    const active=button.dataset.marketView===marketState.view;
-    button.classList.toggle('active',active);button.setAttribute('aria-selected',String(active));
-  });
-  document.querySelector('.marketTabs').style.gridTemplateColumns=`repeat(${shop.views.length===4?2:Math.min(3,shop.views.length)},minmax(0,1fr))`;
+  if(marketState.view!=='home'&&!shop.views.includes(marketState.view)) marketState.view=shop.defaultView;
+  const home=marketState.view==='home',tabs=document.querySelector('.marketTabs');
+  tabs.hidden=!home;
+  tabs.innerHTML=home?marketAvailableViews().map(view=>{const service=MARKET_SERVICES[view];return `<button type="button" data-market-view="${view}"><img src="${service.art()}" alt=""><span><b>${service.title}</b><small>${service.subtitle}</small></span><span aria-hidden="true">›</span></button>`;}).join(''):'';
+  document.getElementById('marketBackBtn').hidden=home||shop.defaultView!=='home';
   document.getElementById('marketShopName').textContent=shop.name;
   document.getElementById('marketPanel').setAttribute('aria-label',shop.name);
-  document.getElementById('marketTitle').textContent={fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 · 수리',wood:'목재 판매',axes:'도끼 · 귀환 도구',orders:'농장 주문',decorations:'농장 꾸미기'}[marketState.view];
+  document.getElementById('marketTitle').textContent={home:'서비스 선택',fish:'물고기 판매',crops:'작물 판매',seeds:'씨앗 구매',rods:'낚싯대 구매',rodRepairs:'낚싯대 수리',wood:'목재 판매',axes:'도끼 업그레이드',axeRepairs:'도끼 수리',supplies:'귀환석 구매',orders:'농장 주문',decorations:'농장 꾸미기'}[marketState.view];
   document.querySelector('.marketGreeting').textContent={fish:'엘리: 어떤 물고기를 팔고 싶어?',
-    crops:'하루: 수확한 작물을 보여 줘!',seeds:'하루: 어떤 씨앗이 필요해?',rods:'엘리: 낚싯대는 조금만 닳아도 고쳐 줄 수 있어!',
-    wood:'준: 목재를 가져왔어?',axes:`준: 도끼를 고치고 ${VILLAGE_RETURN_ITEM.name}도 챙겨 가!`,
+    crops:'하루: 수확한 작물을 보여 줘!',seeds:'하루: 어떤 씨앗이 필요해?',rods:'엘리: 어떤 낚싯대가 필요해?',
+    home:'필요한 서비스를 골라 주세요.',wood:'준: 목재를 가져왔어?',axes:'준: 다음 도끼를 준비해 볼까?',axeRepairs:'준: 닳은 도끼를 고쳐 줄게!',rodRepairs:'엘리: 닳은 낚싯대를 고쳐 줄게!',supplies:'준: 여행 전에 귀환석을 챙겨 가!',
     orders:'하루: 농장에서 키운 작물들을 부탁해!',decorations:'납품으로 모은 교환권으로 농장을 꾸며보세요.'}[marketState.view];
   document.querySelector('.marketRule').textContent=marketState.view==='orders'?'필요한 작물을 모아 하루에게 납품하세요.':
     marketState.view==='decorations'?'교환한 소품은 가방 → 농장에 보관돼요. 농장에서 설치하기를 눌러 주세요.':
     marketState.view==='fish'?'같은 어종은 먼저 낚은 물고기부터 판매돼요.':
     marketState.view==='crops'?'수확한 작물을 원하는 수량만큼 팔 수 있어요.':
     marketState.view==='wood'?'목재를 원하는 수량만큼 팔 수 있어요.':
-    marketState.view==='axes'?`도끼는 닳은 만큼 언제든 수리할 수 있고, ${VILLAGE_RETURN_ITEM.name}은 재료 탭에서 사용해요.`:
+    marketState.view==='axes'?'목재와 코인으로 다음 단계 도끼를 구매해요. 장착은 가방에서 해 주세요.':
+    ['axeRepairs','rodRepairs'].includes(marketState.view)?'닳은 장비만 표시돼요. 수리 비용은 사용한 내구도에 따라 달라요.':
     marketState.view==='rods'?'물고기와 코인으로 낚싯대를 구매해요. 도감 기록은 남고 장착은 가방에서 해 주세요.':'';
   document.getElementById('marketMessage').textContent=marketState.message;
-  const noSale=['seeds','axes','rods','orders','decorations'].includes(marketState.view);
+  const noSale=!['fish','wood','crops'].includes(marketState.view);
+  document.querySelector('.marketActions').classList.toggle('singleAction',noSale);
   document.querySelector('.marketTotalLine').hidden=noSale;
   document.getElementById('marketSellBtn').hidden=noSale;
   document.getElementById('marketTotalLabel').textContent=marketState.view==='fish'?'선택한 물고기':marketState.view==='wood'?'선택한 목재':'선택한 작물';
   document.getElementById('marketSellBtn').textContent=marketState.view==='fish'?'선택한 물고기 판매':marketState.view==='wood'?'선택한 목재 판매':'선택한 작물 판매';
+  document.getElementById('marketStock').hidden=home;
+  document.getElementById('marketList').hidden=home;
+  if(home){
+    document.getElementById('marketList').innerHTML='';
+    document.querySelector('.marketRule').textContent='';
+    if(!marketAvailableViews().length){
+      document.querySelector('.marketGreeting').textContent='지금 이용할 서비스가 없어요.';
+      document.querySelector('.marketRule').textContent='판매할 물건을 모으거나 장비가 닳으면 다시 찾아와 주세요.';
+    }
+    return;
+  }
   if(marketState.view==='orders'){ensureFarmOrder();renderFarmOrdersMarket();return;}
   if(marketState.view==='decorations'){renderFarmDecorationsMarket();return;}
   if(marketState.view==='seeds'){renderSeedMarket();return;}
-  if(marketState.view==='rods'){renderRodMarket();return;}
-  if(marketState.view==='axes'){renderForestryMarket();return;}
+  if(marketState.view==='rods'||marketState.view==='rodRepairs'){renderRodMarket();return;}
+  if(marketState.view==='axes'||marketState.view==='axeRepairs'){renderForestryMarket();return;}
+  if(marketState.view==='supplies'){renderSuppliesMarket();return;}
   if(marketState.view==='crops'||marketState.view==='wood'){renderGoodsMarket();return;}
   const groups=groupInventoryFish();
   const availableById=new Map(groups.map(group=>[group.fish.id,group.count]));
@@ -366,8 +406,8 @@ function renderMarket(){
         </div>
           <div class="marketFishBottom">
             <div class="marketQty"><button type="button" data-market-action="minus" aria-label="${group.fish.name} 판매 수량 줄이기" ${selected===0?'disabled':''}>−</button><strong>${selected}</strong><button type="button" data-market-action="plus" aria-label="${group.fish.name} 판매 수량 늘리기" ${selected>=group.count?'disabled':''}>+</button></div>
-            <div class="marketSelectionActions"><button type="button" class="marketAll" data-market-action="all" aria-label="${group.fish.name} 전부 선택" ${selected>=group.count?'disabled':''}>전부</button>
-            <button type="button" class="marketAll marketReset" data-market-action="reset" aria-label="${group.fish.name} 판매 수량 초기화" ${selected?'':'disabled'}>취소</button></div>
+            <div class="marketSelectionActions"><button type="button" class="marketAll marketReset" data-market-action="reset" aria-label="${group.fish.name} 판매 수량 초기화" ${selected?'':'disabled'}>취소</button>
+            <button type="button" class="marketAll" data-market-action="all" aria-label="${group.fish.name} 전부 선택" ${selected>=group.count?'disabled':''}>전부</button></div>
           </div>
       </div>`;
     }).join('');
@@ -442,12 +482,8 @@ if(typeof document!=='undefined'){
     if(marketState.view==='fish') sellSelectedFish();
     else if(marketState.view==='crops'||marketState.view==='wood') sellSelectedGoods();
   });
-  document.querySelectorAll('[data-market-view]').forEach(button=>button.addEventListener('click',()=>{
-    if(!marketState.open||!MARKET_SHOPS[marketState.shop].views.includes(button.dataset.marketView)) return;
-    marketState.view=button.dataset.marketView;
-    marketState.selection.clear();marketState.goodsSelection.clear();marketState.message='';
-    renderMarket();document.getElementById('marketList').scrollTop=0;
-  }));
+  document.getElementById('marketBackBtn').addEventListener('click',()=>selectMarketView('home'));
+  document.querySelector('.marketTabs').addEventListener('click',event=>{const button=event.target.closest('[data-market-view]');if(button)selectMarketView(button.dataset.marketView);});
   document.getElementById('marketList').addEventListener('click',event=>{
     if(marketState.view==='orders'||marketState.view==='decorations'){
       const button=event.target.closest('[data-farm-action]');if(!button||button.disabled)return;
@@ -459,11 +495,11 @@ if(typeof document!=='undefined'){
       else if(action==='retry-order'){marketState.message='';renderMarket();}
       return;
     }
-    if(marketState.view==='axes'){
+    if(['axes','axeRepairs','supplies'].includes(marketState.view)){
       if(marketState.shop!=='workshop') return;
       const returnItemButton=event.target.closest('[data-buy-return-item]');
       if(returnItemButton){
-        if(returnItemButton.disabled)return;
+        if(returnItemButton.disabled||marketState.view!=='supplies')return;
         const success=buyVillageReturnItem();
         marketState.message=success?`${VILLAGE_RETURN_ITEM.name} 1개를 샀어요. 가방의 재료 탭에서 사용할 수 있어요.`:`${VILLAGE_RETURN_ITEM.name}을 구매하지 못했어요.`;
         if(success){setMarketCoinDisplay(GAME_STATE.progression.coins);playCoinSpendSound();}
@@ -471,7 +507,7 @@ if(typeof document!=='undefined'){
       }
       const repairButton=event.target.closest('[data-repair-axe-id]');
       if(repairButton){
-        if(repairButton.disabled)return;
+        if(repairButton.disabled||marketState.view!=='axeRepairs')return;
         const axe=FORESTRY_AXE_BY_ID.get(repairButton.dataset.repairAxeId);
         const cost=forestryAxeRepairCost(axe);
         const wasEquipped=GAME_STATE.appearance?.activeTool==='axe'&&getEquippedForestryAxe().id===axe.id;
@@ -481,18 +517,18 @@ if(typeof document!=='undefined'){
         renderMarket();return;
       }
       const button=event.target.closest('[data-axe-id]');
-      if(!button||button.disabled) return;
+      if(!button||button.disabled||marketState.view!=='axes') return;
       const axe=FORESTRY_AXE_BY_ID.get(button.dataset.axeId);
       const success=upgradeForestryAxe(button.dataset.axeId);
       marketState.message=success?`${axe.name}를 구매했어요! 가방에서 장착해 주세요.`:'도끼를 구매하지 못했어요.';
       if(success){setMarketCoinDisplay(GAME_STATE.progression.coins);playEquipmentPurchaseSound('axe');}
       renderMarket();return;
     }
-    if(marketState.view==='rods'){
+    if(marketState.view==='rods'||marketState.view==='rodRepairs'){
       if(marketState.shop!=='elli') return;
       const repairButton=event.target.closest('[data-repair-rod-id]');
       if(repairButton){
-        if(repairButton.disabled)return;
+        if(repairButton.disabled||marketState.view!=='rodRepairs')return;
         const rod=FISHING_ROD_BY_ID.get(repairButton.dataset.repairRodId),cost=fishingRodRepairCost(rod);
         const wasEquipped=GAME_STATE.appearance?.activeTool==='rod'&&getEquippedFishingRod().id===rod.id;
         const success=repairFishingRod(rod.id);
@@ -501,7 +537,7 @@ if(typeof document!=='undefined'){
         renderMarket();return;
       }
       const button=event.target.closest('[data-rod-id]');
-      if(!button||button.disabled) return;
+      if(!button||button.disabled||marketState.view!=='rods') return;
       const rod=FISHING_ROD_BY_ID.get(button.dataset.rodId);
       const success=purchaseFishingRod(button.dataset.rodId);
       marketState.message=success?`${rod.name}를 구매했어요! 가방에서 장착해 주세요.`:'낚싯대를 구매하지 못했어요.';

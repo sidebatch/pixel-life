@@ -1,0 +1,149 @@
+{
+  "version": 1,
+  "date": "2026-10-16",
+  "cell": 96,
+  "feet": [
+    48,
+    88
+  ],
+  "neck": [
+    48,
+    54
+  ],
+  "renderSize": 100,
+  "rows": [
+    "down",
+    "left",
+    "right",
+    "up"
+  ],
+  "records": {
+    "mina": {
+      "source": "assets/npcs/mina.png",
+      "file": "assets/npcs/standard-v1/mina.png",
+      "operation": "lossless integer registration",
+      "shifts": [
+        -6,
+        -6,
+        -6,
+        -5,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6
+      ],
+      "sha256": "b2f44aa9779e450495e6455814b1a893d2d3e3829538fec1734e5b4d26a63959"
+    },
+    "thomas": {
+      "source": "assets/npcs/thomas.png",
+      "file": "assets/npcs/standard-v1/thomas.png",
+      "operation": "lossless integer registration",
+      "shifts": [
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -5
+      ],
+      "sha256": "f258bbc3f1fcaf015647dd584df3779d2800feb8e56303615a8bc197c427e1a6"
+    },
+    "elli": {
+      "source": "assets/npcs/elli.png",
+      "file": "assets/npcs/standard-v1/elli.png",
+      "operation": "lossless integer registration",
+      "shifts": [
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6
+      ],
+      "sha256": "bac785a965ab3f29263e07bd40fcd3a40a0e936f74ae193fa62b89e35a6bf2d7"
+    },
+    "noah": {
+      "source": "assets/npcs/noah.png",
+      "file": "assets/npcs/standard-v1/noah.png",
+      "operation": "lossless integer registration",
+      "shifts": [
+        -6,
+        -6,
+        -6,
+        -6,
+        -5,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6
+      ],
+      "sha256": "b9bfdbc0750a22b2d17a73392d0bbadeefe6a8ae280b9cb7fd5a3d7f4fb36761"
+    },
+    "hana": {
+      "source": "assets/npcs/hana.png",
+      "file": "assets/npcs/standard-v1/hana.png",
+      "operation": "lossless integer registration",
+      "shifts": [
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6
+      ],
+      "sha256": "4ba1c161f87ee6ddcd94340128ecc4007c6d7134dc4f327facf353329e9c9ca8"
+    },
+    "jun": {
+      "source": "assets/npcs/jun.png",
+      "file": "assets/npcs/standard-v1/jun.png",
+      "operation": "lossless integer registration",
+      "shifts": [
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6,
+        -6
+      ],
+      "sha256": "cd05fe02fdd22049c8b9342ac4dc935b9ab6829f93f304ed5d725f03c29d2a39"
+    },
+    "haru": {
+      "source": "assets/npcs/source/actor-standard-v1/haru-v3.png",
+      "file": "assets/npcs/standard-v1/haru-v3.png",
+      "operation": "common-scale nearest-neighbor atlas packing of generated art",
+      "scale": 0.2518518518518518,
+      "sha256": "d979ec51019022f294b8e7c13f7764df5c0939f01e18862f356327d1dbbc091d"
+    }
+  }
+}

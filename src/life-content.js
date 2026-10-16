@@ -11,6 +11,19 @@ function getOwnedForestryAxes(){
   return FORESTRY_AXES.filter(axe=>owned.includes(axe.id));
 }
 
+function getForestryUnlockedTier(){
+  // Broken axes remain owned: acquiring a tier permanently opens its trees.
+  return Math.max(...getOwnedForestryAxes().map(axe=>axe.tier));
+}
+
+function forestryTreeChopStats(treeType,axe=getEquippedForestryAxe()){
+  const unlocked=Boolean(treeType&&treeType.tier<=getForestryUnlockedTier());
+  const penalized=unlocked&&axe.tier<treeType.tier;
+  const multiplier=unlocked?forestryAxeDamageMultiplier(axe.tier,treeType.tier):0;
+  const damage=unlocked?Math.max(1,Math.floor(axe.damage*multiplier)):0;
+  return {unlocked,penalized,damage,multiplier,penaltyPercent:penalized?Math.round((1-multiplier)*100):0};
+}
+
 function getForestryAxeDurability(axeOrId=getEquippedForestryAxe()){
   const axe=typeof axeOrId==='string'?FORESTRY_AXE_BY_ID.get(axeOrId):axeOrId;
   if(!axe)return null;
@@ -43,7 +56,7 @@ function repairForestryAxe(axeId){
 }
 
 function nextForestryAxe(){
-  const tier=Math.max(...getOwnedForestryAxes().map(axe=>axe.tier));
+  const tier=getForestryUnlockedTier();
   return FORESTRY_AXES.find(axe=>axe.tier===tier+1)||null;
 }
 
@@ -258,7 +271,8 @@ function hitResourceTree(tree){
     showLifeToast('도끼가 망가졌어요. 마을 도구점에서 수리해 주세요');
     return false;
   }
-  if(axe.tier<treeType.tier){
+  const chopStats=forestryTreeChopStats(treeType,axe);
+  if(!chopStats.unlocked){
     showLifeToast(`${FOREST_WOOD[tree.species]}는 ${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
     return false;
   }
@@ -268,7 +282,7 @@ function hitResourceTree(tree){
     showLifeToast('나무가 다시 자라고 있어요');
     return false;
   }
-  const nextHp=Math.max(0,current.hp-axe.damage);
+  const nextHp=Math.max(0,current.hp-chopStats.damage);
   const completed=nextHp===0;
   const logs=completed?rollForestryLogs():0;
   const gainedXp=completed?forestryTreeXp(treeType):0;
@@ -325,7 +339,7 @@ function startTreeChop(tree){
   if(getForestryAxeDurability()?.broken){
     showLifeToast('도끼가 망가졌어요. 마을 도구점에서 수리해 주세요');return false;
   }
-  if(getEquippedForestryAxe().tier<treeType.tier){
+  if(!forestryTreeChopStats(treeType).unlocked){
     showLifeToast(`${FOREST_WOOD[tree.species]}는 ${FORESTRY_AXES[treeType.tier-1].name}가 필요해요`);
     return false;
   }
@@ -514,7 +528,7 @@ function updateLifeContentUi(now){
       chop.struck=true;
       if(chop.mode==='sickle'&&chop.plot)harvestFarmCrop(chop.plot);
       if(chop.tree){
-        const cut=getTreeState(chop.tree).hp<=getEquippedForestryAxe().damage;
+        const cut=getTreeState(chop.tree).hp<=forestryTreeChopStats(FORESTRY_TREES[chop.tree.species]).damage;
         if(hitResourceTree(chop.tree)) playForestryChopSound(cut);
       }
     }

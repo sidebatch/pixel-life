@@ -35,7 +35,7 @@ assert.equal(haru.role,'farmMerchant');assert.equal(haru.roam,0);assert.equal(ha
 assert(def.buildings.some(b=>b.id===haru.residentOf));assert.equal(haruArt.width,288);assert.equal(haruArt.height,384);
 for(let row=0;row<4;row++)for(let col=0;col<3;col++){
   const frame=crop(haruArt,col*96,row*96,96,96),b=alphaBounds(frame);
-  assert(b.height>=58&&b.height<=66);assert.equal(b.y+b.height,88);
+  assert(b.height>=60&&b.height<=70);assert.equal(b.y+b.height,88);
   assert(b.x>8&&b.x+b.width<88);assert(frame.data[(54*96+48)*4+3]>0,'Shared neck/body connection remains occupied');
 }
 const rendering=read('src/rendering.js'),terrain=rendering.slice(rendering.indexOf('function drawNaturalPlazas'),rendering.indexOf('function onScreen'));

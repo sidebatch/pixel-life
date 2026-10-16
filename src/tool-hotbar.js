@@ -31,7 +31,7 @@ function refreshToolHotbar(){
     toolHotbar.innerHTML=items.map((item,index)=>`<button type="button" class="toolHotbarSlot${item.broken?' broken':''}" data-quick-tool="${item.kind}" data-tool-id="${item.id}"
       aria-label="${item.name}${item.broken?' · 수리 필요':''}" aria-pressed="false" aria-keyshortcuts="${index+1}" title="${item.name} · ${index+1}번${item.broken?' · 수리 필요':''}">
       ${item.url?`<img src="${item.url}" alt="" draggable="false">`:`<svg viewBox="0 0 24 24" aria-hidden="true" focusable="false" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="${ACTION_ICON_PATHS.hand}"/></svg>`}
-      <span>${item.broken?'수리':item.label}</span>${equipmentDurabilityMarkup(item.durability)}</button>`).join('');
+      <kbd aria-hidden="true">${index+1}</kbd><span>${item.broken?'수리':item.label}</span>${equipmentDurabilityMarkup(item.durability)}</button>`).join('');
   }
   toolHotbar.classList.toggle('busy',busy);
   for(const item of items){
@@ -72,8 +72,8 @@ toolHotbar.addEventListener('click',event=>{
   if(event.detail)button.blur();
 });
 window.addEventListener('keydown',event=>{
-  if(event.repeat||event.altKey||event.ctrlKey||event.metaKey||event.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;
-  const number=/^Digit([1-5])$/.exec(event.code);if(!number||toolHotbarBusy())return;
+  if(event.repeat||event.isComposing||event.shiftKey||event.altKey||event.ctrlKey||event.metaKey||event.target?.closest?.('input,textarea,select,[contenteditable="true"]'))return;
+  const number=/^Digit([1-5])$/.exec(event.code)||/^([1-5])$/.exec(event.key);if(!number||toolHotbarBusy())return;
   event.preventDefault();quickEquipTool(TOOL_HOTBAR_ORDER[Number(number[1])-1]);
 });
 refreshToolHotbar();

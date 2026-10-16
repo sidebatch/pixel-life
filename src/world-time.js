@@ -123,6 +123,8 @@ function updateWorldClockUI(){
   if(!clock) return;
   const location=document.getElementById('locationName');
   if(location) location.textContent=WORLD_REGIONS[GAME_STATE.regionId]?.name||'Pixel Life';
+  const icon=document.getElementById('locationIcon'),iconUrl=REGION_ICON_URLS[GAME_STATE.regionId];
+  if(icon&&iconUrl&&icon.getAttribute('src')!==iconUrl)icon.setAttribute('src',iconUrl);
   const weatherLabel={clear:'맑음',rain:'비',storm:'폭풍'}[getWeatherKind()]||'맑음';
   clock.textContent=`${getWeatherIcon()} ${weatherLabel} · ${formatWorldTime()}`;
   const debugValue=document.getElementById('timeDebugValue');

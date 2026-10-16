@@ -41,7 +41,9 @@ try{
       for(const species of speciesList){
         const tree={id:`qa_${species}`,x:10,y:10,species,interactable:true};
         GAME_STATE.progression.forestry.axeId=lowerAxe.id;
+        GAME_STATE.progression.forestry.ownedAxeIds=FORESTRY_AXES.slice(0,tier-1).map(item=>item.id);
         if(hitResourceTree(tree)||GAME_STATE.world.trees[tree.id])throw new Error(`${species} accepted a Tier-${tier-1} axe`);
+        GAME_STATE.progression.forestry.ownedAxeIds.push(axe.id);
         GAME_STATE.progression.forestry.axeId=axe.id;
         const hits=Math.ceil(FORESTRY_TREES[species].maxHp/axe.damage);
         for(let count=0;count<hits;count++)if(!hitResourceTree(tree))throw new Error(`${species} chop ${count+1}/${hits} failed`);

@@ -144,7 +144,7 @@ try{
       const panel=document.getElementById('fishDexPanel').getBoundingClientRect();return [...document.querySelectorAll('#fishDexGrid [data-fish-id],#fishDexCategoryTabs button')].some(e=>{const b=e.getBoundingClientRect();return b.left<panel.left-1||b.right>panel.right+1;});
     });assert.equal(overflow,false);await page.screenshot({path:path.join(output,`${width}-glacier-dex.png`)});await page.locator('#fishDexClose').tap();
     const sale=await page.evaluate(()=>{
-      if(!returnFromVoyage())throw Error('Could not return to harbor');enterWorldRegion(REGION_EXITS.coast.find(e=>e.to==='lilacVillage'));openMarket();
+      if(!returnFromVoyage())throw Error('Could not return to harbor');enterWorldRegion(REGION_EXITS.coast.find(e=>e.to==='lilacVillage'));openMarket();selectMarketView('fish');
       const fish=GAME_STATE.inventory.filter(f=>SAVE_FISH_BY_ID.get(f.id)?.habitat==='glacier'),total=fish.reduce((sum,f)=>sum+f.price*f.quantity,0),before=GAME_STATE.progression.coins;
       for(const f of fish)marketState.selection.set(f.id,1);const sold=sellSelectedFish();return {sold,total,gain:GAME_STATE.progression.coins-before,left:GAME_STATE.inventory.filter(f=>SAVE_FISH_BY_ID.get(f.id)?.habitat==='glacier').length,cache: voyageSceneCache.composites.size};
     });assert.equal(sale.sold,true);assert.equal(sale.gain,sale.total);assert.equal(sale.left,0);

@@ -205,7 +205,9 @@ function openInventoryDetail(type,id,options={}){
   const effects=type==='rod'?[...fishingRodEffectLabels(item),rodDurability.infinite?'내구도 무제한':`내구도 ${rodDurability.current} / ${rodDurability.max}`,
     ...(rodDurability.infinite?[]:['획득 시 내륙·해안 1 / 얕은 바다 6 / 중간 바다 8 / 심해 10 / 빙하 12 감소'])]:
     type==='axe'?[`타격 힘 ${item.damage}`,axeDurability.infinite?'내구도 무제한':`내구도 ${axeDurability.current} / ${axeDurability.max}`,
-      `벨 수 있는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`]:
+      `정상 위력으로 베는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`,
+      ...(getOwnedForestryAxes().some(axe=>axe.tier>item.tier)?
+        ['획득한 상위 도끼 단계의 나무도 벌목 가능 · 단계 차이 1/2/3/4 이상: 위력 40%/25%/15%/10%']:[])]:
     type==='sword'?[`검 단계 ${item.tier}`,nextSword()?'다음 검은 추후 구매 가능':'상위 검과 전투 콘텐츠는 추후 추가 예정']:
     type==='sickle'?['다 자란 작물 한 칸 수확','내구도 무제한']:['외형용 · 능력치 변화 없음'];
   const description=item.description||(type==='axe'?'나무를 베는 도끼. 장착한 도끼의 힘으로 나무에 피해를 줍니다.':'여행자의 기본 의상. 걷기·낚시·벌목 동작에 함께 적용돼요.');

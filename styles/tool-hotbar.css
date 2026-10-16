@@ -1,4 +1,6 @@
 /* A compact row of actual held-tool art, under the existing round controls. */
+.toolHotbarSlot kbd{display:none;position:absolute;top:2px;left:4px;color:#e5edcd;font:700 9px system-ui;line-height:12px;pointer-events:none;text-shadow:0 1px 2px #132f24}
+@media(hover:hover) and (pointer:fine){.toolHotbarSlot kbd{display:block}}
 .equipmentDurability{position:absolute;right:8px;bottom:6px;left:8px;height:6px;overflow:hidden;border:1px solid rgba(235,246,221,.38);border-radius:4px;background:#182c27;pointer-events:none}
 .equipmentDurability i{display:block;height:100%;background:#86d29c;transition:width .15s linear}
 .equipmentDurability.worn i{background:#e5c16b}.equipmentDurability.low{border-color:#e49381}.equipmentDurability.low i{background:#e58872}

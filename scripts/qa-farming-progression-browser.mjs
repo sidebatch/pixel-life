@@ -68,6 +68,7 @@ try{
     await page.locator('[data-seed-id="chili"]').click();
     assert.equal(await page.evaluate(()=>GAME_STATE.progression.farming.totalXp),beforeXp);
     await page.screenshot({path:path.join(out,'seed-market-'+width+'.png')});
+    await page.evaluate(()=>selectMarketView('home'));
     await page.locator('[data-market-view="crops"]').click();
     assert.equal(await page.locator('#marketList [data-skill-card="farming"]').count(),1);
     await page.locator('[data-good-key="crop:turnip"] [data-good-action="all"]').click();

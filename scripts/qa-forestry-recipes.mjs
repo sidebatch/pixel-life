@@ -41,7 +41,7 @@ try{
     marketState.view='axes';renderMarket();
     const text=document.getElementById('marketList').textContent;
     if(!text.includes('물푸레나무')||!text.includes('망고나무')||
-      !text.includes('목재 수량은 전체 밸런스 전 임시값이에요.'))
+      text.includes('임시값'))
       throw new Error('Tier 5 recipe details are not visible in the mobile shop');
     return report;
   });

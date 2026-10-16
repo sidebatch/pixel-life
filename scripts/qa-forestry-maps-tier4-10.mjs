@@ -31,12 +31,13 @@ try{
         throw new Error(`${id} has the wrong species set`);
       const reciprocal=REGION_EXITS[id].some(item=>item.to===previous);
       if(!reciprocal)throw new Error(`${id} has no return exit`);
-      GAME_STATE.progression.forestry={axeId:FORESTRY_AXES[tier-2].id,ownedAxeIds:FORESTRY_AXES.map(axe=>axe.id)};
+      GAME_STATE.progression.forestry={axeId:FORESTRY_AXES[tier-2].id,ownedAxeIds:FORESTRY_AXES.slice(0,tier-1).map(axe=>axe.id)};
       const tree=trees.find(item=>FORESTRY_TREES[item.species].tier===tier);
       if(!tree)throw new Error(`${id} has no Tier-${tier} tree`);
       if(hitResourceTree(tree)||getTreeState(tree).hp!==FORESTRY_TREES[tree.species].maxHp)
         throw new Error(`${id} accepted a lower-tier axe`);
       GAME_STATE.progression.forestry.axeId=FORESTRY_AXES[tier-1].id;
+      GAME_STATE.progression.forestry.ownedAxeIds.push(FORESTRY_AXES[tier-1].id);
       const hits=Math.ceil(FORESTRY_TREES[tree.species].maxHp/FORESTRY_AXES[tier-1].damage);
       for(let hit=0;hit<hits;hit++)if(!hitResourceTree(tree))throw new Error(`${id} chop failed`);
       if(getTreeState(tree).hp!==0||lifeItemCount('material',`${tree.species}_log`)<1)

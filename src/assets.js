@@ -336,16 +336,16 @@ const PLAYER_URLS = Object.freeze({
 });
 
 const NPC_SHEET_URLS = Object.freeze({
-  mina: 'assets/npcs/mina.png',
-  thomas: 'assets/npcs/thomas.png',
-  elli: 'assets/npcs/elli.png',
-  noah: 'assets/npcs/noah.png',
-  hana: 'assets/npcs/hana.png',
-  jun: 'assets/npcs/jun.png',
+  mina: 'assets/npcs/standard-v1/mina.png',
+  thomas: 'assets/npcs/standard-v1/thomas.png',
+  elli: 'assets/npcs/standard-v1/elli.png',
+  noah: 'assets/npcs/standard-v1/noah.png',
+  hana: 'assets/npcs/standard-v1/hana.png',
+  jun: 'assets/npcs/standard-v1/jun.png',
   luca: 'assets/npcs/luca-v1.png',
   sora: 'assets/npcs/sora-v1.png',
   eden: 'assets/npcs/eden-v1.png',
-  haru: 'assets/npcs/haru-v2.png'
+  haru: 'assets/npcs/standard-v1/haru-v3.png'
 });
 
 const PLAYER_SHEET_URL = 'assets/player/player.png';
@@ -437,4 +437,39 @@ const FISH_URLS = Object.freeze({
   arctic_char: 'assets/fishing/arctic_char.png',
   aurora_smelt: 'assets/fishing/aurora_smelt.png',
   coelacanth: 'assets/fishing/coelacanth.png'
+});
+
+const LIFE_SKILL_ICON_URLS=Object.freeze({
+  fishing:'assets/ui/world-skills-v1/fishing.png',
+  logging:'assets/ui/world-skills-v1/logging.png',
+  farming:'assets/ui/world-skills-v1/farming.png',
+  gathering:'assets/ui/world-skills-v1/gathering.png',
+  mining:'assets/ui/world-skills-v1/mining.png',
+  cooking:'assets/ui/world-skills-v1/cooking.png',
+  hunting:'assets/ui/world-skills-v1/hunting.png'
+});
+
+const REGION_ICON_URLS=Object.freeze({
+  lilacVillage:'assets/ui/world-skills-v1/lilacVillage.png',
+  oldForest:'assets/ui/world-skills-v1/oldForest.png',
+  deepForest:'assets/ui/world-skills-v1/deepForest.png',
+  forestThree:'assets/ui/world-skills-v1/forestThree.png',
+  forestFour:'assets/ui/world-skills-v1/forestFour.png',
+  forestFive:'assets/ui/world-skills-v1/forestFive.png',
+  forestSix:'assets/ui/world-skills-v1/forestSix.png',
+  forestSeven:'assets/ui/world-skills-v1/forestSeven.png',
+  forestEight:'assets/ui/world-skills-v1/forestEight.png',
+  forestNine:'assets/ui/world-skills-v1/forestNine.png',
+  forestTen:'assets/ui/world-skills-v1/forestTen.png',
+  forestEleven:'assets/ui/world-skills-v1/forestEleven.png',
+  forestTwelve:'assets/ui/world-skills-v1/forestTwelve.png',
+  sunnyFields:'assets/ui/world-skills-v1/sunnyFields.png',
+  mountainLake:'assets/ui/world-skills-v1/mountainLake.png',
+  waterfallValley:'assets/ui/world-skills-v1/waterfallValley.png',
+  reedSwamp:'assets/ui/world-skills-v1/reedSwamp.png',
+  coast:'assets/ui/world-skills-v1/coast.png',
+  boatShallow:'assets/ui/world-skills-v1/boatShallow.png',
+  boatMid:'assets/ui/world-skills-v1/boatMid.png',
+  boatDeep:'assets/ui/world-skills-v1/boatDeep.png',
+  boatGlacier:'assets/ui/world-skills-v1/boatGlacier.png'
 });

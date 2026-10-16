@@ -1,0 +1,19 @@
+.marketTabs[hidden],.marketBack[hidden],.marketStock[hidden],.marketList[hidden]{display:none!important}
+.marketTabs{display:grid;flex:1;align-content:start;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin:4px 0 12px;overflow-y:auto;min-height:0;padding:2px}
+.marketTabs button{display:flex;align-items:center;gap:10px;min-height:84px;text-align:left;padding:12px;border:1px solid #b6d8c35c;border-radius:14px;background:linear-gradient(145deg,#386456,#244a40);color:#f5f3dc;box-shadow:inset 0 1px #e8f4d91a}
+.marketTabs button img{width:40px;height:44px;object-fit:contain;image-rendering:pixelated;flex:none}
+.marketTabs button span:first-of-type{display:grid;gap:5px;flex:1;min-width:0}
+.marketTabs button b{font-size:14px;white-space:nowrap}.marketTabs button small{font-size:12px;color:#d2dfcd;white-space:normal}
+.marketTabs button>span:last-child{font-size:24px;color:#b8ceb8}.marketTabs button:active{background:#426e5b}
+.marketBack{align-self:flex-start;min-height:38px;padding:6px 12px;margin:0 0 7px;border:1px solid #c7dec447;border-radius:10px;background:#254b40;color:#eaf2dd;font:inherit;font-size:13px;cursor:pointer}
+.marketTabs button:focus-visible,.marketBack:focus-visible{outline:2px solid #e6ce76;outline-offset:2px}
+@media(max-width:350px){.marketTabs{gap:8px}.marketTabs button{gap:6px;padding:9px;min-height:78px}.marketTabs button img{width:32px;height:38px}.marketTabs button b{font-size:14px}.marketTabs button small{font-size:11px}}
+
+.marketPanel .marketTabs{grid-template-columns:repeat(2,minmax(0,1fr));margin:4px 14px 12px}
+.marketActions.singleAction{grid-template-columns:minmax(0,1fr)}
+.marketBack{margin-left:14px}
+@media(max-width:350px){.marketPanel .marketTabs{grid-template-columns:minmax(0,1fr)}.marketTabs button{min-height:62px}.marketTabs button span:first-of-type{grid-template-columns:auto 1fr;align-items:center;gap:12px}.marketTabs button b{font-size:14px}}
+@media(max-width:350px){.marketHeader h2{font-size:19px}}
+.pin img{width:38px;height:38px;object-fit:contain;image-rendering:pixelated}.pin{flex-shrink:0}
+.skillCardIcon{display:grid;place-items:center;width:28px;height:28px;flex:none}.skillCardIcon img{width:28px;height:28px;object-fit:contain;image-rendering:pixelated}
+.skillLevelUpOverlay>span img{width:54px;height:54px;object-fit:contain;image-rendering:pixelated}

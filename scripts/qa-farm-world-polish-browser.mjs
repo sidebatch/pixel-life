@@ -31,7 +31,7 @@ try{
       enterWorldRegion({to:'lilacVillage',entry:{x:57,y:24,face:'up'}});const house=buildings.find(b=>b.id==='farm_supply_cottage'),haru=npcs.find(n=>n.id==='haru');
       const seen=new Set(),q=[WORLD_DEFINITION.playerSpawn];for(let i=0;i<q.length;i++){const p=q[i],k=key(p.x,p.y);if(seen.has(k)||blocked.has(k)||!inside(p.x,p.y))continue;seen.add(k);for(const [dx,dy] of Object.values(dirVec))q.push({x:p.x+dx,y:p.y+dy});}
       const c=getWorldCameraTarget();camX=c.x;camY=c.y;drawWorld();
-      return {house:[house.x,house.y],haru:[haru.x,haru.y],scale:haru.scale,art:npcImgs.haru.src.endsWith('haru-v2.png')||NPC_SHEET_URLS.haru.endsWith('haru-v2.png')||npcImgs.haru.naturalWidth===288,
+      return {house:[house.x,house.y],haru:[haru.x,haru.y],scale:haru.scale,art:npcImgs.haru.src===NPC_SHEET_URLS.haru&&npcImgs.haru.naturalWidth===288&&npcImgs.haru.naturalHeight===384,
         door:seen.has(key(56,23)),shop:seen.has(key(57,24)),farmExit:seen.has(key(62,24)),allDoors:buildings.every(b=>seen.has(key(b.entrance.approach.x,b.entrance.approach.y))),interaction:resolveWorldInteraction().kind};
     });assert.deepEqual(village.house,[54,19]);assert.deepEqual(village.haru,[57,23]);assert(village.scale===1&&village.art&&village.door&&village.shop&&village.farmExit&&village.allDoors&&village.interaction==='farmMarket');
     await page.screenshot({path:path.join(out,'village-haru-'+width+'.png')});await page.locator('#btnA').tap();await page.waitForFunction(()=>isMarketOpen()&&marketState.shop==='haru');

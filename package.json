@@ -54,7 +54,13 @@
     "qa:farming:economy-browser": "node scripts/qa-farming-economy-browser.mjs",
     "qa:sickle:art": "node scripts/qa-sickle-art-browser.mjs",
     "qa:gameplay:browser": "node scripts/qa-gameplay-feedback-browser.mjs",
-    "qa:rods:presentation-browser": "node scripts/qa-rod-presentation-browser.mjs"
+    "qa:rods:presentation-browser": "node scripts/qa-rod-presentation-browser.mjs",
+    "qa:forestry:lower-axe-browser": "node scripts/qa-lower-axe-browser.mjs",
+    "qa:actors:browser": "node scripts/qa-actor-standard-browser.mjs",
+    "qa:npc:standard": "node scripts/check-npc-standard.mjs",
+    "qa:market:services-browser": "node scripts/qa-market-services-browser.mjs",
+    "icons:world-skills": "node scripts/prepare-world-skill-icons.mjs",
+    "qa:icons:world-skills": "node scripts/check-world-skill-icons.mjs"
   },
   "engines": {
     "node": ">=20"

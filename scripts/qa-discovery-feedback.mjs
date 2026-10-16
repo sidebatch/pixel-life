@@ -5,7 +5,7 @@ const classes=new Set(),toast={innerHTML:'',classList:{add:k=>classes.add(k),rem
 const context={setTimeout:()=>1,clearTimeout(){},window:{matchMedia:()=>({matches:true})},
  isTreeDiscoveryOpen:()=>state.tree,isFishDiscoveryOpen:()=>state.fish,isFishRewardRevealOpen:()=>state.reward,
  document:{getElementById:id=>id==='skillXPToast'?toast:null,querySelectorAll:()=>[]}};
-vm.createContext(context);vm.runInContext(['src/data/life-skill-data.js','src/life-skills.js','src/skill-ui.js'].map(p=>fs.readFileSync(p,'utf8')).join('\n'),context);
+vm.createContext(context);vm.runInContext(['src/assets.js','src/data/life-skill-data.js','src/life-skills.js','src/skill-ui.js'].map(p=>fs.readFileSync(p,'utf8')).join('\n'),context);
 const run=s=>vm.runInContext(s,context);
 for(const [block,skill] of [['tree','logging'],['fish','fishing'],['reward','fishing']]){
  state[block]=true;

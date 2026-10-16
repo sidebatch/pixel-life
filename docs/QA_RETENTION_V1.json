@@ -1,9 +1,33 @@
 {
   "version": 1,
-  "date": "2026-10-15",
+  "date": "2026-10-16",
   "scope": "output only",
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
+    {
+      "topic": "상점 서비스 분리·수량 버튼 순서·지역과 생활 아이콘",
+      "latest": [
+        "market-services-qa"
+      ],
+      "previous": []
+    },
+    {
+      "topic": "단계별 도끼 위력·PC 숫자키·하루와 전체 캐릭터 규격 감사",
+      "latest": [
+        "actor-standard-qa"
+      ],
+      "previous": [
+        "lower-axe"
+      ]
+    },
+    {
+      "topic": "상위 도끼 획득 후 하위 도끼 감점 벌목",
+      "latest": [
+        "lower-axe",
+        "lower-axe-final-check.log"
+      ],
+      "previous": []
+    },
     {
       "topic": "벌목 수량·중앙 귀환·장비 내구도·낚싯대·번개",
       "latest": [

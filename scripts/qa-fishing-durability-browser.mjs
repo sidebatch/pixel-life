@@ -76,10 +76,10 @@ try{
   assert((await page.locator('#inventoryDetailContent').textContent()).includes('얕은 바다 6'));
   const detailBox=await page.locator('#inventoryDetailContent').boundingBox();assert(detailBox.x>=0&&detailBox.x+detailBox.width<=width);
   await page.screenshot({path:path.join(out,width+'-broken-bag.png')});
-  await page.evaluate(()=>{closeInventoryDetail({fromHistory:true});closeInventory({fromHistory:true});GAME_STATE.progression.coins=1000;openMarket();marketState.view='rods';renderMarket();});
+  await page.evaluate(()=>{closeInventoryDetail({fromHistory:true});closeInventory({fromHistory:true});GAME_STATE.progression.coins=1000;openMarket();marketState.view='rodRepairs';renderMarket();});
   const repair=page.locator('[data-repair-rod-id="rod.sturdy"]');assert((await repair.textContent()).includes('240'));await repair.tap();
   assert.deepEqual(await page.evaluate(()=>({current:getFishingRodDurability().current,active:GAME_STATE.appearance.activeTool,coins:GAME_STATE.progression.coins})),{current:120,active:'none',coins:760});
-  await page.evaluate(()=>{closeMarket({fromHistory:true});if(!equipFishingRod('rod.sturdy'))throw Error('Manual equip failed');GAME_STATE.progression.fishing.durabilityByRodId['rod.sturdy']=84;openMarket();marketState.view='rods';renderMarket();});
+  await page.evaluate(()=>{closeMarket({fromHistory:true});if(!equipFishingRod('rod.sturdy'))throw Error('Manual equip failed');GAME_STATE.progression.fishing.durabilityByRodId['rod.sturdy']=84;openMarket();marketState.view='rodRepairs';renderMarket();});
   const equipment=page.locator('[data-equipment-id="rod.sturdy"]');if(!await equipment.evaluate(el=>el.open))await equipment.locator('summary').tap();
   assert((await repair.textContent()).includes('72'));assert(await repair.isEnabled());
   await page.screenshot({path:path.join(out,width+'-partial-repair.png')});await repair.tap();

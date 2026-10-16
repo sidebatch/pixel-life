@@ -674,9 +674,9 @@ function drawNPC(npc){
   const row={down:0,left:1,right:2,up:3}[face] ?? 0;
   const walkCycle=npc.moving ? Math.floor(tNow/120)%4 : 0;
   const frame=npc.moving ? [0,1,2,1][walkCycle] : 1;
-  const CELL=96;
-  const size=100*npc.scale;
-  const dx=Math.round(wx-size/2), dy=Math.round(wy-size+26);
+  const CELL=CHARACTER_RIG.cell;
+  const size=CHARACTER_RIG.renderSize*npc.scale;
+  const dx=Math.round(wx-CHARACTER_RIG.feet[0]*size/CELL),dy=Math.round(wy+20-CHARACTER_RIG.feet[1]*size/CELL);
 
   ctx.save();
   ctx.fillStyle='rgba(10,25,26,.22)';

@@ -89,7 +89,7 @@ try{
     GAME_STATE.progression.coins=1000;
     saveGame();
     openMarket({shop:'workshop',fromHistory:true});
-    marketState.view='axes';renderMarket();
+    marketState.view='axeRepairs';renderMarket();
   });
   const repairButton=page.locator('[data-repair-axe-id="axe.iron"]');
   if(await repairButton.count()!==1||await repairButton.textContent()!=='수리 150코인')
@@ -147,7 +147,7 @@ try{
     throw new Error(`Successful inventory equips did not play once each or repeated on the equipped card: ${JSON.stringify(equipSoundReport)}`);
   await page.evaluate(()=>closeInventory({fromHistory:true}));
 
-  await page.evaluate(()=>{openMarket({shop:'workshop',fromHistory:true});marketState.view='axes';renderMarket();});
+  await page.evaluate(()=>{openMarket({shop:'workshop',fromHistory:true});marketState.view='supplies';renderMarket();});
   const returnBuyButton=page.locator('[data-buy-return-item="village_return_charm"]');
   await returnBuyButton.tap();
   await returnBuyButton.tap();

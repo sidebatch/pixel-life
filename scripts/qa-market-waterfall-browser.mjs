@@ -42,6 +42,7 @@ try{
   });
   await receipt(`[data-rod-id="${rod}"]`,['playEquipmentPurchaseSound','rod']);
   await page.evaluate(id=>{GAME_STATE.progression.fishing.durabilityByRodId[id]=0;renderMarket();},rod);
+  await shop('elli','rodRepairs');
   await receipt(`[data-repair-rod-id="${rod}"]`,['playEquipmentRepairSound','rod']);
   assert.equal(await page.locator(`[data-repair-rod-id="${rod}"]`).count(),0);
   await shop('workshop','axes');
@@ -50,8 +51,10 @@ try{
   });
   await receipt(`[data-axe-id="${axe}"]`,['playEquipmentPurchaseSound','axe']);
   await page.evaluate(id=>{GAME_STATE.progression.forestry.durabilityByAxeId[id]=0;renderMarket();},axe);
+  await shop('workshop','axeRepairs');
   await receipt(`[data-repair-axe-id="${axe}"]`,['playEquipmentRepairSound','axe']);
   assert.equal(await page.locator(`[data-repair-axe-id="${axe}"]`).count(),0);
+  await shop('workshop','supplies');
   await receipt('[data-buy-return-item]',['playCoinSpendSound']);
   await shop('haru','seeds');await receipt('[data-seed-id="carrot"]',['playCoinSpendSound']);
   await page.evaluate(()=>{GAME_STATE.progression.coins=0;qaSoundEvents=[];renderMarket();document.querySelector('[data-seed-id="carrot"]').click();});

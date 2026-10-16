@@ -30,6 +30,7 @@ try{
     await page.locator('#inventoryClose').click();
     await page.waitForFunction(()=>!isInventoryOpen()&&!window.history.state?.pixelLifeOverlay);
     await page.evaluate(()=>{enterWorldRegion({to:'lilacVillage',entry:{x:57,y:24,face:'up'}});interact();});
+    await page.evaluate(()=>selectMarketView('home'));
     await page.locator('[data-market-view="orders"]').click();
     assert.equal(await page.locator('[data-order-id]').count(),1);
     const first=await page.evaluate(()=>JSON.parse(JSON.stringify(GAME_STATE.progression.farmOrders.current)));
@@ -38,6 +39,7 @@ try{
     assert.equal(await page.locator('[data-farm-action="deliver"]').isEnabled(),ready);
     await page.screenshot({path:path.join(out,'first-order-'+width+'.png')});
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
+    await page.evaluate(()=>selectMarketView('home'));
     await page.evaluate(()=>openMarket({shop:'haru'}));await page.locator('[data-market-view="orders"]').click();
     assert.deepEqual(await page.evaluate(()=>GAME_STATE.progression.farmOrders.current),first);
     const transactions=[],decorationIds=await page.evaluate(()=>FARM_DECORATIONS.map(item=>item.id));
@@ -74,6 +76,7 @@ try{
       const original=saveGame;saveGame=()=>false;let delivered;try{delivered=deliverFarmOrder(order.id);}finally{saveGame=original;}
       return !delivered&&before===JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression});
     });assert(rollback);
+    await page.evaluate(()=>selectMarketView('home'));
     await page.locator('[data-market-view="decorations"]').click();
     await page.screenshot({path:path.join(out,'rewards-'+width+'.png')});
     for(const id of decorationIds){
@@ -122,7 +125,7 @@ try{
     });
     await page.locator('#lifeDecor').click();await page.waitForFunction(()=>isMarketOpen()&&!isFarmPlotOpen());
     assert.equal(await page.locator('#marketShopName').innerText(),'농장 꾸미기');
-    assert.equal(await page.locator('[data-market-view]:visible').count(),1);
+    assert.equal(await page.locator('[data-market-view]:visible').count(),0);
     for(const id of decorationIds)await page.locator('[data-farm-action="place"][data-decoration-id="'+id+'"]').click();
     assert.equal(await page.evaluate(()=>GAME_STATE.progression.farmOrders.placedDecorationIds.length),8);
     const placementRollback=await page.evaluate(()=>{

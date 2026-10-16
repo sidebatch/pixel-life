@@ -4,6 +4,8 @@ import vm from 'node:vm';
 import {decodePNG} from './lib/png.mjs';
 import {checkCharacterStandard} from './check-character-standard.mjs';
 import {checkSwordStandard} from './check-sword-standard.mjs';
+import {checkNpcStandard} from './check-npc-standard.mjs';
+import {checkWorldSkillIcons} from './check-world-skill-icons.mjs';
 
 const root = process.cwd();
 const scriptFiles = [
@@ -67,6 +69,7 @@ const assert = (condition, message) => {
 };
 
 const html = read('index.html');
+checkWorldSkillIcons();
 const scripts = scriptFiles.map(read).join('\n');
 new Function(scripts);
 
@@ -122,7 +125,7 @@ assert(trialContext.__trialValid&&!trialContext.__trialInvalid&&trialContext.__t
   'Trial parts must switch independently through appearance IDs without changing saved game state');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 23, 'Fish dex, tree dex, inventory, appearance, market and farm tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 15, 'Fish dex, tree dex, inventory, appearance and farm tabs must be accessible; market services use ordinary buttons');
 const pwaManifest=JSON.parse(read('manifest.webmanifest'));
 assert(pwaManifest.display==='standalone'&&pwaManifest.orientation==='portrait-primary'&&
   pwaManifest.id==='./?app=pixel-life-v2'&&pwaManifest.start_url==='./?source=pwa-v2'&&pwaManifest.scope==='./'&&
@@ -156,7 +159,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
   'World menu must contain image-led bag, fish-dex, and tree-dex cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 452, `Expected 452 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 481, `Expected 481 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -814,6 +817,7 @@ assert(saveContext.__savedAxe.axeId==='axe.iron'&&saveContext.__savedAxe.durabil
   saveContext.__legacyAxe.durabilityByAxeId['axe.iron']===180&&saveContext.__brokenAxeTool==='none'&&saveContext.__invalidAxe==='axe.basic'&&
   saveContext.GAME_STATE.progression.forestry.ownedAxeIds.includes('axe.iron'),
   'Axe durability must survive reload, migrate old saves to full durability, and unequip broken axes safely');
+saveContext.LIFE_SKILL_ICON_URLS=vm.runInContext('LIFE_SKILL_ICON_URLS',freshContext);
 vm.runInContext(`${read('src/skill-ui.js')}\nglobalThis.__loggingCard=skillCardMarkup('logging');`,saveContext);
 assert(saveContext.__loggingCard.includes('벌목')&&saveContext.__loggingCard.includes('Lv.2')&&
   saveContext.__loggingCard.includes('role="progressbar"')&&saveContext.__loggingCard.includes('aria-valuenow="27"'),
@@ -1063,6 +1067,24 @@ assert(vm.runInContext(`lifeItemName('material','log')==='일반 목재'&&
   ['chestnut','walnut','zelkova'].every(species=>FORESTRY_TREES[species].tier===3)`,lifeContext),
   'Wood item names must be short and consistent across all 50 species');
 const toastNode={textContent:'',classList:{add(){},remove(){}}};
+assert(vm.runInContext(`(()=>{
+  const before=GAME_STATE.progression.forestry;
+  try{
+    for(let highest=1;highest<=10;highest++){
+      const owned=FORESTRY_AXES.slice(0,highest);
+      GAME_STATE.progression.forestry={axeId:owned[0].id,ownedAxeIds:owned.map(axe=>axe.id),
+        durabilityByAxeId:Object.fromEntries(owned.filter(axe=>axe.maxDurability).map(axe=>[axe.id,0]))};
+      if(getForestryUnlockedTier()!==highest)return false;
+      for(const axe of owned)for(const tree of Object.values(FORESTRY_TREES)){
+        const stats=forestryTreeChopStats(tree,axe),unlocked=tree.tier<=highest;
+        const penalized=unlocked&&axe.tier<tree.tier;
+        if(stats.unlocked!==unlocked||stats.penalized!==penalized||
+          stats.damage!==(unlocked?Math.max(1,Math.floor(axe.damage*[1,.4,.25,.15,.1][Math.min(4,Math.max(0,tree.tier-axe.tier))])):0))return false;
+      }
+    }
+    return true;
+  }finally{GAME_STATE.progression.forestry=before;}
+})()`,lifeContext),'All 2750 owned axe/tree/tier combinations must retain unlocks and apply 40/25/15/10 percent by tier gap');
 const coinNode={textContent:''};
 lifeContext.document={getElementById(id){return id==='lifeToast'?toastNode:coinNode;}};
 vm.runInContext(`Math.random=()=>0;const testTree=REGION_WORLDS.oldForest.trees.find(tree=>tree.id==='forest_tree_01');`+
@@ -1692,25 +1714,24 @@ marketContext.canUpgradeForestryAxe=()=>false;
 marketContext.skillCardMarkup=()=>'<div>벌목 Lv.1</div>';
 vm.runInContext('renderForestryMarket();',marketContext);
 assert(seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
-  seedMarketNodes.marketList.innerHTML.includes('data-buy-return-item="village_return_charm"')&&
-  seedMarketNodes.marketList.innerHTML.includes('귀환석')&&
-  seedMarketNodes.marketList.innerHTML.includes('100코인')&&
+  !seedMarketNodes.marketList.innerHTML.includes('data-buy-return-item')&&
+  !seedMarketNodes.marketList.innerHTML.includes('data-repair-axe-id')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.steel"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.master"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.primordial"')&&
-  (seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===10&&
+  (seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===9&&
   seedMarketNodes.marketList.innerHTML.includes('이전 도끼를 먼저 구매해 주세요')&&
   seedMarketNodes.marketList.innerHTML.includes('참나무 ×60')&&
   seedMarketNodes.marketList.innerHTML.includes('코인 ×3,600')&&
   seedMarketNodes.marketList.innerHTML.includes('부족: 참나무 60개')&&
-  seedMarketNodes.marketList.innerHTML.includes('목재 수량은 전체 밸런스 전 임시값')&&
+  !seedMarketNodes.marketList.innerHTML.includes('임시값')&&
   seedMarketNodes.marketList.innerHTML.includes('3,600코인 · 목재 3종')&&
   seedMarketNodes.marketList.innerHTML.includes('기본 도끼를 보유하면 제작이 열립니다')&&
   !seedMarketNodes.marketList.innerHTML.includes('나무 피해')&&
   !seedMarketNodes.marketList.innerHTML.includes('0/60')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled')&&
   seedMarketNodes.marketStock.textContent.includes('기본 도끼'),
-  'Axe shop must show all ten tiers and their recipes while disabling unaffordable or future upgrades');
+  'Axe upgrades must show all nine unowned tiers and their recipes while disabling unaffordable or future upgrades');
 marketContext.getEquippedForestryAxe=()=>marketContext.FORESTRY_AXES[1];
 marketContext.getOwnedForestryAxes=()=>marketContext.FORESTRY_AXES.slice(0,2);
 marketContext.nextForestryAxe=()=>marketContext.FORESTRY_AXES[2];
@@ -1718,11 +1739,12 @@ vm.runInContext('renderForestryMarket();',marketContext);
 assert(!seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.iron"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.steel"')&&
   seedMarketNodes.marketList.innerHTML.includes('data-axe-id="axe.master"')&&
-  seedMarketNodes.marketList.innerHTML.includes('보유 중')&&
-  seedMarketNodes.marketList.innerHTML.includes('내구도 180 / 180')&&
+  !seedMarketNodes.marketList.innerHTML.includes('data-equipment-id="axe.iron"')&&
+  !seedMarketNodes.marketList.innerHTML.includes('data-repair-axe-id')&&
   seedMarketNodes.marketList.innerHTML.includes('이전 도끼를 먼저 구매해 주세요'),
   'Buying one axe must leave later tiers visible and make only the next tier eligible');
 marketContext.__ironDurability=0;
+vm.runInContext("marketState.view='axeRepairs';",marketContext);
 marketContext.GAME_STATE.progression.coins=500;
 vm.runInContext('renderForestryMarket();',marketContext);
 assert(seedMarketNodes.marketList.innerHTML.includes('수리 필요')&&
@@ -1730,6 +1752,8 @@ assert(seedMarketNodes.marketList.innerHTML.includes('수리 필요')&&
   seedMarketNodes.marketList.innerHTML.includes('수리 150코인')&&
   seedMarketNodes.marketList.innerHTML.includes('가방에서 다시 장착'),
   'Jun workshop must expose a full-price repair action for a broken paid axe');
+vm.runInContext("renderSuppliesMarket();globalThis.__suppliesHtml=document.getElementById('marketList').innerHTML;marketState.shop='elli';marketState.view='rods';",marketContext);
+assert(marketContext.__suppliesHtml.includes('data-buy-return-item="village_return_charm"')&&marketContext.__suppliesHtml.includes('100코인')&&marketContext.__suppliesHtml.includes('중앙 광장')&&!marketContext.__suppliesHtml.includes('data-axe-id'),'Supplies must be separate from axe upgrades and repairs');
 marketContext.GAME_STATE.progression.coins=100;
 marketContext.__allFishData=fishData;
 vm.runInContext(`for(const fish of __allFishData) MARKET_FISH_BY_ID.set(fish.id,fish);`,marketContext);
@@ -1739,16 +1763,16 @@ marketContext.getEquippedFishingRod=()=>fishingRods[0];
 marketContext.isFishingRodUnlocked=(rod)=>rod?.id==='rod.basic'||marketContext.GAME_STATE.progression.fishing.purchasedRodIds.includes(rod?.id);
 marketContext.canPurchaseFishingRod=()=>false;
 vm.runInContext(`${read('src/data/fishing-gear-data.js')}\n${read('src/fishing-gear.js')}\nrenderRodMarket();`,marketContext);
-assert((seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===10&&
+assert((seedMarketNodes.marketList.innerHTML.match(/class="marketEquipmentCard/g)||[]).length===8&&
   ['rod.sturdy','rod.steel','rod.expert','rod.deepwater','rod.tidal','rod.tempest','rod.abyssal','rod.aurora'].every(id=>seedMarketNodes.marketList.innerHTML.includes(`data-rod-id="${id}"`))&&
-  seedMarketNodes.marketList.innerHTML.includes('강태공의 낚싯대')&&
-  seedMarketNodes.marketList.innerHTML.includes('도감 보상')&&
+  !seedMarketNodes.marketList.innerHTML.includes('data-equipment-id="rod.master_angler"')&&
+  !seedMarketNodes.marketList.innerHTML.includes('data-repair-rod-id')&&
   seedMarketNodes.marketList.innerHTML.includes('붕어 ×25')&&
   seedMarketNodes.marketList.innerHTML.includes('코인 ×1,800')&&
   !seedMarketNodes.marketList.innerHTML.includes('0/25')&&
   seedMarketNodes.marketList.innerHTML.includes('낚시 Lv.5 필요')&&
   seedMarketNodes.marketList.innerHTML.includes('disabled'),
-  'Ellie must show all rods and concise expandable recipes, including the collection reward and locked tiers');
+  'Ellie purchase must show only buyable catalog rods with expandable recipes, excluding owned gear, repairs and collection rewards');
 assert(marketContext.__sale.count===2&&marketContext.__sale.total===65&&
   marketContext.__sale.inventory.length===3&&
   marketContext.__sale.inventory[0].id==='fish.goldfish'&&
@@ -1786,7 +1810,7 @@ marketContext.window={matchMedia:()=>({matches:true})};
 let saleSoundCount=0;
 marketContext.playMarketSaleSound=()=>{saleSoundCount+=1;return true;};
 marketContext.saveGame=()=>true;
-vm.runInContext(`renderMarket=()=>{};marketState.selection.set('fish.crucian_carp',2);globalThis.__sold=sellSelectedFish();globalThis.__saleMessage=marketState.message;`,marketContext);
+vm.runInContext(`renderMarket=()=>{};marketState.shop='elli';marketState.view='fish';marketState.selection.set('fish.crucian_carp',2);globalThis.__sold=sellSelectedFish();globalThis.__saleMessage=marketState.message;`,marketContext);
 assert(marketContext.__sold===true&&marketContext.GAME_STATE.progression.coins===165&&
   marketContext.GAME_STATE.inventory.length===3&&marketNodes.get('coinCount').textContent==='165'&&
   marketNodes.get('marketCoinCount').textContent==='165'&&saleSoundCount===1&&
@@ -1958,6 +1982,8 @@ assert(accessibility.every(region=>region.exits&&region.fishing&&region.trees&&r
   `Each region must have reachable exits, fishing shore, resource trees, and plots: ${JSON.stringify(accessibility)}`);
 
 checkCharacterStandard();
+checkNpcStandard();
+await import('./qa-npc-standard.mjs');
 checkSwordStandard();
 await import('./qa-farming-layout.mjs');
 await import('./qa-farming-progression.mjs');

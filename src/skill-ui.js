@@ -18,7 +18,7 @@ function skillCardMarkup(skillId,snapshot=lifeSkillProgressSnapshot(skillId)){
   const required=isMastery?lifeSkillMasteryXpRequired(snapshot.mastery):snapshot.nextLevelXp;
   const percent=Math.min(100,Math.floor(value/required*100));
   return `<div class="skillCard" data-skill-card="${skillId}">
-    <div class="skillCardTop"><span class="skillCardIcon">${skill.icon}</span><b>${skill.name}</b><strong class="skillCardLevel">${title}</strong></div>
+    <div class="skillCardTop"><span class="skillCardIcon"><img src="${LIFE_SKILL_ICON_URLS[skillId]}" alt=""${skillId==='fishing'?' class="rodThickArt"':''}></span><b>${skill.name}</b><strong class="skillCardLevel">${title}</strong></div>
     <div class="skillCardBar${percent>=98?' veryNear':percent>=90?' near':''}" role="progressbar" aria-label="${skill.name} 경험치" aria-valuemin="0" aria-valuemax="100" aria-valuenow="${percent}"><span style="width:${percent}%"></span></div>
     <div class="skillCardFoot"><span class="skillCardXp">${value.toLocaleString()} / ${required.toLocaleString()} XP</span><b class="skillCardPercent">${percent}%</b></div>
   </div>`;
@@ -74,7 +74,7 @@ function showSkillLevelUp(skillId,level,mastery,currentReward){
   const close=document.createElement('button');
   close.type='button';close.className='skillLevelUpClose';close.setAttribute('aria-label','레벨업 알림 닫기');close.textContent='×';
   close.addEventListener('click',()=>dismissSkillLevelUp());
-  const icon=document.createElement('span');icon.textContent=skill.icon;
+  const icon=document.createElement('span'),art=document.createElement('img');art.src=LIFE_SKILL_ICON_URLS[skillId];art.alt='';if(skillId==='fishing')art.className='rodThickArt';icon.append(art);
   const title=document.createElement('b');title.textContent=mastery===null?`${skill.name} Lv.${level}!`:`${skill.name} 숙련도 ${mastery}!`;
   overlay.append(close,icon,title);
   if(currentReward){

@@ -1,5 +1,7 @@
 # 하단 도구 빠른 교체 바
 
+2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다. 이 문서의 변경은 모두 공개에 반영됐다. 아래 ‘공개 전/로컬’과 단계별 빌드 수치는 개발 당시 검증 기록으로 보존한다. 현재 검증은 [DEPLOYMENT.md](DEPLOYMENT.md)를 따른다.
+
 후속 가방 농장 탭을 포함한 현재 로컬 빌드는 [FARM_INVENTORY_V1.md](FARM_INVENTORY_V1.md)를 따른다. 아래 수치는 도구 바 구현 단계의 검증 기록이다.
 
 2026-10-15 로컬 구현/검증 완료, **공개 배포 전**. 씨앗 목록/독립 숲 이름 정정과 함께 로컬에 포함한다. 빌드 HTML 20,542,170 bytes/PWA `d87dd4bd1590`. 공개는 직전 `39793b0`/`d3df644ac5ba`다.

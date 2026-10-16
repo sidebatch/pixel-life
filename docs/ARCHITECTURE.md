@@ -1,5 +1,7 @@
 # Pixel Life Architecture
 
+2026-10-15 공개 추가: `src/tool-hotbar.js`/`styles/tool-hotbar.css`는 하단 다섯 도구/숫자키와 기존 장착·저장을 연결한다. `src/inventory.js`의 농장 탭은 기존 `farmOrders` 화폐/보유·설치 기록을 직접 읽고 `setFarmDecorationPlaced`를 호출한다. 시장/승선권의 성공한 UI 결제만 합성음을 호출하며 `drawForestWaterfalls`는 물 영역만 움직인다. 상세는 [도구 바](TOOL_HOTBAR_V1.md), [가방 농장](FARM_INVENTORY_V1.md), [효과음·폭포](MARKET_WATERFALL_V1.md)를 따른다.
+
 2026-10-13 농장 정비 v1은 [FARMING_LAYOUT_V1.md](FARMING_LAYOUT_V1.md)를 따른다. src/data/farming-data.js는 기본 낫 데이터/독립 동작을, life-content.js는 통로에서의 수확을, world.js는 소유/작물 상태와 무관한 밭의 고정 이동 차단을 담당한다. 밭 부지는 기존 ID로 저장하며 성숙 작물은 rendering.js의 깊이 정렬에 참여한다. 농사 XP/레벨은 미연결이다.
 
 현재 구현 정리: 2026-10-12. 과거 이력보다 [HANDOFF.md](HANDOFF.md)의 최신 기준과 실제 코드를 우선한다.

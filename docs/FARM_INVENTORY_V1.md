@@ -1,5 +1,7 @@
 # 농장 교환권·소품 가방 표시
 
+2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다. 이 문서의 변경은 모두 공개에 반영됐다. 아래 ‘공개 전/로컬’과 단계별 빌드 수치는 개발 당시 검증 기록으로 보존한다. 현재 검증은 [DEPLOYMENT.md](DEPLOYMENT.md)를 따른다.
+
 2026-10-15 로컬 변경, 공개 배포 전. 하단 도구 바·보유 씨앗 목록·숲 이름 정정을 포함한 HTML 20,545,854 bytes/PWA `439a1f39c178`. 전체 검사 52 scripts/142 UI IDs/452 assets/74 fish 통과.
 
 교환권과 소품 소유권은 기존 `progression.farmOrders`에 저장됐지만 가방에는 표시되지 않았다. 설치 메뉴는 밭 설명창 → 농장 꾸미기에만 있어 교환 후 설치 경로를 찾기 어려웠다.

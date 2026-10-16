@@ -1,5 +1,7 @@
 # 바다 승선권 가격 균형 v1
 
+2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다. 이 문서의 변경은 모두 공개에 반영됐다. 아래 ‘공개 전/로컬’과 단계별 빌드 수치는 개발 당시 검증 기록으로 보존한다. 현재 검증은 [DEPLOYMENT.md](DEPLOYMENT.md)를 따른다.
+
 2026-10-15 로컬 후속, 공개 배포 전. 얕은 바다 2,000코인에 맞춰 다음 항로도 수익 비례로 올려 달라는 사용자 요청을 반영한다. 앞선 배경 간격/부표 변경과 가방 농장 탭·하단 도구 바·씨앗/숲 이름 정정도 유지한다.
 
 완료 빌드 HTML 20,547,187 bytes/PWA `158b14fb9463`. 전체 52 scripts/142 UI IDs/452 assets/74 fish 검사와 배포용 빌드 검증을 통과했다. 기존 24개 장비 성장 시드도 최종 장비를 Lv.100 전에 준비하는 검사를 통과했다.

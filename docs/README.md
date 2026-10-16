@@ -1,12 +1,15 @@
 # Pixel Life 문서 안내
 
-2026-10-15 로컬 최신(공개 배포 전): [구매·수리 효과음과 흐르는 폭포](MARKET_WATERFALL_V1.md). 아래 후속 변경들을 함께 포함한다.
+2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다.
 
-2026-10-15 로컬 가격 후속(공개 배포 전): [4항로 승선권 균형](VOYAGE_FARES_V1.md) 2,000/3,500/5,000/8,000코인. 아래 배경 조정 단계의 가격 기록보다 우선한다.
+- [하단 도구 바](TOOL_HOTBAR_V1.md): 도끼/낚싯대/낫/검/빈손 즉시 교체, 숫자키 1~5, 선택 장비 기억·동작/파손 제한.
+- [가방 농장 탭](FARM_INVENTORY_V1.md): 교환권·기존 교환 소품 그림/위치/상태, 농장에서 직접 설치/회수.
+- 씨앗 심기는 보유한 종류만 표시하고 마지막 씨앗 소진/빈 목록을 처리한다. 독립 숲 7곳의 번호를 제거하고 오래된 숲 1-1~1-5는 유지한다.
+- [항해 배경](VOYAGE_SCENERY_V2.md): 섬·바위·부표 간격 확보, 부표는 얕은 바다 전용의 알아보기 쉬운 형태/1~2개.
+- [승선권](VOYAGE_FARES_V1.md): 얕은 2,000/중간 3,500/심해 5,000/빙하 8,000코인. 조기 귀항/미환불·10분 운항은 기존대로다.
+- [구매·수리 효과음/폭포](MARKET_WATERFALL_V1.md): 장비 구매/수리와 일반 구매 코인 소리, 저장 성공 1회/실패 무음. 폭포 물줄기·물보라는 움직이고 바위는 고정한다.
 
-2026-10-15 로컬 최신(공개 배포 전): [항해 배경 겹침·부표·승선권 조정](VOYAGE_SCENERY_V2.md), [가방 농장 탭·소품 설치](FARM_INVENTORY_V1.md), [하단 도구 바](TOOL_HOTBAR_V1.md), 보유 씨앗만 표시, 독립 숲 이름의 번호 제거. 아래는 직전 공개 기록이다.
-
-2026-10-15 공개 배포 완료: 숲 12곳의 사각형 광장 제거, 하루 체형 보정과 마을 동쪽 농장길로 상점 이전, 낫 수확 효과음·재배 작물 이미지를 반영했다. 게임 변경 커밋 [3a6d6fa](https://github.com/sidebatch/pixel-life/commit/3a6d6fa9f5d3f4bd2e6cc9087fea1cc5e443de6b), PWA `d3df644ac5ba`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38812945983). 공개 상점/저장·주문/꾸미기·합성음·PWA 검증을 통과했다. [변경 기준](FARM_WORLD_POLISH_V2.md)
+전체 52 scripts/142 UI IDs/452 assets/74 fish 및 Pages build/deploy 통과. 공개 393/320px(도구 바는 430px 포함) 실제 교체/설치·8종/저장 복원, 씨앗 목록/숲 이름, 네 항로 결제/운항·배경 간격/부표, 다섯 효과음 파형/실패 무음·폭포/동작 줄이기 검증 통과. PWA 설치 조건·새 캐시/오프라인 재실행·음악 Range 206/100 bytes·강제 재로딩 없음 확인.
 
 새 세션은 [HANDOFF.md](HANDOFF.md)부터 읽는다. 현행 상태·사용자 결정·검증을 먼저 확인하고, 이전 배포/시안은 [별도 이력](HANDOFF_RELEASE_HISTORY_2026_10_14.md)과 DEPLOYMENT.md에서 참고한다.
 

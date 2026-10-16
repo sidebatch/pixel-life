@@ -4,15 +4,62 @@
   "scope": "output only",
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
-    {"topic":"구매·수리 효과음과 흐르는 폭포","latest":["market-waterfall-v1"],"previous":[]},
-    {"topic":"4항로 승선권 가격 균형","latest":["voyage-fares-v1"],"previous":[]},
-    {"topic":"항해 배경 겹침·부표·얕은 바다 승선권","latest":["voyage-scenery-v2"],"previous":[]},
-    {"topic":"농장 교환권·소품 가방 표시와 설치","latest":["farm-inventory-v1"],"previous":[]},
-    {"topic":"하단 도구 빠른 교체","latest":["tool-hotbar-v1"],"previous":[]},
-    {"topic":"숲 바닥·하루 이전/체형·수확음·작물 그림","latest":["deploy-farm-world-v2-qa","farm-world-polish-v2"],"previous":[]},
+    {
+      "topic": "생활 UI·농장·항해·효과음 통합 공개 배포",
+      "latest": [
+        "deploy-play-update-qa"
+      ],
+      "previous": []
+    },
+    {
+      "topic": "구매·수리 효과음과 흐르는 폭포",
+      "latest": [
+        "market-waterfall-v1"
+      ],
+      "previous": []
+    },
+    {
+      "topic": "4항로 승선권 가격 균형",
+      "latest": [
+        "voyage-fares-v1"
+      ],
+      "previous": []
+    },
+    {
+      "topic": "항해 배경 겹침·부표·얕은 바다 승선권",
+      "latest": [
+        "voyage-scenery-v2"
+      ],
+      "previous": []
+    },
+    {
+      "topic": "농장 교환권·소품 가방 표시와 설치",
+      "latest": [
+        "farm-inventory-v1"
+      ],
+      "previous": []
+    },
+    {
+      "topic": "하단 도구 빠른 교체",
+      "latest": [
+        "tool-hotbar-v1"
+      ],
+      "previous": []
+    },
+    {
+      "topic": "숲 바닥·하루 이전/체형·수확음·작물 그림",
+      "latest": [
+        "deploy-farm-world-v2-qa",
+        "farm-world-polish-v2"
+      ],
+      "previous": []
+    },
     {
       "topic": "상점 분리·선택 취소·도감 상세",
-      "latest": ["deploy-shop-dex-qa", "shop-dex-polish-v1"],
+      "latest": [
+        "deploy-shop-dex-qa",
+        "shop-dex-polish-v1"
+      ],
       "previous": []
     },
     {

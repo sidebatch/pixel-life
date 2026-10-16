@@ -1,5 +1,7 @@
 # 음향 자산 기록
 
+2026-10-15 공개 추가: 구매 코인/도끼·낚싯대 구매·수리 합성음은 `src/fishing-effects.js`의 `playCoinSpendSound`, `playEquipmentPurchaseSound`, `playEquipmentRepairSound`다. 별도 MP3나 기존 사용자 음원을 교체하지 않고 저장 성공한 실제 UI 결제 뒤만 호출한다. [기준/파형 검증](MARKET_WATERFALL_V1.md).
+
 이 문서는 런타임에서 사용하는 외부 음원 파일의 경로·용도·출처와 코드에서 생성하는 합성음을 구분한다. 정확한 재생 구조는 `src/fishing-effects.js`, 지역 BGM은 `assets/audio/music/README.md`를 함께 확인한다.
 
 ## 짧은 MP3 효과음

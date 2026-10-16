@@ -1,6 +1,10 @@
 # Pixel Life
 
-2026-10-16 상점 선택창 간소화(**미배포**): 작은 중앙 창에 구매·판매·업그레이드·수리·주문·꾸미기 서비스 이름만 세로로 표시한다. 첫 창의 그림·품목 설명·지갑·거래 푸터는 제거하고 선택 후 거래 목록에서 그림과 상세 정보를 표시한다. [기준과 검증](docs/MARKET_SERVICES_ICONS_V1.md). 아래는 이전 배포 기록이다.
+2026-10-16 작은 상점 선택창 공개 배포 완료. 게임 변경 [69a5442](https://github.com/sidebatch/pixel-life/commit/69a5442fca2db80e1898b145710b69635b6f16b0), PWA `8a4de087e791`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38854194121). HTML 21,372,082 bytes/공개 8파일 38,839,244 bytes가 로컬과 SHA-256까지 일치한다.
+
+모든 NPC 상점 첫 창은 중앙의 작은 창에 구매·판매·업그레이드·수리·주문·꾸미기 등 이름만 세로로 표시한다. 첫 창의 그림·부가 설명·지갑·거래 푸터를 제거하고, 선택하면 기존 품목 그림과 상세 거래 화면을 연다. 서비스 선택으로 돌아오면 작은 창으로 접힌다. 창 뒤쪽 조작 버튼 입력은 차단하며 비어 있는 메뉴 숨김·거래·저장·생활/지역 아이콘은 유지한다. [기준·검증](docs/MARKET_SERVICES_ICONS_V1.md).
+
+서버 전체 검사/빌드/게시 성공. 공개 320/393px와 PC 1280px에서 그림 없는 메뉴·최대 280px 중앙 창·세로 배열/44px 버튼·선택/복귀·배경 입력 차단·실제 구매/판매/수리·저장 실패 복원·빈 메뉴·기존 아이콘 검증 통과. PWA 설치 오류 없음/새 캐시/오프라인 음악 Range 206·100 bytes/강제 재로딩 없음 확인. 저장 버전 2 유지. 결과 `output/deploy-compact-market-qa/`. 아래는 이전 공개/개발 기록이다.
 
 
 2026-10-16 공개 배포 완료. 게임 변경 [f59a173](https://github.com/sidebatch/pixel-life/commit/f59a173c702b9d5b4c80a0b9b28ede82cc0808f5), PWA `c18c13b2dd38`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38852791316). HTML 21,372,786 bytes/공개 8파일 38,839,948 bytes가 로컬과 SHA-256까지 일치한다.

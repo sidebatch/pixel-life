@@ -7,7 +7,8 @@
     {
       "topic": "폭풍·벼락·낮은 FPS 달력·자동 날씨 보정",
       "latest": [
-        "weather-qa"
+        "weather-qa",
+        "deploy-weather-qa"
       ],
       "previous": []
     },

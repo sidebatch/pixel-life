@@ -1,6 +1,10 @@
 # Pixel Life
 
-2026-10-16 후속 로컬 수정(**미배포**): [폭풍·벼락 QA와 시간 진행 보완](docs/WEATHER_QA_V1.md). 낮은 FPS에서 달력이 느려지던 문제를 고치고, 폭풍이 아닌 구간이 3번 연속이면 다음 구간은 폭풍으로 정한다. 벼락에는 약한 밝은 빛과 선 주변 빛을 적용하며 동작 줄이기 규칙은 유지한다. 아래는 직전 공개 배포 기록이다.
+2026-10-16 폭풍·벼락 QA 보완 공개 배포 완료. 게임 변경 [bbdd431](https://github.com/sidebatch/pixel-life/commit/bbdd431b8c9c6eaa1dd0754713a1ddea86771adc), PWA `916b840676ed`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38942120347). HTML 21,383,117 bytes/공개 8파일 38,850,279 bytes가 로컬과 SHA-256까지 일치한다.
+
+낮은 FPS에서 달력·날씨 전환까지 느려지던 문제를 수정했다. 연속 플레이 중 폭풍이 아닌 구간이 3번 연속이면 다음 구간은 폭풍으로 정해 최대 약 30분의 대기를 보장한다. 벼락은 약한 밝은 색조와 선 주변 빛으로 작은 화면에서 알아보기 쉽게 했다. 기존 모양 변화·간격과 동작 줄이기 설정은 유지한다. 폭풍의 최종 비중은 늘지만 어종 조건·가격·보상·장비 및 저장 버전 2는 유지한다. [원인·기준·검증](docs/WEATHER_QA_V1.md).
+
+수치 QA 1만 게임 날짜·5~60FPS 실제 프레임 루프·비활성/복귀/BFCache, 전체 검사 53 scripts/150 UI ids/481 assets/74 fish와 서버 빌드·게시 통과. 공개 320/393px 모바일·PC 1280px의 자동 폭풍·실행 중인 벼락·6개 모양·22지역·동작 줄이기·자동/수동 전환·저장/시각 효과 난수 불변을 검증했다. PWA 설치 오류 없음·새 캐시·오프라인 음악 Range 206/100 bytes·강제 재로딩 없음 확인. 결과 `output/deploy-weather-qa/`. 아래는 이전 공개/개발 기록이다.
 
 
 2026-10-16 성장 현황 창·상단 작은 레벨 바 공개 배포 완료. 게임 변경 [8ca3d2c](https://github.com/sidebatch/pixel-life/commit/8ca3d2ce9b5bdb647e6843bd2f98ba31fc44b156), PWA `a77615df2249`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38939472908). HTML 21,382,180 bytes/공개 8파일 38,849,342 bytes가 로컬과 SHA-256까지 일치한다.

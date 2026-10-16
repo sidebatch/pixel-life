@@ -1,4 +1,5 @@
 .marketTabs[hidden],.marketBack[hidden],.marketStock[hidden],.marketList[hidden]{display:none!important}
+.hud:has(.marketServiceChooser.show)::before{content:'';position:absolute;inset:0;z-index:23;background:rgba(5,23,18,.18);pointer-events:auto}
 .marketPanel.marketServiceChooser{inset:50% auto auto 50%;width:min(280px,calc(100% - 32px));height:auto;max-height:calc(100% - 32px);transform:translate(-50%,-50%);border-radius:18px}
 .marketServiceChooser .marketHeader{flex:none;padding:12px 14px 10px;gap:10px}
 .marketServiceChooser #marketShopName{font-size:15px;color:#f5ecd0}

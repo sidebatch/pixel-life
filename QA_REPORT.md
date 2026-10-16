@@ -1,5 +1,10 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-16 작은 상점 선택창 로컬 검증
+
+NPC 세 상점 공통: 첫 창 이미지·부가 설명·지갑·거래 푸터 제거, 서비스 이름만 세로 배열, 중앙 최대 280px/높이 내용 기준, 선택 후 거래 목록·이미지 표시/돌아오기. 320/393/1280px 실제 창 크기·44px 터치 영역·선택/복귀·구매/판매/수리·빈 메뉴·저장 실패 복원·효과음/기존 지역·생활 아이콘 검증 통과. HTML 21,371,939 bytes/PWA `71c59bb5b2f2`. 결과 `output/compact-market-qa/verification.json`. **미배포**.
+
+
 ## 2026-10-16 상점·아이콘·도끼·캐릭터 통합 공개 배포
 
 2026-10-16 공개 배포 완료. 게임 변경 [f59a173](https://github.com/sidebatch/pixel-life/commit/f59a173c702b9d5b4c80a0b9b28ede82cc0808f5), PWA `c18c13b2dd38`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38852791316). HTML 21,372,786 bytes/공개 8파일 38,839,948 bytes가 로컬과 SHA-256까지 일치한다.

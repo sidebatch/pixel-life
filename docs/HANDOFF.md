@@ -1,5 +1,8 @@
 # Pixel Life 개발 인수인계
 
+2026-10-16 상점 선택창 간소화(**미배포**): 작은 중앙 창에 구매·판매·업그레이드·수리·주문·꾸미기 서비스 이름만 세로로 표시한다. 첫 창의 그림·품목 설명·지갑·거래 푸터는 제거하고 선택 후 거래 목록에서 그림과 상세 정보를 표시한다. [기준과 검증](MARKET_SERVICES_ICONS_V1.md). 아래는 이전 배포 기록이다.
+
+
 2026-10-16 공개 배포 완료. 게임 변경 [f59a173](https://github.com/sidebatch/pixel-life/commit/f59a173c702b9d5b4c80a0b9b28ede82cc0808f5), PWA `c18c13b2dd38`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38852791316). HTML 21,372,786 bytes/공개 8파일 38,839,948 bytes가 로컬과 SHA-256까지 일치한다.
 
 NPC별 서비스 선택과 구매/판매/수리/업그레이드 분리·빈 메뉴 숨김·취소→전부, 지역 22곳 고유 아이콘·생활 7종 그림, 하위 도끼 단계별 위력 40/25/15/10%, PC 숫자키/숫자패드 1~5, 하루와 전체 NPC의 공통 발 등록·규격 검사를 함께 배포했다. [상점·아이콘](MARKET_SERVICES_ICONS_V1.md) · [도끼 대체 벌목](FORESTRY_LOWER_AXE_V1.md) · [캐릭터 규격/하루 원인](NPC_STANDARD_AUDIT_V1.md)

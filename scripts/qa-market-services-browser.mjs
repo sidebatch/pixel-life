@@ -34,13 +34,21 @@ try{
     });
     const open=async shop=>{await page.evaluate(shop=>openMarket({shop}),shop);};
     const close=async()=>{await page.locator('#marketClose').click();await page.waitForFunction(()=>!isMarketOpen()&&!window.history.state?.pixelLifeOverlay);};
-    const home=async()=>{await page.locator('#marketBackBtn').click();assert.equal(await page.evaluate(()=>marketState.view),'home');};
-    const choose=async view=>{await page.locator(`[data-market-view="${view}"]`).click();assert.equal(await page.evaluate(()=>marketState.view),view);assert.equal(await page.locator('[data-market-view]:visible').count(),0);};
+    const checkChooser=async()=>{
+      const panel=page.locator('#marketPanel');assert(await panel.evaluate(node=>node.classList.contains('marketServiceChooser')));
+      assert.equal(await panel.locator('img').count(),0);assert.equal(await panel.locator('.marketWallet:visible,.marketFooter:visible').count(),0);
+      const buttons=page.locator('[data-market-view]:visible'),rects=await buttons.evaluateAll(nodes=>nodes.map(node=>{const b=node.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,label:node.textContent};}));
+      assert(rects.every((rect,index)=>['구매','판매','업그레이드','수리','주문','꾸미기'].includes(rect.label)&&rect.height>=44&&(!index||rect.x===rects[0].x&&rect.y>=rects[index-1].y+rects[index-1].height)));
+      const box=await panel.boundingBox();assert(box.width<=281&&box.height<=320&&box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=height+1);
+    };
+    const home=async()=>{await page.locator('#marketBackBtn').click();assert.equal(await page.evaluate(()=>marketState.view),'home');await checkChooser();};
+    const choose=async view=>{await page.locator(`[data-market-view="${view}"]`).click();assert.equal(await page.evaluate(()=>marketState.view),view);assert.equal(await page.locator('[data-market-view]:visible').count(),0);assert(!await page.locator('#marketPanel').evaluate(node=>node.classList.contains('marketServiceChooser')));};
     const views=()=>page.locator('[data-market-view]:visible').evaluateAll(nodes=>nodes.map(node=>node.dataset.marketView));
     // Actual NPC interaction must open the service chooser, with no transaction list.
     await page.locator('#btnA').click();await page.waitForFunction(()=>isMarketOpen());
     assert.equal(await page.evaluate(()=>marketState.shop),'workshop');assert.equal(await page.evaluate(()=>marketState.view),'home');
     assert.deepEqual(await views(),['supplies','wood','axes','axeRepairs']);assert.equal(await page.locator('#marketList:visible').count(),0);
+    await checkChooser();
     await page.screenshot({path:path.join(out,`jun-home-${width}.png`)});
     await choose('supplies');assert.equal(await page.locator('[data-buy-return-item]').count(),1);assert.equal(await page.locator('.marketEquipmentCard').count(),0);
     assert((await page.locator('#marketList').innerText()).includes('중앙 광장'));

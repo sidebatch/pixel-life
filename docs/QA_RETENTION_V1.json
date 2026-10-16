@@ -5,6 +5,13 @@
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
     {
+      "topic": "작은 상점 선택창·이미지 없는 세로 메뉴",
+      "latest": [
+        "compact-market-qa"
+      ],
+      "previous": []
+    },
+    {
       "topic": "상점 서비스 분리·수량 버튼 순서·지역과 생활 아이콘",
       "latest": [
         "market-services-qa",

@@ -7,17 +7,17 @@ const MARKET_SHOPS=Object.freeze({
 });
 // Add a service here and to a shop's views only when it has real content.
 const MARKET_SERVICES=Object.freeze({
-  supplies:{title:'구매',subtitle:'귀환석',art:()=>LIFE_SKILL_ICON_URLS.mining,available:()=>true},
-  seeds:{title:'구매',subtitle:'씨앗',art:()=>LIFE_ITEM_URLS.carrotSeed,available:()=>LIFE_CONTENT.crops.length>0},
-  rods:{title:'구매',subtitle:'낚싯대',art:()=>LIFE_SKILL_ICON_URLS.fishing,available:()=>FISHING_RODS.some(rod=>!rod.requiresMasterReward&&!isFishingRodUnlocked(rod))},
-  fish:{title:'판매',subtitle:'물고기',art:()=>MENU_ICON_URLS.fishDex,available:()=>groupInventoryFish().length>0},
-  wood:{title:'판매',subtitle:'목재',art:()=>LIFE_ITEM_URLS.oakLog,available:()=>GAME_STATE.inventory.some(item=>item.type==='material'&&item.quantity>0&&marketGoodDefinition(item.type,item.id))},
-  crops:{title:'판매',subtitle:'작물',art:()=>LIFE_ITEM_URLS.carrotCrop,available:()=>LIFE_CONTENT.crops.some(crop=>lifeItemCount('crop',crop.id)>0)},
-  axes:{title:'업그레이드',subtitle:'도끼',art:()=>LIFE_SKILL_ICON_URLS.logging,available:()=>getOwnedForestryAxes().length<FORESTRY_AXES.length},
-  axeRepairs:{title:'수리',subtitle:'도끼',art:()=>LIFE_SKILL_ICON_URLS.logging,available:()=>getOwnedForestryAxes().some(axe=>forestryAxeRepairCost(axe)>0)},
-  rodRepairs:{title:'수리',subtitle:'낚싯대',art:()=>LIFE_SKILL_ICON_URLS.fishing,available:()=>FISHING_RODS.some(rod=>isFishingRodUnlocked(rod)&&fishingRodRepairCost(rod)>0)},
-  orders:{title:'주문',subtitle:'작물 납품',art:()=>LIFE_ITEM_URLS.wheatCrop,available:()=>true},
-  decorations:{title:'꾸미기',subtitle:'농장 소품',art:()=>ASSET_URLS.farmScarecrow,available:()=>true}
+  supplies:{title:'구매',available:()=>true},
+  seeds:{title:'구매',available:()=>LIFE_CONTENT.crops.length>0},
+  rods:{title:'구매',available:()=>FISHING_RODS.some(rod=>!rod.requiresMasterReward&&!isFishingRodUnlocked(rod))},
+  fish:{title:'판매',available:()=>groupInventoryFish().length>0},
+  wood:{title:'판매',available:()=>GAME_STATE.inventory.some(item=>item.type==='material'&&item.quantity>0&&marketGoodDefinition(item.type,item.id))},
+  crops:{title:'판매',available:()=>LIFE_CONTENT.crops.some(crop=>lifeItemCount('crop',crop.id)>0)},
+  axes:{title:'업그레이드',available:()=>getOwnedForestryAxes().length<FORESTRY_AXES.length},
+  axeRepairs:{title:'수리',available:()=>getOwnedForestryAxes().some(axe=>forestryAxeRepairCost(axe)>0)},
+  rodRepairs:{title:'수리',available:()=>FISHING_RODS.some(rod=>isFishingRodUnlocked(rod)&&fishingRodRepairCost(rod)>0)},
+  orders:{title:'주문',available:()=>true},
+  decorations:{title:'꾸미기',available:()=>true}
 });
 function marketAvailableViews(){return MARKET_SHOPS[marketState.shop].views.filter(view=>MARKET_SERVICES[view]?.available());}
 function selectMarketView(view){
@@ -331,9 +331,12 @@ function sellSelectedGoods(){
 function renderMarket(){
   const shop=MARKET_SHOPS[marketState.shop]||MARKET_SHOPS.elli;
   if(marketState.view!=='home'&&!shop.views.includes(marketState.view)) marketState.view=shop.defaultView;
-  const home=marketState.view==='home',tabs=document.querySelector('.marketTabs');
+  const home=marketState.view==='home',tabs=document.querySelector('.marketTabs'),availableViews=home?marketAvailableViews():[];
+  document.getElementById('marketPanel').classList.toggle('marketServiceChooser',home);
+  document.querySelector('.marketGreeting').hidden=home&&availableViews.length>0;
+  document.querySelector('.marketRule').hidden=home&&availableViews.length>0;
   tabs.hidden=!home;
-  tabs.innerHTML=home?marketAvailableViews().map(view=>{const service=MARKET_SERVICES[view];return `<button type="button" data-market-view="${view}"><img src="${service.art()}" alt=""><span><b>${service.title}</b><small>${service.subtitle}</small></span><span aria-hidden="true">›</span></button>`;}).join(''):'';
+  tabs.innerHTML=home?availableViews.map(view=>`<button type="button" data-market-view="${view}">${MARKET_SERVICES[view].title}</button>`).join(''):'';
   document.getElementById('marketBackBtn').hidden=home||shop.defaultView!=='home';
   document.getElementById('marketShopName').textContent=shop.name;
   document.getElementById('marketPanel').setAttribute('aria-label',shop.name);

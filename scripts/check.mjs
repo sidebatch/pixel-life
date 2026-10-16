@@ -2010,6 +2010,7 @@ await import('./qa-fishing-glacier.mjs');
 await import('./qa-fish-rewards.mjs');
 await import('./qa-discovery-feedback.mjs');
 await import('./qa-startup-progress.mjs');
+await import('./qa-weather.mjs');
 await import('./qa-fishing-balance.mjs');
 await import('./qa-fishing-rod-expansion.mjs');
 await import('./qa-fishing-durability.mjs');

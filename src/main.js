@@ -1,4 +1,8 @@
 let last=performance.now();
+// Movement uses a small step; the calendar follows actual foreground time.
+// Discard a background/BFCache gap instead of fast-forwarding on return.
+document.addEventListener('visibilitychange',()=>{last=performance.now();});
+window.addEventListener('pageshow',()=>{last=performance.now();});
 function refreshCharacterPreviewVisibility(){
   const hidden=(typeof isInventoryOpen==='function'&&isInventoryOpen())||
     (typeof isCharacterStyleOpen==='function'&&isCharacterStyleOpen());
@@ -7,8 +11,8 @@ function refreshCharacterPreviewVisibility(){
 function loop(now){
   updateVoyage(now);
   updateFishRewardReveal();
-  tNow=now;const dt=Math.min(40,now-last);last=now;
-  updateWorldTime(dt);updateWeather();updateWorldClockUI();
+  tNow=now;const elapsed=Math.max(0,now-last),dt=Math.min(40,elapsed);last=now;
+  updateWorldTime(document.hidden?0:Math.min(1000,elapsed));updateWeather();updateWorldClockUI();
   update(dt);updateLifeContentUi(now);updateGrowthStatus();drawWorld();refreshContext();refreshCharacterPreviewVisibility();requestAnimationFrame(loop);
 }
 function updateStartupProgress(percent){

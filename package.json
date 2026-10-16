@@ -61,7 +61,9 @@
     "qa:market:services-browser": "node scripts/qa-market-services-browser.mjs",
     "icons:world-skills": "node scripts/prepare-world-skill-icons.mjs",
     "qa:icons:world-skills": "node scripts/check-world-skill-icons.mjs",
-    "qa:growth:status-browser": "node scripts/qa-growth-status-browser.mjs"
+    "qa:growth:status-browser": "node scripts/qa-growth-status-browser.mjs",
+    "qa:weather": "node scripts/qa-weather.mjs",
+    "qa:weather:browser": "node scripts/qa-weather-browser.mjs"
   },
   "engines": {
     "node": ">=20"

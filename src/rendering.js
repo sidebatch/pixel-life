@@ -847,9 +847,7 @@ function drawWeatherEffects(){
   ctx.save();
   const lightning=storm?getStormLightningStrike(tNow):null;
   const flash=lightning?.flash||0;
-  ctx.fillStyle=storm
-    ? `rgba(18,30,65,${(.16+.17*flash).toFixed(3)})`
-    : 'rgba(75,135,172,.075)';
+  ctx.fillStyle=storm?'rgba(18,30,65,.16)':'rgba(75,135,172,.075)';
   ctx.fillRect(0,0,VIEW_W,VIEW_H);
 
   // Moving translucent curtains make precipitation read across the full screen.
@@ -900,14 +898,20 @@ function drawWeatherEffects(){
   }
 
   if(lightning&&flash>.18){
+    // A restrained light wash and halo make a strike readable on small screens.
+    ctx.globalAlpha=1;
+    ctx.fillStyle=`rgba(210,230,255,${(flash*.12).toFixed(3)})`;
+    ctx.fillRect(0,0,VIEW_W,VIEW_H);
     ctx.globalAlpha=Math.min(.9,flash*1.5);
-    ctx.strokeStyle='rgba(235,246,255,.95)';ctx.lineWidth=2;
     const drawBolt=points=>{
       ctx.beginPath();ctx.moveTo(points[0].x*VIEW_W,points[0].y*VIEW_H);
       for(const point of points.slice(1))ctx.lineTo(point.x*VIEW_W,point.y*VIEW_H);
       ctx.stroke();
     };
-    drawBolt(lightning.points);ctx.lineWidth=1;
+    ctx.strokeStyle=`rgba(166,206,255,${(flash*.32).toFixed(3)})`;ctx.lineWidth=7;
+    drawBolt(lightning.points);
+    ctx.strokeStyle='rgba(235,246,255,.95)';ctx.lineWidth=2.5;
+    drawBolt(lightning.points);ctx.lineWidth=1.3;
     lightning.branches.forEach(drawBolt);
   }
   ctx.globalAlpha=1;

@@ -1,5 +1,10 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-16 폭풍·벼락 로컬 QA
+
+[원인·변경·검증](docs/WEATHER_QA_V1.md). 1만 게임 날짜와 실제 5~60FPS 프레임 루프로 폭풍 보정과 달력 속도를 확인한다. 모바일 320/393px·PC 1280px에서 자동 폭풍·실행 중인 벼락·모양 변화·모든 지역·동작 줄이기·자동/수동 전환을 확인한다. 결과 `output/weather-qa/`. **미배포**.
+
+
 ## 2026-10-16 성장 현황 창·상단 작은 레벨 바 공개 배포
 
 2026-10-16 성장 현황 창·상단 작은 레벨 바 공개 배포 완료. 게임 변경 [8ca3d2c](https://github.com/sidebatch/pixel-life/commit/8ca3d2ce9b5bdb647e6843bd2f98ba31fc44b156), PWA `a77615df2249`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38939472908). HTML 21,382,180 bytes/공개 8파일 38,849,342 bytes가 로컬과 SHA-256까지 일치한다.

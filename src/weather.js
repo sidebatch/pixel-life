@@ -1,6 +1,7 @@
 const WEATHER_CONFIG=Object.freeze({
   segmentMinutes:6*60,
-  probabilities:Object.freeze({clear:.65,rain:.27,storm:.08})
+  probabilities:Object.freeze({clear:.65,rain:.27,storm:.08}),
+  maxNonStormSegments:3
 });
 
 const weatherParams=typeof window!=='undefined' ? new URLSearchParams(window.location.search) : null;
@@ -13,6 +14,7 @@ const weatherState={
   segment:-1,
   debugLocked:WEATHER_TYPES.has(requestedWeather)||weatherPreviewMode,
   wetSegments:0,
+  nonStormSegments:0,
   day:0
 };
 
@@ -36,8 +38,11 @@ function updateWeather(){
   let next=pickWeather();
   // Soft guarantee: if the first three windows were dry, the last window is wet.
   if(segmentInDay===3&&weatherState.wetSegments===0) next=Math.random()<.22?'storm':'rain';
+  // Bound the live session's storm drought to one game day (four windows).
+  if(weatherState.nonStormSegments>=WEATHER_CONFIG.maxNonStormSegments)next='storm';
   weatherState.kind=next;
   weatherState.segment=segment;
+  weatherState.nonStormSegments=next==='storm'?0:weatherState.nonStormSegments+1;
   if(next!=='clear') weatherState.wetSegments+=1;
 }
 

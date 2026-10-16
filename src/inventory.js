@@ -96,7 +96,7 @@ function inventoryWearableCard(type,item,equipped){
 }
 
 function selectHeldTool(tool){
-  if(!['axe','rod','sword','sickle'].includes(tool)) return false;
+  if(!['none','axe','rod','sword','sickle'].includes(tool)) return false;
   if(tool==='rod'&&getFishingRodDurability()?.broken)return false;
   if((typeof isChoppingTree==='function'&&isChoppingTree())||
     (typeof isFishingActive==='function'&&isFishingActive()))return false;
@@ -249,6 +249,22 @@ function renderInventorySupplies(){
     '<div class="inventoryEmpty"><span>🪵</span><b>아직 재료가 없어요</b><p>숲에서 벌목하거나 농장에서 씨앗을 심어 보세요.</p></div>';
 }
 
+function renderInventoryFarm(){
+  const state=GAME_STATE.progression.farmOrders,atFarm=GAME_STATE.regionId==='sunnyFields';
+  const owned=FARM_DECORATIONS.filter(item=>state.ownedDecorationIds.includes(item.id));
+  document.getElementById('inventorySummary').textContent=`농장 교환권 ${state.tickets.toLocaleString()}장 · 소품 ${owned.length}종`;
+  document.getElementById('inventoryScroll').innerHTML=`<section class="inventoryFarmWallet" aria-label="농장 교환권">
+    <span aria-hidden="true">🎟️</span><div><b>농장 교환권 <strong>${state.tickets.toLocaleString()}장</strong></b>
+    <p>작물을 납품하면 받아요. 마을 동쪽 하루의 농사 상점에서 소품으로 교환하세요.</p></div></section>
+    <p class="inventoryFarmGuide">${atFarm?'설치하기를 누르면 소품이 농장의 지정된 자리에 놓여요. 회수한 소품은 다시 설치할 수 있어요.':'농장으로 이동한 뒤 가방 → 농장에서 설치하기를 눌러 주세요. 소품은 지정된 자리에 놓여요.'}</p>
+    ${owned.length?owned.map(item=>{
+      const placed=state.placedDecorationIds.includes(item.id),occupied=item.slots.some(slot=>slot.x===player.x&&slot.y===player.y);
+      return `<section class="farmDecorationCard inventoryFarmDecoration"><img src="${ASSET_URLS[item.asset]}" alt=""><div><h3>${item.name}</h3>
+        <p>${item.description}</p><strong>${placed?'농장에 설치됨':'보관 중'}</strong>
+        <button type="button" data-inventory-farm-action="${placed?'remove':'place'}" data-decoration-id="${item.id}" ${atFarm&&(!occupied||placed)?'':'disabled'}>${!atFarm?placed?'농장에서 회수':'농장에서 설치':placed?'회수하기':occupied?'설치 자리에서 비켜주세요':'설치하기'}</button></div></section>`;
+    }).join(''):'<div class="inventoryEmpty"><span>🌿</span><b>보유한 농장 소품이 없어요</b><p>하루의 농사 상점 → 농장 꾸미기에서 교환하세요.<br>교환한 소품은 여기에 표시돼요.</p></div>'}`;
+}
+
 function renderInventory(){
   document.querySelectorAll('[data-inventory-tab]').forEach(button=>{
     const active=button.dataset.inventoryTab===inventoryState.tab;
@@ -258,6 +274,7 @@ function renderInventory(){
   if(inventoryState.tab==='fish') renderInventoryFish();
   else if(inventoryState.tab==='equipment') renderInventoryEquipment();
   else if(inventoryState.tab==='appearance') renderInventoryAppearance();
+  else if(inventoryState.tab==='farm') renderInventoryFarm();
   else renderInventorySupplies();
 }
 
@@ -304,6 +321,17 @@ if(typeof document!=='undefined'){
     if(event.key==='Tab'){event.preventDefault();document.getElementById('inventoryDetailClose').focus();}
   });
   document.getElementById('inventoryScroll').addEventListener('click',event=>{
+    const farmButton=event.target.closest('[data-inventory-farm-action]');
+    if(farmButton){
+      if(farmButton.disabled)return;
+      const scroll=document.getElementById('inventoryScroll').scrollTop;
+      setFarmDecorationPlaced(farmButton.dataset.decorationId,farmButton.dataset.inventoryFarmAction==='place');
+      renderInventoryFarm();
+      document.getElementById('inventorySummary').textContent=marketState.message;
+      document.getElementById('inventoryScroll').scrollTop=scroll;
+      document.querySelector(`[data-inventory-farm-action][data-decoration-id="${farmButton.dataset.decorationId}"]`)?.focus({preventScroll:true});
+      return;
+    }
     const info=event.target.closest('[data-inventory-info-type]');
     if(info){
       openInventoryDetail(info.dataset.inventoryInfoType,info.dataset.inventoryInfoId);

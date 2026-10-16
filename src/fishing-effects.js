@@ -252,6 +252,37 @@ function scheduleGameSoundNoise(context,start,{duration=.12,filter='bandpass',fr
   return true;
 }
 
+function scheduleCoinSpendSound(context,start){
+  [0,.045,.095].forEach((offset,index)=>{
+    scheduleGameSoundSweep(context,start+offset,{from:1700-index*260,to:1220-index*220,duration:.065,volume:.10-index*.016});
+    scheduleGameSoundSweep(context,start+offset,{from:2900-index*300,to:2200-index*230,duration:.045,type:'sine',volume:.034});
+  });
+}
+
+function playCoinSpendSound(){
+  return playFishingAudio(context=>scheduleCoinSpendSound(context,context.currentTime+.01));
+}
+
+function playEquipmentPurchaseSound(kind){
+  return playFishingAudio(context=>{
+    const start=context.currentTime+.01,rod=kind==='rod';
+    scheduleGameSoundNoise(context,start,{duration:.07,filter:'bandpass',frequency:rod?750:1700,volume:.16,seed:rod?307:311});
+    scheduleGameSoundSweep(context,start,{from:rod?420:1200,to:rod?180:650,duration:.1,volume:.11});
+    scheduleCoinSpendSound(context,start+.07);
+  });
+}
+
+function playEquipmentRepairSound(kind){
+  return playFishingAudio(context=>{
+    const start=context.currentTime+.01,rod=kind==='rod';
+    [0,.085,.18].forEach((offset,index)=>{
+      scheduleGameSoundNoise(context,start+offset,{duration:.035,filter:'bandpass',frequency:rod?900:2200,volume:.14-index*.016,seed:331+index});
+      scheduleGameSoundSweep(context,start+offset,{from:rod?480:1550,to:rod?220:820,duration:.06,volume:.11-index*.014});
+    });
+    scheduleGameSoundSweep(context,start+.27,{from:880,to:1320,duration:.11,type:'sine',volume:.08});
+  });
+}
+
 function playAxeBreakSound(){
   return playFishingAudio(context=>{
     const start=context.currentTime+.028;

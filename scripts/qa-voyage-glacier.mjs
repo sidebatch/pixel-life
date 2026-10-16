@@ -28,7 +28,7 @@ assert.equal(context.GAME_STATE.progression.fishing.level,1);assert.equal(contex
 context.GAME_STATE.collections.fish={};assert.equal(run("voyageProgress().unlockedRouteIds.includes('glacier')"),true,'Earned route unlock is permanent');
 fail=true;const coins=context.GAME_STATE.progression.coins;
 assert.equal(run("buyVoyageTickets('glacier',5)"),false);assert.equal(context.GAME_STATE.progression.coins,coins);assert.equal(progress().ticketCounts.glacier,0);
-fail=false;assert.equal(run("buyVoyageTickets('glacier',5)"),true);assert.equal(context.GAME_STATE.progression.coins,coins-24000);assert.equal(progress().ticketCounts.glacier,5);
+fail=false;assert.equal(run("buyVoyageTickets('glacier',5)"),true);assert.equal(context.GAME_STATE.progression.coins,coins-40000);assert.equal(progress().ticketCounts.glacier,5);
 fail=true;assert.equal(run("departVoyage('glacier')"),false);assert.equal(context.GAME_STATE.regionId,'coast');assert.deepEqual(context.player,{x:36,y:23,face:'up'});assert.equal(progress().ticketCounts.glacier,5);
 fail=false;assert.equal(run("departVoyage('glacier')"),true);assert.equal(saved.regionId,'boatGlacier');assert.equal(saved.progression.voyage.ticketCounts.glacier,4);assert.equal(run("departVoyage('glacier')"),false);
 assert.equal(node('boardingTitle').textContent,'빙하 해역으로 출항합니다');now=700;run('updateVoyage()');

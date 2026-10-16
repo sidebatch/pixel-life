@@ -58,13 +58,15 @@ function voyageSceneAt(seed,elapsedMs,destination='shallow'){
 // One shared surface displacement: fixed objects cannot overtake each other.
 // Snap the distance once, not each object's age, to avoid relative pixel jitter.
 const VOYAGE_SURFACE_SPEED=34;
+const VOYAGE_SCENERY_GAP=20;
 function voyageSurfaceDistance(elapsedMs){return Math.floor(elapsedMs/1000*VOYAGE_SURFACE_SPEED/2)*2;}
-const voyageSceneCache={key:null,generator:null,current:null,next:null,composites:new Map(),objects:new Map(),built:0,lastElapsed:-1};
+const voyageSceneCache={key:null,generator:null,current:null,next:null,composites:new Map(),objects:new Map(),built:0,lastElapsed:-1,laneEnds:{'-1':-Infinity,'1':-Infinity}};
 const voyageMotionQuery=typeof window!=='undefined'?window.matchMedia?.('(prefers-reduced-motion: reduce)'):null;
 function releaseVoyageScenes(){
   for(const object of voyageSceneCache.objects.values()){object.canvas.width=1;object.canvas.height=1;}
   voyageSceneCache.objects.clear();voyageSceneCache.composites.clear();voyageSceneCache.key=null;
   voyageSceneCache.current=null;voyageSceneCache.next=null;voyageSceneCache.generator=null;voyageSceneCache.lastElapsed=-1;
+  voyageSceneCache.laneEnds={'-1':-Infinity,'1':-Infinity};
 }
 function syncVoyageScenes(seed,elapsedMs,destination='shallow'){
   const cache=voyageSceneCache,key=`${destination}:${seed}:${VIEW_W}:${VIEW_H}`;
@@ -74,9 +76,9 @@ function syncVoyageScenes(seed,elapsedMs,destination='shallow'){
   }
   const retain=scene=>{
     if(cache.composites.has(scene.index))return;
-    // Reconstruct only scenes whose objects could still be crossing the screen.
-    if(scene.endMs+50000<elapsedMs)return;
-    const layers=composeVoyageScene(scene);
+    // Replay lane reservations from the start on reconnect, including expired
+    // scenery. Otherwise an old island could shift the next buoy after reload.
+    const layers=composeVoyageScene(scene,cache.laneEnds);
     cache.composites.set(scene.index,layers);cache.built++;
     for(const object of layers.objects)if(object.exitMs>elapsedMs)cache.objects.set(object.id,object);
     else{object.canvas.width=1;object.canvas.height=1;}
@@ -193,17 +195,36 @@ function drawShallowVoyageLandmark(paint,kind,x,y,random,palette){
   for(let i=0;i<8;i++)voyagePixelRect(paint,x-36+random()*75,y+10+random()*8,2+random()*3,2,'#c0a878');
   drawVoyageWaveCrest(paint,x-46,y+31,34,'#bfdccb');drawVoyageWaveCrest(paint,x+14,y+30,25,'#abcfc0');
 }
-function composeVoyageScene(scene){
+function drawVoyageBuoy(paint,x,y){
+  // A broad floating base, tapered red/white body and navigation flag make the
+  // marker readable at phone size. All pieces stay on the existing pixel grid.
+  drawVoyageWaveCrest(paint,x-23,y+23,46,'rgba(217,234,210,.4)');
+  voyagePixelOval(paint,x,y+16,19,6,'#284c5c');
+  voyagePixelOval(paint,x,y+13,17,5,'#ce5845');
+  voyagePixelOval(paint,x,y+11,14,3,'#f49160');
+  voyagePixelPolygon(paint,[[x-12,y+10],[x-6,y-12],[x+6,y-12],[x+12,y+10]],'#293e48');
+  voyagePixelPolygon(paint,[[x-9,y+8],[x-4,y-10],[x+4,y-10],[x+9,y+8]],'#ef6b4b');
+  voyagePixelRect(paint,x-5,y-4,10,5,'#fff0ce');
+  voyagePixelRect(paint,x-7,y+1,14,3,'#fff0ce');
+  voyagePixelRect(paint,x-2,y-29,3,19,'#32444c');
+  voyagePixelPolygon(paint,[[x+1,y-28],[x+14,y-24],[x+1,y-20]],'#f17c4e');
+  voyagePixelRect(paint,x-2,y-31,3,3,'#ffe1a0');
+}
+
+function composeVoyageScene(scene,laneEnds={'-1':-Infinity,'1':-Infinity}){
   const pool=voyageScenePool(scene.destination),random=voyageRandom(scene.artSeed),palette=pool.palettes[scene.base],objects=[];
-  const makeObject=(layer,side,spawnMs,paintObject)=>{
+  const makeObject=(layer,side,spawnMs,paintObject,kind)=>{
     const canvas=document.createElement('canvas');
     canvas.width=layer==='far'?192:80;canvas.height=layer==='far'?176:80;
     const paint=canvas.getContext('2d');paint.imageSmoothingEnabled=false;
     paintObject(paint,canvas.width/2,layer==='far'?88:32);
     const scale=layer==='far'?.8:1.4,w=Math.round(canvas.width*scale),h=Math.round(canvas.height*scale);
     const speed=VOYAGE_SURFACE_SPEED,inset=8+Math.round(random()*12);
-    const originY=Math.ceil((h+2)/2)*2+voyageSurfaceDistance(spawnMs);
-    objects.push({id:`${scene.index}:${objects.length}`,sceneIndex:scene.index,layer,side,canvas,w,h,inset,spawnMs,
+    // Newer scenery enters above the previous full sprite, even across scenes
+    // and far/mid layers. Shared speed then preserves this gap for its lifetime.
+    const originY=Math.ceil(Math.max(Math.ceil((h+2)/2)*2+voyageSurfaceDistance(spawnMs),laneEnds[side]+h+VOYAGE_SCENERY_GAP)/2)*2;
+    laneEnds[side]=originY;
+    objects.push({id:`${scene.index}:${objects.length}`,sceneIndex:scene.index,kind,layer,side,canvas,w,h,inset,spawnMs,
       exitMs:(originY+Math.ceil(VIEW_H/2)*2+2)/speed*1000,speed,originY});
   };
   if(scene.landmark){
@@ -213,9 +234,12 @@ function composeVoyageScene(scene){
       else if(scene.destination==='deep')drawDeepVoyageLandmark(paint,kind,x,y,random,palette);
       else if(scene.destination==='glacier')drawGlacierVoyageLandmark(paint,kind,x,y,random,palette);
       else drawShallowVoyageLandmark(paint,kind,x,y,random,palette);
-    });
+    },kind);
   }
-  const type=pool.midObjects[scene.mid],count=type==='none'?0:3+Math.floor(random()*3);
+  const type=pool.midObjects[scene.mid];
+  // Navigation buoys belong to coastal/shallow scenery only, never offshore.
+  const count=type==='none'||(type==='buoys'&&scene.destination&&scene.destination!=='shallow')?0:
+    type==='buoys'?1+Math.floor(random()*2):3+Math.floor(random()*3);
   for(let i=0;i<count;i++){
     const side=(i+(scene.side<0?0:1))%2===0?-1:1;
     makeObject('mid',side,(scene.startMs||0)+3000+i*3500+random()*1500,(m,x,y)=>{
@@ -232,11 +256,7 @@ function composeVoyageScene(scene){
       }else if(type==='swell'){
         for(let crest=0;crest<3;crest++)drawVoyageWaveCrest(m,x-26,y+crest*10,55,crest===0?'rgba(202,225,226,.55)':'rgba(163,201,214,.3)',crest===0);
       }else if(type==='buoys'){
-        drawVoyageWaveCrest(m,x-14,y+12,29,'rgba(217,234,210,.38)');
-        voyagePixelRect(m,x-5,y-5,10,16,'#40555a');
-        voyagePixelRect(m,x-3,y-6,6,14,i%2?'#c49b59':'#b46d54');
-        voyagePixelRect(m,x-3,y-1,6,4,'#e5d6ae');voyagePixelRect(m,x-1,y-17,2,12,'#3f5b64');
-        voyagePixelRect(m,x-3,y-18,6,2,'#d2b67a');
+        drawVoyageBuoy(m,x,y);
       }else if(type==='coral'){
         if(drawVoyageMarineSprite(m,'voyageCoral',x,y,38,38,.82)){
           for(let branch=0;branch<4;branch++)random();return;
@@ -251,7 +271,7 @@ function composeVoyageScene(scene){
       }else{
         for(let p=0;p<3;p++)drawVoyageWaveCrest(m,x+p*8,y+p%2*6,18,'rgba(215,237,221,.3)',p===0);
       }
-    });
+    },type);
   }
   const waves=Array.from({length:Math.round(120*scene.density)},()=>({x:random(),y:random()*3,length:12+random()*28,phase:random()*6.28}));
   const gulls=scene.landmark===0||scene.destination==='deep'||scene.destination==='glacier'?[]:Array.from({length:2+Math.floor(random()*3)},()=>({x:random(),y:random(),phase:random()*6.28}));

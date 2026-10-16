@@ -72,7 +72,7 @@ try{
     const tree=trees.find(item=>item.id===id);
     return {region:GAME_STATE.regionId,name:WORLD_DEFINITION.name,hp:tree?getTreeState(tree).hp:null};
   },saved.id);
-  if(restored.region!==saved.region||restored.name!=='태초 숲 3-3'||restored.hp!==saved.hp)
+  if(restored.region!==saved.region||restored.name!=='태초 숲'||restored.hp!==saved.hp)
     throw new Error(`Final forest save did not restore: ${JSON.stringify({saved,restored})}`);
   if(errors.length)throw new Error(errors.join('\n'));
   console.log(JSON.stringify({regions:reports.map(({id,name,count,species,tree})=>({id,name,count,species,tree})),restored},null,2));

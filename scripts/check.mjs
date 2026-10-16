@@ -56,6 +56,7 @@ const scriptFiles = [
   'src/market.js',
   'src/character-style.js',
   'src/voyage.js',
+  'src/tool-hotbar.js',
   'src/pwa.js',
   'src/main.js'
 ];
@@ -121,7 +122,7 @@ assert(trialContext.__trialValid&&!trialContext.__trialInvalid&&trialContext.__t
   'Trial parts must switch independently through appearance IDs without changing saved game state');
 const usedIds = [...scripts.matchAll(/getElementById\(['"]([^'"]+)['"]\)/g)].map((match) => match[1]);
 for (const id of usedIds) assert(htmlIds.has(id), `Missing HTML element: #${id}`);
-assert((html.match(/role="tab"/g) || []).length === 22, 'Fish dex, tree dex, inventory, appearance, market and farm tabs must be accessible');
+assert((html.match(/role="tab"/g) || []).length === 23, 'Fish dex, tree dex, inventory, appearance, market and farm tabs must be accessible');
 const pwaManifest=JSON.parse(read('manifest.webmanifest'));
 assert(pwaManifest.display==='standalone'&&pwaManifest.orientation==='portrait-primary'&&
   pwaManifest.id==='./?app=pixel-life-v2'&&pwaManifest.start_url==='./?source=pwa-v2'&&pwaManifest.scope==='./'&&
@@ -1897,7 +1898,7 @@ const forestRoutes=vm.runInContext(`REGION_EXITS.lilacVillage.some(exit=>exit.to
 assert(forestRoutes,'Forest 1-1 and 1-2 must have reciprocal, walkable entrances');
 const playableForestIds=['oldForest','deepForest','forestThree','forestFour','forestFive','forestSix','forestSeven','forestEight','forestNine','forestTen','forestEleven','forestTwelve'];
 const playableForestNames=['오래된 숲 1-1','오래된 숲 1-2','오래된 숲 1-3','오래된 숲 1-4','오래된 숲 1-5',
-  '거목 숲 2-1','붉은 거목림 2-2','은빛 경목림 2-3','검은 경목림 2-4','고대 숲 3-1','정령 숲 3-2','태초 숲 3-3'];
+  '거목 숲','붉은 거목림','은빛 경목림','검은 경목림','고대 숲','정령 숲','태초 숲'];
 const forestExpansion=vm.runInContext(`${JSON.stringify(playableForestIds)}.map((id,index)=>{
   GAME_STATE.regionId=id;buildWorldRegion(REGION_WORLDS[id]);validatePlayableRegion();
   const target=FOREST_TIER_REGION_SPECIES[id]||null;

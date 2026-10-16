@@ -7,7 +7,7 @@ const nodes=new Map(),node=id=>{if(!nodes.has(id))nodes.set(id,{textContent:'',h
 const context={Math,clearTimeout(){},lifeUi:{toastTimer:null},performance:{now:()=>now},
   document:{visibilityState:'visible',getElementById:node,querySelector:()=>node('boardingTitle'),addEventListener(){}},
   window:{history:{state:{},replaceState(){}},addEventListener(){}},
-  GAME_STATE:{regionId:'coast',collections:{fish:{}},progression:{coins:20000,fishing:{level:1,equippedRodId:'rod.basic'}},appearance:{activeTool:'rod'}},
+  GAME_STATE:{regionId:'coast',collections:{fish:{}},progression:{coins:35000,fishing:{level:1,equippedRodId:'rod.basic'}},appearance:{activeTool:'rod'}},
   WORLD_DEFINITION:{},player:{x:36,y:23,face:'up'},menuOpen:false,dialogOpen:false,isFishingActive:()=>phase!=='idle',
   clearMovement(){},toggleMenu(){},pushGameOverlayHistory(){},leaveGameOverlayHistory(){},closeInventory(){},closeFishDex(){},closeTreeDex(){},closeMarket(){},closeFarmPlot(){},closeCharacterStyle(){},isSkillLevelUpVisible:()=>false,showLifeToast(){},
   enterWorldRegion(exit){context.GAME_STATE.regionId=exit.to;vm.runInContext(`WORLD_DEFINITION=REGION_WORLDS['${exit.to}']`,context);Object.assign(context.player,exit.entry||{x:32,y:20,face:'up'});return true;},
@@ -28,7 +28,7 @@ assert.equal(context.GAME_STATE.progression.fishing.level,1);assert.equal(contex
 context.GAME_STATE.collections.fish={};assert.equal(run("voyageProgress().unlockedRouteIds.includes('deep')"),true,'Earned route unlock is permanent');
 fail=true;const coins=context.GAME_STATE.progression.coins;
 assert.equal(run("buyVoyageTickets('deep',5)"),false);assert.equal(context.GAME_STATE.progression.coins,coins);assert.equal(progress().ticketCounts.deep,0);
-fail=false;assert.equal(run("buyVoyageTickets('deep',5)"),true);assert.equal(context.GAME_STATE.progression.coins,coins-12000);assert.equal(progress().ticketCounts.deep,5);
+fail=false;assert.equal(run("buyVoyageTickets('deep',5)"),true);assert.equal(context.GAME_STATE.progression.coins,coins-25000);assert.equal(progress().ticketCounts.deep,5);
 fail=true;assert.equal(run("departVoyage('deep')"),false);assert.equal(context.GAME_STATE.regionId,'coast');assert.deepEqual(context.player,{x:36,y:23,face:'up'});assert.equal(progress().ticketCounts.deep,5);
 fail=false;assert.equal(run("departVoyage('deep')"),true);assert.equal(saved.regionId,'boatDeep');assert.equal(saved.progression.voyage.ticketCounts.deep,4);assert.equal(run("departVoyage('deep')"),false);
 assert.equal(node('boardingTitle').textContent,'심해로 출항합니다');now=700;run('updateVoyage()');

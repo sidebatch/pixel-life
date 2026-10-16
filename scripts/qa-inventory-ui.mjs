@@ -12,9 +12,8 @@ const errors=[];
 try{
   const context=await browser.newContext({viewport:{width:393,height:780},isMobile:true,hasTouch:true});
   const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));
-  await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await page.goto(base);
-  await page.waitForFunction(()=>typeof openInventory==='function'&&characterOutfitImgs['outfit.traveler'],null,{polling:50});
+  await page.waitForFunction(()=>!document.getElementById('startupLoading')&&typeof openInventory==='function'&&characterOutfitImgs['outfit.traveler'],null,{polling:50});
   await page.evaluate(()=>openInventory());
   await page.locator('[data-inventory-tab="equipment"]').tap();
   const gridCheck=async()=>page.evaluate(()=>{
@@ -117,7 +116,8 @@ try{
   });
   await gridCheck();
   const infoIds=await page.locator('.inventoryInfoButton').evaluateAll(nodes=>nodes.map(node=>({type:node.dataset.inventoryInfoType,id:node.dataset.inventoryInfoId})));
-  if(infoIds.length!==17||!infoIds.some(item=>item.id==='sword.basic')||!infoIds.some(item=>item.id==='axe.primordial'))throw new Error('Owned weapon tiers missing');
+  const expectedDetails=await page.evaluate(()=>FORESTRY_AXES.length+FISHING_RODS.length+getOwnedSwords().length+1);
+  if(infoIds.length!==expectedDetails||!infoIds.some(item=>item.type==='sickle')||!infoIds.some(item=>item.id==='sword.basic')||!infoIds.some(item=>item.id==='axe.primordial'))throw new Error('Owned weapon tiers missing');
   await page.screenshot({path:path.join(output,'small-all-owned-tools.png')});
   for(const {type,id} of infoIds){
     const before=await page.evaluate(()=>JSON.stringify(GAME_STATE));
@@ -149,7 +149,7 @@ try{
   await page.locator('[data-inventory-tab="appearance"]').tap();
   await page.evaluate(()=>saveGame());
   await page.reload();
-  await page.waitForFunction(()=>typeof openInventory==='function'&&characterOutfitImgs['outfit.traveler'],null,{polling:50});
+  await page.waitForFunction(()=>!document.getElementById('startupLoading')&&typeof openInventory==='function'&&characterOutfitImgs['outfit.traveler'],null,{polling:50});
   await page.evaluate(()=>{
     if(GAME_STATE.appearance.activeTool!=='rod'||GAME_STATE.appearance.outfitId!==DEFAULT_OUTFIT_ID||
       GAME_STATE.appearance.backpackId!=='pack.traveler')throw new Error('Tool or appearance not restored');
@@ -160,9 +160,8 @@ try{
   await page.waitForFunction(()=>!isInventoryOpen()&&!isInventoryDetailOpen(),null,{polling:50});
   const desktop=await browser.newContext({viewport:{width:1100,height:900}});
   const pc=await desktop.newPage();pc.on('pageerror',error=>errors.push(error.message));
-  await pc.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await pc.goto(base);
-  await pc.waitForFunction(()=>typeof openInventory==='function'&&characterOutfitImgs['outfit.traveler'],null,{polling:50});
+  await pc.waitForFunction(()=>!document.getElementById('startupLoading')&&typeof openInventory==='function'&&characterOutfitImgs['outfit.traveler'],null,{polling:50});
   await pc.evaluate(()=>openInventory({fromHistory:true}));
   await pc.locator('[data-inventory-tab="equipment"]').click();
   const card=pc.locator('[data-equip-id="rod.basic"]');
@@ -176,7 +175,7 @@ try{
   const debugContext=await browser.newContext({viewport:{width:393,height:780},isMobile:true,hasTouch:true});
   const debugPage=await debugContext.newPage();debugPage.on('pageerror',error=>errors.push(error.message));
   await debugPage.goto(base+'?debug');
-  await debugPage.waitForFunction(()=>typeof grantAllAxeDebug==='function'&&characterToolImgs['axe.primordial'],null,{polling:50});
+  await debugPage.waitForFunction(()=>!document.getElementById('startupLoading')&&typeof grantAllAxeDebug==='function'&&characterToolImgs['axe.primordial'],null,{polling:50});
   await debugPage.locator('#axeDebugFunds').tap();
   await debugPage.locator('#axeDebugGrant').tap();
   await debugPage.locator('#axeDebugNext').tap();
@@ -187,7 +186,7 @@ try{
   await debugContext.close();
   if(errors.length)throw new Error(errors.join('\n'));
   const report={threeColumns:true,imageOnlyCards:true,separateInfoButtons:true,singleWeapon:true,appearanceGroups:['옷','가방'],
-    independentAppearanceEquip:true,unownedRejected:true,saveRollback:true,reload:true,allWeaponDetails:17,
+    independentAppearanceEquip:true,unownedRejected:true,saveRollback:true,reload:true,allWeaponDetails:infoIds.length,
     tenAxeShop:true,finalAxeEquip:true,axeDebugShortcuts:true,historyBackForward:true,keyboard:true,
     viewports:['393x780','320x568','1100x900'],browserErrors:errors};
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify(report,null,2));

@@ -1,5 +1,11 @@
 # Pixel Life 문서 안내
 
+2026-10-15 로컬 최신(공개 배포 전): [구매·수리 효과음과 흐르는 폭포](MARKET_WATERFALL_V1.md). 아래 후속 변경들을 함께 포함한다.
+
+2026-10-15 로컬 가격 후속(공개 배포 전): [4항로 승선권 균형](VOYAGE_FARES_V1.md) 2,000/3,500/5,000/8,000코인. 아래 배경 조정 단계의 가격 기록보다 우선한다.
+
+2026-10-15 로컬 최신(공개 배포 전): [항해 배경 겹침·부표·승선권 조정](VOYAGE_SCENERY_V2.md), [가방 농장 탭·소품 설치](FARM_INVENTORY_V1.md), [하단 도구 바](TOOL_HOTBAR_V1.md), 보유 씨앗만 표시, 독립 숲 이름의 번호 제거. 아래는 직전 공개 기록이다.
+
 2026-10-15 공개 배포 완료: 숲 12곳의 사각형 광장 제거, 하루 체형 보정과 마을 동쪽 농장길로 상점 이전, 낫 수확 효과음·재배 작물 이미지를 반영했다. 게임 변경 커밋 [3a6d6fa](https://github.com/sidebatch/pixel-life/commit/3a6d6fa9f5d3f4bd2e6cc9087fea1cc5e443de6b), PWA `d3df644ac5ba`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38812945983). 공개 상점/저장·주문/꾸미기·합성음·PWA 검증을 통과했다. [변경 기준](FARM_WORLD_POLISH_V2.md)
 
 새 세션은 [HANDOFF.md](HANDOFF.md)부터 읽는다. 현행 상태·사용자 결정·검증을 먼저 확인하고, 이전 배포/시안은 [별도 이력](HANDOFF_RELEASE_HISTORY_2026_10_14.md)과 DEPLOYMENT.md에서 참고한다.
@@ -16,6 +22,7 @@
 
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
+| 하단 도구 바 | [TOOL_HOTBAR_V1.md](TOOL_HOTBAR_V1.md) | 5칸 즉시 교체/단축키·저장/파손·행동 잠금/터치 배치 |
 | 숲·농사 후속 정리 | [FARM_WORLD_POLISH_V2.md](FARM_WORLD_POLISH_V2.md) | 숲 사각형 제거·하루 v2/마을 이전·수확음·작물 그림 |
 | 농사 상점·판매·도감 | [SHOP_DEX_POLISH_V1.md](SHOP_DEX_POLISH_V1.md) | 하루 농가/NPC·엘리 역할 분리·선택 초기화·큰 그림·원화/검증 |
 | 농장 주문·교환권 | [FARM_ORDERS_V1.md](FARM_ORDERS_V1.md) | 랜덤 1개/납품·보상/주문 단계/저장 |

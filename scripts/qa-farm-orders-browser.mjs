@@ -23,6 +23,12 @@ try{
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
     assert.deepEqual(await page.evaluate(()=>({inventory:GAME_STATE.inventory,coins:GAME_STATE.progression.coins,plot:GAME_STATE.world.plots.farm_01,farming:GAME_STATE.progression.farming})),legacy);
     assert.equal(await page.evaluate(()=>GAME_STATE.progression.farmOrders.tickets),0);
+    await page.evaluate(()=>openInventory());
+    await page.locator('[data-inventory-tab="farm"]').click();
+    assert.match(await page.locator('.inventoryFarmWallet').innerText(),/0장/);
+    assert.match(await page.locator('#inventoryScroll').innerText(),/보유한 농장 소품이 없어요/);
+    await page.locator('#inventoryClose').click();
+    await page.waitForFunction(()=>!isInventoryOpen()&&!window.history.state?.pixelLifeOverlay);
     await page.evaluate(()=>{enterWorldRegion({to:'lilacVillage',entry:{x:57,y:24,face:'up'}});interact();});
     await page.locator('[data-market-view="orders"]').click();
     assert.equal(await page.locator('[data-order-id]').count(),1);
@@ -75,9 +81,42 @@ try{
       const cost=await page.evaluate(id=>FARM_DECOR_BY_ID.get(id).cost,id);
       await page.locator('[data-farm-action="exchange"][data-decoration-id="'+id+'"]').click();
       assert.equal(await page.evaluate(()=>GAME_STATE.progression.farmOrders.tickets),before-cost);
+      assert.match(await page.locator('#marketMessage').innerText(),/가방 → 농장/);
       assert(await page.locator('[data-farm-action="place"][data-decoration-id="'+id+'"]').isDisabled());
     }
     await page.locator('#marketClose').click();await page.waitForFunction(()=>!isMarketOpen()&&!window.history.state?.pixelLifeOverlay);
+    await page.evaluate(()=>openInventory());
+    await page.locator('[data-inventory-tab="farm"]').click();
+    assert.equal(await page.locator('.inventoryFarmDecoration').count(),8);
+    assert.match(await page.locator('.inventoryFarmGuide').innerText(),/농장으로 이동/);
+    assert(await page.locator('[data-inventory-farm-action="place"]').first().isDisabled());
+    await page.screenshot({path:path.join(out,'bag-village-'+width+'.png')});
+    await page.locator('#inventoryClose').click();await page.waitForFunction(()=>!isInventoryOpen()&&!window.history.state?.pixelLifeOverlay);
+    await page.evaluate(()=>{enterWorldRegion({to:'sunnyFields',entry:{x:14,y:22,face:'right'}});openInventory();});
+    await page.locator('[data-inventory-tab="farm"]').click();
+    const beforeBag=await page.evaluate(()=>JSON.stringify({inventory:GAME_STATE.inventory,coins:GAME_STATE.progression.coins,tickets:GAME_STATE.progression.farmOrders.tickets}));
+    for(const id of decorationIds){
+      await page.locator('[data-inventory-farm-action="place"][data-decoration-id="'+id+'"]').click();
+      assert(await page.evaluate(id=>FARM_DECOR_BY_ID.get(id).slots.every(slot=>isBlocked(slot.x,slot.y)),id));
+    }
+    await page.screenshot({path:path.join(out,'bag-installed-'+width+'.png')});
+    const bagLayout=await page.evaluate(()=>({
+      tabs:[...document.querySelectorAll('[data-inventory-tab]')].map(el=>{const r=el.getBoundingClientRect();return {width:r.width,height:r.height};}),
+      overflow:document.getElementById('inventoryScroll').scrollWidth>document.getElementById('inventoryScroll').clientWidth,
+      imageLoaded:[...document.querySelectorAll('.inventoryFarmDecoration img')].every(img=>img.complete&&img.naturalWidth>0)
+    }));
+    assert(!bagLayout.overflow&&bagLayout.imageLoaded&&bagLayout.tabs.every(r=>r.width>=44&&r.height>=44));
+    await page.evaluate(()=>{window.qaOriginalSave=saveGame;saveGame=()=>false;});
+    await page.locator('[data-inventory-farm-action="remove"][data-decoration-id="scarecrow"]').click();
+    await page.evaluate(()=>{saveGame=window.qaOriginalSave;delete window.qaOriginalSave;});
+    assert.match(await page.locator('#inventorySummary').innerText(),/저장하지 못했어요/);
+    assert(await page.evaluate(()=>GAME_STATE.progression.farmOrders.placedDecorationIds.includes('scarecrow')&&isBlocked(13,22)));
+    for(const id of decorationIds)await page.locator('[data-inventory-farm-action="remove"][data-decoration-id="'+id+'"]').click();
+    assert.equal(await page.evaluate(()=>JSON.stringify({inventory:GAME_STATE.inventory,coins:GAME_STATE.progression.coins,tickets:GAME_STATE.progression.farmOrders.tickets})),beforeBag);
+    await page.evaluate(()=>{player.x=13;player.y=22;renderInventoryFarm();});
+    assert(await page.locator('[data-inventory-farm-action="place"][data-decoration-id="scarecrow"]').isDisabled());
+    await page.evaluate(()=>{player.x=14;player.y=22;});
+    await page.locator('#inventoryClose').click();await page.waitForFunction(()=>!isInventoryOpen()&&!window.history.state?.pixelLifeOverlay);
     await page.evaluate(()=>{
       enterWorldRegion({to:'sunnyFields',entry:{x:14,y:22,face:'right'}});openFarmPlot(farmPlotAt(15,22));
     });
@@ -112,6 +151,9 @@ try{
     await page.reload({waitUntil:'domcontentloaded',timeout:60000});await page.waitForFunction(()=>!document.getElementById('startupLoading'));
     assert.deepEqual(await page.evaluate(()=>({farmOrders:GAME_STATE.progression.farmOrders,inventory:GAME_STATE.inventory,plots:GAME_STATE.world.plots,coins:GAME_STATE.progression.coins})),saved);
     assert(await page.evaluate(()=>FARM_DECORATIONS.every(item=>item.slots.every(slot=>isBlocked(slot.x,slot.y)))));
+    await page.evaluate(()=>openInventory());await page.locator('[data-inventory-tab="farm"]').click();
+    assert.equal(await page.locator('[data-inventory-farm-action="remove"]').count(),8);
+    await page.locator('#inventoryClose').click();await page.waitForFunction(()=>!isInventoryOpen()&&!window.history.state?.pixelLifeOverlay);
     await page.evaluate(()=>{player.x=14;player.y=22;player.px=14*TILE+24;player.py=22*TILE+24;openFarmPlot(farmPlotAt(15,22));});
     await page.locator('#lifeDecor').click();
     for(const id of decorationIds){
@@ -122,7 +164,8 @@ try{
     const screen=await page.evaluate(()=>({overflow:document.documentElement.scrollWidth>innerWidth,
       buttonHeights:[...document.querySelectorAll('#marketList [data-farm-action]')].map(b=>b.getBoundingClientRect().height)}));
     assert(!screen.overflow&&screen.buttonHeights.every(height=>height>=44));
-    reports.push({width,legacyPreserved:true,firstOrder:first,transactions,decorationIds,decorationBudget,rollback,placementRollback,layout,saveReload:true,screen});
+    reports.push({width,legacyPreserved:true,firstOrder:first,transactions,decorationIds,decorationBudget,rollback,placementRollback,layout,saveReload:true,screen,
+      inventoryFarm:{zeroBalance:true,allOwnedVisible:true,outsideFarmGuide:true,realPlacementAndRemoval:true,saveFailureRollback:true,occupiedBlocked:true,unchangedCurrencyAndItems:true,reload:true,layout:bagLayout}});
     await context.close();
   }
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({base,errors,reports},null,2));

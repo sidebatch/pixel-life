@@ -170,7 +170,7 @@ document.getElementById('harborClose').addEventListener('click',()=>closeHarbor(
 document.getElementById('harborRoutes').addEventListener('click',event=>{
   const button=event.target.closest('button');if(!button||button.disabled)return;
   let saved=false,message='';
-  if(button.dataset.ticketBuy){saved=buyVoyageTickets(button.dataset.ticketBuy,Number(button.dataset.quantity));message='승선권을 구매했어요';}
+  if(button.dataset.ticketBuy){saved=buyVoyageTickets(button.dataset.ticketBuy,Number(button.dataset.quantity));if(saved)playCoinSpendSound();message='승선권을 구매했어요';}
   else if(button.dataset.voyageDepart){saved=departVoyage(button.dataset.voyageDepart);message='출항합니다';}
   else if(button.hasAttribute('data-voyage-return')){saved=returnFromVoyage();message='항구로 돌아왔어요';}
   if(harborUi.open){renderHarbor();document.getElementById('harborStatus').textContent=saved?message:'진행하지 못했어요. 코인·승선권과 저장 공간을 확인해 주세요.';}

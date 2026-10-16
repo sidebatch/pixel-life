@@ -1,5 +1,9 @@
 # 숲 바닥·하루 체형/상점 이전·수확음·작물 이미지
 
+현재 로컬 최신 빌드와 가방 농장 탭은 [FARM_INVENTORY_V1.md](FARM_INVENTORY_V1.md)를 따른다. 아래 후속 변경 수치는 해당 단계의 기록이다.
+
+후속 로컬 변경(2026-10-15, 공개 배포 전): 씨앗 심기 목록은 보유 씨앗만 표시하고 0개인 종류는 숨긴다. 전부 없으면 하루의 농사 상점 구매 안내를 표시한다. 393/320px 실제 심기로 마지막 씨앗 소진·다음 목록에서 숨김/빈 목록 안내를 확인했다. 하나뿐인 독립 숲의 번호도 제거했다([명명 기준](FOREST_ROUTES_V2.md)). 결과 `output/owned-seeds-qa/`, `output/forest-names-qa.txt`. 이어서 [하단 도구 교체 바](TOOL_HOTBAR_V1.md)를 추가한 현재 로컬 HTML은 20,542,170 bytes/PWA `d87dd4bd1590`이다. 아래는 직전 공개 배포 기록이다.
+
 2026-10-15 공개 배포 완료: 숲 12곳의 사각형 광장 제거, 하루 체형 보정과 마을 동쪽 농장길로 상점 이전, 낫 수확 효과음·재배 작물 이미지를 반영했다. 게임 변경 커밋 [3a6d6fa](https://github.com/sidebatch/pixel-life/commit/3a6d6fa9f5d3f4bd2e6cc9087fea1cc5e443de6b), PWA `d3df644ac5ba`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38812945983). 공개 상점/저장·주문/꾸미기·합성음·PWA 검증을 통과했다. HTML 20,535,809 bytes/공개 8파일 38,002,971 bytes는 로컬과 SHA-256까지 일치한다.
 
 ## 변경 내용

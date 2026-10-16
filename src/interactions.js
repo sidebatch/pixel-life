@@ -383,6 +383,7 @@ function refreshContext(){
   }
   if(cancel) cancel.hidden=!canCancel;
   cancel?.classList.toggle('show',canCancel);
+  if(typeof refreshToolHotbar==='function')refreshToolHotbar();
 }
 const keyMap={ArrowUp:'up',KeyW:'up',ArrowDown:'down',KeyS:'down',ArrowLeft:'left',KeyA:'left',ArrowRight:'right',KeyD:'right'};
 window.addEventListener('keydown',e=>{
@@ -390,6 +391,7 @@ window.addEventListener('keydown',e=>{
   if(worldDebugEnabled&&e.code==='BracketLeft'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(-30);return;}
   if(worldDebugEnabled&&e.code==='BracketRight'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(30);return;}
   // Inventory buttons retain native Space/Enter activation and arrow scrolling.
+  if(e.target?.closest?.('#toolHotbar')&&['Space','Enter'].includes(e.code))return;
   if(e.target?.closest?.('#inventoryPanel,#inventoryDetailModal,#characterStylePanel')&&!['KeyX','Escape'].includes(e.code))return;
   if(keyMap[e.code]){e.preventDefault();const d=keyMap[e.code];inputs[d]=true;activeDir=d;lastDir=d;if(!e.repeat) bufferPlayerDirection(d);}
   if((e.code==='Space'||e.code==='KeyZ')&&!e.repeat){e.preventDefault();interact();}

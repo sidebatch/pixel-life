@@ -72,8 +72,8 @@ function forestInfillTrees(regionId,waterAreas=[]){
   return extras;
 }
 const FOREST_REGION_NAMES=Object.freeze({
-  forestSix:'거목 숲 2-1',forestSeven:'붉은 거목림 2-2',forestEight:'은빛 경목림 2-3',
-  forestNine:'검은 경목림 2-4',forestTen:'고대 숲 3-1',forestEleven:'정령 숲 3-2',forestTwelve:'태초 숲 3-3'
+  forestSix:'거목 숲',forestSeven:'붉은 거목림',forestEight:'은빛 경목림',
+  forestNine:'검은 경목림',forestTen:'고대 숲',forestEleven:'정령 숲',forestTwelve:'태초 숲'
 });
 // Branches are geography, not new level locks. Stable region/tree IDs remain unchanged.
 const FOREST_ROUTE_EXITS=Object.freeze({

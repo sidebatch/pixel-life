@@ -61,10 +61,16 @@ try{
     }
     const seed=42,t=75000;syncVoyageScenes(seed,t,destination);const expected=JSON.stringify(snapshot(t));
     releaseVoyageScenes();syncVoyageScenes(seed,t,destination);check(JSON.stringify(snapshot(t))===expected,'Seed/time restore changed surviving objects');
-    let maxBytes=0,maxObjects=0,observations=0;
+    let maxBytes=0,maxObjects=0,observations=0,separationChecks=0;
     for(let elapsed=0;elapsed<600000;elapsed+=1000){
      const prior=new Map([...voyageSceneCache.objects].map(([id,o])=>[id,{o,r:voyageSceneryRect(o,elapsed-1000)}]));
      syncVoyageScenes(seed,elapsed,destination);
+     const objects=[...voyageSceneCache.objects.values()];
+     check(destination==='shallow'||objects.every(o=>o.kind!=='buoys'),'Buoy appeared offshore');
+     for(let a=0;a<objects.length;a++)for(let b=a+1;b<objects.length;b++)if(objects[a].side===objects[b].side){
+      const r=voyageSceneryRect(objects[a],elapsed),s=voyageSceneryRect(objects[b],elapsed);
+      check(r.y<s.y?r.y+r.h+VOYAGE_SCENERY_GAP<=s.y:s.y+s.h+VOYAGE_SCENERY_GAP<=r.y,'Background sprites overlap');separationChecks++;
+     }
      if(elapsed>0)for(const [id,{o,r}] of prior){if(o.spawnMs<=elapsed-1000&&r.y+r.h>0&&r.y<VIEW_H&&o.exitMs>elapsed){
       check(voyageSceneCache.objects.get(id)===o,'Visible decoration disappeared');
       check(voyageSceneryRect(o,elapsed).y-r.y===voyageSurfaceDistance(elapsed)-voyageSurfaceDistance(elapsed-1000),'Surface object overtook/drifted relative to its neighbors');observations++;
@@ -78,17 +84,32 @@ try{
      for(const delta of [16.7,33.4,100.25,2000.75])check(voyageSceneryRect(a,t+delta).y-voyageSceneryRect(b,t+delta).y===gap,'Fractional frames change object separation');pairs++;
     }check(pairs>0,'Pairwise drift test must exercise side neighbors');
     activeVoyage().tripSeed=20;activeVoyage().remainingMs=576000;voyageClock.last=performance.now();releaseVoyageScenes();drawWorld();
-    return {tested,maxObjects,maxBytes,observations,pairs,noOvertaking:true};
+    return {tested,maxObjects,maxBytes,observations,pairs,separationChecks,noOverlap:true,shallowOnlyBuoys:true,noOvertaking:true};
    },destination);
    await page.screenshot({path:path.join(out,width+'-'+destination+'-passing.png')});
    const normal=await page.evaluate(()=>{const t=24000;return [...voyageSceneCache.objects.values()].map(o=>({id:o.id,...voyageSceneryRect(o,t)}));});
    await page.emulateMedia({reducedMotion:'reduce'});
    const reduced=await page.evaluate(()=>{drawWorld();const t=24000;return [...voyageSceneCache.objects.values()].map(o=>({id:o.id,...voyageSceneryRect(o,t)}));});
    assert.deepEqual(reduced,normal,'Motion preference must not teleport solid scenery');await page.emulateMedia({reducedMotion:'no-preference'});
+   if(destination==='shallow'){
+    const preview=await page.evaluate(()=>{
+     let seed=0;for(;seed<10000;seed++){
+      const scene=nextVoyageScene(createVoyageSceneGenerator(seed,'shallow')),pool=voyageScenePool('shallow');
+      if(pool.landmarks[scene.landmark]==='rockArch'&&pool.midObjects[scene.mid]==='buoys')break;
+     }
+     if(seed===10000)throw Error('No buoy/arch preview seed');
+     activeVoyage().tripSeed=seed;activeVoyage().remainingMs=578000;voyageClock.last=performance.now();releaseVoyageScenes();drawWorld();
+     const buoys=[...voyageSceneCache.objects.values()].filter(o=>o.sceneIndex===0&&o.kind==='buoys');
+     if(buoys.length<1||buoys.length>2)throw Error('Buoy count must be one or two per scene');
+     return {seed,buoys:buoys.length};
+    });
+    reports.push({width,destination,buoyPreview:preview});
+    await page.screenshot({path:path.join(out,width+'-shallow-buoys.png')});
+   }
    reports.push({width,destination,...flow});await page.evaluate(()=>returnFromVoyage());
   }
   await context.close();
  }
  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({reports,errors},null,2));
- console.log('Voyage continuous flow passed: '+JSON.stringify({viewports:[393,320],landmarkVariants:reports.reduce((n,r)=>n+r.tested.length,0),fourRoutes:true,pixelRowEntryExit:true,noSolidFade:true,noOvertaking:true,sceneBoundaryRetention:true,clearHullCorridor:true,deterministicRestore:true,boundedSprites:true,errors}));
+ console.log('Voyage continuous flow passed: '+JSON.stringify({viewports:[393,320],landmarkVariants:reports.reduce((n,r)=>n+(r.tested?.length||0),0),fourRoutes:true,pixelRowEntryExit:true,noSolidFade:true,noOvertaking:true,noOverlap:true,shallowOnlyBuoys:true,sceneBoundaryRetention:true,clearHullCorridor:true,deterministicRestore:true,boundedSprites:true,errors}));
 }finally{await browser.close();}

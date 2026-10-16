@@ -444,8 +444,9 @@ function renderLifePanel(){
     info.textContent=`농장의 지정 부지를 구매하면 계속 경작할 수 있어요. 보유 ${GAME_STATE.progression.coins.toLocaleString()}코인 · 목재 ${totalLogCount()}개`;
     actions.innerHTML=`<button type="button" data-life-action="unlock" ${affordable?'':'disabled'}>부지 구매 · ${cost?.coins.toLocaleString()||0}코인${cost?.logs?` + 목재 ${cost.logs}개`:''}</button>`;
   }else if(phase==='EMPTY'){
-    info.textContent='씨앗을 고르면 시간이 지나 자동으로 자라요.';
-    actions.innerHTML=LIFE_CONTENT.crops.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}" ${lifeItemCount('seed',item.id)?'':'disabled'}>${lifeItemIconMarkup('seed',item.id,item.icon)} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');
+    const seeds=LIFE_CONTENT.crops.filter(item=>lifeItemCount('seed',item.id)>0);
+    info.textContent=seeds.length?'심을 씨앗을 골라 주세요.':'보유한 씨앗이 없어요. 마을 동쪽 하루의 농사 상점에서 구매해 주세요.';
+    actions.innerHTML=seeds.map(item=>`<button type="button" data-life-action="plant" data-crop-id="${item.id}">${lifeItemIconMarkup('seed',item.id,item.icon)} ${item.name} 씨앗 · ${lifeItemCount('seed',item.id)}개</button>`).join('');
   }else if(phase==='GROWING'){
     const remaining=Math.max(0,crop.growMs-(Date.now()-state.plantedAt));
     info.textContent=`${farmCropSubject(crop)} 자라는 중이에요. 약 ${Math.ceil(remaining/60000)}분 남았어요.`;

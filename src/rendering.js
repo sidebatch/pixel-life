@@ -116,14 +116,29 @@ function drawForestWaterfalls(terrain){
     if(x>VIEW_W+TILE||y>VIEW_H+TILE||x+w<-TILE||y+h<-TILE)continue;
     drawSceneryImage(imgs.sceneryWaterfall,SCENERY_IMAGE_CONTENT.fall,x,y,w,h);
     ctx.save();
-    // Only the central curtain moves. No repeating wall bricks or full-height stripe bars.
-    ctx.beginPath();ctx.rect(x+w*.30,y+h*.16,w*.40,h*.82);ctx.clip();
+    // Advect the painted water texture inside the chute; the cliff and moss
+    // stay fixed. No image readback, random state or per-frame canvas creation.
+    ctx.beginPath();ctx.rect(x+w*.37,y+h*.16,w*.29,h*.63);
+    ctx.rect(x+w*.40,y+h*.77,w*.24,h*.13);ctx.clip();
     const time=sceneryMotionQuery?.matches?0:tNow;
-    for(let i=0;i<9;i++){
-      const phase=(time/1900+i*.137)%1,alpha=Math.sin(phase*Math.PI)*.24;
-      const px=x+w*(.36+hash2(fall.x+i,fall.y)*.28),py=y+h*(.22+phase*.66);
-      ctx.fillStyle='rgba(231,254,255,'+alpha.toFixed(3)+')';
-      ctx.fillRect(Math.round(px),Math.round(py),2+Math.floor(hash2(i,fall.x)*3),5+Math.floor(hash2(i,fall.y)*6));
+    const bandH=Math.max(24,Math.round(h*.30)),offset=Math.floor(time*.15)%bandH;
+    if(imgs.sceneryWaterfall)for(let top=y+h*.16-bandH+offset;top<y+h*.91;top+=bandH){
+      ctx.drawImage(imgs.sceneryWaterfall,84,100,64,96,Math.round(x+w*.36),Math.round(top),Math.round(w*.32),bandH);
+    }
+    for(let i=0;i<18;i++){
+      const phase=(time/720+i*.137)%1,px=x+w*(.39+hash2(fall.x+i,fall.y)*.24),py=y+h*(.16+phase*.74);
+      ctx.fillStyle='rgba(238,255,255,'+(.14+Math.sin(phase*Math.PI)*.27).toFixed(3)+')';
+      ctx.fillRect(Math.round(px),Math.round(py),2+Math.floor(hash2(i,fall.x)*3),7+Math.floor(hash2(i,fall.y)*12));
+    }
+    ctx.restore();
+    // Expanding broken foam rings and short upward splashes mark the impact.
+    ctx.save();ctx.beginPath();ctx.rect(x+w*.27,y+h*.79,w*.49,h*.20);ctx.clip();
+    for(let i=0;i<10;i++){
+      const phase=(time/850+i*.173)%1,spread=6+phase*w*.23;
+      ctx.strokeStyle='rgba(232,255,255,'+((1-phase)*.48).toFixed(3)+')';ctx.lineWidth=2;
+      ctx.beginPath();ctx.ellipse(x+w*.51,y+h*.94,spread,2+phase*7,0,0,Math.PI*2);ctx.stroke();
+      const px=x+w*(.37+hash2(i,fall.x)*.29),py=y+h*.92-Math.sin(phase*Math.PI)*(5+hash2(fall.y,i)*h*.07);
+      ctx.fillStyle='rgba(242,255,255,'+((1-phase)*.75).toFixed(3)+')';ctx.fillRect(Math.round(px),Math.round(py),2,3);
     }
     ctx.restore();
     // Small low mist puffs; keep the adjacent fishing ledge and actor readable.

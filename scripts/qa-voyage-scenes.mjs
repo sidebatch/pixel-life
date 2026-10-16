@@ -169,9 +169,16 @@ for(const destination of ['shallow','mid','deep','glacier']){
           if(voyageSceneryRect(o,flowElapsed).y-r.y!==surfaceStep)throw Error('Surface objects drift/overtake each other');
         }
         for(const o of voyageSceneCache.objects.values()){
+          if(flowDestination!=='shallow'&&o.kind==='buoys')throw Error('Buoy leaked into offshore scenery');
           const birth=voyageSceneryRect(o,o.spawnMs),exit=voyageSceneryRect(o,o.exitMs-1);
           if(birth.y+birth.h>0||exit.y<VIEW_H)throw Error('Scenery born/retired inside viewport');
           if(o.side<0?birth.x+birth.w>96:birth.x<444)throw Error('Scenery enters hull corridor');
+        }
+        const all=[...voyageSceneCache.objects.values()];
+        for(let a=0;a<all.length;a++)for(let b=a+1;b<all.length;b++)if(all[a].side===all[b].side){
+          const first=voyageSceneryRect(all[a],flowElapsed),second=voyageSceneryRect(all[b],flowElapsed);
+          if(first.y<second.y?first.y+first.h+VOYAGE_SCENERY_GAP>second.y:second.y+second.h+VOYAGE_SCENERY_GAP>first.y)
+            throw Error('Scenery overlaps across layers or scene boundaries');
         }
         return {retained,count:voyageSceneCache.objects.size,bytes:[...voyageSceneCache.objects.values()].reduce((n,o)=>n+o.canvas.width*o.canvas.height*4,0)};
       })()`,render);
@@ -183,4 +190,4 @@ for(const destination of ['shallow','mid','deep','glacier']){
   }
 }
 assert.ok(observed>10000);
-console.log('Continuous scenery passed: '+JSON.stringify({observed,allFourRoutes:true,topBottomClipping:true,noVisibleRetirement:true,noOvertaking:true,hullCorridorClear:true,restore:true,maxSpriteBytes:2097152}));
+console.log('Continuous scenery passed: '+JSON.stringify({observed,allFourRoutes:true,topBottomClipping:true,noVisibleRetirement:true,noOvertaking:true,noOverlap:true,shallowOnlyBuoys:true,hullCorridorClear:true,restore:true,maxSpriteBytes:2097152}));

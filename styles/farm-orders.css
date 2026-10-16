@@ -19,4 +19,13 @@
 .farmDecorationCard strong{display:block;margin-bottom:8px;font-size:11px;color:#f1d59c}
 .farmDecorationCard button{width:100%;font-size:12px}
 #farmSkillCard,#lifeDecor{flex-shrink:0}
+.inventoryTabs{grid-template-columns:repeat(5,minmax(0,1fr))}
+.inventoryTabs button{min-height:44px;padding:4px 2px;white-space:nowrap}
+.inventoryFarmWallet{display:flex;gap:10px;align-items:center;padding:13px;border:1px solid rgba(239,216,154,.35);border-radius:15px;background:rgba(228,188,103,.1);color:#f2e3b8}
+.inventoryFarmWallet>span{font-size:30px;flex:none}
+.inventoryFarmWallet b{display:block;font-size:13px}
+.inventoryFarmWallet strong{color:#ffe3a0;white-space:nowrap}
+.inventoryFarmWallet p,.inventoryFarmGuide{font-size:12px;line-height:1.65;color:#cfdfd0}
+.inventoryFarmWallet p{margin:6px 0 0}
+.inventoryFarmGuide{margin:13px 2px}
 @media(max-width:360px){.farmDecorationCard{padding:11px;grid-template-columns:56px minmax(0,1fr);gap:9px}.farmDecorationCard>img{width:56px;height:68px}.farmOrderCard{padding:12px}.farmOrderRequirement{gap:6px;padding:7px}}

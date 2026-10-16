@@ -1,10 +1,11 @@
 // Step-16 baseline: all routes keep a ten-minute visible-time voyage. Normal
 // catches cover these ticket costs without needing a heroic/legendary fish.
+// 2026-10-15 fares scale with ordinary ten-minute earnings; return rules stay unchanged.
 const VOYAGE_ROUTES=Object.freeze([
-  Object.freeze({id:'shallow',name:'얕은 바다',ticketName:'얕은 바다 승선권',regionId:'boatShallow',habitat:'boat_shallow',price:300,durationMs:600000,available:true}),
-  Object.freeze({id:'mid',name:'중간 바다',ticketName:'중간 바다 승선권',regionId:'boatMid',habitat:'boat_mid',price:900,durationMs:600000,available:true,unlockLevel:15,unlockShallowSpecies:3}),
-  Object.freeze({id:'deep',name:'심해',ticketName:'심해 승선권',regionId:'boatDeep',habitat:'boat_deep',price:2400,durationMs:600000,available:true,unlockLevel:30,unlockMidSpecies:3}),
-  Object.freeze({id:'glacier',name:'빙하 해역',ticketName:'빙하 해역 승선권',regionId:'boatGlacier',habitat:'glacier',price:4800,durationMs:600000,available:true,unlockLevel:45,unlockDeepSpecies:3})
+  Object.freeze({id:'shallow',name:'얕은 바다',ticketName:'얕은 바다 승선권',regionId:'boatShallow',habitat:'boat_shallow',price:2000,durationMs:600000,available:true}),
+  Object.freeze({id:'mid',name:'중간 바다',ticketName:'중간 바다 승선권',regionId:'boatMid',habitat:'boat_mid',price:3500,durationMs:600000,available:true,unlockLevel:15,unlockShallowSpecies:3}),
+  Object.freeze({id:'deep',name:'심해',ticketName:'심해 승선권',regionId:'boatDeep',habitat:'boat_deep',price:5000,durationMs:600000,available:true,unlockLevel:30,unlockMidSpecies:3}),
+  Object.freeze({id:'glacier',name:'빙하 해역',ticketName:'빙하 해역 승선권',regionId:'boatGlacier',habitat:'glacier',price:8000,durationMs:600000,available:true,unlockLevel:45,unlockDeepSpecies:3})
 ]);
 const VOYAGE_ROUTE_BY_ID=new Map(VOYAGE_ROUTES.map(route=>[route.id,route]));
 const VOYAGE_HARBOR_ENTRY=Object.freeze({x:38,y:33,face:'down'});

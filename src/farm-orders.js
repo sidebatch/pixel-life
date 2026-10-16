@@ -78,7 +78,7 @@ function exchangeFarmDecoration(id){
   if(!['haru','farm'].includes(marketState.shop)||marketState.view!=='decorations'||!item||
     state.ownedDecorationIds.includes(id)||state.tickets<item.cost)return false;
   const success=commitLifeChange(()=>{state.tickets-=item.cost;state.ownedDecorationIds.push(id);return true;});
-  marketState.message=success?`${item.name}을 받았어요. 농장에서 설치해 보세요.`:'저장하지 못했어요. 다시 시도해 주세요.';
+  marketState.message=success?`${item.name} 교환 완료! 가방 → 농장에 보관했어요. 농장에서 설치하기를 눌러 주세요.`:'저장하지 못했어요. 다시 시도해 주세요.';
   renderMarket();return Boolean(success);
 }
 
@@ -91,8 +91,9 @@ function setFarmDecorationPlaced(id,place){
     state.placedDecorationIds=place?[...state.placedDecorationIds,id]:state.placedDecorationIds.filter(placed=>placed!==id);return true;
   });
   if(success)refreshFarmDecorationCollision();
-  marketState.message=success?`${item.name}${place?' 설치 완료!':'을 회수했어요.'}`:'저장하지 못했어요. 다시 시도해 주세요.';
-  renderMarket();return Boolean(success);
+  marketState.message=success?`${item.name} ${place?'설치 완료!':'회수 완료!'}`:'저장하지 못했어요. 다시 시도해 주세요.';
+  if(typeof isInventoryOpen!=='function'||!isInventoryOpen())renderMarket();
+  return Boolean(success);
 }
 
 function refreshFarmDecorationCollision(){

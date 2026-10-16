@@ -18,6 +18,7 @@
   <link rel="stylesheet" href="styles/farm-orders.css" />
   <link rel="stylesheet" href="styles/controls.css" />
   <link rel="stylesheet" href="styles/shop-dex-polish.css" />
+  <link rel="stylesheet" href="styles/tool-hotbar.css" />
   <!-- /build:styles -->
 </head>
 <body>
@@ -82,6 +83,7 @@
       <div id="lifeToast" class="lifeToast" aria-live="polite"></div>
       <div id="skillLevelUpOverlay" class="skillLevelUpOverlay" aria-live="polite" aria-hidden="true" inert></div>
       <div class="controls">
+        <div id="toolHotbar" class="toolHotbar" role="group" aria-label="도구 빠른 교체"></div>
         <div class="joystick" id="joystick" aria-label="이동 조이스틱">
           <div class="joyMarks" aria-hidden="true"><span class="jm up"></span><span class="jm down"></span><span class="jm left"></span><span class="jm right"></span></div>
           <div class="stick" id="stick"></div>
@@ -222,6 +224,7 @@
           <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="equipment">장비</button>
           <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="appearance">외형</button>
           <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="supplies">재료</button>
+          <button type="button" role="tab" aria-selected="false" aria-controls="inventoryScroll" data-inventory-tab="farm">농장</button>
         </div>
         <div class="inventorySummary" id="inventorySummary" role="status" aria-live="polite"></div>
         <div class="inventoryScroll" id="inventoryScroll" role="tabpanel" aria-label="가방 내용"></div>
@@ -332,6 +335,7 @@
   <script src="src/market.js"></script>
   <script src="src/character-style.js"></script>
   <script src="src/voyage.js"></script>
+  <script src="src/tool-hotbar.js"></script>
   <script src="src/pwa.js"></script>
   <script src="src/main.js"></script>
   <!-- /build:scripts -->

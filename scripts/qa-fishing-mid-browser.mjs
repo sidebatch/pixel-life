@@ -13,7 +13,7 @@ try{
     const page=await context.newPage();page.on('pageerror',error=>errors.push(error.message));page.on('response',r=>{if(r.status()>=400)errors.push(`${r.status()} ${r.url()}`);});
     await page.goto(base);await page.waitForFunction(()=>typeof drawVoyageSea==='function'&&!document.getElementById('startupLoading'));
     await page.evaluate(()=>{
-      enterWorldRegion(REGION_EXITS.lilacVillage.find(e=>e.to==='coast'));GAME_STATE.progression.coins=9000;openHarbor();
+      enterWorldRegion(REGION_EXITS.lilacVillage.find(e=>e.to==='coast'));GAME_STATE.progression.coins=25000;openHarbor();
       if(buyVoyageTickets('mid')||departVoyage('mid'))throw Error('Locked route allowed a transaction');
       GAME_STATE.progression.fishing.level=15;
       const legacy=createSaveData();delete legacy.state.progression.voyage;localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(legacy));

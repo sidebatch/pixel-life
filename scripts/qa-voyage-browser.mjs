@@ -17,12 +17,37 @@ try{
     await page.waitForFunction(()=>typeof departVoyage==='function'&&!document.getElementById('startupLoading'));
     await page.evaluate(()=>{
       enterWorldRegion(REGION_EXITS.lilacVillage.find(exit=>exit.to==='coast'));
-      GAME_STATE.progression.coins=6000;refreshHarborCoins();
+      Object.assign(GAME_STATE.progression.fishing,lifeSkillProgressFromTotal('fishing',lifeSkillTotalXpForLevel('fishing',65)));
+      GAME_STATE.progression.coins=200000;openHarbor();
+    });
+    const farePurchases=[];
+    for(const [route,price] of [['shallow',2000],['mid',3500],['deep',5000],['glacier',8000]]){
+      assert.match(await page.locator(`[data-voyage-route="${route}"]`).innerText(),new RegExp(price.toLocaleString('en-US')+'코인'));
+      const before=await page.evaluate(()=>GAME_STATE.progression.coins);
+      for(const quantity of [1,5])await page.locator(`[data-ticket-buy="${route}"][data-quantity="${quantity}"]`).tap();
+      assert.equal(await page.evaluate(()=>GAME_STATE.progression.coins),before-6*price);
+      assert.equal(await page.evaluate(id=>voyageProgress().ticketCounts[id],route),6);
+      const insufficient=await page.evaluate(({route,price})=>{
+        const coins=GAME_STATE.progression.coins,before=voyageProgress().ticketCounts[route];
+        GAME_STATE.progression.coins=price-1;renderHarbor();
+        const rejected=!buyVoyageTickets(route)&&voyageProgress().ticketCounts[route]===before&&GAME_STATE.progression.coins===price-1;
+        const disabled=document.querySelector(`[data-ticket-buy="${route}"][data-quantity="1"]`).disabled;
+        GAME_STATE.progression.coins=coins;renderHarbor();return rejected&&disabled;
+      },{route,price});assert(insufficient);
+      farePurchases.push({route,price,oneAndFive:true,insufficientRejected:true});
+    }
+    await page.screenshot({path:path.join(output,`${width}-all-fares.png`)});
+    await page.locator('#harborClose').tap();await page.waitForFunction(()=>!isHarborOpen()&&!window.history.state?.pixelLifeOverlay);
+    await page.evaluate(()=>{GAME_STATE.progression.voyage=normalizeSavedVoyageProgress();});
+    await page.evaluate(()=>{
+      enterWorldRegion(REGION_EXITS.lilacVillage.find(exit=>exit.to==='coast'));
+      GAME_STATE.progression.coins=12000;refreshHarborCoins();
       player.x=36;player.y=23;player.face='up';player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;interact();
     });
     await page.locator('[data-ticket-buy="shallow"][data-quantity="5"]').tap();
     assert.equal(await page.evaluate(()=>voyageProgress().ticketCounts.shallow),5);
-    assert.equal(await page.evaluate(()=>GAME_STATE.progression.coins),4500);
+    assert.equal(await page.evaluate(()=>GAME_STATE.progression.coins),2000);
+    assert.match(await page.locator('[data-voyage-route="shallow"]').innerText(),/2,000코인/);
     assert.equal(await page.evaluate(()=>activeVoyage()),null,'Purchase must not start the voyage');
     await page.screenshot({path:path.join(output,`${width}-harbor-tickets.png`)});
     const panel=await page.locator('#harborPanel').boundingBox();
@@ -128,7 +153,7 @@ try{
       const rolledBack={region:GAME_STATE.regionId,trip:Boolean(activeVoyage()),count:lifeItemCount('consumable',VILLAGE_RETURN_ITEM.id)};
       const success=useVillageReturnItem();return {failed,rolledBack,success,region:GAME_STATE.regionId,trip:activeVoyage()};
     });assert.equal(stone.failed,false);assert.deepEqual(stone.rolledBack,{region:'boatShallow',trip:true,count:1});assert.equal(stone.success,true);assert.equal(stone.region,'lilacVillage');assert.equal(stone.trip,null);
-    reports.push({width,deck,hidden,resume:restored,rollback:true,allFishingPhases:true,normalPendingCatch:catchState.id,automaticRetry:true,expiredRestore:true,returnStone:true});
+    reports.push({width,farePurchases,deck,hidden,resume:restored,rollback:true,allFishingPhases:true,normalPendingCatch:catchState.id,automaticRetry:true,expiredRestore:true,returnStone:true});
     await context.close();
   }
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({reports,errors},null,2));

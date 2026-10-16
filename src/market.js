@@ -275,7 +275,7 @@ function buyMarketSeed(cropId){
     return true;
   });
   marketState.message=success?`${crop.name} 씨앗 1개를 샀어요`:'저장하지 못했어요. 다시 시도해 주세요.';
-  if(success) setMarketCoinDisplay(GAME_STATE.progression.coins);
+  if(success){setMarketCoinDisplay(GAME_STATE.progression.coins);if(typeof playCoinSpendSound==='function')playCoinSpendSound();}
   renderMarket();return Boolean(success);
 }
 
@@ -317,7 +317,7 @@ function renderMarket(){
     wood:'준: 목재를 가져왔어?',axes:`준: 도끼를 고치고 ${VILLAGE_RETURN_ITEM.name}도 챙겨 가!`,
     orders:'하루: 농장에서 키운 작물들을 부탁해!',decorations:'납품으로 모은 교환권으로 농장을 꾸며보세요.'}[marketState.view];
   document.querySelector('.marketRule').textContent=marketState.view==='orders'?'필요한 작물을 모아 하루에게 납품하세요.':
-    marketState.view==='decorations'?'교환한 소품은 농장에서 설치하거나 회수할 수 있어요.':
+    marketState.view==='decorations'?'교환한 소품은 가방 → 농장에 보관돼요. 농장에서 설치하기를 눌러 주세요.':
     marketState.view==='fish'?'같은 어종은 먼저 낚은 물고기부터 판매돼요.':
     marketState.view==='crops'?'수확한 작물을 원하는 수량만큼 팔 수 있어요.':
     marketState.view==='wood'?'목재를 원하는 수량만큼 팔 수 있어요.':
@@ -466,7 +466,7 @@ if(typeof document!=='undefined'){
         if(returnItemButton.disabled)return;
         const success=buyVillageReturnItem();
         marketState.message=success?`${VILLAGE_RETURN_ITEM.name} 1개를 샀어요. 가방의 재료 탭에서 사용할 수 있어요.`:`${VILLAGE_RETURN_ITEM.name}을 구매하지 못했어요.`;
-        if(success)setMarketCoinDisplay(GAME_STATE.progression.coins);
+        if(success){setMarketCoinDisplay(GAME_STATE.progression.coins);playCoinSpendSound();}
         renderMarket();return;
       }
       const repairButton=event.target.closest('[data-repair-axe-id]');
@@ -477,7 +477,7 @@ if(typeof document!=='undefined'){
         const wasEquipped=GAME_STATE.appearance?.activeTool==='axe'&&getEquippedForestryAxe().id===axe.id;
         const success=repairForestryAxe(axe.id);
         marketState.message=success?`${axe.name} 수리 완료! -${cost.toLocaleString()}코인${wasEquipped?'':' · 가방에서 다시 장착해 주세요.'}`:'도끼를 수리하지 못했어요.';
-        if(success)setMarketCoinDisplay(GAME_STATE.progression.coins);
+        if(success){setMarketCoinDisplay(GAME_STATE.progression.coins);playEquipmentRepairSound('axe');}
         renderMarket();return;
       }
       const button=event.target.closest('[data-axe-id]');
@@ -485,7 +485,7 @@ if(typeof document!=='undefined'){
       const axe=FORESTRY_AXE_BY_ID.get(button.dataset.axeId);
       const success=upgradeForestryAxe(button.dataset.axeId);
       marketState.message=success?`${axe.name}를 구매했어요! 가방에서 장착해 주세요.`:'도끼를 구매하지 못했어요.';
-      if(success) setMarketCoinDisplay(GAME_STATE.progression.coins);
+      if(success){setMarketCoinDisplay(GAME_STATE.progression.coins);playEquipmentPurchaseSound('axe');}
       renderMarket();return;
     }
     if(marketState.view==='rods'){
@@ -497,7 +497,7 @@ if(typeof document!=='undefined'){
         const wasEquipped=GAME_STATE.appearance?.activeTool==='rod'&&getEquippedFishingRod().id===rod.id;
         const success=repairFishingRod(rod.id);
         marketState.message=success?`${rod.name} 수리 완료! -${cost.toLocaleString()}코인${wasEquipped?'':' · 가방에서 다시 장착해 주세요.'}`:'낚싯대를 수리하지 못했어요. 다시 시도해 주세요.';
-        if(success)setMarketCoinDisplay(GAME_STATE.progression.coins);
+        if(success){setMarketCoinDisplay(GAME_STATE.progression.coins);playEquipmentRepairSound('rod');}
         renderMarket();return;
       }
       const button=event.target.closest('[data-rod-id]');
@@ -505,7 +505,7 @@ if(typeof document!=='undefined'){
       const rod=FISHING_ROD_BY_ID.get(button.dataset.rodId);
       const success=purchaseFishingRod(button.dataset.rodId);
       marketState.message=success?`${rod.name}를 구매했어요! 가방에서 장착해 주세요.`:'낚싯대를 구매하지 못했어요.';
-      if(success) setMarketCoinDisplay(GAME_STATE.progression.coins);
+      if(success){setMarketCoinDisplay(GAME_STATE.progression.coins);playEquipmentPurchaseSound('rod');}
       renderMarket();return;
     }
     if(marketState.view==='seeds'){

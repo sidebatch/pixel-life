@@ -16,7 +16,7 @@ for(const overheadSeconds of [0,3,8]){
   assert(sensitivity.rows.filter(row=>row.durationMs).every(row=>row.netTripCoins>0),'Ordinary full voyage cannot repay ticket');
 }
 assert.deepEqual(Array.from(r.VOYAGE_ROUTES,route=>[route.price,route.durationMs]),
-  [[300,600000],[900,600000],[2400,600000],[4800,600000]]);
+  [[2000,600000],[3500,600000],[5000,600000],[8000,600000]]);
 const glacierPrices={toothfish:280,snow_smelt:160,glacier_trout:300,polar_cod:480,greenland_shark:550};
 for(const [id,price] of Object.entries(glacierPrices))assert.equal(r.FISH_DATA.find(f=>f.id==='fish.'+id).basePrice,price);
 

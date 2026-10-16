@@ -10,7 +10,7 @@ const node=id=>{
 };
 const runtime={Math,clearTimeout(){},lifeUi:{toastTimer:null},performance:{now:()=>now},document:{visibilityState:'visible',getElementById:node,querySelector:()=>node('boardingTitle'),addEventListener:(name,fn)=>listeners[name]=fn},
   window:{history:{state:{},replaceState(){}},addEventListener:(name,fn)=>listeners[name]=fn},
-  GAME_STATE:{regionId:'coast',progression:{coins:3000},playerLocation:null},
+  GAME_STATE:{regionId:'coast',progression:{coins:12000},playerLocation:null},
   WORLD_DEFINITION:{},REGION_WORLDS:{coast:{id:'coast'},boatShallow:{id:'boatShallow',voyageDeck:{}}},
   player:{x:36,y:23,face:'up'},menuOpen:false,dialogOpen:false,
   isFishingActive:()=>phase!=='idle',clearMovement(){},toggleMenu(){},pushGameOverlayHistory(){},leaveGameOverlayHistory(){},
@@ -27,10 +27,12 @@ assert.equal(run("buyVoyageTickets('shallow',-1)"),false);
 assert.equal(run("buyVoyageTickets('shallow',1.5)"),false);
 failSave=true;
 assert.equal(run("buyVoyageTickets('shallow',5)"),false);
-assert.equal(runtime.GAME_STATE.progression.coins,3000);assert.equal(progress().ticketCounts.shallow,0);
+assert.equal(runtime.GAME_STATE.progression.coins,12000);assert.equal(progress().ticketCounts.shallow,0);
 failSave=false;
 assert.equal(run("buyVoyageTickets('shallow',5)"),true);
-assert.equal(runtime.GAME_STATE.progression.coins,1500);assert.equal(progress().ticketCounts.shallow,5);
+assert.equal(runtime.GAME_STATE.progression.coins,2000);assert.equal(progress().ticketCounts.shallow,5);
+assert.equal(run("VOYAGE_ROUTE_BY_ID.get('shallow').price"),2000);
+assert.equal(run("buyVoyageTickets('shallow',2)"),false,'Fare must be checked for the entire purchase');
 failSave=true;
 assert.equal(run("departVoyage('shallow')"),false);
 assert.equal(runtime.GAME_STATE.regionId,'coast');assert.equal(progress().ticketCounts.shallow,5);

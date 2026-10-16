@@ -1,5 +1,11 @@
 # Pixel Life
 
+로컬 최신(2026-10-15, 공개 배포 전): [장비 구매·수리/일반 아이템 결제 효과음과 흐르는 폭포](docs/MARKET_WATERFALL_V1.md). 아래 변경도 함께 포함한다.
+
+로컬 가격 후속(2026-10-15, 공개 배포 전): [승선권 4항로 균형](docs/VOYAGE_FARES_V1.md) — 얕은 바다 2,000/중간 바다 3,500/심해 5,000/빙하 해역 8,000코인.
+
+로컬 최신(2026-10-15, 공개 배포 전): [항해 배경 겹침·부표·승선권 조정](docs/VOYAGE_SCENERY_V2.md), [가방 농장 탭·소품 설치](docs/FARM_INVENTORY_V1.md), [하단 도구 바](docs/TOOL_HOTBAR_V1.md), 보유 씨앗만 표시, 독립 숲 이름의 번호 제거. 아래 공개 기록과 구분한다.
+
 2026-10-15 공개 배포 완료: 숲 12곳의 사각형 광장 제거, 하루 체형 보정과 마을 동쪽 농장길로 상점 이전, 낫 수확 효과음·재배 작물 이미지를 반영했다. 게임 변경 커밋 [3a6d6fa](https://github.com/sidebatch/pixel-life/commit/3a6d6fa9f5d3f4bd2e6cc9087fea1cc5e443de6b), PWA `d3df644ac5ba`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38812945983). 공개 상점/저장·주문/꾸미기·합성음·PWA 검증을 통과했다. [변경 기준](docs/FARM_WORLD_POLISH_V2.md)
 
 - [농장 주문·교환권](docs/FARM_ORDERS_V1.md) · [소품 8종](docs/FARM_DECORATIONS_EXPANSION_V1.md) · [조작 버튼](docs/TOUCH_CONTROLS_V1.md)

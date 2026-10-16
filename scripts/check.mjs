@@ -50,6 +50,7 @@ const scriptFiles = [
   'src/region-music.js',
   'src/fishing.js',
   'src/skill-ui.js',
+  'src/growth-status.js',
   'src/fish-dex.js',
   'src/fish-reward-ui.js',
   'src/tree-dex.js',
@@ -151,12 +152,12 @@ assert(html.includes('id="marketExitBtn" type="button">나가기</button>')&&
   read('src/market.js').includes("getElementById('marketExitBtn').addEventListener('click',closeMarket)"),
   'Market exit button must use the existing close behavior');
 const menuMarkup=html.match(/<div id="menuPanel"[\s\S]*?(?=<div id="fishDexPanel")/)?.[0]||'';
-assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===3&&
-  ['openInventoryBtn','openFishDexBtn','openTreeDexBtn','menuBagIcon','menuFishDexIcon','menuTreeDexIcon','menuDismiss','closeMenu'].every(id=>menuMarkup.includes(`id="${id}"`))&&
+assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===4&&
+  ['openInventoryBtn','openFishDexBtn','openTreeDexBtn','openGrowthStatusBtn','menuBagIcon','menuFishDexIcon','menuTreeDexIcon','menuDismiss','closeMenu'].every(id=>menuMarkup.includes(`id="${id}"`))&&
   !menuMarkup.includes('openFishingGearBtn')&&!html.includes('id="fishingGearPanel"')&&
   !menuMarkup.includes('디펜스')&&!menuMarkup.includes('마을 북쪽 숲')&&
-  (menuMarkup.match(/<img /g)||[]).length===3&&!menuMarkup.includes('<small>'),
-  'World menu must contain image-led bag, fish-dex, and tree-dex cards');
+  (menuMarkup.match(/<img /g)||[]).length===6&&!menuMarkup.includes('<small>'),
+  'World menu must contain bag, fish-dex, tree-dex and growth overview cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
 assert(assetPaths.length === 481, `Expected 481 runtime and archived-comparison asset references, found ${assetPaths.length}`);

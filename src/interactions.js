@@ -91,6 +91,7 @@ function pressB(){
   if(typeof isTreeDiscoveryOpen==='function'&&isTreeDiscoveryOpen()) return;
   if(typeof isSkillLevelUpVisible==='function'&&isSkillLevelUpVisible()) dismissSkillLevelUp();
   else if(typeof isCharacterStyleOpen==='function'&&isCharacterStyleOpen()) closeCharacterStyle();
+  else if(typeof isGrowthStatusOpen==='function'&&isGrowthStatusOpen()) closeGrowthStatus();
   else if(dialogOpen) closeDialog();
   else if(typeof isHarborOpen==='function'&&isHarborOpen())closeHarbor();
   else if(typeof isInventoryDetailOpen==='function'&&isInventoryDetailOpen()) closeInventoryDetail();
@@ -129,6 +130,7 @@ window.addEventListener('popstate',()=>{
   if(typeof isTreeDiscoveryOpen==='function'&&isTreeDiscoveryOpen())return;
   if(typeof isFishRewardRevealOpen==='function'&&isFishRewardRevealOpen()){pushGameOverlayHistory('fish-reward');return;}
   const layer=window.history.state?.pixelLifeOverlay;
+  if(layer!=='growth-status'&&typeof isGrowthStatusOpen==='function'&&isGrowthStatusOpen())closeGrowthStatus({fromHistory:true});
   if(layer==='harbor'){openHarbor({fromHistory:true});return;}
   if(typeof isHarborOpen==='function'&&isHarborOpen())closeHarbor({fromHistory:true});
   if(isSkillLevelUpVisible()) dismissSkillLevelUp({fromHistory:true});
@@ -191,6 +193,10 @@ window.addEventListener('popstate',()=>{
     return;
   }
   if(isFarmPlotOpen()) closeFarmPlot({fromHistory:true});
+  if(layer==='growth-status'){
+    if(!isGrowthStatusOpen())openGrowthStatus({fromHistory:true});
+    return;
+  }
   if(menuOpen) toggleMenu(false);
 });
 
@@ -393,8 +399,8 @@ window.addEventListener('keydown',e=>{
   if(worldDebugEnabled&&e.code==='BracketLeft'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(-30);return;}
   if(worldDebugEnabled&&e.code==='BracketRight'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(30);return;}
   // Inventory buttons retain native Space/Enter activation and arrow scrolling.
-  if(e.target?.closest?.('#toolHotbar')&&['Space','Enter'].includes(e.code))return;
-  if(e.target?.closest?.('#inventoryPanel,#inventoryDetailModal,#characterStylePanel')&&!['KeyX','Escape'].includes(e.code))return;
+  if(e.target?.closest?.('#toolHotbar,#growthStatusHud')&&['Space','Enter'].includes(e.code))return;
+  if(e.target?.closest?.('#inventoryPanel,#inventoryDetailModal,#characterStylePanel,#growthStatusOverlay')&&!['KeyX','Escape'].includes(e.code))return;
   if(keyMap[e.code]){e.preventDefault();const d=keyMap[e.code];inputs[d]=true;activeDir=d;lastDir=d;if(!e.repeat) bufferPlayerDirection(d);}
   if((e.code==='Space'||e.code==='KeyZ')&&!e.repeat){e.preventDefault();interact();}
   if((e.code==='KeyX'||e.code==='Escape')&&!e.repeat){e.preventDefault();pressB();}

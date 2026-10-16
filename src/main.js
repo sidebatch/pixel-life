@@ -9,7 +9,7 @@ function loop(now){
   updateFishRewardReveal();
   tNow=now;const dt=Math.min(40,now-last);last=now;
   updateWorldTime(dt);updateWeather();updateWorldClockUI();
-  update(dt);updateLifeContentUi(now);drawWorld();refreshContext();refreshCharacterPreviewVisibility();requestAnimationFrame(loop);
+  update(dt);updateLifeContentUi(now);updateGrowthStatus();drawWorld();refreshContext();refreshCharacterPreviewVisibility();requestAnimationFrame(loop);
 }
 function updateStartupProgress(percent){
   const progress=document.getElementById('startupProgress');

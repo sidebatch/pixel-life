@@ -1,5 +1,10 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-16 성장 현황 창 로컬 검증
+
+[기준과 검증](docs/GROWTH_STATUS_V1.md). 320/393/1280px 실제 메뉴·세 기술/XP/진행률/남은 XP/Lv.100 숙련도, 실시간 갱신·XP 애니메이션 분리, 조회 시 저장 호출 없음·기존 진행 상태 유지, 키보드/배경/뒤로·앞으로/재접속, 창 크기·스크롤을 확인했다. 상단 왼쪽 28px 레벨 바의 위치·아이콘·닫힌 상태의 실시간 갱신·클릭/Space 진입·포커스 복귀·항해/알림 간격도 확인했다. 전체 검사 53 scripts/150 UI ids/481 assets/74 fish 통과. 빌드 HTML 21,382,180 bytes/PWA `a77615df2249`. 결과 `output/growth-status-qa/`. **미배포**.
+
+
 ## 2026-10-16 작은 상점 선택창 공개 배포
 
 2026-10-16 작은 상점 선택창 공개 배포 완료. 게임 변경 [69a5442](https://github.com/sidebatch/pixel-life/commit/69a5442fca2db80e1898b145710b69635b6f16b0), PWA `8a4de087e791`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38854194121). HTML 21,372,082 bytes/공개 8파일 38,839,244 bytes가 로컬과 SHA-256까지 일치한다.

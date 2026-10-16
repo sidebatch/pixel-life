@@ -1,0 +1,39 @@
+#gameShell{--growth-hud-top:calc(max(12px,env(safe-area-inset-top)) + 68px);--growth-notice-top:calc(var(--growth-hud-top) + 36px);--growth-feedback-top:var(--growth-notice-top)}
+#gameShell:has(>.voyageHud:not([hidden])){--growth-feedback-top:calc(var(--growth-notice-top) + 62px)}
+.growthStatusHud{position:absolute;top:var(--growth-hud-top);left:14px;z-index:7;display:flex;align-items:center;gap:10px;min-height:28px;margin:0;padding:3px 8px;border:1px solid #c6dec847;border-radius:10px;background:rgba(18,48,40,.62);color:#f2f4df;font:700 10px system-ui;cursor:pointer;pointer-events:auto;touch-action:manipulation}
+.growthStatusHud>span{display:flex;align-items:center;gap:3px}
+.growthStatusHud img{width:18px;height:18px;object-fit:contain;image-rendering:pixelated}
+.growthStatusHud b{font:inherit;font-variant-numeric:tabular-nums;white-space:nowrap}
+.growthStatusHud:focus-visible{outline:2px solid #e6ce76;outline-offset:2px}
+.growthStatusHud:active{background:rgba(41,78,57,.88)}
+.voyageHud,.timeDebugPanel{top:var(--growth-notice-top)}
+.skillXPToast,.lifeToast{top:var(--growth-feedback-top)}
+.lifeToast.belowSkill{top:calc(var(--growth-feedback-top) + 110px)}
+@media(max-width:430px){#gameShell{--growth-hud-top:calc(max(12px,env(safe-area-inset-top)) + 64px)}}
+.menuGrid .menuCardTreeDex{grid-column:auto;flex-direction:column;justify-content:center}
+.menuGrid .menuCard{min-height:124px}
+.menuGrid .menuCardIcon{width:66px;height:66px}
+.menuGrid .growthMenuIcons{position:relative;display:block}
+.growthMenuIcons img{position:absolute;object-fit:contain}
+.menuGrid .growthMenuIcons img{width:38px;height:38px}
+.growthMenuIcons img:nth-child(1){left:0;top:0}
+.growthMenuIcons img:nth-child(2){right:0;top:0}
+.growthMenuIcons img:nth-child(3){left:14px;bottom:0}
+.growthStatusOverlay{position:absolute;inset:0;z-index:24;display:none;place-items:center;padding:16px;pointer-events:auto}
+.growthStatusOverlay.show{display:grid}
+.growthStatusBackdrop{position:absolute;inset:0;background:rgba(5,23,18,.58)}
+.growthStatusSheet{position:relative;display:flex;flex-direction:column;width:min(420px,100%);max-height:100%;min-height:0;overflow:hidden;border:1px solid #c8ddb878;border-radius:22px;background:linear-gradient(155deg,#294c3e,#153532);box-shadow:0 18px 45px #061c1c80;color:#f5f6e7}
+.growthStatusHeader{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 14px 9px;flex:none}
+.growthStatusHeader h2{margin:0;font-size:21px}
+.growthStatusHeader button{width:44px;height:44px;flex:none;border:1px solid #c7dfc437;border-radius:50%;background:#ffffff12;color:#f5f6e7;font:800 25px system-ui;cursor:pointer}
+.growthStatusHeader button:focus-visible{outline:2px solid #e6ce76;outline-offset:2px}
+.growthStatusContent{overflow-y:auto;min-height:0;padding:0 14px 14px;overscroll-behavior:contain;touch-action:pan-y;scrollbar-width:thin}
+.growthStatusSkill{margin:0 0 10px;padding:13px;border:1px solid #bad7bc38;border-radius:15px;background:#122f2d6b}
+.growthStatusSkill:last-child{margin-bottom:0}
+.growthStatusSkill .skillCard{padding:0;border:0;border-radius:0;background:none;box-shadow:none}
+.growthStatusSkill .skillCardTop{gap:9px}.growthStatusSkill .skillCardTop>b{font-size:16px}
+.growthStatusSkill .skillCardLevel{font-size:15px}.growthStatusSkill .skillCardIcon,.growthStatusSkill .skillCardIcon img{width:34px;height:34px}
+.growthStatusSkill .skillCardFoot{font-size:11px;margin-top:6px}.growthStatusSkill .skillCardBar{height:10px;margin-top:10px}
+.growthStatusSkillFoot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:5px 12px;margin-top:11px;padding-top:9px;border-top:1px solid #b3d1b820;color:#d4e4d3;font-size:11px}
+.growthStatusSkillFoot b{color:#f5e5a3}.growthStatusSkillFoot small{font-size:10px;color:#adc6b6}
+@media(max-width:350px){.growthStatusOverlay{padding:12px}.growthStatusContent{padding:0 11px 11px}.growthStatusSkill{padding:11px}.growthStatusHeader{padding:10px 11px 7px}}

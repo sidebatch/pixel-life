@@ -5,6 +5,13 @@
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
     {
+      "topic": "성장 현황·상단 작은 레벨 바·읽기 전용 레벨/경험치·메뉴/이력/재접속",
+      "latest": [
+        "growth-status-qa"
+      ],
+      "previous": []
+    },
+    {
       "topic": "작은 상점 선택창·이미지 없는 세로 메뉴",
       "latest": [
         "compact-market-qa",

@@ -1,5 +1,12 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-17 — 세션 전환 문서 점검
+
+추적/신규 Markdown 115개와 로컬 연결 447개를 검사해 누락 0건을 확인했다. 다시 빌드한 공개 8파일 합계 38,850,279 bytes의 SHA-256과 PWA 캐시가 직전 검증 공개본과 같다. 게임 소스·에셋·저장·밸런스 변경 없이 문서와 QA 보존 목록만 갱신했다.
+
+현재 구현·배포와 문서의 불일치, 후보/확정 구분과 상대 링크를 점검했다. 현재 게임 기준은 bbdd431/81bca11, PWA 916b840676ed, 53 runtime scripts/150 UI IDs/481 assets/74 fish다. 이번 변경은 문서 정리로 게임 기능을 변경하지 않으며 이전 공개 게임 검증을 새 실기기 검사로 표현하지 않는다. 문서 링크와 재빌드 불변 확인 결과는 로컬 output/docs-handoff-qa에 기록한다. 아래는 실제 게임 변경별 QA 이력이다.
+
+
 ## 2026-10-16 폭풍·벼락 QA 보완 공개 배포
 
 2026-10-16 폭풍·벼락 QA 보완 공개 배포 완료. 게임 변경 [bbdd431](https://github.com/sidebatch/pixel-life/commit/bbdd431b8c9c6eaa1dd0754713a1ddea86771adc), PWA `916b840676ed`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38942120347). HTML 21,383,117 bytes/공개 8파일 38,850,279 bytes가 로컬과 SHA-256까지 일치한다.

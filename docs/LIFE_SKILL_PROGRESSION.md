@@ -1,5 +1,8 @@
 # Pixel Life — Life Skill Progression System v1.0
 
+2026-10-17 현재: 메타데이터/아이콘은 7종, 실제 성장 활동은 낚시·벌목·농사 3종이다. [성장 현황/작은 HUD](GROWTH_STATUS_V1.md)는 이 3종만 표시한다. 아래 Gathering/Mining/Cooking/Hunting 레벨 예시는 장기 설계 예시이며 활동 구현 완료를 뜻하지 않는다. 새 콘텐츠 선택은 [회의 기록](NEXT_CONTENT_DISCUSSION_2026_10_17.md)에서 미결정 상태다.
+
+
 2026-10-13 최신 공개: 사용자 요청으로 농사 독립 Farming Lv.1–100/숙련도·수확 XP/진행률/저장 호환과 작물 14종/가격·기본 레벨업 문구 정비를 공개 배포 완료했다. 현재 계약은 [FARMING_PROGRESSION_V1.md](FARMING_PROGRESSION_V1.md), 가격/14종은 FARMING_CROPS_BALANCE_V1.md다. 농장 배치/기본 낫은 기존 FARMING_LAYOUT_V1 기준을 유지한다.
 ## 다른 세션/Work 인수인계 문서
 

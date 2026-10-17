@@ -1,9 +1,16 @@
 {
   "version": 1,
-  "date": "2026-10-16",
+  "date": "2026-10-17",
   "scope": "output only",
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
+    {
+      "topic": "다음 세션 문서 동기화·연결·게임 빌드 불변",
+      "latest": [
+        "docs-handoff-qa"
+      ],
+      "previous": []
+    },
     {
       "topic": "폭풍·벼락·낮은 FPS 달력·자동 날씨 보정",
       "latest": [

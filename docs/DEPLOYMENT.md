@@ -1,5 +1,10 @@
 # Deployment
 
+## 2026-10-17 — 다음 세션 문서 기준
+
+현재 검증 게임은 bbdd431, 직전 문서 포함 최종 게시 81bca11([성공 #38942837269](https://github.com/sidebatch/pixel-life/actions/runs/38942837269))이다. PWA 916b840676ed/공개 8파일 38,850,279 bytes는 동일하다. 이번 main 문서 푸시도 자동 CI/게시 대상이지만 게임 소스·에셋은 바꾸지 않는다. 문서 자체 최신 커밋/실행은 GitHub main과 Actions에서 확인한다. 새 세션의 다음 작업은 [HANDOFF.md](HANDOFF.md)와 [미선택 콘텐츠 회의](NEXT_CONTENT_DISCUSSION_2026_10_17.md)를 따른다.
+
+
 ## 2026-10-16 폭풍·벼락 QA 보완 공개 배포
 
 2026-10-16 폭풍·벼락 QA 보완 공개 배포 완료. 게임 변경 [bbdd431](https://github.com/sidebatch/pixel-life/commit/bbdd431b8c9c6eaa1dd0754713a1ddea86771adc), PWA `916b840676ed`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/38942120347). HTML 21,383,117 bytes/공개 8파일 38,850,279 bytes가 로컬과 SHA-256까지 일치한다.

@@ -1,5 +1,8 @@
 # 항해 배경 겹침·부표·얕은 바다 승선권 조정
 
+2026-10-17 현재 상태: 이 문서의 기능은 후속 공개 배포에 포함됐다. 아래 날짜별 로컬/공개 배포 전 빌드 수치는 당시 이력이다. 현재 빌드·검증·승인 경계는 [HANDOFF.md](HANDOFF.md)와 [DEPLOYMENT.md](DEPLOYMENT.md)를 따른다.
+
+
 2026-10-15 공개 배포 완료. 게임 변경 커밋 [e5c886a](https://github.com/sidebatch/pixel-life/commit/e5c886a627e0c1f983d2be71608ba0c32ed3817a), PWA `564c82ae77ff`, [성공 배포](https://github.com/sidebatch/pixel-life/actions/runs/38828050113). HTML 20,549,977 bytes/공개 8파일 38,017,139 bytes가 로컬과 SHA-256까지 일치한다. 이 문서의 변경은 모두 공개에 반영됐다. 아래 ‘공개 전/로컬’과 단계별 빌드 수치는 개발 당시 검증 기록으로 보존한다. 현재 검증은 [DEPLOYMENT.md](DEPLOYMENT.md)를 따른다.
 
 후속 사용자 요청으로 다른 항로 가격도 [VOYAGE_FARES_V1.md](VOYAGE_FARES_V1.md)의 3,500/5,000/8,000코인으로 조정했다. 아래 ‘다른 가격은 변경 대상이 아님’은 얕은 바다만 조정했던 이전 단계의 기록이다. 배경/부표·조기 귀항 기준은 계속 유지한다.

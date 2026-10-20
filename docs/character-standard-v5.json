@@ -27,6 +27,12 @@
       "date": "2026-10-15",
       "previousRendererSha256": "bf733862e859d90bdbc502bbdebdc3cce00cfe02dc08c60e22be8b8809c7bfde",
       "scope": "User explicitly requested all rods to be thicker and visibly distinguishable. All 10 rods use 2x perpendicular width at draw time, sharing the original hand pivot, tip, axial length, pose and PNGs. Matching diagonal-axis projection in shop, inventory, detail, action button and hotbar. No changes to axe/sickle/sword rendering or body/feet/grip geometry."
+    },
+    {
+      "feature": "held-tool-free-swing-v1",
+      "date": "2026-10-19",
+      "previousRendererSha256": "3183f48fcd655332329ef34e773dcfa498fd6d337bc937b33be7276907ad7349",
+      "scope": "User requested all held weapons/tools to swing. Add rodSwing using existing right-hand chop body/grip and sword arc metadata; allow target-free sickle action. All PNGs, geometryHash, existingTools, original walk/chop/fish/sword/sickle transforms, fishing tip and rod width stay fixed. See docs/TOOL_SWING_V1.md."
     }
   ],
   "trialChanges": [
@@ -204,7 +210,7 @@
     }
   },
   "protectedFiles": {
-    "src/character.js": "3183f48fcd655332329ef34e773dcfa498fd6d337bc937b33be7276907ad7349",
+    "src/character.js": "b5b48180346defb85f4d39e144c672a7d7bed1f762cd287b1a7063b0180976cd",
     "assets/player/character-baseline-v2/chop-body.png": "ab117f64bf7c30c323a633ee98e13c2dc8b5b42ff01cc1797dbaffbe5604d290",
     "assets/player/character-baseline-v2/chop-hair.png": "ec9d7ea490acc39f88879608bcbe7846a72bd2fbb950f9a414c0000d56361063",
     "assets/player/character-baseline-v2/chop-head.png": "19ecdf9429f3a160798e622c5ca280244559546d49b5c3be18ae3d3a21186cb2",

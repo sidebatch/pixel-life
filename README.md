@@ -1,5 +1,7 @@
 # Pixel Life
 
+2026-10-19 로컬 추가(**아직 미배포**): [모든 손 장비 휘두르기](docs/TOOL_SWING_V1.md). 낚싯대 10종·도끼 10종·기본 낫·기본 검을 허공에서 휘두를 수 있고 실제 낚시·벌목·수확은 그대로 유지합니다.
+
 2026-10-17 문서 정리. 다음 세션은 [개발 인수인계](docs/HANDOFF.md)와 [다음 콘텐츠 회의](docs/NEXT_CONTENT_DISCUSSION_2026_10_17.md)부터 읽습니다. 광산·보물 탐사·동물 키우기·제작/요리는 아직 선택 전 후보입니다.
 
 현재 검증한 공개 게임: [Pixel Life](https://sidebatch.github.io/pixel-life/?v=81bca11). 게임 변경 bbdd431, 문서 포함 게시 81bca11, PWA `916b840676ed`. 전체 검사 53 runtime scripts/150 UI IDs/481 assets/74 fish, HTML 21,383,117 bytes·공개 8파일 38,850,279 bytes입니다. 이번 변경은 문서 정리이며 게임 빌드는 같습니다.

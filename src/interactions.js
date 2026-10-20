@@ -38,7 +38,8 @@ function resolveWorldInteraction(tile=facingTile()){
     const needed=FORESTRY_TREES[tree.species]?.tier||1;
     const chopStats=forestryTreeChopStats(FORESTRY_TREES[tree.species]);
     const name=FOREST_WOOD[tree.species];
-    const label=GAME_STATE.appearance?.activeTool==='sword'?`${name} · 검 휘두르기`:
+    const held=GAME_STATE.appearance?.activeTool;
+    const label=['sword','rod','sickle'].includes(held)?`${name} · ${{sword:'검',rod:'낚싯대',sickle:'낫'}[held]} 휘두르기`:
       GAME_STATE.appearance?.activeTool==='none'&&getForestryAxeDurability()?.broken?`${name} · 도끼 수리 필요`:
       (GAME_STATE.appearance?.activeTool||'axe')!=='axe'?`${name} · 도끼 장착 필요`:
       !getTreeState(tree).hp?`${name} · 재생 중`:
@@ -65,7 +66,7 @@ function activateWorldInteraction(interaction){
     case 'ticketBooth':return openHarbor();
     case 'sign':return showDialog('표지판','↑ 고대 숲 · ↓ 오래된 숲 · → 햇살 농장 · ← 바람결 해안 항구 · 낚싯대를 장착하고 물가에서 낚시할 수 있어요.');
     case 'routeSign':return showDialog('나무 팻말',interaction.target.arrow+' '+interaction.target.label);
-    case 'tree':return GAME_STATE.appearance?.activeTool==='sword'?startSwordSwing():startTreeChop(interaction.target);
+    case 'tree':return ['sword','rod','sickle'].includes(GAME_STATE.appearance?.activeTool)?startHeldToolSwing():startTreeChop(interaction.target);
     case 'farm':return getFarmPlotPhase(interaction.target)==='READY'&&GAME_STATE.appearance?.activeTool==='sickle'?
       startFarmHarvest(interaction.target):openFarmPlot(interaction.target);
     case 'fishing':return startFishing();
@@ -81,8 +82,7 @@ function interact(){
   if(typeof isFishingActive==='function'&&isFishingActive()) return handleFishingAction();
   const interaction=resolveWorldInteraction();
   if(interaction) return activateWorldInteraction(interaction);
-  if((GAME_STATE.appearance?.activeTool||'axe')==='axe') return startAxeSwing();
-  if(GAME_STATE.appearance?.activeTool==='sword') return startSwordSwing();
+  if(['axe','rod','sickle','sword'].includes(GAME_STATE.appearance?.activeTool||'axe'))return startHeldToolSwing();
   showDialog('SYSTEM','조사할 것이 없다.');
 }
 function pressB(){
@@ -331,7 +331,7 @@ function actionButtonPresentation(){
   const interaction=resolveWorldInteraction();
   if(interaction){
     const {kind,label,target}=interaction;
-    if(kind==='tree')return result(GAME_STATE.appearance?.activeTool==='sword'?'sword':'axe',label.split(' · ').slice(1).join(' · ')||label);
+    if(kind==='tree')return result(['sword','rod','sickle'].includes(GAME_STATE.appearance?.activeTool)?GAME_STATE.appearance.activeTool:'axe',label.split(' · ').slice(1).join(' · ')||label);
     if(kind==='farm'){
       const phase=getFarmPlotPhase(target);
       if(phase==='LOCKED')return result('basket','부지 구매');

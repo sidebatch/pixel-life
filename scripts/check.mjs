@@ -37,6 +37,7 @@ const scriptFiles = [
   'src/simulation.js',
   'src/life-content.js',
   'src/sword.js',
+  'src/tool-swing.js',
   'src/debug.js',
   'src/rendering.js',
   'src/voyage-rendering.js',

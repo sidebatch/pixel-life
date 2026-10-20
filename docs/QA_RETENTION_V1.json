@@ -1,9 +1,16 @@
 {
   "version": 1,
-  "date": "2026-10-17",
+  "date": "2026-10-19",
   "scope": "output only",
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
+    {
+      "topic": "모든 손 장비 휘두르기·기존 모션/저장·낚시/수확 보존",
+      "latest": [
+        "tool-swing-qa"
+      ],
+      "previous": []
+    },
     {
       "topic": "다음 세션 문서 동기화·연결·게임 빌드 불변",
       "latest": [

@@ -1,5 +1,7 @@
 # 캐릭터·외형·무기 제작 고정 기준
 
+2026-10-19 로컬 확장(미배포): 사용자가 모든 손 장비의 휘두르기를 요청해 낚싯대 rodSwing과 대상 없는 낫 동작을 추가했다. 기존 PNG·몸/손/발 좌표·기존 480개 도구 변환은 보존하고 v5의 승인 확장/렌더러 해시만 기록했다. [동작·검증](TOOL_SWING_V1.md).
+
 현행 규격 ID: `npc-compatible-v5-rod-width-extension` · 적용일: 2026-10-15 · 기준 계약: `docs/character-standard-v5.json` · 검 동작 확장: `docs/sword-action-v1.json`
 
 사용자가 낚싯대 전체 두께 개선을 요청한 후속 공개 변경이다. 10종에 공통으로 축 직각 폭 2배를 적용하며 기존 PNG·손/끝점·축 길이·몸/동작 좌표는 그대로다. 가방/상점/행동 버튼/하단 바도 같은 방향으로 굵게 표시한다. `approvedExtensions.rod-width-presentation-v1`과 렌더러 해시를 갱신하고 480개 합성 변환을 검증했다. 공개 배포·검증을 완료했으며 [상세 검증](GAMEPLAY_FEEDBACK_V1.md)을 따른다.

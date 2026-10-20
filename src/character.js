@@ -33,10 +33,10 @@ function validateCharacterRigAssets(){
 function getCharacterPose(){
   const face=player.face||'down';
   if(lifeUi.chop?.regionId===GAME_STATE.regionId){
-    const sword=lifeUi.chop.mode==='sword',sickle=lifeUi.chop.mode==='sickle';
-    return {pose:sword?'sword':sickle?'sickle':'chop',face,
+    const sword=lifeUi.chop.mode==='sword',sickle=lifeUi.chop.mode==='sickle',rod=lifeUi.chop.mode==='rod';
+    return {pose:sword?'sword':sickle?'sickle':rod?'rodSwing':'chop',face,
       frame:tNow-lifeUi.chop.startedAt<(sword?SWORD_SWING_TIMING:FORESTRY_CHOP_TIMING).impactMs?0:1,
-      tool:sword?'sword':sickle?'sickle':'axe'};
+      tool:sword?'sword':sickle?'sickle':rod?'rod':'axe'};
   }
   if(typeof isFishingActive==='function'&&isFishingActive()){
     const phase=fishingState.phase;
@@ -65,8 +65,11 @@ function getCharacterWalkHeadAlignment(pose){
     pose.pose==='walk'&&pose.face==='down'?[0,-1,1][pose.frame]:0;
 }
 
+function getCharacterActionDefinition(pose){
+  return pose==='sword'?SWORD_ACTION:pose==='sickle'?SICKLE_ACTION:pose==='rodSwing'?ROD_SWING_ACTION:CHARACTER_RIG.poses[pose];
+}
 function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
-  const frame=(pose.pose==='sword'?SWORD_ACTION:pose.pose==='sickle'?SICKLE_ACTION:CHARACTER_RIG.poses[pose.pose]).frames[pose.face][pose.frame];
+  const frame=getCharacterActionDefinition(pose.pose).frames[pose.face][pose.frame];
   const asset=pose.tool==='rod'?getEquippedFishingRod().asset:
     pose.tool==='sword'?getEquippedSword().asset:pose.tool==='sickle'?FARM_SICKLE.asset:getEquippedForestryAxe().asset;
   const key=`${pose.tool}.${asset}`,tool=pose.tool==='sword'?SWORD_TOOLS[key]:pose.tool==='sickle'?SICKLE_TOOLS[key]:CHARACTER_RIG.tools[key];
@@ -74,7 +77,7 @@ function getCharacterToolTransform(actorX,actorY,pose=getCharacterPose()){
   const unit=CHARACTER_RIG.renderSize/CHARACTER_RIG.cell;
   const x=actorX+(frame.grip[0]+getCharacterWalkAlignment(pose)-CHARACTER_RIG.feet[0])*unit;
   const y=actorY+20+(frame.grip[1]-CHARACTER_RIG.feet[1])*unit;
-  const length=(pose.tool==='rod'?(pose.pose==='fish'?48:36):
+  const length=(pose.tool==='rod'?(['fish','rodSwing'].includes(pose.pose)?48:36):
     pose.tool==='sword'?swordTargetLength(tool,pose.pose):pose.tool==='sickle'?(pose.pose==='sickle'?tool.swingLength:tool.carryLength):pose.pose==='chop'?34:26)*unit;
   // Front/back carry and swings show a narrow three-quarter edge, not the broad
   // side. Keep the right-hand pivot and shaft length; side views stay intact.
@@ -113,7 +116,7 @@ function drawCharacterTool(transform){
 }
 
 function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
-  const definition=pose.pose==='sword'?SWORD_ACTION:pose.pose==='sickle'?SICKLE_ACTION:CHARACTER_RIG.poses[pose.pose],cell=CHARACTER_RIG.cell;
+  const definition=getCharacterActionDefinition(pose.pose),cell=CHARACTER_RIG.cell;
   const row={down:0,right:1,left:2,up:3}[pose.face],size=CHARACTER_RIG.renderSize;
   const x=actorX-CHARACTER_RIG.feet[0]*size/cell;
   const y=actorY+20-CHARACTER_RIG.feet[1]*size/cell;
@@ -132,8 +135,8 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
     // Chop source art has wider heads on some impact frames despite equal
     // cell/feet dimensions. Keep the same head dimensions, but translate/tilt
     // it around the neck with the torso instead of freezing it in place.
-    const stableChopHead=(pose.pose==='chop'||pose.pose==='sword'||pose.pose==='sickle')&&(name==='Head'||name==='Hair');
-    const artPose=pose.pose==='sword'||pose.pose==='sickle'?'chop':pose.pose;
+    const stableChopHead=(pose.pose==='chop'||pose.pose==='sword'||pose.pose==='sickle'||pose.pose==='rodSwing')&&(name==='Head'||name==='Hair');
+    const artPose=pose.pose==='sword'||pose.pose==='sickle'||pose.pose==='rodSwing'?'chop':pose.pose;
     const layerPose=stableChopHead?'walk':artPose;
     const layerFrame=stableChopHead?0:pose.frame;
     const part=['Body','Head','Grip'].includes(name)?'body':name==='Hair'?'hair':name==='Backpack'?'backpack':null;
@@ -166,7 +169,7 @@ function drawCharacterActor(actorX,actorY,pose=getCharacterPose()){
   if(!transform?.behind&&!toolOverHair)drawCharacterTool(transform);
   // A raised preparation hand passes behind the head. Drawing all gripping
   // hands last made this skin patch look like an exposed bald rear skull.
-  const handBehindHead=(pose.pose==='chop'||pose.pose==='sword'||pose.pose==='sickle'||pose.pose==='fish')&&pose.frame===0;
+  const handBehindHead=(pose.pose==='chop'||pose.pose==='sword'||pose.pose==='sickle'||pose.pose==='rodSwing'||pose.pose==='fish')&&pose.frame===0;
   if(handBehindHead)drawLayer('Grip');
   drawLayer('Head');drawLayer('Hair');
   if(toolOverHair)drawCharacterTool(transform);

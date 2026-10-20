@@ -16,6 +16,7 @@
 
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
+| 모든 손 장비 휘두르기 | [TOOL_SWING_V1.md](TOOL_SWING_V1.md) | 2026-10-19 로컬/미배포·22장비·rodSwing/낫 허공 동작·기존 변환 보호 |
 | 다음 콘텐츠 회의 | [NEXT_CONTENT_DISCUSSION_2026_10_17.md](NEXT_CONTENT_DISCUSSION_2026_10_17.md) | 광산·보물·동물·제작/요리 후보, 사용자 미선택/구현 미승인 |
 | 성장 현황/작은 HUD | [GROWTH_STATUS_V1.md](GROWTH_STATUS_V1.md) | 실제 3스킬·XP·숙련도/28px 바·저장 불변 |
 | 폭풍·벼락/달력 | [WEATHER_QA_V1.md](WEATHER_QA_V1.md) | 5~60FPS 시간·폭풍 보정·벼락/동작 줄이기·QA |

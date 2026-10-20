@@ -7,7 +7,8 @@
     {
       "topic": "모든 손 장비 휘두르기·기존 모션/저장·낚시/수확 보존",
       "latest": [
-        "tool-swing-qa"
+        "tool-swing-qa",
+        "deploy-tool-swing-qa"
       ],
       "previous": []
     },

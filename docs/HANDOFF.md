@@ -1,8 +1,12 @@
 # Pixel Life 개발 인수인계
 
-기준일: **2026-10-17**. 다음 세션은 이 문서와 [다음 콘텐츠 회의](NEXT_CONTENT_DISCUSSION_2026_10_17.md)부터 읽는다.
+기준일: **2026-10-19**. 다음 세션은 이 문서와 [다음 콘텐츠 회의](NEXT_CONTENT_DISCUSSION_2026_10_17.md)부터 읽는다.
 
-2026-10-19 후속 로컬 변경(**미배포**): [모든 손 장비 휘두르기](TOOL_SWING_V1.md)를 구현·검증했다. 현재 22개 장비를 빈 공간에서 휘두르고, 낚싯대/낫도 동작한다. 기존 실제 활동·내구도·XP·저장은 유지한다. src/tool-swing.js가 추가돼 런타임은 54개다. 작업 폴더에는 이전에 진행 중이던 숲 배치 관련 미커밋 변경도 있으므로 서로 구분한다. 아래 2026-10-17/공개 상태와 새 콘텐츠 회의는 해당 시점의 기준이다.
+2026-10-19 모든 손 장비 휘두르기 공개 배포 완료. 게임 변경 [eccf7d7](https://github.com/sidebatch/pixel-life/commit/eccf7d720de6ddf5e55a7c0d09accb314c0cb470), PWA `7e3bd6e5beb2`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/39355204438). HTML 21,384,628 bytes/공개 8파일 38,851,790 bytes가 배포용 독립 빌드와 SHA-256까지 일치한다.
+
+도끼 10종·낚싯대 10종·기본 낫·기본 검을 빈 공간에서 행동 버튼 또는 Space/Z로 휘두른다. 앞모습의 남녀 손 위치·준비→앞/아래 타격 방향을 22장비/88프레임과 실제 합성 시트로 재확인했으며 추가 자세 변경은 필요하지 않았다. 나무 앞의 검/낚싯대/낫은 무피해 동작이고 물가 낚시·밭 수확은 기존대로다. 허공 동작은 내구도/XP/아이템/저장/난수를 바꾸지 않는다. [기준·검증](TOOL_SWING_V1.md).
+
+배포할 커밋만 추출한 독립 소스에서 전체 검사 54 scripts/150 UI ids/481 assets/74 fish와 빌드를 통과했다. 공개 320/393px 모바일·PC 1280px에서 화면당 176회/352프레임, 정면 88프레임, 기존 480개 변환 일치·잠금/파손·실제 낚시/수확·저장 불변을 검증했다. PWA 격리 브라우저에서 새 캐시·오프라인 음악 Range 206/100 bytes·강제 재로딩 없음을 확인했다. 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 못했고, 새 영구 프로필에서는 서비스 워커 제어 대기가 끝나지 않아 설치 검증을 미완료로 남긴다. 기존 숲 배치 미커밋 변경은 보존하고 이번 배포에서 제외했다. 결과 `output/deploy-tool-swing-qa/`. 아래는 이전 공개/개발 기록이다.
 
 ## 1. 바로 다음 작업
 
@@ -13,9 +17,9 @@
 ## 2. 저장소와 현재 공개 기준
 
 - 실제 Git 저장소는 상위 작업 폴더 안의 동명 pixel-life-path-redesign-v5 폴더다. 상위 WAV·첨부·옛 pixel-life-web 폴더를 현재 게임 저장소로 사용하지 않는다.
-- [GitHub 저장소](https://github.com/sidebatch/pixel-life) · [현재 검증한 공개 게임](https://sidebatch.github.io/pixel-life/?v=81bca11).
-- 최신 게임 변경: [bbdd431](https://github.com/sidebatch/pixel-life/commit/bbdd431b8c9c6eaa1dd0754713a1ddea86771adc). 직전 문서 포함 게시: [81bca11](https://github.com/sidebatch/pixel-life/commit/81bca1150b5f08faff938d7a83272a3797b7603a), [게시 성공 #38942837269](https://github.com/sidebatch/pixel-life/actions/runs/38942837269).
-- PWA 캐시 pixel-life-916b840676ed, HTML 21,383,117 bytes, 공개 8파일 합계 38,850,279 bytes. 8파일의 SHA-256은 로컬 dist와 일치한다.
+- [GitHub 저장소](https://github.com/sidebatch/pixel-life) · [현재 검증한 공개 게임](https://sidebatch.github.io/pixel-life/?v=eccf7d7).
+- 최신 게임 변경: [eccf7d7](https://github.com/sidebatch/pixel-life/commit/eccf7d720de6ddf5e55a7c0d09accb314c0cb470), [게시 성공 #39355204438](https://github.com/sidebatch/pixel-life/actions/runs/39355204438). 문서 자체의 최신 커밋은 git log로 확인한다.
+- PWA 캐시 pixel-life-7e3bd6e5beb2, HTML 21,384,628 bytes, 공개 8파일 합계 38,851,790 bytes. 8파일의 SHA-256은 로컬 dist와 일치한다.
 - 위 커밋은 이번 문서 정리 전 검증 기준이다. 이 문서 자체의 최신 커밋은 git log와 origin/main으로 확인한다. 문서만 바뀌면 게임/PWA 내용은 동일하다.
 - main 푸시는 Deploy GitHub Pages를 자동 실행한다. 소스 게시 후 Actions 성공과 공개 파일 반영을 확인한다. 현재 CI는 문서 변경에도 실행된다.
 
@@ -23,6 +27,7 @@
 
 | 기능 | 현재 동작과 기준 |
 | --- | --- |
+| 모든 손 장비 휘두르기 | 22장비를 허공에서 휘두른다. 남녀 정면 손 위치와 준비→앞/아래 타격을 재확인했고 기존 활동/저장을 유지한다. [기준·검증](TOOL_SWING_V1.md) |
 | 폭풍·벼락 | 낮은 FPS에서도 달력은 실제 전경 시간을 따른다. 비폭풍 구간 3번 뒤 다음 구간은 폭풍으로 정해 연속 플레이 중 최대 약 30분 안에 한 번 발생한다. 보정은 세션 단위이며 재접속 시 새로 시작한다. 위치·길이·꺾임·가지·간격이 달라지고 한 번 번쩍이는 동안 모양은 고정한다. 동작 줄이기에서는 벼락/빛 효과를 생략한다. [기준·QA](WEATHER_QA_V1.md) |
 | 성장 현황 | 메뉴의 성장 현황과 지역 이름 아래 28px 반투명 바. 낚시·벌목·농사만 표시하며 작은 바를 누르면 상세 XP/남은 XP/숙련도를 연다. 별도 종합 레벨은 없다. [기준](GROWTH_STATUS_V1.md) |
 | NPC 상점 | 작은 세로 선택창에 구매·판매·업그레이드·수리 등 실제 제공하는 서비스 이름만 표시한다. 선택 뒤 상세 품목/그림/거래 UI를 연다. 비어 있는 서비스는 숨기고 수량 버튼은 취소→전부 순서다. [기준](MARKET_SERVICES_ICONS_V1.md) |
@@ -57,9 +62,9 @@
 
 ## 6. QA·배포 기준
 
-직전 게임 빌드 전체 검사: **53 runtime scripts / 150 UI IDs / 481 asset references / 74 fish**. 도구 스크립트 파일 수와 runtime scripts 수는 다르다.
+직전 게임 빌드 전체 검사: **54 runtime scripts / 150 UI IDs / 481 asset references / 74 fish**. 도구 스크립트 파일 수와 runtime scripts 수는 다르다.
 
-공개 320/393px 모바일·PC 1280px에서 성장 현황·작은 HUD와 날씨를 검증했다. 날씨 수치 QA는 1만 게임 날짜와 5~60FPS의 실제 프레임 루프·백그라운드/복귀/BFCache를 검증한다. PWA는 새 캐시/설치 조건·강제 재로딩 없음·오프라인/음악 Range 206/100 bytes를 확인했다.
+공개 320/393px 모바일·PC 1280px에서 모든 손 장비 휘두르기와 남녀 정면을 검증했다. 성장 현황·작은 HUD와 날씨는 이전 공개 QA를 유지한다. 날씨 수치 QA는 1만 게임 날짜와 5~60FPS의 실제 프레임 루프·백그라운드/복귀/BFCache를 검증한다. 이번 PWA 캐시·오프라인·Range 응답은 통과했으며, 설치 검증은 위에 기록한 프로필 문제로 미완료다.
 
 증거는 로컬 output/growth-status-qa, output/deploy-growth-status-qa, output/weather-qa, output/deploy-weather-qa에 있다. output 전체는 Git 제외이므로 새 컴퓨터에 없을 수 있다. GitHub에는 기준 문서·검사 코드·Actions 기록을 남긴다. 다른 세션에서 QA가 필요하면 관련 스크립트로 재현한다.
 

@@ -1,5 +1,7 @@
 # Pixel Life 문서 안내
 
+2026-10-20 후속 로컬 변경(**미배포**): [들녘 사냥터 v1](HUNTING_GROUND_V1.md). 23지역·56 runtime scripts·153 UI IDs·488 asset references. 아래 공개 기준은 직전 배포 기록이다.
+
 2026-10-19 기준. 새 세션은 [HANDOFF.md](HANDOFF.md)와 [다음 콘텐츠 회의](NEXT_CONTENT_DISCUSSION_2026_10_17.md)부터 읽는다. 다음 콘텐츠는 미선택이며, 아래 문서의 구현/제안/과거 기록을 구별한다.
 
 현재 게임 변경 eccf7d7/PWA 7e3bd6e5beb2, 54 runtime scripts/150 UI IDs/481 assets/74 fish. 최근 공개/이전 내역은 [DEPLOYMENT.md](DEPLOYMENT.md)와 [10월 16일 누적 이력](HANDOFF_RELEASE_HISTORY_2026_10_16.md)에 있다.
@@ -16,6 +18,7 @@
 
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
+| 첫 사냥터 | [HUNTING_GROUND_V1.md](HUNTING_GROUND_V1.md) | 마을 안쪽 입구·5종/10개체·개별 반격·체력/복귀·세션/검증 |
 | 모든 손 장비 휘두르기 | [TOOL_SWING_V1.md](TOOL_SWING_V1.md) | 2026-10-19 공개 완료·22장비·rodSwing/낫 허공 동작·기존 변환 보호 |
 | 다음 콘텐츠 회의 | [NEXT_CONTENT_DISCUSSION_2026_10_17.md](NEXT_CONTENT_DISCUSSION_2026_10_17.md) | 광산·보물·동물·제작/요리 후보, 사용자 미선택/구현 미승인 |
 | 성장 현황/작은 HUD | [GROWTH_STATUS_V1.md](GROWTH_STATUS_V1.md) | 실제 3스킬·XP·숙련도/28px 바·저장 불변 |

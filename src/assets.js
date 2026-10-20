@@ -1,4 +1,10 @@
 const ASSET_URLS = Object.freeze({
+  wildlifeBoar:'assets/hunting/boar-v1.png',
+  wildlifeDeer:'assets/hunting/deer-v1.png',
+  wildlifeFox:'assets/hunting/fox-v1.png',
+  wildlifeWolf:'assets/hunting/wolf-v1.png',
+  wildlifeBear:'assets/hunting/bear-v1.png',
+  huntingGate:'assets/hunting/gate-v1.png',
   farmSoil:'assets/farming/terrain/soil-v1.png',
   farmScarecrow:'assets/farming/decorations/scarecrow-v1.png',
   farmSign:'assets/farming/decorations/sign-v1.png',
@@ -450,6 +456,7 @@ const LIFE_SKILL_ICON_URLS=Object.freeze({
 });
 
 const REGION_ICON_URLS=Object.freeze({
+  wildwoodHunt:'assets/hunting/region-icon-v1.png',
   lilacVillage:'assets/ui/world-skills-v1/lilacVillage.png',
   oldForest:'assets/ui/world-skills-v1/oldForest.png',
   deepForest:'assets/ui/world-skills-v1/deepForest.png',

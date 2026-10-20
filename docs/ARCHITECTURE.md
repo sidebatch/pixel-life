@@ -1,6 +1,8 @@
 # Pixel Life Architecture
 
-현재 추가 모듈: [성장 현황/HUD](GROWTH_STATUS_V1.md), [서비스 선택/아이콘](MARKET_SERVICES_ICONS_V1.md), [하위 도끼](FORESTRY_LOWER_AXE_V1.md), [폭풍/달력](WEATHER_QA_V1.md). 다음 콘텐츠의 미결정 경계는 [회의 기록](NEXT_CONTENT_DISCUSSION_2026_10_17.md)을 따른다.
+2026-10-20 로컬 추가: [들녘 사냥터](HUNTING_GROUND_V1.md). `src/data/hunting-data.js`는 5종/10개체와 규칙, `src/hunting.js`는 세션 전투·이동·반격·체력/복귀·표시를 담당한다. `life-content.js`의 공통 타격 시점과 연결하며 `character.js`와 기존 경제/저장 계약은 유지한다. 사냥터 공개 배포 전이다.
+
+현재 추가 모듈: [사냥터/반격 전투](HUNTING_GROUND_V1.md), [성장 현황/HUD](GROWTH_STATUS_V1.md), [서비스 선택/아이콘](MARKET_SERVICES_ICONS_V1.md), [하위 도끼](FORESTRY_LOWER_AXE_V1.md), [폭풍/달력](WEATHER_QA_V1.md). [회의 기록](NEXT_CONTENT_DISCUSSION_2026_10_17.md)은 사냥터 선택 전의 후보 논의다.
 
 
 2026-10-15 공개 추가: `src/tool-hotbar.js`/`styles/tool-hotbar.css`는 하단 다섯 도구/숫자키와 기존 장착·저장을 연결한다. `src/inventory.js`의 농장 탭은 기존 `farmOrders` 화폐/보유·설치 기록을 직접 읽고 `setFarmDecorationPlaced`를 호출한다. 시장/승선권의 성공한 UI 결제만 합성음을 호출하며 `drawForestWaterfalls`는 물 영역만 움직인다. 상세는 [도구 바](TOOL_HOTBAR_V1.md), [가방 농장](FARM_INVENTORY_V1.md), [효과음·폭포](MARKET_WATERFALL_V1.md)를 따른다.

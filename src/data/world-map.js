@@ -20,6 +20,7 @@ let WORLD_DEFINITION = Object.freeze({
     { x1: 47, y1: 24, x2: 57, y2: 24 },
     { x1: 32, y1: 32, x2: 50, y2: 32 },
     { x1: 50, y1: 24, x2: 50, y2: 32 },
+    { x1: 48, y1: 32, x2: 48, y2: 37 },
     { x1: 50, y1: 24, x2: 62, y2: 24 },
     { x1: 56, y1: 23, x2: 56, y2: 24 },
     { x1: 10, y1: 20, x2: 10, y2: 24 },
@@ -30,6 +31,11 @@ let WORLD_DEFINITION = Object.freeze({
     { x1: 8, y1: 41, x2: 8, y2: 43 },
     { x1: 13, y1: 41, x2: 17, y2: 41 }
   ],
+
+  huntingGate:{x:48,y:35,to:'wildwoodHunt',label:'들녘 사냥터',solids:[
+    {x:46,y:34},{x:47,y:34},{x:49,y:34},{x:50,y:34},
+    {x:46,y:35},{x:47,y:35},{x:49,y:35},{x:50,y:35}
+  ]},
 
   stoneAreas: [
     { id: 'village_square', x: 23, y: 22, w: 6, h: 5 }

@@ -21,6 +21,7 @@
   <link rel="stylesheet" href="styles/tool-hotbar.css" />
   <link rel="stylesheet" href="styles/market-services.css" />
   <link rel="stylesheet" href="styles/growth-status.css" />
+  <link rel="stylesheet" href="styles/hunting.css" />
   <!-- /build:styles -->
 </head>
 <body>
@@ -34,6 +35,7 @@
       <small id="startupError" hidden></small>
     </div>
     <div id="voyageHud" class="voyageHud" hidden><span>⚓ 운항 <b id="voyageTimer">10:00</b></span><small id="voyageNotice" role="status" aria-live="polite"></small></div>
+    <div id="huntingHud" class="huntingHud" hidden><label for="huntingHealth">체력 <span id="huntingHealthText">100 / 100</span></label><progress id="huntingHealth" max="100" value="100"></progress></div>
     <div id="voyageBoarding" class="voyageBoarding" hidden role="status">⚓<b>얕은 바다로 출항합니다</b><small>승선권 1장을 사용했어요</small></div>
     <section id="harborPanel" class="harborPanel" role="dialog" aria-modal="true" aria-labelledby="harborTitle" aria-hidden="true">
       <header><h2 id="harborTitle">항구 매표소</h2><button id="harborClose" type="button" aria-label="매표소 닫기">×</button></header>
@@ -307,6 +309,7 @@
   <script src="src/farm-orders.js"></script>
   <script src="src/data/tree-dex-data.js"></script>
   <script src="src/data/sword-data.js"></script>
+  <script src="src/data/hunting-data.js"></script>
   <script src="src/data/farming-data.js"></script>
   <script src="src/data/voyage-data.js"></script>
   <script src="src/world-time.js"></script>
@@ -321,6 +324,7 @@
   <script src="src/life-content.js"></script>
   <script src="src/sword.js"></script>
   <script src="src/tool-swing.js"></script>
+  <script src="src/hunting.js"></script>
   <script src="src/debug.js"></script>
   <script src="src/rendering.js"></script>
   <script src="src/voyage-rendering.js"></script>

@@ -5,7 +5,7 @@ const REGION_MUSIC_URLS=Object.freeze({
   lakeside:'assets/audio/music/lakeside.mp3'
 });
 const REGION_MUSIC_TRACKS=Object.freeze({
-  lilacVillage:'meadow',oldForest:'woodland',deepForest:'woodland',
+  lilacVillage:'meadow',wildwoodHunt:'woodland',oldForest:'woodland',deepForest:'woodland',
   forestThree:'woodland',forestFour:'woodland',forestFive:'woodland',forestSix:'woodland',
   forestSeven:'woodland',forestEight:'woodland',forestNine:'woodland',forestTen:'woodland',
   forestEleven:'woodland',forestTwelve:'woodland',sunnyFields:'lakeside',coast:'lakeside',mountainLake:'lakeside',

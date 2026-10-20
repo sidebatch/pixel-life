@@ -526,6 +526,7 @@ function updateLifeContentUi(now){
     const timing=chop.mode==='sword'?SWORD_SWING_TIMING:chop.mode==='sickle'?FARM_HARVEST_TIMING:FORESTRY_CHOP_TIMING;
     if(!chop.struck&&elapsed>=timing.impactMs){
       chop.struck=true;
+      if(!chop.tree&&!chop.plot&&typeof strikeHuntingWildlife==='function')strikeHuntingWildlife(chop,now);
       if(chop.mode==='sickle'&&chop.plot)harvestFarmCrop(chop.plot);
       if(chop.tree){
         const cut=getTreeState(chop.tree).hp<=forestryTreeChopStats(FORESTRY_TREES[chop.tree.species]).damage;

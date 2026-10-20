@@ -1,0 +1,36 @@
+{
+  "tool": "built-in image_gen",
+  "date": "2026-10-20",
+  "assets": [
+    {
+      "id": "boar",
+      "prompt": "Use case: stylized-concept. Asset type: production sprite sheet for a cozy top-down 2D pixel RPG, matching a detailed 16-bit woodland life-sim: crisp stepped pixel clusters, dark muted outline, warm natural colors, small readable shapes, light from upper left. Transparent alpha background, no floor, no shadow, no text, no labels, no grid lines, no scenery. EXACT 2 by 2 evenly spaced sprite layout on a square canvas: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Each is the SAME single animal on all four paws, camera 3/4 overhead. Each complete animal centered within its quarter with broad transparent margins, aligned feet, consistent body scale. Four separate full-body sprites only, no cropping, no weapons, no clothes, not a mascot. Render like 48px-tall pixel art enlarged with nearest neighbor. Subject: a stocky dark brown wild boar with short ivory tusks, bristly back, broad pink-brown snout.",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-3711c7db-f342-4e00-a49b-66da6562ee48.png"
+    },
+    {
+      "id": "deer",
+      "prompt": "Use case: stylized-concept. Asset type: production sprite sheet for a cozy top-down 2D pixel RPG, matching a detailed 16-bit woodland life-sim: crisp stepped pixel clusters, dark muted outline, warm natural colors, small readable shapes, light from upper left. Transparent alpha background, no floor, no shadow, no text, no labels, no grid lines, no scenery. EXACT 2 by 2 evenly spaced sprite layout on a square canvas: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Each is the SAME single animal on all four paws, camera 3/4 overhead. Each complete animal centered within its quarter with broad transparent margins, aligned feet, consistent body scale. Four separate full-body sprites only, no cropping, no weapons, no clothes, not a mascot. Render like 48px-tall pixel art enlarged with nearest neighbor. Subject: a tan woodland deer with pale belly, small branching antlers, slender legs, calm dark eyes.",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-084bb6db-b0fd-4c74-8094-712f77b98711.png"
+    },
+    {
+      "id": "fox",
+      "prompt": "Use case: stylized-concept. Asset type: production sprite sheet for a cozy top-down 2D pixel RPG, matching a detailed 16-bit woodland life-sim: crisp stepped pixel clusters, dark muted outline, warm natural colors, small readable shapes, light from upper left. Transparent alpha background, no floor, no shadow, no text, no labels, no grid lines, no scenery. EXACT 2 by 2 evenly spaced sprite layout on a square canvas: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Each is the SAME single animal on all four paws, camera 3/4 overhead. Each complete animal centered within its quarter with broad transparent margins, aligned feet, consistent body scale. Four separate full-body sprites only, no cropping, no weapons, no clothes, not a mascot. Render like 48px-tall pixel art enlarged with nearest neighbor. Subject: a russet red woodland fox with cream muzzle and chest, pointed ears, black legs, large white-tipped tail.",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-bd9e35c0-df72-4a8b-85ec-2b1f705b3316.png"
+    },
+    {
+      "id": "wolf",
+      "prompt": "Use case: stylized-concept. Asset type: production sprite sheet for a cozy top-down 2D pixel RPG, matching a detailed 16-bit woodland life-sim: crisp stepped pixel clusters, dark muted outline, warm natural colors, small readable shapes, light from upper left. Transparent alpha background, no floor, no shadow, no text, no labels, no grid lines, no scenery. EXACT 2 by 2 evenly spaced sprite layout on a square canvas: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Each is the SAME single animal on all four paws, camera 3/4 overhead. Each complete animal centered within its quarter with broad transparent margins, aligned feet, consistent body scale. Four separate full-body sprites only, no cropping, no weapons, no clothes, not a mascot. Render like 48px-tall pixel art enlarged with nearest neighbor. Subject: a slate gray woodland wolf with cream muzzle, upright ears, broad paws, bushy gray tail.",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-7722dee4-2802-4171-80d2-278b7fc79c36.png"
+    },
+    {
+      "id": "bear",
+      "prompt": "Use case: stylized-concept. Asset type: production sprite sheet for a cozy top-down 2D pixel RPG, matching a detailed 16-bit woodland life-sim: crisp stepped pixel clusters, dark muted outline, warm natural colors, small readable shapes, light from upper left. Transparent alpha background, no floor, no shadow, no text, no labels, no grid lines, no scenery. EXACT 2 by 2 evenly spaced sprite layout on a square canvas: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Each is the SAME single animal on all four paws, camera 3/4 overhead. Each complete animal centered within its quarter with broad transparent margins, aligned feet, consistent body scale. Four separate full-body sprites only, no cropping, no weapons, no clothes, not a mascot. Render like 48px-tall pixel art enlarged with nearest neighbor. Subject: a hefty warm brown woodland bear with round ears, tan muzzle, broad shoulders and paws.",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-6484cfce-45fc-47b3-bcbe-40983923b714.png"
+    },
+    {
+      "id": "gate",
+      "prompt": "Use case: stylized-concept. Production environmental sprite for a cozy top-down pixel RPG. A small forest hunting ground entrance: two weathered timber posts and a rough wooden crossbeam framing a dark leafy footpath through a pair of mossy gray boulders, with leafy oak branches above. Open arch center, walkable doorway at bottom middle. A small blank wooden plaque on one side, no letters, no weapons, no skulls, no horror. Match 16-bit woodland life-sim art: crisp stepped pixel clusters, moss olive green, warm brown wood, muted slate stone, dark outline, upper-left light, three-quarter top-down camera. One isolated complete arch centered on truly transparent background with generous margins. No landscape, no ground rectangle, no cast shadow, no labels, no UI. Wide approximately 4:3 object shape, 96px pixel-art scale enlarged nearest neighbor.",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-5bb20924-b6ba-49a8-8445-e0c7df9dc12a.png"
+    }
+  ]
+}

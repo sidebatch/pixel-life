@@ -80,6 +80,7 @@ const CHARACTER_PARTS=Object.freeze({
 });
 
 const WORLD_REGIONS = Object.freeze({
+  wildwoodHunt:{id:'wildwoodHunt',name:'들녘 사냥터',status:'playable'},
   lilacVillage:{id:'lilacVillage',name:'라일락 연못 마을',status:'playable'},
   oldForest:{id:'oldForest',name:'오래된 숲 1-1',status:'playable'},
   deepForest:{id:'deepForest',name:'오래된 숲 1-2',status:'playable'},
@@ -106,6 +107,7 @@ const WORLD_REGIONS = Object.freeze({
 });
 
 const ACTIVITY_MODULES = Object.freeze({
+  hunting:{id:'hunting',label:'사냥',status:'prototype',entry:'wildlife'},
   fishing:{id:'fishing',label:'낚시',status:'prototype',entry:'water'},
   gathering:{id:'gathering',label:'채집',status:'planned',entry:'resource-node'},
   farming:{id:'farming',label:'농사',status:'prototype',entry:'farm-plot'},

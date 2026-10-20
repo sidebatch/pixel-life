@@ -1,5 +1,11 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-20 첫 사냥터 로컬 검증
+
+전체 소스 검사 56 scripts / 153 UI IDs / 488 asset references / 74 fish 및 빌드를 통과했다. 기존 도끼의 무모드 타격 호환 보완 뒤 사냥 수치 검사·실제 4종 도구 입력을 포함한 빌드 브라우저 검사도 통과했다. 로그 `output/hunting-qa/check-final.log`.
+
+[기준](docs/HUNTING_GROUND_V1.md). 마을 내부 남동쪽 입구와 23번째 지역, 야생동물 5종/10개체·공격받은 개체만 반격하는 전투를 구현했다. 320/393/1280px 실제 버튼/Space·왕복·무공격 30초·반격/회피·메뉴 정지·귀소·5종 처치/재등장·벽/충돌·체력 소진 복귀·저장/재접속·겹침 방지를 통과했다. CI용 수치/상태 검사와 기존 22장비 휘두르기·낚시/수확 회귀도 통과했다. 결과 `output/hunting-qa/`. **미배포**이며 기존 숲 배치 미커밋 작업은 별도로 보존했다.
+
 ## 2026-10-19 모든 손 장비·앞모습 재확인 공개 배포
 
 2026-10-19 모든 손 장비 휘두르기 공개 배포 완료. 게임 변경 [eccf7d7](https://github.com/sidebatch/pixel-life/commit/eccf7d720de6ddf5e55a7c0d09accb314c0cb470), PWA `7e3bd6e5beb2`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/39355204438). HTML 21,384,628 bytes/공개 8파일 38,851,790 bytes가 배포용 독립 빌드와 SHA-256까지 일치한다.

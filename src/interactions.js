@@ -26,6 +26,8 @@ function closeDialog(options={}){
 function resolveWorldInteraction(tile=facingTile()){
   const exit=regionExitAt(tile.x,tile.y);
   if(exit) return {kind:'exit',label:exit.label,target:exit};
+  const animal=typeof huntingTargetForSwing==='function'&&huntingTargetForSwing();
+  if(animal)return {kind:'wildlife',label:'공격',target:animal};
   const npc=npcs.find(n=>n.x===tile.x&&n.y===tile.y);
   if(npc) return {kind:npc.id==='elli'?'market':npc.id==='jun'?'workshopMarket':npc.role==='farmMerchant'?'farmMarket':npc.role==='stylist'?'characterStyle':'npc',label:npc.role==='stylist'?'외형 변경':['elli','jun'].includes(npc.id)||npc.role==='farmMerchant'?'상점':'대화',target:npc};
   const harborFeature=harborFeatureAt(tile.x,tile.y);
@@ -57,6 +59,9 @@ function resolveWorldInteraction(tile=facingTile()){
 
 function activateWorldInteraction(interaction){
   switch(interaction.kind){
+    case 'wildlife':
+      if(!['sword','axe','sickle','rod'].includes(GAME_STATE.appearance?.activeTool))return showLifeToast('검을 장착하고 공격해 보세요.');
+      return startHeldToolSwing();
     case 'exit':return enterWorldRegion(interaction.target);
     case 'market':return openMarket();
     case 'workshopMarket':return openMarket({shop:'workshop'});
@@ -340,6 +345,7 @@ function actionButtonPresentation(){
       return result('sickle',GAME_STATE.appearance?.activeTool==='sickle'?'수확':'낫 장착 필요');
     }
     if(kind==='fishing')return result('rod','낚시');
+    if(kind==='wildlife')return result(['sword','axe','sickle','rod'].includes(GAME_STATE.appearance?.activeTool)?GAME_STATE.appearance.activeTool:'sword','공격');
     if(['market','workshopMarket','farmMarket','ticketBooth'].includes(kind))return result('basket',label);
     if(['npc','characterStyle','building'].includes(kind))return result('chat',label);
     if(['sign','routeSign'].includes(kind))return result('read','읽기');

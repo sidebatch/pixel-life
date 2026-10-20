@@ -32,7 +32,8 @@ const report=JSON.parse(vm.runInContext(`JSON.stringify((()=>{
       if(!exits.some(e=>e.to===post.to&&e.label===post.label))throw Error('Incorrect sign destination '+post.id);
       if(![[0,1],[0,-1],[1,0],[-1,0]].some(([dx,dy])=>seen.has(key(post.x+dx,post.y+dy))))throw Error('Sign cannot be read '+post.id);
     }
-    if(WORLD_DEFINITION.routeSigns&&routeSigns.length!==exits.length)throw Error('Missing route sign '+id);
+    const signedExits=exits.filter(exit=>exit.to!==WORLD_DEFINITION.huntingGate?.to);
+    if(WORLD_DEFINITION.routeSigns&&routeSigns.length!==signedExits.length)throw Error('Missing route sign '+id);
     for(const path of WORLD_DEFINITION.routePaths||[]){
       const dx=Math.sign(path.x2-path.x1),dy=Math.sign(path.y2-path.y1);let x=path.x1,y=path.y1;
       while(true){if(blocked.has(key(x,y)))throw Error('New path crossed a tree/water '+id+' '+key(x,y));
@@ -47,7 +48,7 @@ const report=JSON.parse(vm.runInContext(`JSON.stringify((()=>{
   return maps;
 })())`,context));
 const expected={
-  lilacVillage:['oldForest','forestTen','sunnyFields','coast'],
+  lilacVillage:['oldForest','forestTen','sunnyFields','coast','wildwoodHunt'],
   oldForest:['lilacVillage','forestSeven','forestEight','forestNine','deepForest','mountainLake'],
   deepForest:['oldForest','forestThree'],forestThree:['deepForest','forestFour'],forestFour:['forestThree','forestFive'],
   forestFive:['forestFour','forestSix'],forestSix:['forestFive'],

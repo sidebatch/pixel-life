@@ -1,0 +1,10 @@
+.huntingHud{position:absolute;z-index:6;right:14px;top:calc(var(--growth-hud-top) + 38px);width:126px;padding:8px 10px;border:1px solid #a6c5ab99;border-radius:14px;background:#234c3cda;color:#f6f2df;pointer-events:none;box-shadow:0 3px 10px #102c3040}
+.huntingHud[hidden]{display:none}
+.huntingHud label{display:flex;justify-content:space-between;align-items:center;font-size:11px;font-weight:700;gap:8px}
+.huntingHud label span{white-space:nowrap;flex-shrink:0}
+.huntingHud progress{appearance:none;display:block;margin-top:5px;width:100%;height:7px;border:0;border-radius:5px;overflow:hidden;background:#18372e}
+.huntingHud progress::-webkit-progress-bar{background:#18372e}
+.huntingHud progress::-webkit-progress-value{background:#91c978;border-radius:5px}
+.huntingHud progress::-moz-progress-bar{background:#91c978;border-radius:5px}
+#gameShell:has(>.huntingHud:not([hidden])){--growth-feedback-top:calc(var(--growth-hud-top) + 98px)}
+@media(max-width:360px){.huntingHud{right:10px}}

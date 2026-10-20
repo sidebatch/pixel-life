@@ -1,5 +1,7 @@
 # Pixel Life
 
+2026-10-20 로컬 추가(**미배포**): [들녘 사냥터](docs/HUNTING_GROUND_V1.md). 마을 남동쪽 안쪽 입구와 야생동물 5종, 공격받은 개체만 반격하는 전투·체력·마을 복귀를 구현했다.
+
 2026-10-19 모든 손 장비 휘두르기 공개 배포 완료. 게임 변경 [eccf7d7](https://github.com/sidebatch/pixel-life/commit/eccf7d720de6ddf5e55a7c0d09accb314c0cb470), PWA `7e3bd6e5beb2`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/39355204438). HTML 21,384,628 bytes/공개 8파일 38,851,790 bytes가 배포용 독립 빌드와 SHA-256까지 일치한다.
 
 도끼 10종·낚싯대 10종·기본 낫·기본 검을 빈 공간에서 행동 버튼 또는 Space/Z로 휘두른다. 앞모습의 남녀 손 위치·준비→앞/아래 타격 방향을 22장비/88프레임과 실제 합성 시트로 재확인했으며 추가 자세 변경은 필요하지 않았다. 나무 앞의 검/낚싯대/낫은 무피해 동작이고 물가 낚시·밭 수확은 기존대로다. 허공 동작은 내구도/XP/아이템/저장/난수를 바꾸지 않는다. [기준·검증](docs/TOOL_SWING_V1.md).

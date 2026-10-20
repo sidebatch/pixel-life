@@ -312,6 +312,29 @@ function defineVoyageRegion(id,name,habitat,spotId,waterColor){
 }
 const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
   lilacVillage:VILLAGE_WORLD_DEFINITION,
+  wildwoodHunt:Object.freeze({
+    id:'wildwoodHunt',name:'들녘 사냥터',tileSize:48,width:64,height:48,
+    terrain:{ground:'#638a53',patchA:'#3e6943',patchB:'#95ab68',pathRim:'#9c8d60',pathCore:'#c0ad7b',
+      hills:[{x:5,y:5,w:14,h:10},{x:45,y:28,w:13,h:12}]},
+    playerSpawn:{x:12,y:37,face:'up'},
+    paths:[{x1:12,y1:40,x2:12,y2:30},{x1:12,y1:30,x2:34,y2:30},
+      {x1:34,y1:30,x2:34,y2:17},{x1:34,y1:25,x2:49,y2:25}],
+    stoneAreas:[],waterAreas:[{id:'wildwood_pool',x:47,y:8,w:9,h:8,cutCorners:true,fishingHabitat:'pond'}],
+    bridges:[],fishingSpot:{x:47,y:12},npcs:[],buildings:[],farmPlots:[],
+    fixedObjects:{rocks:[{x:8,y:17},{x:36,y:8},{x:55,y:23},{x:36,y:39}]},
+    decorations:{bushes:[{x:8,y:28,v:0,s:.8},{x:23,y:18,v:1,s:.7},{x:43,y:38,v:0,s:.8}],
+      flowers:[{x:14,y:35,v:0,s:.5},{x:32,y:29,v:1,s:.5}],
+      grassTufts:[{x:20,y:30,s:.4},{x:37,y:27,s:.4},{x:45,y:19,s:.4}],
+      reeds:[{x:46,y:10,s:.4},{x:51,y:16,s:.4}]},
+    treeLines:[{axis:'x',from:2,to:62,step:2,fixed:1,gaps:[]},
+      {axis:'x',from:2,to:62,step:2,fixed:46,gaps:[]},
+      {axis:'y',from:3,to:44,step:2,fixed:1,gaps:[]},
+      {axis:'y',from:3,to:44,step:2,fixed:62,gaps:[]}],
+    trees:[{x:6,y:8},{x:10,y:7},{x:22,y:7},{x:28,y:6},{x:40,y:5},
+      {x:7,y:22},{x:23,y:22},{x:36,y:21},{x:58,y:20},
+      {x:7,y:35},{x:24,y:38},{x:32,y:41},{x:43,y:42},{x:57,y:40}],
+    exits:[{x:12,y:40,to:'lilacVillage',entry:{x:48,y:37,face:'down'},label:'마을로'}]
+  }),
   oldForest:Object.freeze({
     id:'oldForest',name:'오래된 숲 1-1',tileSize:48,width:64,height:48,
     terrain:{ground:'#609a5b',patchA:'#2e7846',patchB:'#b4d969',pathRim:'#bd9558',pathCore:'#d9b36c'},
@@ -752,7 +775,9 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
   })
 }).map(([id,definition])=>[id,placeRouteSignposts(connectForestEntrances(definition))])));
 const REGION_EXITS=Object.freeze({
-  lilacVillage:FOREST_ROUTE_EXITS.lilacVillage,
+  lilacVillage:Object.freeze([...FOREST_ROUTE_EXITS.lilacVillage,
+    {x:48,y:35,to:'wildwoodHunt',entry:{x:12,y:37,face:'up'},label:'들녘 사냥터'}]),
+  wildwoodHunt:REGION_WORLDS.wildwoodHunt.exits,
   oldForest:REGION_WORLDS.oldForest.exits,
   deepForest:REGION_WORLDS.deepForest.exits,
   forestThree:REGION_WORLDS.forestThree.exits,

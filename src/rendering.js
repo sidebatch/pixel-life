@@ -965,6 +965,7 @@ function drawWorld(){
   // Buildings participate in the SAME Y-sort as trees/actors.
   // Building Standard 3.0: the depth line is independent from sprite size and door position.
   const renderables=[];
+  if(typeof addHuntingRenderables==='function')addHuntingRenderables(renderables);
   if(typeof addFarmDecorationRenderables==='function')addFarmDecorationRenderables(renderables);
   if(GAME_STATE.regionId==='sunnyFields')for(const plot of WORLD_DEFINITION.farmPlots){
     if(getFarmPlotPhase(plot)==='READY')renderables.push({y:(plot.y+1)*TILE,draw:()=>drawMatureFarmCrop(plot)});
@@ -991,10 +992,15 @@ function drawWorld(){
   if(harbor?.boat)renderables.push({y:(harbor.boat.y+harbor.boat.h-.5)*TILE,draw:()=>drawHarborBoat(harbor.boat)});
   (harbor?.crates||[]).forEach((crate,index)=>renderables.push({y:(crate.y+1)*TILE,draw:()=>drawHarborCrate(crate,index)}));
   npcs.forEach(n=>renderables.push({y:n.y*TILE+TILE,draw:()=>drawNPC(n)}));
-  renderables.push({y:forestryPlayerDrawDepth(),draw:drawPlayer});
+  renderables.push({y:forestryPlayerDrawDepth(),draw:()=>{
+    ctx.save();
+    if(typeof huntingState!=='undefined'&&isInHuntingGround()&&huntingState.hurtUntil>huntingState.clock)ctx.globalAlpha=.65;
+    drawPlayer();ctx.restore();
+  }});
   renderables.sort((a,b)=>a.y-b.y).forEach(r=>r.draw());
 
   drawFishingEffects();
+  if(typeof drawHuntingGroundEffects==='function')drawHuntingGroundEffects();
 
   drawWorldTimeEffects();
   drawWeatherEffects();

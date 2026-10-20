@@ -24,7 +24,7 @@ const SWORD_TOOLS=Object.freeze({
 function swordTargetLength(tool,pose){return pose==='sword'?tool.swingLength:tool.carryLength;}
 const SWORDS=Object.freeze([
   Object.freeze({id:'sword.basic',name:'기본 검',tier:1,asset:'basic',
-    description:'처음부터 가지고 있는 검. 허공에서 휘두를 수 있어요. 전투와 상위 검은 이후 업데이트에서 추가돼요.'})
+    description:'처음부터 가지고 있는 검. 사냥터에서 야생동물을 공격할 수 있어요.'})
 ]);
 const SWORD_BY_ID=new Map(SWORDS.map(sword=>[sword.id,sword]));
 const DEFAULT_SWORD_ID='sword.basic';

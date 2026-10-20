@@ -6,7 +6,7 @@ const listeners={},physics=[],math=Object.create(Math);let now=0,seed=1,roll=.99
 math.random=()=>roll;
 const context={Math:math,performance:{now:()=>now},document:{hidden:false,addEventListener:(id,fn)=>listeners[id]=fn},window:{location:{search:''},addEventListener:(id,fn)=>listeners[id]=fn},
   URLSearchParams,requestAnimationFrame(){},update:dt=>physics.push(dt)};
-for(const name of ['updateVoyage','updateFishRewardReveal','updateLifeContentUi','updateGrowthStatus','drawWorld','refreshContext'])context[name]=()=>{};
+for(const name of ['updateVoyage','updateFishRewardReveal','updateLifeContentUi','updateHunting','updateGrowthStatus','drawWorld','refreshContext'])context[name]=()=>{};
 vm.createContext(context);
 vm.runInContext(read('src/world-time.js')+'\n'+read('src/weather.js')+'\n'+read('src/main.js').split('function updateStartupProgress')[0]+
   '\nupdateWorldClockUI=()=>{};refreshCharacterPreviewVisibility=()=>{};updateWeatherDebugUI=()=>{};globalThis.api={worldTime,weatherState,updateWeather,pickWeather,setWeatherDebug,resumeWeather,loop,config:WEATHER_CONFIG,resetLast:()=>{last=0;}};',context);

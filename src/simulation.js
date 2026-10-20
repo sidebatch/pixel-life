@@ -17,7 +17,8 @@ function npcAt(x,y,ignoreId=null){
   return npcs.find(n=>n.id!==ignoreId && n.x===x && n.y===y);
 }
 function isBlocked(x,y,ignoreNpcId=null){
-  return !inside(x,y)||blocked.has(key(x,y))||!!npcAt(x,y,ignoreNpcId);
+  return !inside(x,y)||blocked.has(key(x,y))||!!npcAt(x,y,ignoreNpcId)||
+    (typeof huntingAnimalAt==='function'&&!!huntingAnimalAt(x,y));
 }
 function preferredDir(){
   if(activeDir && inputs[activeDir]) return activeDir;

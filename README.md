@@ -1,6 +1,8 @@
 # Pixel Life
 
-2026-10-20 로컬 추가(**미배포**): [들녘 사냥터](docs/HUNTING_GROUND_V1.md). 마을 남동쪽 안쪽 입구와 야생동물 5종, 공격받은 개체만 반격하는 전투·체력·마을 복귀를 구현했다.
+2026-10-20 들녘 사냥터 공개 배포 완료. 게임 변경 [d664356](https://github.com/sidebatch/pixel-life/commit/d664356617be67838101e947133de653db89ed44), [게시 성공 #39484662032](https://github.com/sidebatch/pixel-life/actions/runs/39484662032), PWA `7c65baf8b3ce`. HTML 21,771,452 bytes / 공개 8파일 39,238,614 bytes의 SHA-256이 사냥터만 추출한 독립 빌드와 일치한다. [사냥터 기준](docs/HUNTING_GROUND_V1.md).
+
+마을 남동쪽 내부 입구와 야생동물 5종/10개체, 공격받은 개체만 반격하는 전투·체력/마을 복귀를 게시했다. 독립 소스 전체 검사 56 scripts/153 UI IDs/488 assets/74 fish와 빌드, 공개 320/393/1280px 왕복·선공 없음·개별 반격·회피/귀소·처치/재등장·4종 도구·체력 소진 복귀·저장/재접속·중첩 방지를 통과했다. 기존 22장비/남녀/사방향/480변환과 실제 낚시/수확 회귀도 통과했다. 격리 브라우저에서 새 캐시·오프라인 실행·음악 Range 206/100 bytes·강제 재로딩 없음을 확인했다. 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다. 이전부터 작업 중이던 숲 배치 변경은 보존하고 이번 게시에서 제외했다. 결과 `output/deploy-hunting-qa/`.
 
 2026-10-19 모든 손 장비 휘두르기 공개 배포 완료. 게임 변경 [eccf7d7](https://github.com/sidebatch/pixel-life/commit/eccf7d720de6ddf5e55a7c0d09accb314c0cb470), PWA `7e3bd6e5beb2`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/39355204438). HTML 21,384,628 bytes/공개 8파일 38,851,790 bytes가 배포용 독립 빌드와 SHA-256까지 일치한다.
 

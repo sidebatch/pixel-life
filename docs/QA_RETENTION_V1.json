@@ -6,7 +6,10 @@
   "groups": [
     {
       "topic": "첫 사냥터·5종 개별 반격·입구/체력/기존 활동 보존",
-      "latest": ["hunting-qa"],
+      "latest": [
+        "hunting-qa",
+        "deploy-hunting-qa"
+      ],
       "previous": []
     },
     {

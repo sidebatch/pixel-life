@@ -16,3 +16,12 @@ const HUNTING_SPAWNS=Object.freeze([
   {id:'deer_2',type:'deer',x:18,y:13},{id:'fox_2',type:'fox',x:31,y:12},
   {id:'wolf_2',type:'wolf',x:41,y:13},{id:'bear_2',type:'bear',x:52,y:35}
 ].map(Object.freeze));
+// Presentation only. Damage, windup and cooldown continue to use HUNTING_RULES.
+const HUNTING_ATTACK_MOTION=Object.freeze({strikeStart:.72,recoverMs:260,impactHoldMs:90,
+  species:Object.freeze({
+    boar:Object.freeze({image:'wildlifeBoarAttack',recoil:8,reach:20,lift:0,squash:.07}),
+    deer:Object.freeze({image:'wildlifeDeerAttack',recoil:7,reach:18,lift:0,squash:.05}),
+    fox:Object.freeze({image:'wildlifeFoxAttack',recoil:6,reach:17,lift:7,squash:.06}),
+    wolf:Object.freeze({image:'wildlifeWolfAttack',recoil:8,reach:21,lift:5,squash:.06}),
+    bear:Object.freeze({image:'wildlifeBearAttack',recoil:6,reach:14,lift:2,squash:.04})
+  })});

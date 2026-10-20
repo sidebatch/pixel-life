@@ -163,7 +163,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===4&&
   'World menu must contain bag, fish-dex, tree-dex and growth overview cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 488, `Expected 488 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 493, `Expected 493 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }

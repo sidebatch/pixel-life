@@ -41,4 +41,24 @@ for(const id of Object.keys(context.hunt.types)){
   const image=decodePNG(fs.readFileSync(`assets/hunting/${id}-v1.png`));assert.equal(image.width,192);assert.equal(image.height,192);
   for(let i=0;i<4;i++){const b=alphaBounds(crop(image,(i%2)*96,Math.floor(i/2)*96,96,96));assert(b.width>12&&b.height>12&&b.x>=4&&b.y>=4&&b.x+b.width<=92&&b.y+b.height<=91);}
 }
+const attackSnapshot=JSON.stringify({state,hunt:context.hunt.state});let motionFrames=0;
+for(const id of Object.keys(context.hunt.types))for(const face of ['down','left','right','up']){
+  const image=decodePNG(fs.readFileSync(`assets/hunting/${id}-attack-v1.png`));
+  assert.equal(image.width,192);assert.equal(image.height,192);
+  const frame=['down','left','right','up'].indexOf(face),b=alphaBounds(crop(image,(frame%2)*96,Math.floor(frame/2)*96,96,96));
+  assert(b.width>12&&b.height>12&&b.x>=4&&b.y>=4&&b.x+b.width<=92&&b.y+b.height<=91,'Attack art must fit the same feet/margin contract');
+  assert(!fs.readFileSync(`assets/hunting/${id}-attack-v1.png`).equals(fs.readFileSync(`assets/hunting/${id}-v1.png`)),'Attack must have distinct authored artwork');
+  const actor={type:id,hp:100,mode:'aggro',face,windup:{at:0,face},attackRecovery:null};context.visualActor=actor;
+  const idle=run('getHuntingAttackVisual(visualActor,0,false)'),charge=run('getHuntingAttackVisual(visualActor,400,false)'),strike=run('getHuntingAttackVisual(visualActor,599,false)');
+  assert.equal(idle.phase,'windup');assert.equal(charge.phase,'windup');assert.equal(strike.phase,'attack');
+  assert.notEqual(strike.image,idle.image);assert(charge.scaleY<1);assert(Math.hypot(strike.offsetX,strike.offsetY)>10);
+  const [dx,dy]=context.dirVec[face];assert(charge.offsetX*dx+charge.offsetY*dy<0);assert(strike.offsetX*dx+strike.offsetY*dy>0);
+  actor.windup=null;actor.attackRecovery={at:600,face};
+  const impact=run('getHuntingAttackVisual(visualActor,600,false)'),recover=run('getHuntingAttackVisual(visualActor,800,false)'),done=run('getHuntingAttackVisual(visualActor,860,false)');
+  assert.equal(impact.phase,'impact');assert.equal(impact.image,strike.image);assert.equal(recover.phase,'recover');assert.equal(done.phase,'idle');assert.equal(done.offsetX,0);assert.equal(done.offsetY,0);
+  const reduced=run('getHuntingAttackVisual(visualActor,600,true)');assert.equal(reduced.image,impact.image);assert.equal(reduced.offsetX,0);assert.equal(reduced.offsetY,0);assert.equal(reduced.lift,0);
+  motionFrames+=7;
+}
+assert.equal(JSON.stringify({state,hunt:context.hunt.state}),attackSnapshot,'Rendering attack phases must not mutate gameplay or saved state');
+console.log(`Hunting attack motion passed: ${motionFrames} species/direction phases, anticipation/impact/recovery, reduced motion and pure rendering.`);
 console.log('Hunting passed: five 4-direction species, ten neutral spawns, individual retaliation, telegraph/pause, leash/reset, wall/facing guards, four tool families, unchanged economy.');

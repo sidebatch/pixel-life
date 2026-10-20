@@ -1,0 +1,36 @@
+{
+  "tool": "built-in image_gen edit",
+  "date": "2026-10-20",
+  "assets": [
+    {
+      "id": "boar",
+      "prompt": "Edit target: the supplied four-direction animal sprite sheet. Create a NEW attack-pose companion sheet, preserving this exact animal identity, colors, anatomy, fur markings, pixel density, outline, lighting and 16-bit game style. Do not redesign the animal. EXACT four full-body sprites on transparent alpha, evenly spaced 2 by 2 layout, generous transparent margins: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Same overhead 3/4 camera and natural proportions as reference. Each cell is the impact pose for that viewing direction, NOT four animation frames facing the same way. Keep size consistent and feet near the bottom, all limbs connected and complete. No background, floor, shadows, particles, text, labels, borders, blood, weapons or props. Action: forceful short tusk-first headbutt, head and snout lowered forward, shoulders braced and rear legs pushing off, forelegs bent, clearly different from standing idle.",
+      "reference": "assets/hunting/source/boar-v1.png",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-11210187-c3a0-42ca-aa23-6266ac9142f6.png"
+    },
+    {
+      "id": "deer",
+      "prompt": "Edit target: the supplied four-direction animal sprite sheet. Create a NEW attack-pose companion sheet, preserving this exact animal identity, colors, anatomy, fur markings, pixel density, outline, lighting and 16-bit game style. Do not redesign the animal. EXACT four full-body sprites on transparent alpha, evenly spaced 2 by 2 layout, generous transparent margins: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Same overhead 3/4 camera and natural proportions as reference. Each cell is the impact pose for that viewing direction, NOT four animation frames facing the same way. Keep size consistent and feet near the bottom, all limbs connected and complete. No background, floor, shadows, particles, text, labels, borders, blood, weapons or props. Action: antler-first headbutt, neck bent and head lowered forward with antlers aimed at target, front legs braced and hindquarters pushing, remain on four legs, clearly different from standing idle.",
+      "reference": "assets/hunting/source/deer-v1.png",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-d9796011-843c-42c9-9b3a-0e41a9aa6353.png"
+    },
+    {
+      "id": "fox",
+      "prompt": "Edit target: the supplied four-direction animal sprite sheet. Create a NEW attack-pose companion sheet, preserving this exact animal identity, colors, anatomy, fur markings, pixel density, outline, lighting and 16-bit game style. Do not redesign the animal. EXACT four full-body sprites on transparent alpha, evenly spaced 2 by 2 layout, generous transparent margins: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Same overhead 3/4 camera and natural proportions as reference. Each cell is the impact pose for that viewing direction, NOT four animation frames facing the same way. Keep size consistent and feet near the bottom, all limbs connected and complete. No background, floor, shadows, particles, text, labels, borders, blood, weapons or props. Action: small forward pounce and bite, jaw visibly open without gore, forelegs stretched toward target, hindlegs tucked, long tail balancing the leap, clearly different from idle.",
+      "reference": "assets/hunting/source/fox-v1.png",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-5beb7e77-fd82-40ca-b738-a18712564c99.png"
+    },
+    {
+      "id": "wolf",
+      "prompt": "Edit target: the supplied four-direction animal sprite sheet. Create a NEW attack-pose companion sheet, preserving this exact animal identity, colors, anatomy, fur markings, pixel density, outline, lighting and 16-bit game style. Do not redesign the animal. EXACT four full-body sprites on transparent alpha, evenly spaced 2 by 2 layout, generous transparent margins: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Same overhead 3/4 camera and natural proportions as reference. Each cell is the impact pose for that viewing direction, NOT four animation frames facing the same way. Keep size consistent and feet near the bottom, all limbs connected and complete. No background, floor, shadows, particles, text, labels, borders, blood, weapons or props. Action: strong forward lunge and bite, open jaws with small teeth, forelegs reaching and hindlegs pushing, tail balancing, clearly different from idle.",
+      "reference": "assets/hunting/source/wolf-v1.png",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-60dd7ba1-0c8a-482a-89d9-6c45b6566ea7.png"
+    },
+    {
+      "id": "bear",
+      "prompt": "Edit target: the supplied four-direction animal sprite sheet. Create a NEW attack-pose companion sheet, preserving this exact animal identity, colors, anatomy, fur markings, pixel density, outline, lighting and 16-bit game style. Do not redesign the animal. EXACT four full-body sprites on transparent alpha, evenly spaced 2 by 2 layout, generous transparent margins: top-left facing DOWN toward viewer, top-right facing LEFT, bottom-left facing RIGHT, bottom-right facing UP away from viewer. Same overhead 3/4 camera and natural proportions as reference. Each cell is the impact pose for that viewing direction, NOT four animation frames facing the same way. Keep size consistent and feet near the bottom, all limbs connected and complete. No background, floor, shadows, particles, text, labels, borders, blood, weapons or props. Action: heavy front paw swipe, one large forepaw raised and extended toward target, head lowered, shoulder and torso twisting slightly, other paws support the natural bear body, no humanoid stance; clearly different from idle.",
+      "reference": "assets/hunting/source/bear-v1.png",
+      "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-171cd383-860f-4a9b-9420-a233bc6985f1.png"
+    }
+  ]
+}

@@ -1,5 +1,9 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-20 야생동물 공격 모션
+
+[기준](docs/HUNTING_ATTACK_MOTION_V1.md). 5종×4방향 공격 원화와 준비→타격→복귀를 추가했다. 수치 검사 140상태, 320/393/1280px 각각 실제 140프레임의 타격 시점·1회 피해·충돌 기준·메뉴 정지·빗나감·지역 이동 해제·동작 줄이기·경제 불변을 통과했다. 기존 사냥터 동작 검사도 통과했다. 결과 `output/hunting-attack-qa/`. 배포 준비 중이다.
+
 ## 2026-10-20 첫 사냥터 공개 배포
 
 2026-10-20 들녘 사냥터 공개 배포 완료. 게임 변경 [d664356](https://github.com/sidebatch/pixel-life/commit/d664356617be67838101e947133de653db89ed44), [게시 성공 #39484662032](https://github.com/sidebatch/pixel-life/actions/runs/39484662032), PWA `7c65baf8b3ce`. HTML 21,771,452 bytes / 공개 8파일 39,238,614 bytes의 SHA-256이 사냥터만 추출한 독립 빌드와 일치한다.

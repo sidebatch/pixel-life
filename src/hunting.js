@@ -3,7 +3,7 @@ const huntingState={active:false,clock:0,hp:HUNTING_RULES.maxHp,hurtUntil:0,visi
   animals:HUNTING_SPAWNS.map((spawn,index)=>({...spawn,homeX:spawn.x,homeY:spawn.y,
     px:(spawn.x+.5)*TILE,py:(spawn.y+.5)*TILE,hp:WILDLIFE_TYPES[spawn.type].hp,
     face:'down',moving:false,t:0,mode:'idle',wait:900+index*113,step:index,
-    lastHit:0,nextAttack:0,windup:null,respawnAt:0,hitUntil:0}))};
+    lastHit:0,nextAttack:0,windup:null,attackRecovery:null,respawnAt:0,hitUntil:0}))};
 function isInHuntingGround(){return GAME_STATE.regionId===HUNTING_RULES.regionId;}
 function huntingAnimalAt(x,y,ignore=null){
   if(!isInHuntingGround())return null;
@@ -12,7 +12,7 @@ function huntingAnimalAt(x,y,ignore=null){
 }
 function resetHuntingAnimal(a){
   a.x=a.homeX;a.y=a.homeY;a.px=(a.x+.5)*TILE;a.py=(a.y+.5)*TILE;
-  a.moving=false;a.t=0;a.mode='idle';a.windup=null;a.wait=1200;
+  a.moving=false;a.t=0;a.mode='idle';a.windup=null;a.attackRecovery=null;a.wait=1200;
   a.hp=WILDLIFE_TYPES[a.type].hp;a.nextAttack=0;
   // A saved player may occupy a previously defeated animal's home on reload.
   if(isInHuntingGround()&&!huntingTileFree(a,a.x,a.y)){
@@ -84,7 +84,7 @@ function strikeHuntingWildlife(chop){
   a.hp=Math.max(0,a.hp-damage);a.lastHit=now;a.hitUntil=now+260;
   huntingFeedback(a.px,a.py-40,`−${damage}`,'#fff1b1');playHuntingImpact();
   if(a.hp===0){
-    a.mode='down';a.moving=false;a.windup=null;a.respawnAt=now+HUNTING_RULES.respawnMs;
+    a.mode='down';a.moving=false;a.windup=null;a.attackRecovery=null;a.respawnAt=now+HUNTING_RULES.respawnMs;
     showLifeToast(`${WILDLIFE_TYPES[a.type].name}을 물리쳤어요.`);
   }else{
     // This is the ONLY path into aggression. Nearby animals do not join in.
@@ -152,7 +152,7 @@ function updateHunting(dt){
     }
     if(a.mode==='aggro'&&(now-a.lastHit>HUNTING_RULES.forgetMs||
       Math.hypot(player.x-a.homeX,player.y-a.homeY)>HUNTING_RULES.leash)){
-      a.mode='returning';a.windup=null;a.wait=0;
+      a.mode='returning';a.windup=null;a.attackRecovery=null;a.wait=0;
     }
     if(a.moving){
       a.t+=dt;const p=Math.min(1,a.t/(type.stepMs*(a.mode==='idle'?1.7:1)));
@@ -162,7 +162,8 @@ function updateHunting(dt){
     }
     if(a.windup){
       if(now-a.windup.at>=HUNTING_RULES.windupMs){
-        const aim=a.windup;a.windup=null;a.nextAttack=now+HUNTING_RULES.attackCooldownMs;
+        const aim=a.windup;a.windup=null;a.attackRecovery={...aim,at:now};
+        a.nextAttack=now+HUNTING_RULES.attackCooldownMs;
         if(Math.hypot(player.px-aim.x,player.py-aim.y)<TILE*.7&&
           Math.hypot(player.px-a.px,player.py-a.py)<TILE*1.6&&
           huntingLineClear(a.px/TILE,a.py/TILE,player.px/TILE,player.py/TILE))hurtHuntingPlayer(a);
@@ -170,11 +171,15 @@ function updateHunting(dt){
       if(!isInHuntingGround())break;
       continue;
     }
+    if(a.attackRecovery){
+      if(now-a.attackRecovery.at<HUNTING_ATTACK_MOTION.recoverMs)continue;
+      a.attackRecovery=null;
+    }
     if(a.mode==='aggro'&&Math.hypot(player.px-a.px,player.py-a.py)<TILE*1.45&&
       huntingLineClear(a.px/TILE,a.py/TILE,player.px/TILE,player.py/TILE)){
       const dx=player.px-a.px,dy=player.py-a.py;
       a.face=Math.abs(dx)>Math.abs(dy)?(dx>0?'right':'left'):(dy>0?'down':'up');
-      if(now>=a.nextAttack)a.windup={at:now,x:player.px,y:player.py};
+      if(now>=a.nextAttack)a.windup={at:now,x:player.px,y:player.py,face:a.face};
       continue;
     }
     a.wait-=dt;if(a.wait>0)continue;
@@ -207,16 +212,48 @@ function addHuntingRenderables(renderables){
   for(const a of huntingState.animals)if(a.hp>0&&onScreen(a.px,a.py,120,120))
     renderables.push({y:a.py+TILE/2,draw:()=>drawHuntingAnimal(a)});
 }
+function getHuntingAttackVisual(a,now=huntingState.clock,reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true){
+  const type=WILDLIFE_TYPES[a.type],motion=HUNTING_ATTACK_MOTION.species[a.type];
+  const result={phase:'idle',image:type.image,face:a.face,offsetX:0,offsetY:0,lift:0,scaleX:1,scaleY:1};
+  if(a.hp<=0||a.mode!=='aggro'||!motion)return result;
+  const windup=a.windup,recovery=a.attackRecovery;
+  let distance=0;
+  if(windup){
+    const p=Math.max(0,Math.min(1,(now-windup.at)/HUNTING_RULES.windupMs));
+    result.face=windup.face||a.face;
+    if(p<HUNTING_ATTACK_MOTION.strikeStart){
+      result.phase='windup';const charge=Math.sin(p/HUNTING_ATTACK_MOTION.strikeStart*Math.PI/2);
+      distance=-motion.recoil*charge;
+      result.scaleX=1+motion.squash*charge;result.scaleY=1-motion.squash*charge;
+    }else{
+      result.phase='attack';result.image=motion.image;
+      const pounce=(p-HUNTING_ATTACK_MOTION.strikeStart)/(1-HUNTING_ATTACK_MOTION.strikeStart),eased=1-Math.pow(1-pounce,3);
+      distance=-motion.recoil+(motion.reach+motion.recoil)*eased;
+      result.lift=Math.sin(pounce*Math.PI)*motion.lift;
+    }
+  }else if(recovery){
+    const age=Math.max(0,now-recovery.at);if(age>=HUNTING_ATTACK_MOTION.recoverMs)return result;
+    result.face=recovery.face||a.face;
+    const p=Math.max(0,(age-HUNTING_ATTACK_MOTION.impactHoldMs)/(HUNTING_ATTACK_MOTION.recoverMs-HUNTING_ATTACK_MOTION.impactHoldMs));
+    result.phase=age<=HUNTING_ATTACK_MOTION.impactHoldMs?'impact':'recover';
+    result.image=age<150?motion.image:type.image;
+    distance=motion.reach*(1-p*p*(3-2*p));
+  }
+  const [dx,dy]=dirVec[result.face];result.offsetX=dx*distance;result.offsetY=dy*distance;
+  if(reduced){result.offsetX=0;result.offsetY=0;result.lift=0;result.scaleX=1;result.scaleY=1;}
+  return result;
+}
 function drawHuntingAnimal(a){
-  const type=WILDLIFE_TYPES[a.type],frame={down:0,left:1,right:2,up:3}[a.face],size=96*type.scale;
+  const type=WILDLIFE_TYPES[a.type],visual=getHuntingAttackVisual(a),frame={down:0,left:1,right:2,up:3}[visual.face],size=96*type.scale;
   const x=Math.round(a.px-camX),y=Math.round(a.py+TILE/2-camY),now=huntingState.clock;
   ctx.save();
   ctx.fillStyle='rgba(15,34,22,.22)';ctx.beginPath();ctx.ellipse(x,y-4,size*.29,7,0,0,Math.PI*2);ctx.fill();
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const bob=a.moving&&!reduced?Math.abs(Math.sin(a.t/75))*2:0;
   if(a.hitUntil>now)ctx.globalAlpha=.6;
-  ctx.drawImage(imgs[type.image],(frame%2)*96,Math.floor(frame/2)*96,96,96,
-    x-size/2,y-90*type.scale-bob,size,size);
+  ctx.save();ctx.translate(x+visual.offsetX,y+visual.offsetY-visual.lift-bob);ctx.scale(visual.scaleX,visual.scaleY);
+  ctx.drawImage(imgs[visual.image],(frame%2)*96,Math.floor(frame/2)*96,96,96,
+    -size/2,-90*type.scale,size,size);ctx.restore();
   ctx.globalAlpha=1;
   if(a.mode==='aggro'||a.mode==='returning'||a.hp<type.hp){
     ctx.fillStyle='#17392f';ctx.fillRect(x-26,y-size-13,52,7);

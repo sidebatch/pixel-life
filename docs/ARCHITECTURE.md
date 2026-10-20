@@ -1,5 +1,7 @@
 # Pixel Life Architecture
 
+2026-10-20 [야생동물 공격 모션](HUNTING_ATTACK_MOTION_V1.md)을 공개 게시했다. `HUNTING_ATTACK_MOTION`과 `getHuntingAttackVisual`이 공격 시계/방향을 읽어 전용 그림과 예비/공격/복귀 자세를 계산하며, 충돌·경제·캐릭터 리그는 유지한다.
+
 2026-10-20 공개 추가: [들녘 사냥터](HUNTING_GROUND_V1.md). `src/data/hunting-data.js`는 5종/10개체와 규칙, `src/hunting.js`는 세션 전투·이동·반격·체력/복귀·표시를 담당한다. `life-content.js`의 공통 타격 시점과 연결하며 `character.js`와 기존 경제/저장 계약은 유지한다. 사냥터 공개 게시를 완료했다.
 
 현재 추가 모듈: [사냥터/반격 전투](HUNTING_GROUND_V1.md), [성장 현황/HUD](GROWTH_STATUS_V1.md), [서비스 선택/아이콘](MARKET_SERVICES_ICONS_V1.md), [하위 도끼](FORESTRY_LOWER_AXE_V1.md), [폭풍/달력](WEATHER_QA_V1.md). [회의 기록](NEXT_CONTENT_DISCUSSION_2026_10_17.md)은 사냥터 선택 전의 후보 논의다.

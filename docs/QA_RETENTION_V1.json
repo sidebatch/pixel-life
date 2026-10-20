@@ -5,6 +5,14 @@
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
     {
+      "topic": "야생동물 5종/4방향 공격 모션·판정/기존 활동 보존",
+      "latest": [
+        "hunting-attack-qa",
+        "deploy-hunting-attack-qa"
+      ],
+      "previous": []
+    },
+    {
       "topic": "첫 사냥터·5종 개별 반격·입구/체력/기존 활동 보존",
       "latest": [
         "hunting-qa",

@@ -163,7 +163,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===4&&
   'World menu must contain bag, fish-dex, tree-dex and growth overview cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 494, `Expected 494 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 497, `Expected 497 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -2016,6 +2016,8 @@ await import('./qa-startup-progress.mjs');
 await import('./qa-weather.mjs');
 await import('./qa-hunting.mjs');
 await import('./qa-hunting-terrain.mjs');
+await import('./qa-region-music-recovery.mjs');
+await import('./qa-region-music-cache.mjs');
 await import('./qa-fishing-balance.mjs');
 await import('./qa-fishing-rod-expansion.mjs');
 await import('./qa-fishing-durability.mjs');

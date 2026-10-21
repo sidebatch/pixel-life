@@ -225,14 +225,33 @@ function addHuntingRenderables(renderables){
     ctx.fillStyle='#fff3cb';ctx.fillText(gate.label,x,y-234);ctx.restore();
   }});
   if(!isInHuntingGround())return;
-  for(const ridge of WORLD_DEFINITION.terrain.ridges||[]){
-    const x=ridge.x*TILE,y=(ridge.y+ridge.h)*TILE,w=ridge.w*TILE,h=w*.5;
-    if(onScreen(x+w/2,y-h/2,w,h))renderables.push({y:y-8,draw:()=>{
-      ctx.drawImage(imgs.huntingCliff,Math.round(x-camX),Math.round(y-h-camY),w,h);
-    }});
-  }
+  addHuntingTerrainRenderables(renderables);
   for(const a of huntingState.animals)if(a.hp>0&&onScreen(a.px,a.py,120,120))
     renderables.push({y:a.py+TILE/2,draw:()=>drawHuntingAnimal(a)});
+}
+function addHuntingTerrainRenderables(renderables){
+  for(const r of WORLD_DEFINITION.terrain.ridges||[]){
+    const columns=r.kind==='grove'?Math.ceil(r.w/4):r.kind==='spine'?Math.ceil(r.w/4):1;
+    const rows=r.kind==='grove'?Math.ceil(r.h/3):1,cw=r.w/columns,ch=r.h/rows;
+    for(let row=0;row<rows;row++)for(let col=0;col<columns;col++){
+      const grove=r.kind==='grove',jitter=grove?Math.sin((r.x+col)*13+(r.y+row)*7)*10:0;
+      const x=(r.x+col*cw)*TILE+jitter,y=(r.y+(row+1)*ch)*TILE;
+      const w=cw*TILE+(grove?48:r.kind==='spine'?32:0);
+      const h=grove?Math.max(ch*TILE+64,w*2/3):r.kind==='spine'?ch*TILE+32:r.kind==='log'?Math.max(ch*TILE+16,w*.375):w*.5;
+      if(!onScreen(x+w/2,y-h/2,w,h))continue;
+      const image=r.kind==='grove'?'huntingGrove':r.kind==='spine'?'huntingRockSpine':r.kind==='log'?'huntingFallenLog':'huntingCliff';
+      renderables.push({y:y-8,draw:()=>{
+        const left=x-(grove?24:r.kind==='spine'?16:0),foot=player.py+TILE/2;
+        const behind=player.px>left+12&&player.px<left+w-12&&foot<y&&foot>y-h+24&&!blocked.has(key(player.x,player.y));
+        ctx.save();if(behind&&(grove||r.kind==='spine'))ctx.globalAlpha=.6;
+        ctx.drawImage(imgs[image],Math.round(left-camX),Math.round(y-h-camY),w,h);ctx.restore();
+      }});
+    }
+    if(r.kind==='spine'){
+      const x=r.x*TILE,y=(r.y+r.h)*TILE,w=r.w*TILE,h=Math.min(w*.5,140);
+      if(onScreen(x+w/2,y-h/2,w,h))renderables.push({y:y-4,draw:()=>ctx.drawImage(imgs.huntingCliff,Math.round(x-camX),Math.round(y-h-camY),w,h)});
+    }
+  }
 }
 function getHuntingAttackVisual(a,now=huntingState.clock,reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true){
   const type=WILDLIFE_TYPES[a.type],motion=HUNTING_ATTACK_MOTION.species[a.type];

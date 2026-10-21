@@ -1,0 +1,29 @@
+{
+  "version": 1,
+  "tool": "built-in image_gen",
+  "intent": "new sprites with style references",
+  "transparent_background": true,
+  "assets": [
+    {
+      "id": "rock-spine",
+      "reference": "assets/hunting/cliff-v1.png",
+      "prompt": "Use case: stylized-concept. Create a new environmental sprite for the same cozy top-down 2D pixel-art life RPG as reference. Reference is STYLE ONLY, do not redraw its exact shape. A tall irregular ridge of massive mossy gray boulders aligned NORTH-SOUTH, winding rocky backbone with layered cliffs and visible dark front faces, uneven grass cap, roots and dark crevices. Solid raised rocky landform that encloses a woodland trail. Approximately 2:3 width:height silhouette, seen from 3/4 overhead camera, no mountain panorama. Crisp large pixel clusters, dark contour, soft upper-left light, muted gray/moss greens consistent with reference. Entire isolated object visible centered with generous margins. Real transparent exterior alpha, opaque rock everywhere inside. No background/floor rectangle, no opening, no text, no people, no smooth photorealistic gradients.",
+      "source": "assets/hunting/source/rock-spine-v1.png",
+      "runtime": "assets/hunting/rock-spine-v1.png"
+    },
+    {
+      "id": "dense-grove",
+      "reference": "assets/world/tree.png",
+      "prompt": "Use case: stylized-concept. New production terrain sprite in EXACT same cozy 16-bit top-down pixel RPG style as reference tree. Reference is STYLE ONLY. A dense connected grove of five to seven overlapping broadleaf woodland trees, tightly layered leafy crowns, uneven heights, short visible trunks and tangled roots along the bottom, shaded dark interior between leaves. A thick natural forest wall that clearly blocks walking, not individual detached little trees. Broad roughly 3:2 silhouette, overhead 3/4 camera, crisp chunky pixel clusters and dark outline, softly lit moss/lime canopy highlights from upper left, same muted palette as reference. Entire grove visible on genuine transparent exterior background. No rectangular grass island or floor, no landscape, no people, no text, no photorealistic painting, no huge smooth gradients.",
+      "source": "assets/hunting/source/dense-grove-v1.png",
+      "runtime": "assets/hunting/dense-grove-v1.png"
+    },
+    {
+      "id": "fallen-log",
+      "reference": "assets/hunting/cliff-v1.png",
+      "prompt": "Use case: stylized-concept. Environmental obstacle sprite for cozy 16-bit top-down woodland life RPG matching reference pixel cluster size, outline and muted moss-green and earthy palette. Reference is STYLE ONLY. One huge old fallen tree trunk lies horizontally, bark dark russet-brown with readable wood rings on broken left end, gnarly root fan and twisted branches at right end, moss and small ferns growing over upper bark. Log and roots form one connected solid low obstacle around which a path bends. 3/4 overhead game camera, wide roughly 3:1 silhouette, crisp chunky pixels and dark contour, upper-left lighting. Whole prop centered and fully visible, generous transparent exterior margins. Genuine alpha outside, opaque wood and foliage inside. No ground tile, no background landscape, no text, no people, no stump forest, no photorealistic gradients.",
+      "source": "assets/hunting/source/fallen-log-v1.png",
+      "runtime": "assets/hunting/fallen-log-v1.png"
+    }
+  ]
+}

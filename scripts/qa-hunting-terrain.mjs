@@ -8,7 +8,9 @@ vm.runInContext(fs.readFileSync('src/data/hunting-data.js','utf8'),context);
 const run=code=>vm.runInContext(code,context);
 run("GAME_STATE.regionId='wildwoodHunt';buildWorldRegion(REGION_WORLDS.wildwoodHunt)");
 const data=JSON.parse(run('JSON.stringify({terrain:WORLD_DEFINITION.terrain,blocked:[...blocked],paths:[...pathSet],spawns:HUNTING_SPAWNS,exit:REGION_EXITS.wildwoodHunt[0]})'));
-assert.equal(data.terrain.ridges.length,8);assert(!data.terrain.hills?.length);
+assert.equal(data.terrain.ridges.length,25);assert(!data.terrain.hills?.length);
+assert(data.terrain.ridges.some(r=>r.kind==='grove')&&data.terrain.ridges.some(r=>r.kind==='spine')&&data.terrain.ridges.some(r=>r.kind==='log'));
+assert(data.blocked.length>1300,'Hunting terrain must form substantial enclosures, rather than scattered small props');
 const blocked=new Set(data.blocked),queue=[[12,37]],seen=new Set(['12,37']);
 for(let i=0;i<queue.length;i++)for(const [dx,dy]of [[1,0],[-1,0],[0,1],[0,-1]]){
   const [px,py]=queue[i],x=px+dx,y=py+dy,k=x+','+y;
@@ -38,4 +40,4 @@ for(let y=145;y<210;y++)for(let x=135;x<185;x++){
   if(cave.data[i+3]===255&&Math.max(...cave.data.subarray(i,i+3))<65)dark++;
 }
 assert(dark>2200,'The recessed cave mouth must be opaque darkness, not a transparent frame');
-console.log(`Hunting terrain passed: 8 solid ridges, ${data.paths.length} connected clear path tiles, 10 homes/40 melee approaches, pond/exit, village cave roof/approach, opaque tunnel and transparent sprite margins.`);
+console.log(`Hunting terrain passed: ${data.terrain.ridges.length} connected terrain masses, ${data.blocked.length} blocked cells, ${data.paths.length} connected clear path tiles, 10 homes/40 melee approaches, pond/exit, village cave roof/approach, opaque tunnel and transparent sprite margins.`);

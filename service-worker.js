@@ -54,6 +54,20 @@ self.addEventListener('fetch',event=>{
   const url=new URL(request.url);
   if(url.origin!==self.location.origin)return;
 
+  if(/\/assets\/audio\/music\/(?:meadow|woodland|lakeside)\.mp3$/.test(url.pathname)){
+    // Let the browser/server handle live streaming ranges. A reload after an
+    // interrupted stream may add a query; offline fallback uses the full cached
+    // canonical file, never another partial response or an obsolete cache.
+    const canonical=new URL(url);canonical.search='';canonical.hash='';
+    const fallback=async()=>{
+      const cache=await caches.open(CACHE_NAME),cached=await cache.match(canonical.href);
+      if(!cached)throw new Error('Music is unavailable offline');
+      return request.headers.has('range')?cachedRangeResponse(request,cached):cached;
+    };
+    event.respondWith(fetch(request).then(response=>response.ok?response:fallback()).catch(fallback));
+    return;
+  }
+
   if(request.headers.has('range')){
     event.respondWith(
       caches.match(url.href)

@@ -71,12 +71,12 @@ try{
    const unchanged=economy===JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression,collections:GAME_STATE.collections});
    // Collision and pathfinding around a raised ledge, independently of the attack roll.
    for(const animal of huntingState.animals){resetHuntingAnimal(animal);animal.wait=1e9;}
-   __place(22,25);const c=huntingState.animals[0];Object.assign(c,{x:22,y:30,px:22.5*TILE,py:30.5*TILE,homeX:22,homeY:30,mode:'aggro',lastHit:huntingState.clock,moving:false,windup:null,attackRecovery:null,wait:0});
+   __place(22,25);const c=huntingState.animals[0];Object.assign(c,{x:22,y:32,px:22.5*TILE,py:32.5*TILE,homeX:22,homeY:32,mode:'aggro',lastHit:huntingState.clock,moving:false,windup:null,attackRecovery:null,wait:0});
    const route=[];let crossed=false;huntingState.hp=100;
    for(let i=0;i<300&&Math.hypot(c.x-player.x,c.y-player.y)>1.45;i++){
     updateHunting(40);if(blocked.has(key(c.x,c.y)))throw Error('Animal walked through ridge');
     if(!route.some(p=>p.x===c.x&&p.y===c.y))route.push({x:c.x,y:c.y});
-    if(c.x<20||c.x>=27)crossed=true;
+    if(c.x<18||c.x>=31)crossed=true;
    }
    if(!crossed||Math.hypot(c.x-player.x,c.y-player.y)>1.45)throw Error('Animal could not route around solid ridge');
    return {tools,trial,audio,unchanged,route,audioRunning:realtime.state==='running'};

@@ -1,5 +1,9 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-21 마을 음악 복구·사냥터 지형 v3
+
+공개 배포 준비 중. 실제 공개판에서 음악 읽기 오류 후 `paused=false`로 시간이 멈추는 현상을 재현했다. 같은 오디오 객체로 재로딩/위치 복구, 제한 재시도와 숨김/음소거 취소를 적용했다. 지형 25구역·1,556 충돌 칸·203 길/10개체/40방향 접근을 검증했다. [기준·결과](docs/HUNTING_DYNAMIC_MUSIC_V3.md).
+
 ## 2026-10-21 사냥터 굴·지형·전투 피드백 v2
 
 2026-10-21 사냥터 굴·지형·전투 피드백 v2 공개 배포 완료. 게임 변경 [cdfcb43](https://github.com/sidebatch/pixel-life/commit/cdfcb43dd02836cdac58c938190e845856623207), [게시 성공 #39560772381](https://github.com/sidebatch/pixel-life/actions/runs/39560772381), PWA `17bb8ceec9a6`. HTML 22,042,299 bytes / 공개 8파일 39,509,461 bytes가 독립 배포 빌드와 SHA-256까지 일치한다.

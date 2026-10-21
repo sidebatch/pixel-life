@@ -310,6 +310,15 @@ function defineVoyageRegion(id,name,habitat,spotId,waterColor){
     buildings:[],fixedObjects:{},decorations:{bushes:[],flowers:[],grassTufts:[],reeds:[]},treeLines:[],trees:[],farmPlots:[],exits:[]
   });
 }
+function finishHuntingTerrain(definition){
+  if(definition.id!=='wildwoodHunt')return definition;
+  const covered=p=>(definition.terrain.ridges||[]).some(r=>p.x>=r.x&&p.x<r.x+r.w&&p.y>=r.y&&p.y<r.y+r.h&&
+    !(r.cutCorners&&(p.x===r.x||p.x===r.x+r.w-1)&&(p.y===r.y||p.y===r.y+r.h-1)));
+  // The new continuous terrain replaces props inside its solid footprint.
+  return Object.freeze({...definition,trees:definition.trees.filter(p=>!covered(p)),
+    fixedObjects:{...definition.fixedObjects,rocks:definition.fixedObjects.rocks.filter(p=>!covered(p))},
+    decorations:Object.fromEntries(Object.entries(definition.decorations).map(([kind,points])=>[kind,points.filter(p=>!covered(p))]))});
+}
 const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
   lilacVillage:VILLAGE_WORLD_DEFINITION,
   wildwoodHunt:Object.freeze({
@@ -317,9 +326,19 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
     terrain:{ground:'#638a53',patchA:'#3e6943',patchB:'#95ab68',pathRim:'#9c8d60',pathCore:'#c0ad7b',
       huntingCliffs:true,ridges:[
         {x:8,y:7,w:7,h:3,cutCorners:true},{x:17,y:17,w:8,h:3,cutCorners:true},
-        {x:31,y:16,w:10,h:3,cutCorners:true},{x:20,y:26,w:7,h:3,cutCorners:true},
-        {x:38,y:29,w:8,h:3,cutCorners:true},{x:52,y:19,w:7,h:3,cutCorners:true},
-        {x:25,y:39,w:5,h:2,cutCorners:true},{x:53,y:38,w:6,h:3,cutCorners:true}]},
+        {x:30,y:15,w:12,h:5,kind:'spine',cutCorners:true},{x:18,y:26,w:13,h:5,kind:'grove',cutCorners:true},
+        {x:38,y:28,w:8,h:4,cutCorners:true},{x:52,y:19,w:7,h:3,cutCorners:true},
+        {x:25,y:39,w:5,h:2,cutCorners:true},{x:53,y:38,w:6,h:3,cutCorners:true},
+        {x:3,y:10,w:8,h:24,kind:'grove'},{x:3,y:36,w:6,h:9,kind:'grove'},
+        {x:17,y:37,w:6,h:8,kind:'grove'},{x:19,y:15,w:6,h:2,kind:'grove'},
+        {x:21,y:21,w:5,h:3,kind:'log',cutCorners:true},
+        {x:3,y:3,w:12,h:6,kind:'grove'},{x:16,y:3,w:16,h:6,kind:'grove'},
+        {x:35,y:3,w:24,h:5,kind:'grove'},{x:57,y:9,w:4,h:15,kind:'grove'},
+        {x:55,y:25,w:6,h:12,kind:'grove'},{x:49,y:39,w:12,h:6,kind:'grove'},
+        {x:28,y:38,w:12,h:6,kind:'grove'},{x:41,y:39,w:6,h:6,kind:'grove'},
+        {x:47,y:17,w:4,h:7,kind:'spine',cutCorners:true},
+        {x:32,y:34,w:3,h:2,kind:'log'},{x:7,y:34,w:4,h:2,kind:'log'},
+        {x:37,y:13,w:3,h:2,kind:'log'}]},
     playerSpawn:{x:12,y:37,face:'up'},
     // Connected loops bend around raised rock and link the wildlife clearings.
     paths:[{x1:12,y1:40,x2:12,y2:31},{x1:12,y1:31,x2:16,y2:31},
@@ -806,7 +825,7 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
     trees:[{x:5,y:18},{x:24,y:17},{x:51,y:16},{x:58,y:12}],farmPlots:[],
     exits:[{x:62,y:24,to:'lilacVillage',entry:{x:3,y:36,face:'right'},label:'마을로'}]
   })
-}).map(([id,definition])=>[id,placeRouteSignposts(connectForestEntrances(definition))])));
+}).map(([id,definition])=>[id,placeRouteSignposts(connectForestEntrances(finishHuntingTerrain(definition)))])));
 const REGION_EXITS=Object.freeze({
   lilacVillage:Object.freeze([...FOREST_ROUTE_EXITS.lilacVillage,
     {x:48,y:35,to:'wildwoodHunt',entry:{x:12,y:37,face:'up'},label:'들녘 사냥터'}]),

@@ -12,8 +12,8 @@ try{
   const context=await browser.newContext({viewport:{width:393,height:780},isMobile:true,hasTouch:true});
   const page=await context.newPage(),errors=[];
   page.on('pageerror',error=>errors.push(error.message));
-  await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await page.goto(base+'?time=12:00&weather=clear');
+  await page.waitForFunction(()=>!document.getElementById('startupLoading'));
   await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler']);
   const before=await page.evaluate(()=>({state:JSON.stringify(GAME_STATE),paused:regionMusicPlayer.paused,
     unlocked:regionMusicUnlocked,track:regionMusicTrack,loop:regionMusicPlayer.loop}));
@@ -30,6 +30,7 @@ try{
   if(!await page.evaluate(()=>regionMusicMuted&&regionMusicPlayer.paused&&
     localStorage.getItem(REGION_MUSIC_MUTE_KEY)==='true'))throw new Error('Music mute failed');
   await page.reload();
+  await page.waitForFunction(()=>!document.getElementById('startupLoading'));
   await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler']);
   if(!await page.evaluate(()=>regionMusicMuted&&regionMusicPlayer.paused))throw new Error('Mute not restored');
   await page.locator('#settingsBtn').tap();await page.locator('#menuMusicBtn').tap();

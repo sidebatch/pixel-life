@@ -1,6 +1,8 @@
 # Pixel Life 문서 안내
 
-2026-10-21 마을 음악 중단 복구·사냥터 지형 v3 공개 배포 준비 중. [원인·변경·이미지·검증](HUNTING_DYNAMIC_MUSIC_V3.md). 아래는 이전 공개판 기록이다.
+2026-10-21 마을 음악 복구·사냥터 지형 v3 공개 배포 완료. 게임 변경 [93040a7](https://github.com/sidebatch/pixel-life/commit/93040a76df855143d03f73ad822f998375283a93), [게시 성공 #39568380631](https://github.com/sidebatch/pixel-life/actions/runs/39568380631), PWA `1aa83dac4d82`. HTML 22,584,979 bytes / 공개 8파일 40,052,934 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [변경·그림·검증](HUNTING_DYNAMIC_MUSIC_V3.md).
+
+음악 읽기 오류 후 자동 재개·새 요청/스트리밍 경로와 오프라인 캐시를 보완하고, 새 절벽/나무 군락/거목 3종과 25개 지형 구역을 적용했다. 독립 전체 검사 56 scripts/153 UI IDs/497 assets/74 fish와 빌드, 공개 음악 요청 실패 주입 후 복구·6지역 왕복/실제 파형·지속 재생·음소거, 공개 320/393/1280px 지형/큰 군락 우회·5종/10개체 전투·60% 명중률/소리·입구 왕복/저장을 통과했다. 독립 3곡 반복·기존 22장비/480변환·낚시/수확, 새로 막힌 칸의 저장 위치 복구도 통과했다. 새 PWA 캐시·오프라인/재시도 주소의 음악 Range 206/100 bytes·강제 재로딩 없음 확인. 앱 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다. 별도 숲 배치 작업은 보존하고 배포에서 제외했다. 결과 `output/deploy-hunting-dynamic-qa/`.
 
 2026-10-21 사냥터 굴·지형·전투 피드백 v2 공개 배포 완료. 게임 변경 [cdfcb43](https://github.com/sidebatch/pixel-life/commit/cdfcb43dd02836cdac58c938190e845856623207), [게시 성공 #39560772381](https://github.com/sidebatch/pixel-life/actions/runs/39560772381), PWA `17bb8ceec9a6`. HTML 22,042,299 bytes / 공개 8파일 39,509,461 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [변경·이미지·검증](HUNTING_TERRAIN_COMBAT_V2.md).
 
@@ -16,7 +18,7 @@
 
 2026-10-20 기준. 새 세션은 [HANDOFF.md](HANDOFF.md)와 [다음 콘텐츠 회의](NEXT_CONTENT_DISCUSSION_2026_10_17.md)부터 읽는다. 다음 콘텐츠는 미선택이며, 아래 문서의 구현/제안/과거 기록을 구별한다.
 
-현재 게임 변경 cdfcb43/PWA 17bb8ceec9a6, 56 runtime scripts/153 UI IDs/494 assets/74 fish. 최근 공개/이전 내역은 [DEPLOYMENT.md](DEPLOYMENT.md)와 [10월 16일 누적 이력](HANDOFF_RELEASE_HISTORY_2026_10_16.md)에 있다.
+현재 게임 변경 93040a7/PWA 1aa83dac4d82, 56 runtime scripts/153 UI IDs/497 assets/74 fish. 최근 공개/이전 내역은 [DEPLOYMENT.md](DEPLOYMENT.md)와 [10월 16일 누적 이력](HANDOFF_RELEASE_HISTORY_2026_10_16.md)에 있다.
 
 ## 새 세션 읽는 순서
 
@@ -30,6 +32,7 @@
 
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
+| 음악 복구·사냥터 지형 v3 | [HUNTING_DYNAMIC_MUSIC_V3.md](HUNTING_DYNAMIC_MUSIC_V3.md) | 실제 음악 오류/위치 복구·오프라인·절벽/숲/거목·검증 |
 | 굴·지형·전투 피드백 | [HUNTING_TERRAIN_COMBAT_V2.md](HUNTING_TERRAIN_COMBAT_V2.md) | 굴/능선·연결 길·명중률 60%·공격/피격음·검증 |
 | 첫 사냥터 | [HUNTING_GROUND_V1.md](HUNTING_GROUND_V1.md) | 마을 안쪽 입구·5종/10개체·개별 반격·체력/복귀·세션/검증 |
 | 모든 손 장비 휘두르기 | [TOOL_SWING_V1.md](TOOL_SWING_V1.md) | 2026-10-19 공개 완료·22장비·rodSwing/낫 허공 동작·기존 변환 보호 |

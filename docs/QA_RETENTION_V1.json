@@ -5,6 +5,14 @@
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
     {
+      "topic": "마을 음악 스트림 복구·사냥터 지형/밀도 v3",
+      "latest": [
+        "hunting-dynamic-qa",
+        "deploy-hunting-dynamic-qa"
+      ],
+      "previous": []
+    },
+    {
       "topic": "사냥터 굴/능선·순환 길·명중률 60%·공격/명중음",
       "latest": [
         "hunting-terrain-qa",

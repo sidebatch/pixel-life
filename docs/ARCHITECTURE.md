@@ -1,5 +1,7 @@
 # Pixel Life Architecture
 
+2026-10-21 [마을 음악 복구·사냥터 지형 v3](HUNTING_DYNAMIC_MUSIC_V3.md)를 공개 게시했다. 지역 음악은 하나의 스트리밍 오디오에서 오류/정지를 감지해 위치를 복구한다. 온라인 음악 부분 요청은 원래 네트워크 응답을 사용하고 오프라인에는 현재 완전 캐시를 사용한다. 사냥터 지형은 3종 원화/25구역의 군락·절벽·거목과 깊이 정렬로 확장했다.
+
 2026-10-21 [사냥터 지형/전투 v2](HUNTING_TERRAIN_COMBAT_V2.md)를 공개 게시했다. `terrain.ridges` 충돌과 깊이 정렬된 바위 그림, 불투명 굴/접근로, `HUNTING_RULES.hitChance`의 양쪽 60% 판정, 동작별 휘두름/명중음으로 확장했다. 생활 경제·저장·캐릭터 리그는 유지한다.
 
 2026-10-20 [야생동물 공격 모션](HUNTING_ATTACK_MOTION_V1.md)을 공개 게시했다. `HUNTING_ATTACK_MOTION`과 `getHuntingAttackVisual`이 공격 시계/방향을 읽어 전용 그림과 예비/공격/복귀 자세를 계산하며, 충돌·경제·캐릭터 리그는 유지한다.

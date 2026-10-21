@@ -1,6 +1,8 @@
 # Pixel Life 개발 인수인계
 
-2026-10-21 마을 음악 중단 복구·사냥터 지형 v3 공개 배포 준비 중. [새 기준](HUNTING_DYNAMIC_MUSIC_V3.md): 음악 읽기 오류 뒤 재개·절벽/나무 군락/쓰러진 거목·25개 지형 구역. 기존 숲 세션 배치 작업은 별도로 보존한다.
+2026-10-21 마을 음악 복구·사냥터 지형 v3 공개 배포 완료. 게임 변경 [93040a7](https://github.com/sidebatch/pixel-life/commit/93040a76df855143d03f73ad822f998375283a93), [게시 성공 #39568380631](https://github.com/sidebatch/pixel-life/actions/runs/39568380631), PWA `1aa83dac4d82`. HTML 22,584,979 bytes / 공개 8파일 40,052,934 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [변경·그림·검증](HUNTING_DYNAMIC_MUSIC_V3.md).
+
+음악 읽기 오류 후 자동 재개·새 요청/스트리밍 경로와 오프라인 캐시를 보완하고, 새 절벽/나무 군락/거목 3종과 25개 지형 구역을 적용했다. 독립 전체 검사 56 scripts/153 UI IDs/497 assets/74 fish와 빌드, 공개 음악 요청 실패 주입 후 복구·6지역 왕복/실제 파형·지속 재생·음소거, 공개 320/393/1280px 지형/큰 군락 우회·5종/10개체 전투·60% 명중률/소리·입구 왕복/저장을 통과했다. 독립 3곡 반복·기존 22장비/480변환·낚시/수확, 새로 막힌 칸의 저장 위치 복구도 통과했다. 새 PWA 캐시·오프라인/재시도 주소의 음악 Range 206/100 bytes·강제 재로딩 없음 확인. 앱 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다. 별도 숲 배치 작업은 보존하고 배포에서 제외했다. 결과 `output/deploy-hunting-dynamic-qa/`.
 
 2026-10-21 사냥터 굴·지형·전투 피드백 v2 공개 배포 완료. 게임 변경 [cdfcb43](https://github.com/sidebatch/pixel-life/commit/cdfcb43dd02836cdac58c938190e845856623207), [게시 성공 #39560772381](https://github.com/sidebatch/pixel-life/actions/runs/39560772381), PWA `17bb8ceec9a6`. HTML 22,042,299 bytes / 공개 8파일 39,509,461 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [변경·이미지·검증](HUNTING_TERRAIN_COMBAT_V2.md).
 
@@ -31,9 +33,9 @@
 ## 2. 저장소와 현재 공개 기준
 
 - 실제 Git 저장소는 상위 작업 폴더 안의 동명 pixel-life-path-redesign-v5 폴더다. 상위 WAV·첨부·옛 pixel-life-web 폴더를 현재 게임 저장소로 사용하지 않는다.
-- [GitHub 저장소](https://github.com/sidebatch/pixel-life) · [현재 검증한 공개 게임](https://sidebatch.github.io/pixel-life/?v=cdfcb43).
-- 최신 게임 변경: [cdfcb43](https://github.com/sidebatch/pixel-life/commit/cdfcb43dd02836cdac58c938190e845856623207), [게시 성공 #39560772381](https://github.com/sidebatch/pixel-life/actions/runs/39560772381). 문서 자체 최신 커밋은 git log로 확인한다.
-- PWA 캐시 pixel-life-17bb8ceec9a6, HTML 22,042,299 bytes, 공개 8파일 39,509,461 bytes. SHA-256은 독립 배포 빌드와 일치한다.
+- [GitHub 저장소](https://github.com/sidebatch/pixel-life) · [현재 검증한 공개 게임](https://sidebatch.github.io/pixel-life/?v=93040a7).
+- 최신 게임 변경: [93040a7](https://github.com/sidebatch/pixel-life/commit/93040a76df855143d03f73ad822f998375283a93), [게시 성공 #39568380631](https://github.com/sidebatch/pixel-life/actions/runs/39568380631). 문서 자체 최신 커밋은 git log로 확인한다.
+- PWA 캐시 pixel-life-1aa83dac4d82, HTML 22,584,979 bytes, 공개 8파일 40,052,934 bytes. SHA-256은 독립 배포 빌드와 일치한다.
 - 위 커밋은 이번 문서 정리 전 검증 기준이다. 이 문서 자체의 최신 커밋은 git log와 origin/main으로 확인한다. 문서만 바뀌면 게임/PWA 내용은 동일하다.
 - main 푸시는 Deploy GitHub Pages를 자동 실행한다. 소스 게시 후 Actions 성공과 공개 파일 반영을 확인한다. 현재 CI는 문서 변경에도 실행된다.
 
@@ -76,7 +78,7 @@
 
 ## 6. QA·배포 기준
 
-직전 게임 빌드 전체 검사: **56 runtime scripts / 153 UI IDs / 494 asset references / 74 fish**. 도구 스크립트 파일 수와 runtime scripts 수는 다르다.
+직전 게임 빌드 전체 검사: **56 runtime scripts / 153 UI IDs / 497 asset references / 74 fish**. 도구 스크립트 파일 수와 runtime scripts 수는 다르다.
 
 공개 320/393px 모바일·PC 1280px에서 모든 손 장비 휘두르기와 남녀 정면을 검증했다. 성장 현황·작은 HUD와 날씨는 이전 공개 QA를 유지한다. 날씨 수치 QA는 1만 게임 날짜와 5~60FPS의 실제 프레임 루프·백그라운드/복귀/BFCache를 검증한다. 이번 PWA 캐시·오프라인·Range 응답은 통과했으며, 설치 검증은 위에 기록한 프로필 문제로 미완료다.
 

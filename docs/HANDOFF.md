@@ -1,6 +1,8 @@
 # Pixel Life 개발 인수인계
 
-2026-10-21 로컬 수정 완료: [사냥터 굴·지형·전투 피드백 v2](HUNTING_TERRAIN_COMBAT_V2.md). 마을 굴/접근로·사냥터 능선 8곳/순환 길·공격/타격 소리·양쪽 명중률 60%를 적용했다. 아직 공개 배포하지 않았다. 공개판 기록은 아래 4596ce2/PWA f0910f53e09d 기준이다. 기존 숲 세션 배치 미커밋 작업은 별도로 보존한다.
+2026-10-21 사냥터 굴·지형·전투 피드백 v2 공개 배포 완료. 게임 변경 [cdfcb43](https://github.com/sidebatch/pixel-life/commit/cdfcb43dd02836cdac58c938190e845856623207), [게시 성공 #39560772381](https://github.com/sidebatch/pixel-life/actions/runs/39560772381), PWA `17bb8ceec9a6`. HTML 22,042,299 bytes / 공개 8파일 39,509,461 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [변경·이미지·검증](HUNTING_TERRAIN_COMBAT_V2.md).
+
+굴 입구/접근로·능선 8곳/연결 길 203칸·휘두름/명중음·양쪽 명중률 60%를 적용했다. 독립 전체 검사 56 scripts/153 UI IDs/494 assets/74 fish와 빌드, 공개 320/393/1280px 입구 왕복·중립/개별 반격·피격/회피·귀소/처치/재등장·저장/겹침 방지, 실제 공격 각 1만 회(플레이어 60.61%/동물 59.33%), 8종 Web Audio 파형/실행·한 번의 소리/피해·능선 우회를 통과했다. 독립 배포 빌드의 기존 22장비/남녀/사방향/480변환·낚시/수확 회귀도 통과했다. 새 캐시·오프라인 실행·음악 Range 206/100 bytes·강제 재로딩 없음을 확인했다. 앱 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다. 기존 숲 배치 미커밋 변경은 보존하고 배포에서 제외했다. 결과 `output/deploy-hunting-terrain-qa/`.
 
 2026-10-20 야생동물 공격 모션 공개 배포 완료. 게임 변경 [4596ce2](https://github.com/sidebatch/pixel-life/commit/4596ce286b24c3462e08cd91e456a1aea6060ae2), [게시 성공 #39487970017](https://github.com/sidebatch/pixel-life/actions/runs/39487970017), PWA `f0910f53e09d`. HTML 21,948,018 bytes / 공개 8파일 39,415,180 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [공격 모션 기준](HUNTING_ATTACK_MOTION_V1.md).
 
@@ -10,7 +12,7 @@
 
 마을 남동쪽 내부 입구와 야생동물 5종/10개체, 공격받은 개체만 반격하는 전투·체력/마을 복귀를 게시했다. 독립 소스 전체 검사 56 scripts/153 UI IDs/488 assets/74 fish와 빌드, 공개 320/393/1280px 왕복·선공 없음·개별 반격·회피/귀소·처치/재등장·4종 도구·체력 소진 복귀·저장/재접속·중첩 방지를 통과했다. 기존 22장비/남녀/사방향/480변환과 실제 낚시/수확 회귀도 통과했다. 격리 브라우저에서 새 캐시·오프라인 실행·음악 Range 206/100 bytes·강제 재로딩 없음을 확인했다. 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다. 이전부터 작업 중이던 숲 배치 변경은 보존하고 이번 게시에서 제외했다. 결과 `output/deploy-hunting-qa/`.
 
-기준일: **2026-10-20**. 다음 세션은 이 문서와 [들녘 사냥터](HUNTING_GROUND_V1.md)부터 읽는다. [다음 콘텐츠 회의](NEXT_CONTENT_DISCUSSION_2026_10_17.md)는 사냥터 선택 전 기록이다.
+기준일: **2026-10-21**. 다음 세션은 이 문서와 [들녘 사냥터](HUNTING_GROUND_V1.md)부터 읽는다. [다음 콘텐츠 회의](NEXT_CONTENT_DISCUSSION_2026_10_17.md)는 사냥터 선택 전 기록이다.
 
 2026-10-19 모든 손 장비 휘두르기 공개 배포 완료. 게임 변경 [eccf7d7](https://github.com/sidebatch/pixel-life/commit/eccf7d720de6ddf5e55a7c0d09accb314c0cb470), PWA `7e3bd6e5beb2`, [배포 성공](https://github.com/sidebatch/pixel-life/actions/runs/39355204438). HTML 21,384,628 bytes/공개 8파일 38,851,790 bytes가 배포용 독립 빌드와 SHA-256까지 일치한다.
 
@@ -27,9 +29,9 @@
 ## 2. 저장소와 현재 공개 기준
 
 - 실제 Git 저장소는 상위 작업 폴더 안의 동명 pixel-life-path-redesign-v5 폴더다. 상위 WAV·첨부·옛 pixel-life-web 폴더를 현재 게임 저장소로 사용하지 않는다.
-- [GitHub 저장소](https://github.com/sidebatch/pixel-life) · [현재 검증한 공개 게임](https://sidebatch.github.io/pixel-life/?v=4596ce2).
-- 최신 게임 변경: [4596ce2](https://github.com/sidebatch/pixel-life/commit/4596ce286b24c3462e08cd91e456a1aea6060ae2), [게시 성공 #39487970017](https://github.com/sidebatch/pixel-life/actions/runs/39487970017). 문서 자체 최신 커밋은 git log로 확인한다.
-- PWA 캐시 pixel-life-f0910f53e09d, HTML 21,948,018 bytes, 공개 8파일 39,415,180 bytes. SHA-256은 독립 배포 빌드와 일치한다.
+- [GitHub 저장소](https://github.com/sidebatch/pixel-life) · [현재 검증한 공개 게임](https://sidebatch.github.io/pixel-life/?v=cdfcb43).
+- 최신 게임 변경: [cdfcb43](https://github.com/sidebatch/pixel-life/commit/cdfcb43dd02836cdac58c938190e845856623207), [게시 성공 #39560772381](https://github.com/sidebatch/pixel-life/actions/runs/39560772381). 문서 자체 최신 커밋은 git log로 확인한다.
+- PWA 캐시 pixel-life-17bb8ceec9a6, HTML 22,042,299 bytes, 공개 8파일 39,509,461 bytes. SHA-256은 독립 배포 빌드와 일치한다.
 - 위 커밋은 이번 문서 정리 전 검증 기준이다. 이 문서 자체의 최신 커밋은 git log와 origin/main으로 확인한다. 문서만 바뀌면 게임/PWA 내용은 동일하다.
 - main 푸시는 Deploy GitHub Pages를 자동 실행한다. 소스 게시 후 Actions 성공과 공개 파일 반영을 확인한다. 현재 CI는 문서 변경에도 실행된다.
 
@@ -72,7 +74,7 @@
 
 ## 6. QA·배포 기준
 
-직전 게임 빌드 전체 검사: **56 runtime scripts / 153 UI IDs / 493 asset references / 74 fish**. 도구 스크립트 파일 수와 runtime scripts 수는 다르다.
+직전 게임 빌드 전체 검사: **56 runtime scripts / 153 UI IDs / 494 asset references / 74 fish**. 도구 스크립트 파일 수와 runtime scripts 수는 다르다.
 
 공개 320/393px 모바일·PC 1280px에서 모든 손 장비 휘두르기와 남녀 정면을 검증했다. 성장 현황·작은 HUD와 날씨는 이전 공개 QA를 유지한다. 날씨 수치 QA는 1만 게임 날짜와 5~60FPS의 실제 프레임 루프·백그라운드/복귀/BFCache를 검증한다. 이번 PWA 캐시·오프라인·Range 응답은 통과했으며, 설치 검증은 위에 기록한 프로필 문제로 미완료다.
 

@@ -1,9 +1,17 @@
 {
   "version": 1,
-  "date": "2026-10-20",
+  "date": "2026-10-21",
   "scope": "output only",
   "recovery": "Windows Recycle Bin; no permanent-delete fallback",
   "groups": [
+    {
+      "topic": "사냥터 굴/능선·순환 길·명중률 60%·공격/명중음",
+      "latest": [
+        "hunting-terrain-qa",
+        "deploy-hunting-terrain-qa"
+      ],
+      "previous": []
+    },
     {
       "topic": "야생동물 5종/4방향 공격 모션·판정/기존 활동 보존",
       "latest": [

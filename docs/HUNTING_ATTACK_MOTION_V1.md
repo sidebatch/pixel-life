@@ -1,6 +1,6 @@
 # 야생동물 공격 모션 v1
 
-2026-10-21 후속 로컬 변경: [굴·지형·전투 피드백 v2](HUNTING_TERRAIN_COMBAT_V2.md). 기존 모션/타격 시점은 유지하고 공격/명중 소리와 양쪽 명중률 60%를 추가했다. 아래는 과거 공개 배포 기록이다.
+2026-10-21 후속 공개 변경: [굴·지형·전투 피드백 v2](HUNTING_TERRAIN_COMBAT_V2.md). 기존 모션/타격 시점은 유지하고 공격/명중 소리와 양쪽 명중률 60%를 추가했다. 아래는 과거 공개 배포 기록이다.
 
 2026-10-20 야생동물 공격 모션 공개 배포 완료. 게임 변경 [4596ce2](https://github.com/sidebatch/pixel-life/commit/4596ce286b24c3462e08cd91e456a1aea6060ae2), [게시 성공 #39487970017](https://github.com/sidebatch/pixel-life/actions/runs/39487970017), PWA `f0910f53e09d`. HTML 21,948,018 bytes / 공개 8파일 39,415,180 bytes가 독립 배포 빌드와 SHA-256까지 일치한다.
 

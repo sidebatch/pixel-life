@@ -1,6 +1,8 @@
 # 사냥터 굴·지형·전투 피드백 v2
 
-2026-10-21 구현 후 사용자 요청으로 공개 배포 준비 중. 직전 공개판은 4596ce2 / PWA f0910f53e09d다. 이번 작업과 별개로 남아 있던 숲 세션 배치 변경은 보존한다.
+2026-10-21 사냥터 굴·지형·전투 피드백 v2 공개 배포 완료. 게임 변경 [cdfcb43](https://github.com/sidebatch/pixel-life/commit/cdfcb43dd02836cdac58c938190e845856623207), [게시 성공 #39560772381](https://github.com/sidebatch/pixel-life/actions/runs/39560772381), PWA `17bb8ceec9a6`. HTML 22,042,299 bytes / 공개 8파일 39,509,461 bytes가 독립 배포 빌드와 SHA-256까지 일치한다.
+
+굴 입구/접근로·능선 8곳/연결 길 203칸·휘두름/명중음·양쪽 명중률 60%를 적용했다. 독립 전체 검사 56 scripts/153 UI IDs/494 assets/74 fish와 빌드, 공개 320/393/1280px 입구 왕복·중립/개별 반격·피격/회피·귀소/처치/재등장·저장/겹침 방지, 실제 공격 각 1만 회(플레이어 60.61%/동물 59.33%), 8종 Web Audio 파형/실행·한 번의 소리/피해·능선 우회를 통과했다. 독립 배포 빌드의 기존 22장비/남녀/사방향/480변환·낚시/수확 회귀도 통과했다. 새 캐시·오프라인 실행·음악 Range 206/100 bytes·강제 재로딩 없음을 확인했다. 앱 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다. 기존 숲 배치 미커밋 변경은 보존하고 배포에서 제외했다. 결과 `output/deploy-hunting-terrain-qa/`.
 
 ## 굴 입구와 지형
 
@@ -42,3 +44,5 @@
 - `node scripts/qa-tool-swing-browser.mjs`: 22장비·남녀·사방향·기존 480변환, 입력/잠금/파손, 허공 경제·내구도·저장·난수 불변, 실제 낚시와 수확.
 
 전체 소스 검사와 빌드도 통과했다: 56 scripts / 153 UI IDs / 494 asset references / 74 fish. 최초 로컬 결과는 `output/hunting-terrain-qa/`, 로그는 `output/hunting-terrain-check.log`다. 별도 숲 배치 작업을 제외한 독립 배포 빌드 PWA는 `17bb8ceec9a6`, HTML은 22,042,299 bytes이며 배포 검증 결과는 `output/deploy-hunting-terrain-qa/`에 기록한다.
+
+독립 장비 브라우저 검사는 첫 병렬 실행에서 동작 잠금 확인 시점에 실패했으며, 제품 수정 없이 단독 재실행에서 전 항목을 통과했다. 결과 `tool-regression-retry/report.json`.

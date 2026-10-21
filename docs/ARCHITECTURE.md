@@ -1,5 +1,7 @@
 # Pixel Life Architecture
 
+2026-10-21 [사냥터 지형/전투 v2](HUNTING_TERRAIN_COMBAT_V2.md)를 공개 게시했다. `terrain.ridges` 충돌과 깊이 정렬된 바위 그림, 불투명 굴/접근로, `HUNTING_RULES.hitChance`의 양쪽 60% 판정, 동작별 휘두름/명중음으로 확장했다. 생활 경제·저장·캐릭터 리그는 유지한다.
+
 2026-10-20 [야생동물 공격 모션](HUNTING_ATTACK_MOTION_V1.md)을 공개 게시했다. `HUNTING_ATTACK_MOTION`과 `getHuntingAttackVisual`이 공격 시계/방향을 읽어 전용 그림과 예비/공격/복귀 자세를 계산하며, 충돌·경제·캐릭터 리그는 유지한다.
 
 2026-10-20 공개 추가: [들녘 사냥터](HUNTING_GROUND_V1.md). `src/data/hunting-data.js`는 5종/10개체와 규칙, `src/hunting.js`는 세션 전투·이동·반격·체력/복귀·표시를 담당한다. `life-content.js`의 공통 타격 시점과 연결하며 `character.js`와 기존 경제/저장 계약은 유지한다. 사냥터 공개 게시를 완료했다.

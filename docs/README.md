@@ -1,6 +1,8 @@
 # Pixel Life 문서 안내
 
-2026-10-21 로컬 수정: [사냥터 굴·지형·전투 피드백 v2](HUNTING_TERRAIN_COMBAT_V2.md). 굴 입구·능선/순환 길·휘두름/타격음·양쪽 명중률 60%. 아래 공개 배포 기록과 구분하며 이번 변경은 공개 배포 전이다.
+2026-10-21 사냥터 굴·지형·전투 피드백 v2 공개 배포 완료. 게임 변경 [cdfcb43](https://github.com/sidebatch/pixel-life/commit/cdfcb43dd02836cdac58c938190e845856623207), [게시 성공 #39560772381](https://github.com/sidebatch/pixel-life/actions/runs/39560772381), PWA `17bb8ceec9a6`. HTML 22,042,299 bytes / 공개 8파일 39,509,461 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [변경·이미지·검증](HUNTING_TERRAIN_COMBAT_V2.md).
+
+굴 입구/접근로·능선 8곳/연결 길 203칸·휘두름/명중음·양쪽 명중률 60%를 적용했다. 독립 전체 검사 56 scripts/153 UI IDs/494 assets/74 fish와 빌드, 공개 320/393/1280px 입구 왕복·중립/개별 반격·피격/회피·귀소/처치/재등장·저장/겹침 방지, 실제 공격 각 1만 회(플레이어 60.61%/동물 59.33%), 8종 Web Audio 파형/실행·한 번의 소리/피해·능선 우회를 통과했다. 독립 배포 빌드의 기존 22장비/남녀/사방향/480변환·낚시/수확 회귀도 통과했다. 새 캐시·오프라인 실행·음악 Range 206/100 bytes·강제 재로딩 없음을 확인했다. 앱 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다. 기존 숲 배치 미커밋 변경은 보존하고 배포에서 제외했다. 결과 `output/deploy-hunting-terrain-qa/`.
 
 2026-10-20 야생동물 공격 모션 공개 배포 완료. 게임 변경 [4596ce2](https://github.com/sidebatch/pixel-life/commit/4596ce286b24c3462e08cd91e456a1aea6060ae2), [게시 성공 #39487970017](https://github.com/sidebatch/pixel-life/actions/runs/39487970017), PWA `f0910f53e09d`. HTML 21,948,018 bytes / 공개 8파일 39,415,180 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [공격 모션 기준](HUNTING_ATTACK_MOTION_V1.md).
 
@@ -12,7 +14,7 @@
 
 2026-10-20 기준. 새 세션은 [HANDOFF.md](HANDOFF.md)와 [다음 콘텐츠 회의](NEXT_CONTENT_DISCUSSION_2026_10_17.md)부터 읽는다. 다음 콘텐츠는 미선택이며, 아래 문서의 구현/제안/과거 기록을 구별한다.
 
-현재 게임 변경 4596ce2/PWA f0910f53e09d, 56 runtime scripts/153 UI IDs/493 assets/74 fish. 최근 공개/이전 내역은 [DEPLOYMENT.md](DEPLOYMENT.md)와 [10월 16일 누적 이력](HANDOFF_RELEASE_HISTORY_2026_10_16.md)에 있다.
+현재 게임 변경 cdfcb43/PWA 17bb8ceec9a6, 56 runtime scripts/153 UI IDs/494 assets/74 fish. 최근 공개/이전 내역은 [DEPLOYMENT.md](DEPLOYMENT.md)와 [10월 16일 누적 이력](HANDOFF_RELEASE_HISTORY_2026_10_16.md)에 있다.
 
 ## 새 세션 읽는 순서
 
@@ -26,6 +28,7 @@
 
 | 분야 | 문서 | 용도 |
 | --- | --- | --- |
+| 굴·지형·전투 피드백 | [HUNTING_TERRAIN_COMBAT_V2.md](HUNTING_TERRAIN_COMBAT_V2.md) | 굴/능선·연결 길·명중률 60%·공격/피격음·검증 |
 | 첫 사냥터 | [HUNTING_GROUND_V1.md](HUNTING_GROUND_V1.md) | 마을 안쪽 입구·5종/10개체·개별 반격·체력/복귀·세션/검증 |
 | 모든 손 장비 휘두르기 | [TOOL_SWING_V1.md](TOOL_SWING_V1.md) | 2026-10-19 공개 완료·22장비·rodSwing/낫 허공 동작·기존 변환 보호 |
 | 다음 콘텐츠 회의 | [NEXT_CONTENT_DISCUSSION_2026_10_17.md](NEXT_CONTENT_DISCUSSION_2026_10_17.md) | 광산·보물·동물·제작/요리 후보, 사용자 미선택/구현 미승인 |

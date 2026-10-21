@@ -17,6 +17,7 @@ try{
   await page.evaluate(()=>{document.getElementById('startupLoading')?.remove();enterWorldRegion(REGION_EXITS.lilacVillage.find(e=>e.to==='wildwoodHunt'));});
   await page.locator('[data-quick-tool="sword"]').click();
   const result=await page.evaluate(()=>{
+   Math.random=()=>0; // Exact impact timing is independent of hit probability QA.
    const sheets=[],rows=[],faces=['down','left','right','up'],times=[0,400,560,600,680,780,860];
    const economy=JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression,collections:GAME_STATE.collections});
    const advance=ms=>{for(let elapsed=0;elapsed<ms;elapsed+=20)updateHunting(Math.min(20,ms-elapsed));};

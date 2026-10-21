@@ -1,6 +1,6 @@
 // The first hunting ground is a separate, non-aggressive wildlife activity.
 const HUNTING_RULES=Object.freeze({regionId:'wildwoodHunt',maxHp:100,leash:10,
-  forgetMs:18000,respawnMs:60000,windupMs:600,attackCooldownMs:1500,invulnerableMs:850,
+  forgetMs:18000,respawnMs:60000,windupMs:600,attackCooldownMs:1500,invulnerableMs:850,hitChance:.6,
   toolDamage:Object.freeze({sword:16,axe:10,sickle:6,rod:4})});
 const WILDLIFE_TYPES=Object.freeze({
   boar:Object.freeze({name:'멧돼지',image:'wildlifeBoar',hp:64,damage:12,stepMs:350,scale:.95}),

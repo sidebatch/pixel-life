@@ -33,5 +33,6 @@ function startSwordSwing(){
   // logging XP, inventory reward, or forestry sound at the impact frame.
   lifeUi.chop={mode:'sword',tree:null,regionId:GAME_STATE.regionId,
     startedAt:performance.now(),struck:false};
+  if(typeof playHuntingSwing==='function')playHuntingSwing('sword');
   return true;
 }

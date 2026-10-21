@@ -1,5 +1,7 @@
 # 들녘 사냥터 v1
 
+2026-10-21 후속 로컬 변경은 [굴·지형·전투 피드백 v2](HUNTING_TERRAIN_COMBAT_V2.md)를 따른다. 문틀을 굴로 교체하고 지형/길·소리·양쪽 명중률 60%를 적용했다. 아래는 과거 공개판 기록이다.
+
 후속 공격 모션은 [야생동물 공격 모션 v1](HUNTING_ATTACK_MOTION_V1.md)을 따른다. 아래는 첫 사냥터 게시 기준이며 피해/개별 반격 규칙은 유지한다.
 
 2026-10-20 들녘 사냥터 공개 배포 완료. 게임 변경 [d664356](https://github.com/sidebatch/pixel-life/commit/d664356617be67838101e947133de653db89ed44), [게시 성공 #39484662032](https://github.com/sidebatch/pixel-life/actions/runs/39484662032), PWA `7c65baf8b3ce`. HTML 21,771,452 bytes / 공개 8파일 39,238,614 bytes의 SHA-256이 사냥터만 추출한 독립 빌드와 일치한다.

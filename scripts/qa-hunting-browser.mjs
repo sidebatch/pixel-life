@@ -18,6 +18,7 @@ try{
     await page.evaluate(()=>updateWorldClockUI());
     await page.waitForFunction(()=>{const img=document.getElementById('locationIcon');return img.complete&&img.naturalWidth>0;});
     await page.evaluate(()=>{
+      Math.random=()=>0; // Deterministic hits for exact-damage regression scenarios.
       document.getElementById('startupLoading')?.remove();
       window.__place=(x,y,face='up')=>{clearMovement();lifeUi.chop=null;Object.assign(player,{x,y,face,px:(x+.5)*TILE,py:(y+.5)*TILE,moving:false,t:0});
         const cam=getWorldCameraTarget();camX=cam.x;camY=cam.y;drawWorld();refreshContext();};
@@ -110,6 +111,7 @@ try{
     await page.reload({waitUntil:'load'});await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler']);
     const reload=await page.evaluate(()=>{updateHunting(0);return GAME_STATE.regionId==='wildwoodHunt'&&huntingState.animals.every(a=>a.mode==='idle')&&SAVE_CONFIG.version===2;});assert(reload);
     const recovery=await page.evaluate(()=>{
+      Math.random=()=>0;
       const a=huntingState.animals[0],x=a.x,y=a.y+1;
       Object.assign(player,{x,y,face:'up',px:(x+.5)*TILE,py:(y+.5)*TILE,moving:false,t:0});
       GAME_STATE.appearance.activeTool='sword';startHeldToolSwing();

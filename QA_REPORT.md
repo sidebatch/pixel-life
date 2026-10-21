@@ -1,5 +1,9 @@
 # Pixel Life 종합 QA 보고서
 
+## 2026-10-21 사냥터 굴·지형·전투 피드백 v2
+
+공개 배포 준비 중. 로컬 전체 검사 56 scripts/153 UI IDs/494 assets/74 fish와 빌드, 320/393/1280px 굴/지형·순환 길·양쪽 60% 명중·휘두름/명중음·Web Audio 파형 8종·장애물 우회·기존 전투/22장비/480변환·낚시/수확 검증을 통과했다. [기준과 결과](docs/HUNTING_TERRAIN_COMBAT_V2.md).
+
 ## 2026-10-20 야생동물 공격 모션 공개 게시
 
 2026-10-20 야생동물 공격 모션 공개 배포 완료. 게임 변경 [4596ce2](https://github.com/sidebatch/pixel-life/commit/4596ce286b24c3462e08cd91e456a1aea6060ae2), [게시 성공 #39487970017](https://github.com/sidebatch/pixel-life/actions/runs/39487970017), PWA `f0910f53e09d`. HTML 21,948,018 bytes / 공개 8파일 39,415,180 bytes가 독립 배포 빌드와 SHA-256까지 일치한다.

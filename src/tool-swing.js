@@ -16,5 +16,6 @@ function startHeldToolSwing(){
   // No target: the common impact phase cannot harvest, damage, grant XP or wear.
   lifeUi.chop={mode:tool,tree:null,plot:null,regionId:GAME_STATE.regionId,
     startedAt:performance.now(),struck:false};
+  if(typeof playHuntingSwing==='function')playHuntingSwing(tool);
   return true;
 }

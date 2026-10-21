@@ -4,7 +4,9 @@ import vm from 'node:vm';
 import assert from 'node:assert/strict';
 import {decodePNG,crop,alphaBounds} from './lib/png.mjs';
 const read=file=>fs.readFileSync(file,'utf8'),state={regionId:'wildwoodHunt',inventory:[{id:'sentinel',quantity:3}],progression:{coins:123}};
-const context={console,Math,document:{hidden:false,getElementById:()=>null},window:{},TILE:48,
+// Existing exact-damage scenarios deliberately force hits; probability is tested below.
+const hitMath=Object.create(Math);hitMath.random=()=>0;
+const context={console,Math:hitMath,document:{hidden:false,getElementById:()=>null},window:{},TILE:48,
   GAME_STATE:state,player:{x:20,y:34,px:984,py:1656,face:'up',moving:false},menuOpen:false,dialogOpen:false,
   lifeUi:{chop:null},dirVec:{up:[0,-1],down:[0,1],left:[-1,0],right:[1,0]},
   blocked:new Set(),key:(x,y)=>x+','+y,inside:(x,y)=>x>0&&y>0&&x<63&&y<47,
@@ -62,3 +64,33 @@ for(const id of Object.keys(context.hunt.types))for(const face of ['down','left'
 assert.equal(JSON.stringify({state,hunt:context.hunt.state}),attackSnapshot,'Rendering attack phases must not mutate gameplay or saved state');
 console.log(`Hunting attack motion passed: ${motionFrames} species/direction phases, anticipation/impact/recovery, reduced motion and pure rendering.`);
 console.log('Hunting passed: five 4-direction species, ten neutral spawns, individual retaliation, telegraph/pause, leash/reset, wall/facing guards, four tool families, unchanged economy.');
+// Hit probability is symmetric; misses have no damage, invulnerability or impact sound.
+assert.equal(context.hunt.rules.hitChance,.6);
+for(const [value,expected]of [[0,true],[.599999,true],[.6,false],[.999999,false]]){
+  context.hitRoll=value;assert.equal(run('rollHuntingHit(()=>hitRoll)'),expected);
+}
+let seed=7193,successes=0;
+context.seededRandom=()=>{seed=(Math.imul(seed,1664525)+1013904223)>>>0;return seed/4294967296;};
+for(let i=0;i<100000;i++)if(run('rollHuntingHit(seededRandom)'))successes++;
+assert(Math.abs(successes/100000-.6)<.005,'Seeded independent trials should converge to 60%');
+let rollCalls=0,impacts=0,swings=0;
+context.Math.random=()=>{rollCalls++;return .9;};
+context.playHuntingImpact=()=>impacts++;
+context.playHuntingSwing=()=>swings++;
+run('resetHuntingAnimal(a);a.wait=1e9;player.x=20;player.y=34;player.px=984;player.py=1656;player.face="up";huntingState.hp=100;huntingState.hurtUntil=0;');
+assert.equal(run("strikeHuntingWildlife({mode:'sword',regionId:'wildwoodHunt'})"),false);
+assert.equal(context.a.hp,64);assert.equal(context.a.mode,'idle');assert.equal(impacts,0);assert.equal(rollCalls,1);
+assert.equal(context.hunt.state.effects.at(-1).text,'빗나감');
+context.player.face='down';assert.equal(run("strikeHuntingWildlife({mode:'sword',regionId:'wildwoodHunt'})"),false);assert.equal(rollCalls,1);
+run("a.mode='aggro';a.lastHit=huntingState.clock;");
+assert.equal(run('hurtHuntingPlayer(a)'),false);assert.equal(context.hunt.state.hp,100);assert.equal(context.hunt.state.hurtUntil,0);assert.equal(rollCalls,2);assert.equal(impacts,0);
+assert.equal(context.hunt.state.effects.at(-1).text,'회피');
+// A complete missed animal attack still whooshes once and consumes its cooldown.
+run("a.windup={at:huntingState.clock,x:player.px,y:player.py,face:'down'};");
+advance(610);assert.equal(swings,1);assert.equal(context.hunt.state.hp,100);assert.equal(impacts,0);assert.equal(rollCalls,3);assert(context.a.attackRecovery);
+context.Math.random=()=>{rollCalls++;return .1;};context.player.face='up';
+assert(run("strikeHuntingWildlife({mode:'sword',regionId:'wildwoodHunt'})"));assert.equal(context.a.hp,48);assert.equal(impacts,1);
+assert(run('hurtHuntingPlayer(a)'));assert.equal(context.hunt.state.hp,88);assert.equal(impacts,2);
+const count=rollCalls;assert.equal(run('hurtHuntingPlayer(a)'),false);assert.equal(rollCalls,count,'Invulnerability must not roll or play a hit');
+assert.equal(JSON.stringify(state),snapshot);
+console.log(`Hunting hit chance passed: ${successes}/100000 seeded hits, exact 60% boundary, both sides hit/miss, no phantom damage/aggro/sound, one whoosh per animal attack.`);

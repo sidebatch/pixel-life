@@ -1,0 +1,21 @@
+{
+  "version": 1,
+  "mode": "built-in image_gen",
+  "intent": "generate using existing gate as style reference",
+  "reference": "assets/hunting/gate-v1.png",
+  "transparent_background": true,
+  "assets": [
+    {
+      "id": "cave",
+      "prompt": "Use case: stylized-concept. Production environmental pixel sprite for a cozy top-down 2D 16-bit woodland life RPG. Reference image is STYLE ONLY: muted moss green, layered gray stone, crisp pixel clusters, dark outline, top-left light. Replace the idea of a wooden gateway with a genuine cave entrance built INTO a low broad mound of solid rock and earth. A thick rocky roof and sides surround a deep near-black recessed cavern mouth, with a narrow ochre dirt floor receding backward into the black interior and smaller inner stone layers visible in shadow. Cave interior MUST be opaque dark pixels, never a transparent hole that shows the map behind. Exterior outline alone transparent. Sloping mossy rock mass behind and above opening makes it visibly an entrance INTO a hillside, no isolated arch, no timbers, no gate, no door, no empty frame, no lettering. Overhead 3/4 game camera matching reference, whole object centered with generous transparent margins, opening at lower center with a walk-in threshold. No landscape background, no rectangular floor tile, no player, no glowing magic, no painterly gradients. Natural pixel-game asset, broad approximately 4:3 silhouette.",
+      "source": "assets/hunting/source/cave-v1.png",
+      "runtime": "assets/hunting/cave-v1.png"
+    },
+    {
+      "id": "cliff",
+      "prompt": "Use case: stylized-concept. Production terrain prop sprite for cozy top-down 2D 16-bit woodland life RPG. Reference image is STYLE ONLY for layered mossy gray rock, dark crisp outline, small pixel clusters and soft upper-left light. A solid LOW ROCKY ESCARPMENT mound: irregular long row of connected boulders, grass and moss on the top, exposed layered slate stone front face with clear vertical height and dark base. Three-quarter overhead game camera, wide horizontal roughly 3:1 silhouette with rounded uneven ends. This is a solid raised ledge that blocks walking, not a door or arch; no holes anywhere. Single complete isolated terrain piece on transparent alpha background, no painted landscape, no rectangular base/floor, no text, no characters, no wooden poles, no gradient illustration. Crisp game pixel art with readable large forms at a final size about 150 by 65 pixels.",
+      "source": "assets/hunting/source/cliff-v1.png",
+      "runtime": "assets/hunting/cliff-v1.png"
+    }
+  ]
+}

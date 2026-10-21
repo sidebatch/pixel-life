@@ -325,6 +325,7 @@ function startAxeSwing(tree=null){
     (typeof isFishingActive==='function'&&isFishingActive())) return false;
   clearMovement();
   lifeUi.chop={tree,regionId:GAME_STATE.regionId,startedAt:performance.now(),struck:false};
+  if(!tree&&typeof playHuntingSwing==='function')playHuntingSwing('axe');
   return true;
 }
 

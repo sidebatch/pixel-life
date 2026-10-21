@@ -64,15 +64,25 @@ function huntingFeedback(x,y,text,color){
   huntingState.effects.push({x,y,text,color,at:huntingState.clock});
   if(huntingState.effects.length>16)huntingState.effects.shift();
 }
+function rollHuntingHit(random=Math.random){return random()<HUNTING_RULES.hitChance;}
+function playHuntingSwing(tool='sword',animal=false){
+  if(typeof playFishingAudio!=='function')return;
+  playFishingAudio(context=>{
+    const start=context.currentTime,heavy=animal?tool==='bear':['axe','sword'].includes(tool);
+    scheduleGameSoundNoise(context,start,{duration:heavy?.18:.13,frequency:heavy?1050:1900,
+      filter:'bandpass',q:.6,volume:animal?.045:.055,attack:.025,seed:heavy?37:71});
+    scheduleGameSoundSweep(context,start+.01,{from:heavy?320:540,to:90,duration:.12,
+      type:'sine',volume:.018,attack:.015});
+  });
+}
 function playHuntingImpact(playerHit=false){
   if(typeof playFishingAudio!=='function')return;
   playFishingAudio(context=>{
-    const start=context.currentTime,osc=context.createOscillator(),gain=context.createGain();
-    osc.type='triangle';osc.frequency.setValueAtTime(playerHit?140:230,start);
-    osc.frequency.exponentialRampToValueAtTime(playerHit?60:95,start+.12);
-    gain.gain.setValueAtTime(.0001,start);gain.gain.exponentialRampToValueAtTime(.07,start+.008);
-    gain.gain.exponentialRampToValueAtTime(.0001,start+.13);
-    osc.connect(gain);gain.connect(context.destination);osc.start(start);osc.stop(start+.14);
+    const start=context.currentTime;
+    scheduleGameSoundNoise(context,start,{duration:.065,filter:'lowpass',frequency:playerHit?1400:2300,
+      q:.7,volume:.09,attack:.002,seed:playerHit?19:43});
+    scheduleGameSoundSweep(context,start,{from:playerHit?140:230,to:playerHit?55:85,
+      duration:.14,type:'triangle',volume:.075,attack:.004});
   });
 }
 function strikeHuntingWildlife(chop){
@@ -80,6 +90,8 @@ function strikeHuntingWildlife(chop){
   // Legacy axe actions omit mode; preserve their existing shape/animation.
   const damage=HUNTING_RULES.toolDamage[chop.mode||'axe'];if(!damage)return false;
   const a=huntingTargetForSwing();if(!a||a.mode==='returning')return false;
+  // Only a geometrically valid attack rolls once. A miss never provokes neutral wildlife.
+  if(!rollHuntingHit()){huntingFeedback(a.px,a.py-40,'빗나감','#dbe7db');return false;}
   const now=huntingState.clock;
   a.hp=Math.max(0,a.hp-damage);a.lastHit=now;a.hitUntil=now+260;
   huntingFeedback(a.px,a.py-40,`−${damage}`,'#fff1b1');playHuntingImpact();
@@ -126,6 +138,7 @@ function startHuntingStep(a,direction){
 function hurtHuntingPlayer(a){
   const now=huntingState.clock;
   if(a.mode!=='aggro'||now<huntingState.hurtUntil)return false;
+  if(!rollHuntingHit()){huntingFeedback(player.px,player.py-52,'회피','#dbe7db');return false;}
   const damage=WILDLIFE_TYPES[a.type].damage;
   huntingState.hp=Math.max(0,huntingState.hp-damage);huntingState.hurtUntil=now+HUNTING_RULES.invulnerableMs;
   huntingFeedback(player.px,player.py-52,`−${damage}`,'#ffc1ad');playHuntingImpact(true);
@@ -161,6 +174,9 @@ function updateHunting(dt){
       continue;
     }
     if(a.windup){
+      if(!a.windup.sounded&&now-a.windup.at>=HUNTING_RULES.windupMs*HUNTING_ATTACK_MOTION.strikeStart){
+        a.windup.sounded=true;playHuntingSwing(a.type,true);
+      }
       if(now-a.windup.at>=HUNTING_RULES.windupMs){
         const aim=a.windup;a.windup=null;a.attackRecovery={...aim,at:now};
         a.nextAttack=now+HUNTING_RULES.attackCooldownMs;
@@ -209,6 +225,12 @@ function addHuntingRenderables(renderables){
     ctx.fillStyle='#fff3cb';ctx.fillText(gate.label,x,y-234);ctx.restore();
   }});
   if(!isInHuntingGround())return;
+  for(const ridge of WORLD_DEFINITION.terrain.ridges||[]){
+    const x=ridge.x*TILE,y=(ridge.y+ridge.h)*TILE,w=ridge.w*TILE,h=w*.5;
+    if(onScreen(x+w/2,y-h/2,w,h))renderables.push({y:y-8,draw:()=>{
+      ctx.drawImage(imgs.huntingCliff,Math.round(x-camX),Math.round(y-h-camY),w,h);
+    }});
+  }
   for(const a of huntingState.animals)if(a.hp>0&&onScreen(a.px,a.py,120,120))
     renderables.push({y:a.py+TILE/2,draw:()=>drawHuntingAnimal(a)});
 }

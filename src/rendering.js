@@ -153,6 +153,7 @@ function drawForestWaterfalls(terrain){
   }
 }
 function drawMountainRidges(terrain){
+  if(terrain.huntingCliffs)return; // Hunting rocks are depth-sorted with actors.
   (terrain.ridges||[]).forEach((ridge,index)=>{
     const x=ridge.x*TILE-camX,y=ridge.y*TILE-camY,w=ridge.w*TILE,h=ridge.h*TILE;
     drawSceneryImage(index%2?imgs.sceneryRidgeEast:imgs.sceneryRidgeWest,

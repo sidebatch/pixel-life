@@ -80,6 +80,7 @@ const CHARACTER_PARTS=Object.freeze({
 });
 
 const WORLD_REGIONS = Object.freeze({
+  ...(typeof DUNGEON_WORLD_DEFINITIONS!=='undefined'?Object.fromEntries(Object.values(DUNGEON_WORLD_DEFINITIONS).map(map=>[map.id,{id:map.id,name:map.name,status:'visual-preview'}])):{}),
   wildwoodHunt:{id:'wildwoodHunt',name:'들녘 사냥터',status:'playable'},
   lilacVillage:{id:'lilacVillage',name:'라일락 연못 마을',status:'playable'},
   oldForest:{id:'oldForest',name:'오래된 숲 1-1',status:'playable'},

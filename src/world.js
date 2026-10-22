@@ -75,6 +75,7 @@ function buildWorldRegion(definition){
   Object.assign(marketShop,{x:-100,y:-100,w:0,h:0},fixed.marketShop||{});
   rocks.push(...(fixed.rocks||[]).map(o=>({...o})));
   for(const point of definition.huntingGate?.solids||[])blocked.add(key(point.x,point.y));
+  for(const point of [...(definition.dungeonSolids||[]),...(definition.dungeonMonsters||[])])blocked.add(key(point.x,point.y));
   const decoration=definition.decorations||{};
   bushes.push(...(decoration.bushes||[]).map(o=>({...o})));
   flowers.push(...(decoration.flowers||[]).map(o=>({...o})));
@@ -157,6 +158,7 @@ function enterWorldRegion(exit,options={}){
   player.px=player.x*TILE+TILE/2;player.py=player.y*TILE+TILE/2;
   player.moving=false;player.t=0;
   if(typeof onHuntingRegionChange==='function')onHuntingRegionChange();
+  if(typeof onDungeonRegionChange==='function')onDungeonRegionChange();
   const camera=getWorldCameraTarget();camX=camera.x;camY=camera.y;
   updateWorldClockUI();
   if(typeof syncRegionMusic==='function')syncRegionMusic();

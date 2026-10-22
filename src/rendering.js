@@ -153,7 +153,7 @@ function drawForestWaterfalls(terrain){
   }
 }
 function drawMountainRidges(terrain){
-  if(terrain.huntingCliffs)return; // Hunting rocks are depth-sorted with actors.
+  if(terrain.huntingCliffs||terrain.dungeonWalls)return; // These regions draw their structural walls separately.
   (terrain.ridges||[]).forEach((ridge,index)=>{
     const x=ridge.x*TILE-camX,y=ridge.y*TILE-camY,w=ridge.w*TILE,h=ridge.h*TILE;
     drawSceneryImage(index%2?imgs.sceneryRidgeEast:imgs.sceneryRidgeWest,
@@ -407,6 +407,7 @@ function onScreen(wx,wy,w=100,h=120){
 function drawRegionExits(){
   if(routeSigns.length)return; // Physical signposts replace land-route UI/painted gate labels.
   for(const exit of REGION_EXITS[GAME_STATE.regionId]||[]){
+    if(exit.dungeonDoor)continue;
     const x=Math.round(exit.x*TILE-camX),y=Math.round(exit.y*TILE-camY);
     ctx.save();
     ctx.fillStyle='rgba(251,226,143,.28)';ctx.fillRect(x+3,y+3,TILE-6,TILE-6);
@@ -927,6 +928,7 @@ function drawWorld(){
   // Visual terrain is blended independently from the reliable tile movement/collision logic.
   const voyageSea=typeof drawVoyageSea==='function'&&WORLD_DEFINITION.voyageDeck&&drawVoyageSea();
   if(!voyageSea)drawTerrain();
+  if(typeof drawDungeonTerrain==='function')drawDungeonTerrain();
   drawFarmGround({includeReady:false});
   drawRegionExits();
 
@@ -958,15 +960,18 @@ function drawWorld(){
 
   // bridge rail hint / fishing sparkle
   const fishingSpot=WORLD_DEFINITION.fishingSpot;
+  if(fishingSpot){
   const fx=fishingSpot.x*TILE-camX-2, fy=fishingSpot.y*TILE-camY+12;
   ctx.fillStyle=`rgba(255,244,145,${.55+.4*Math.sin(tNow/260)})`;
   ctx.beginPath();ctx.arc(fx,fy,4,0,Math.PI*2);ctx.fill();
+  }
 
   // Depth-sorted solid/occluding objects only. Passable vegetation is intentionally excluded.
   // Buildings participate in the SAME Y-sort as trees/actors.
   // Building Standard 3.0: the depth line is independent from sprite size and door position.
   const renderables=[];
   if(typeof addHuntingRenderables==='function')addHuntingRenderables(renderables);
+  if(typeof addDungeonRenderables==='function')addDungeonRenderables(renderables);
   if(typeof addFarmDecorationRenderables==='function')addFarmDecorationRenderables(renderables);
   if(GAME_STATE.regionId==='sunnyFields')for(const plot of WORLD_DEFINITION.farmPlots){
     if(getFarmPlotPhase(plot)==='READY')renderables.push({y:(plot.y+1)*TILE,draw:()=>drawMatureFarmCrop(plot)});

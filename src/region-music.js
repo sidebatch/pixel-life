@@ -5,6 +5,8 @@ const REGION_MUSIC_URLS=Object.freeze({
   lakeside:'assets/audio/music/lakeside.mp3'
 });
 const REGION_MUSIC_TRACKS=Object.freeze({
+  dungeonCrossroads:'woodland',mossVale:'woodland',rootHollow:'woodland',ashMine:'woodland',mistfen:'woodland',
+  redrockGorge:'woodland',frostfangCave:'meadow',silentGraveyard:'woodland',forgottenShrine:'lakeside',stargraveRuins:'woodland',
   lilacVillage:'meadow',wildwoodHunt:'woodland',oldForest:'woodland',deepForest:'woodland',
   forestThree:'woodland',forestFour:'woodland',forestFive:'woodland',forestSix:'woodland',
   forestSeven:'woodland',forestEight:'woodland',forestNine:'woodland',forestTen:'woodland',

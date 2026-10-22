@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import {decodePNG,alphaBounds} from './lib/png.mjs';
 export function checkWorldSkillIcons(){
   const context=vm.createContext({});
-  for(const file of ['src/assets.js','src/data/world-map.js','src/data/region-maps.js','src/data/life-skill-data.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
+  for(const file of ['src/assets.js','src/data/world-map.js','src/data/dungeon-preview-data.js','src/data/region-maps.js','src/data/life-skill-data.js'])vm.runInContext(fs.readFileSync(file,'utf8'),context);
   const data=vm.runInContext('({regions:REGION_WORLDS,regionIcons:REGION_ICON_URLS,skills:LIFE_SKILLS,skillIcons:LIFE_SKILL_ICON_URLS})',context);
   assert.deepEqual(Object.keys(data.regions).sort(),Object.keys(data.regionIcons).sort(),'Every region must explicitly register an icon, with no stale maps');
   assert.deepEqual(Object.keys(data.skills).sort(),Object.keys(data.skillIcons).sort(),'Every skill needs a registered raster icon');

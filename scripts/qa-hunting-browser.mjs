@@ -14,9 +14,9 @@ try{
     page.on('response',r=>{if(r.status()>=400)errors.push(r.status()+' '+r.url());});
     await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
     await page.goto(base+'?time=12:00&weather=clear',{waitUntil:'load',timeout:60000});
-    await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler']);
+    await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler'],null,{polling:100});
     await page.evaluate(()=>updateWorldClockUI());
-    await page.waitForFunction(()=>{const img=document.getElementById('locationIcon');return img.complete&&img.naturalWidth>0;});
+    await page.waitForFunction(()=>{const img=document.getElementById('locationIcon');return img.complete&&img.naturalWidth>0;},null,{polling:100});
     await page.evaluate(()=>{
       Math.random=()=>0; // Deterministic hits for exact-damage regression scenarios.
       document.getElementById('startupLoading')?.remove();
@@ -30,7 +30,9 @@ try{
     await page.screenshot({path:path.join(out,`${width}-village-gate.png`)});
     const entered=await page.evaluate(()=>{
       __place(48,36);tryMove('up');update(player.duration);
-      const entry=GAME_STATE.regionId==='wildwoodHunt'&&player.x===12&&player.y===37;
+      if(GAME_STATE.regionId!=='dungeonCrossroads')throw Error('Village entrance must lead to the dungeon crossroads');
+      __place(12,14);tryMove('up');update(player.duration);
+      const entry=GAME_STATE.regionId==='wildwoodHunt'&&player.x===12&&player.y===14;
       updateHunting(0);drawWorld();return entry;
     });assert(entered,'Walking through the interior village gate must enter the hunting ground');
     assert.equal(await page.locator('#locationName').textContent(),'들녘 사냥터');
@@ -102,13 +104,15 @@ try{
     });assert(safeguards.collision&&safeguards.walls&&safeguards.hpShown&&safeguards.healthFits,JSON.stringify(safeguards));
     await page.screenshot({path:path.join(out,`${width}-retaliation.png`)});
     const returned=await page.evaluate(()=>{
-      __place(12,39,'down');tryMove('down');update(player.duration);
+      __place(12,12,'up');tryMove('up');update(player.duration);
+      if(GAME_STATE.regionId!=='dungeonCrossroads')throw Error('Hunting exit must return to the crossroads');
+      __place(8,25,'up');tryMove('up');update(player.duration);
       const exited=GAME_STATE.regionId==='lilacVillage'&&player.x===48&&player.y===37&&document.getElementById('huntingHud').hidden;
       return {exited,calm:huntingState.animals.filter(a=>a.hp>0).every(a=>a.mode==='idle')};
     });assert(returned.exited&&returned.calm);
     // Save/reload a location inside the new region without changing save version.
-    await page.evaluate(()=>{enterWorldRegion(REGION_EXITS.lilacVillage.find(e=>e.to==='wildwoodHunt'));saveGame();});
-    await page.reload({waitUntil:'load'});await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler']);
+    await page.evaluate(()=>{enterWorldRegion(REGION_EXITS.lilacVillage.find(e=>e.to==='dungeonCrossroads'));enterWorldRegion(DUNGEON_HUB_DOORS[0]);saveGame();});
+    await page.reload({waitUntil:'load'});await page.waitForFunction(()=>typeof characterOutfitImgs!=='undefined'&&characterOutfitImgs['outfit.traveler'],null,{polling:100});
     const reload=await page.evaluate(()=>{updateHunting(0);return GAME_STATE.regionId==='wildwoodHunt'&&huntingState.animals.every(a=>a.mode==='idle')&&SAVE_CONFIG.version===2;});assert(reload);
     const recovery=await page.evaluate(()=>{
       Math.random=()=>0;

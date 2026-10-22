@@ -1,4 +1,5 @@
 function validateFishingWaterAreas(definition,fail){
+  if(definition.dungeonPreview&&definition.fishingSpot===null&&definition.waterAreas.length===0)return null;
   const ids=new Set();
   for(const [index,area] of (definition.waterAreas||[]).entries()){
     if(!area.id) fail(`water area[${index}] is missing a stable fishing spot id`);
@@ -162,7 +163,8 @@ function validatePlayableRegion(){
   const spawn=definition.playerSpawn;
   if(!inside(spawn.x,spawn.y)||blocked.has(key(spawn.x,spawn.y)))
     throw new Error(`Region ${definition.id} has a blocked spawn`);
-  if(!waterSet.has(key(definition.fishingSpot.x,definition.fishingSpot.y)))
+  if(!(definition.dungeonPreview&&definition.fishingSpot===null&&waterSet.size===0)&&
+    !waterSet.has(key(definition.fishingSpot?.x,definition.fishingSpot?.y)))
     throw new Error(`Region ${definition.id} has no usable fishing spot`);
   for(const exit of REGION_EXITS[definition.id]||[]){
     if(!inside(exit.x,exit.y)||blocked.has(key(exit.x,exit.y))||!REGION_WORLDS[exit.to])

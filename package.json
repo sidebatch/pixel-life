@@ -4,6 +4,8 @@
   "private": true,
   "description": "Portrait-first pixel life adventure prototype",
   "scripts": {
+    "qa:dungeons": "node scripts/qa-dungeon-preview.mjs",
+    "qa:dungeons:browser": "node scripts/qa-dungeon-preview-browser.mjs",
     "qa:hunting": "node scripts/qa-hunting.mjs",
     "qa:hunting:browser": "node scripts/qa-hunting-browser.mjs",
     "start": "node scripts/serve.mjs",

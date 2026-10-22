@@ -320,6 +320,7 @@ function finishHuntingTerrain(definition){
     decorations:Object.fromEntries(Object.entries(definition.decorations).map(([kind,points])=>[kind,points.filter(p=>!covered(p))]))});
 }
 const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
+  ...(typeof DUNGEON_WORLD_DEFINITIONS!=='undefined'?DUNGEON_WORLD_DEFINITIONS:{}),
   lilacVillage:VILLAGE_WORLD_DEFINITION,
   wildwoodHunt:Object.freeze({
     id:'wildwoodHunt',name:'들녘 사냥터',tileSize:48,width:64,height:48,
@@ -825,10 +826,13 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
     trees:[{x:5,y:18},{x:24,y:17},{x:51,y:16},{x:58,y:12}],farmPlots:[],
     exits:[{x:62,y:24,to:'lilacVillage',entry:{x:3,y:36,face:'right'},label:'마을로'}]
   })
-}).map(([id,definition])=>[id,placeRouteSignposts(connectForestEntrances(finishHuntingTerrain(definition)))])));
+}).map(([id,definition])=>[id,placeRouteSignposts(connectForestEntrances(finishHuntingTerrain(
+  typeof attachDungeonPreview==='function'?attachDungeonPreview(definition):definition)))])));
 const REGION_EXITS=Object.freeze({
+  ...(typeof DUNGEON_WORLD_DEFINITIONS!=='undefined'?Object.fromEntries(Object.entries(DUNGEON_WORLD_DEFINITIONS).map(([id,map])=>[id,map.exits])):{}),
   lilacVillage:Object.freeze([...FOREST_ROUTE_EXITS.lilacVillage,
-    {x:48,y:35,to:'wildwoodHunt',entry:{x:12,y:37,face:'up'},label:'들녘 사냥터'}]),
+    typeof DUNGEON_WORLD_DEFINITIONS!=='undefined'?{x:48,y:35,to:'dungeonCrossroads',entry:{x:8,y:27,face:'down'},label:'던전 입구',dungeonDoor:true}:
+      {x:48,y:35,to:'wildwoodHunt',entry:{x:12,y:37,face:'up'},label:'들녘 사냥터'}]),
   wildwoodHunt:REGION_WORLDS.wildwoodHunt.exits,
   oldForest:REGION_WORLDS.oldForest.exits,
   deepForest:REGION_WORLDS.deepForest.exits,

@@ -144,7 +144,7 @@ function hurtHuntingPlayer(a){
   huntingFeedback(player.px,player.py-52,`−${damage}`,'#ffc1ad');playHuntingImpact(true);
   if(huntingState.hp===0){
     lifeUi.chop=null;clearMovement();huntingState.hp=HUNTING_RULES.maxHp;
-    const exit=REGION_EXITS[HUNTING_RULES.regionId][0];enterWorldRegion(exit);
+    enterWorldRegion({to:'lilacVillage',entry:{x:48,y:37,face:'down'}});
     showDialog('마을 입구','기운을 잃어 마을로 돌아왔어요. 잠시 쉬며 체력을 회복했어요.');
   }
   refreshHuntingHud();return true;

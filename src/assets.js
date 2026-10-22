@@ -1,4 +1,14 @@
 const ASSET_URLS = Object.freeze({
+  dungeonBrak:'assets/dungeons/brak-v2.png',
+  dungeonMoss:'assets/dungeons/moss-v1.png',dungeonMossGate:'assets/dungeons/moss-gate-v1.png',
+  dungeonRoots:'assets/dungeons/roots-v1.png',dungeonRootsGate:'assets/dungeons/roots-gate-v1.png',
+  dungeonMine:'assets/dungeons/mine-v1.png',dungeonMineGate:'assets/dungeons/mine-gate-v1.png',
+  dungeonSwamp:'assets/dungeons/swamp-v2.png',dungeonSwampGate:'assets/dungeons/swamp-gate-v1.png',
+  dungeonRedrock:'assets/dungeons/redrock-v2.png',dungeonRedrockGate:'assets/dungeons/redrock-gate-v1.png',
+  dungeonFrost:'assets/dungeons/frost-v2.png',dungeonFrostGate:'assets/dungeons/frost-gate-v1.png',
+  dungeonGrave:'assets/dungeons/grave-v1.png',dungeonGraveGate:'assets/dungeons/grave-gate-v1.png',
+  dungeonShrine:'assets/dungeons/shrine-v1.png',dungeonShrineGate:'assets/dungeons/shrine-gate-v1.png',
+  dungeonStargrave:'assets/dungeons/stargrave-v1.png',dungeonStargraveGate:'assets/dungeons/stargrave-gate-v1.png',
   wildlifeBoar:'assets/hunting/boar-v1.png',
   wildlifeBoarAttack:'assets/hunting/boar-attack-v1.png',
   wildlifeDeer:'assets/hunting/deer-v1.png',
@@ -465,6 +475,12 @@ const LIFE_SKILL_ICON_URLS=Object.freeze({
 });
 
 const REGION_ICON_URLS=Object.freeze({
+  dungeonCrossroads:'assets/dungeons/crossroads-icon-v1.png',
+  mossVale:'assets/dungeons/moss-icon-v1.png',rootHollow:'assets/dungeons/roots-icon-v1.png',
+  ashMine:'assets/dungeons/mine-icon-v1.png',mistfen:'assets/dungeons/swamp-icon-v1.png',
+  redrockGorge:'assets/dungeons/redrock-icon-v1.png',frostfangCave:'assets/dungeons/frost-icon-v1.png',
+  silentGraveyard:'assets/dungeons/grave-icon-v1.png',forgottenShrine:'assets/dungeons/shrine-icon-v1.png',
+  stargraveRuins:'assets/dungeons/stargrave-icon-v1.png',
   wildwoodHunt:'assets/hunting/cave-icon-v1.png',
   lilacVillage:'assets/ui/world-skills-v1/lilacVillage.png',
   oldForest:'assets/ui/world-skills-v1/oldForest.png',

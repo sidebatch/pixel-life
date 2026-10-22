@@ -1,0 +1,43 @@
+[
+  {
+    "key": "heron",
+    "prompt": "Use case: stylized-concept. Production transparent sprite for Pixel Life, matching the attached established game sprites: crisp detailed 16-bit pixel clusters, muted dark outlines, earthy natural shading, upper-left light, 3/4 overhead RPG camera. Genuine pixel art readable when reduced to a 108px tall game sprite. Transparent background, isolated complete full body, feet aligned, neutral standing pose facing slightly down toward viewer, centered with generous clear gutters. No text, labels, grid, ground patch, shadow, glow or extra separate props. No soft painted illustration, no 3D. Reference is STYLE ONLY. Create ONE wholly new replacement for the swamp leech: a charming marsh HERON bird. Compact rounded folded slate-blue wings, cream chest, curved short S-shaped neck, small feather crest, amber beak pointing slightly down, two sturdy golden legs and visible webbed toes. Distinct readable bird silhouette, healthy natural animal, pleasantly adventurous not scary or grotesque. Keep both legs entirely visible. One bird only; no worms, leeches, parasites, toothed circular mouths, gore.",
+    "references": [
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/dungeons/swamp-v1.png"
+    ],
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-21746a63-ca0e-46e5-8760-eba24a0c40ac.png",
+    "tool": "image_gen.imagegen",
+    "transparent": true
+  },
+  {
+    "key": "armadillo",
+    "prompt": "Use case: stylized-concept. Production transparent sprite for Pixel Life, matching the attached established game sprites: crisp detailed 16-bit pixel clusters, muted dark outlines, earthy natural shading, upper-left light, 3/4 overhead RPG camera. Genuine pixel art readable when reduced to a 108px tall game sprite. Transparent background, isolated complete full body, feet aligned, neutral standing pose facing slightly down toward viewer, centered with generous clear gutters. No text, labels, grid, ground patch, shadow, glow or extra separate props. No soft painted illustration, no 3D. Reference is STYLE ONLY. Create ONE wholly new replacement for the sand worm: a friendly but sturdy canyon ARMADILLO. Low broad quadruped with rounded rust-red and sandy ochre segmented armored back, short round ears, compact tapered snout, small dark eyes, mouth CLOSED, four short sturdy paws, short thick tail curled along its side. Clearly an armadillo, not a reptile, not a worm. Readable curved shell bands and natural stony scutes fit Redrock Gorge. One animal only. No exposed teeth, tentacles, gaping mouths, worms, larvae, gore, creepiness.",
+    "references": [
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/dungeons/redrock-v1.png"
+    ],
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-e7644c6f-1c88-49ba-bcd3-e4da49b917bb.png",
+    "tool": "image_gen.imagegen",
+    "transparent": true
+  },
+  {
+    "key": "brak",
+    "prompt": "Use case: precise-object-edit. Asset type: redesigned boss Brak 4-direction 2x2 production atlas for Pixel Life. Image 1 is the boss edit target; image 2 is the regular boar for contrast and art-style reference. Redesign the boss so it is immediately distinct from the ordinary brown boar while preserving the established detailed 16-bit pixel art, dark outlines, natural upper-left lighting and top-down 3/4 camera. BRACK is an ancient broad charcoal-black WILD BOAR KING: enormous high rock-like armored shoulder hump, a tall jagged silver-grey bristle ridge running forehead to back, FOUR clearly visible large swept ivory tusks (two heavy outer tusks and two shorter inner tusks), small amber eyes, thick short legs, dark iron-grey natural stone-like back scutes, pale slash marking across forehead. Powerful massive low-wide silhouette, noble animal, no clothing, no human equipment, no gore. Do NOT retain the regular brown boar's shape, face or small tusks. Four views of the SAME new boss: top-left DOWN toward viewer, top-right LEFT, bottom-left RIGHT, bottom-right UP away. Exact equal 2x2 grid without visible grid lines, one complete animal in each cell, all feet aligned within cell, generous transparent gutters, whole tusks/hooves/tail fully inside each cell. No text, labels, floor, shadows, aura or particles; those are rendered separately by game. TRUE transparent alpha. Crisp pixels designed to pack into 96px cells, not a painting.",
+    "references": [
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/dungeons/brak-v1.png",
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/hunting/boar-v1.png"
+    ],
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-f6dd95c3-2e44-4198-ba80-35159c3b5390.png",
+    "tool": "image_gen.imagegen",
+    "transparent": true
+  },
+  {
+    "key": "vorn",
+    "prompt": "Use case: stylized-concept. Production transparent sprite for Pixel Life, matching the attached established game sprites: crisp detailed 16-bit pixel clusters, muted dark outlines, earthy natural shading, upper-left light, 3/4 overhead RPG camera. Genuine pixel art readable when reduced to a 108px tall game sprite. Transparent background, isolated complete full body, feet aligned, neutral standing pose facing slightly down toward viewer, centered with generous clear gutters. No text, labels, grid, ground patch, shadow, glow or extra separate props. No soft painted illustration, no 3D. Input is the existing Frostfang atlas: top-left five normal monsters must stay unchanged in the game; bottom-right is the old Vorn that is too similar to the hunched Yeti at bottom-left. Output ONLY ONE newly redesigned boss VORN, no sheet and no other monsters. He is an ancient FROST GIANT KING: upright towering broad-shouldered humanoid with deep slate-blue skin, a long flowing silver-white beard, swept-back white hair, three large blunt ice-crystal horns forming a natural crown, a white fur mantle across shoulders, angular blue ice armor on forearms and shoulders, heavy stone-blue feet, thick royal build and clenched fists held low. Tall upright king silhouette, clearly different anatomy from the squat hunched white Yeti. Majestic readable face with small amber eyes, no human clothes or modern detail, no weapon, no horror, no gore. Keep the full ice crown, arms and feet inside the transparent canvas with clear gutters. Do not reuse the hunched gorilla pose. No baked halo, no floor, no extra props.",
+    "references": [
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/dungeons/frost-v1.png"
+    ],
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-01342e8d-dc0f-4ffa-a043-f391e54765fd.png",
+    "tool": "image_gen.imagegen",
+    "transparent": true
+  }
+]

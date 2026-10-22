@@ -12,6 +12,7 @@ const scriptFiles = [
   'src/assets.js',
   'src/data/character-rig-data.js',
   'src/data/world-map.js',
+  'src/data/dungeon-preview-data.js',
   'src/data/region-maps.js',
   'src/data/fishing-habitat-data.js',
   'src/fishing-spots.js',
@@ -40,6 +41,7 @@ const scriptFiles = [
   'src/sword.js',
   'src/tool-swing.js',
   'src/hunting.js',
+  'src/dungeon-preview.js',
   'src/debug.js',
   'src/rendering.js',
   'src/voyage-rendering.js',
@@ -163,7 +165,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===4&&
   'World menu must contain bag, fish-dex, tree-dex and growth overview cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 497, `Expected 497 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 526, `Expected 526 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -2015,6 +2017,7 @@ await import('./qa-discovery-feedback.mjs');
 await import('./qa-startup-progress.mjs');
 await import('./qa-weather.mjs');
 await import('./qa-hunting.mjs');
+await import('./qa-dungeon-preview.mjs');
 await import('./qa-hunting-terrain.mjs');
 await import('./qa-region-music-recovery.mjs');
 await import('./qa-region-music-cache.mjs');

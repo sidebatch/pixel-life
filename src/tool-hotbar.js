@@ -15,7 +15,7 @@ function toolHotbarItems(){
       owned:getOwnedForestryAxes().some(item=>item.id===axe.id)},
     {kind:'rod',id:rod.id,label:'낚시',name:rod.name,url:CHARACTER_TOOL_URLS[rod.id],durability:getFishingRodDurability(rod),broken:getFishingRodDurability(rod)?.broken,owned:isFishingRodUnlocked(rod)},
     {kind:'sickle',id:FARM_SICKLE.id,label:'낫',name:FARM_SICKLE.name,url:SICKLE_TOOL_URLS[FARM_SICKLE.id],owned:true},
-    {kind:'sword',id:sword.id,label:'검',name:sword.name,url:SWORD_TOOL_URLS[sword.id],owned:getOwnedSwords().some(item=>item.id===sword.id)},
+    {kind:'sword',id:sword.id,label:'검',name:sword.name,url:SWORD_TOOL_URLS[sword.id],durability:getSwordDurability(sword),broken:getSwordDurability(sword)?.broken,owned:getOwnedSwords().some(item=>item.id===sword.id)},
     {kind:'none',id:'none',label:'빈손',name:'빈손',owned:true}
   ];
 }

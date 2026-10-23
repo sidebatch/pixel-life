@@ -134,7 +134,8 @@ const GAME_STATE = {
     farming:{xpCurveVersion:LIFE_SKILL_XP_CURVE_VERSION,level:1,xp:0,totalXp:0,mastery:0,masteryXp:0},
     farmOrders:typeof createDefaultFarmOrders==='function'?createDefaultFarmOrders():null,
     forestry:{axeId:DEFAULT_FORESTRY_AXE_ID,ownedAxeIds:[DEFAULT_FORESTRY_AXE_ID],durabilityByAxeId:{}},
-    swords:{swordId:DEFAULT_SWORD_ID,ownedSwordIds:[DEFAULT_SWORD_ID]},
+    swords:{swordId:DEFAULT_SWORD_ID,ownedSwordIds:[DEFAULT_SWORD_ID],durabilityBySwordId:{}},
+    hunting:{defeatedUntil:{}},
     voyage:typeof normalizeSavedVoyageProgress==='function'?normalizeSavedVoyageProgress():null
   },
   activity:{active:null}

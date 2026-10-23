@@ -1,0 +1,30 @@
+[
+  {
+    "key": "brakAttack",
+    "prompt": "Use case: stylized-concept. Production transparent pixel RPG sprite sheet, reference image is identity and art style only. Draw the SAME Brak boss (charcoal armored boar, pale silver tall bristle mane, four ivory tusks, amber eyes) in a strong charging attack pose in FOUR directions. Exact 2x2 arrangement: top-left front facing down, top-right facing left, bottom-left facing right, bottom-right rear facing up. Entire body and all tusks visible within each quadrant with generous transparent gutters. Lowered head, forward tusks, planted hind legs, raised forward forelegs; distinct from calm standing reference. Match detailed crisp pixel clusters of reference. No effects, no circles, no ground, no text, no extra creatures. Transparent background.",
+    "mode": "built-in",
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-e5fb37eb-87a1-4b50-bd0d-efeb0babfa45.png",
+    "reference": "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/dungeons/brak-v2.png"
+  },
+  {
+    "key": "ironSword",
+    "prompt": "Use case: stylized-concept. A single production inventory and held weapon sprite for a cozy detailed pixel-art RPG. Reference is existing basic sword and required diagonal geometry. Create an upgraded iron sword, stronger visibly broad cool silver double-edged blade, dark slate fuller, simple bronze crossguard, dark brown leather grip and round bronze pommel. Exactly same orientation as reference: pommel at bottom-left, blade tip top-right. Straight crisp silhouette, no glow. Entire weapon with generous margins, transparent background, no text, no shadow. Same pixel density as reference.",
+    "mode": "built-in",
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-f51b7cfa-8e1e-4340-a52f-c153f76bb5ac.png",
+    "reference": "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/player/sword-v1/basic.png"
+  },
+  {
+    "key": "craftItems",
+    "prompt": "Use case: stylized-concept. One production game item sprite atlas for a cozy detailed pixel-art RPG, matching warm brown outlines, natural muted colors and crisp detailed pixel clusters. A 2x2 grid of FOUR individual icons with broad empty transparent gutters, same scale: top-left a compact portable folding wooden crafting workbench with leather strap and a tiny wooden mallet fixed on top, unmistakably a crafting bench; top-right one soft tan ordinary animal leather hide; bottom-left a neatly folded thick dark reddish-brown sturdy leather bundle with visible stitching; bottom-right one large curved ivory boar tusk with dark brown root. Each icon centered completely inside its own quadrant. No containers, no background, no labels, no text, no glow, no decoration outside subjects. True transparent background.",
+    "mode": "built-in",
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-b866d9d2-c37d-4509-81df-cc8c6f88df4b.png",
+    "reference": null
+  }
+,{
+  "key": "craftItemsClean",
+  "mode": "built-in edit",
+  "prompt": "Use case: background-extraction. Edit target is the supplied 2x2 item atlas. Remove ALL dark brown/black background and ALL halos/shadows behind the four objects, yielding completely transparent alpha around every object. Keep the four object sprites exactly intact: top-left wooden portable workbench; top-right tan leather hide; bottom-left folded sturdy leather; bottom-right ivory tusk. Preserve their colors, shapes and 2x2 arrangement. Only background changes. Actual transparent background, no replacement checkerboard or solid color.",
+  "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-4dcfe980-2132-429f-9a64-7cb96a8800a0.png",
+  "reference": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-b866d9d2-c37d-4509-81df-cc8c6f88df4b.png"
+}
+]

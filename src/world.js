@@ -75,7 +75,7 @@ function buildWorldRegion(definition){
   Object.assign(marketShop,{x:-100,y:-100,w:0,h:0},fixed.marketShop||{});
   rocks.push(...(fixed.rocks||[]).map(o=>({...o})));
   for(const point of definition.huntingGate?.solids||[])blocked.add(key(point.x,point.y));
-  for(const point of [...(definition.dungeonSolids||[]),...(definition.dungeonMonsters||[])])blocked.add(key(point.x,point.y));
+  for(const point of [...(definition.dungeonSolids||[]),...(definition.dungeonMonsters||[]).filter(monster=>!monster.combat)])blocked.add(key(point.x,point.y));
   const decoration=definition.decorations||{};
   bushes.push(...(decoration.bushes||[]).map(o=>({...o})));
   flowers.push(...(decoration.flowers||[]).map(o=>({...o})));

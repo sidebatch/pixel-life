@@ -22,6 +22,7 @@
   <link rel="stylesheet" href="styles/market-services.css" />
   <link rel="stylesheet" href="styles/growth-status.css" />
   <link rel="stylesheet" href="styles/hunting.css" />
+  <link rel="stylesheet" href="styles/crafting.css" />
   <!-- /build:styles -->
 </head>
 <body>
@@ -245,6 +246,12 @@
         <div class="inventorySummary" id="inventorySummary" role="status" aria-live="polite"></div>
         <div class="inventoryScroll" id="inventoryScroll" role="tabpanel" aria-label="가방 내용"></div>
       </div>
+      <div id="craftingPanel" class="craftingPanel" role="dialog" aria-modal="true" aria-labelledby="craftingTitle" aria-hidden="true">
+        <header class="craftingHeader"><div><small>휴대용 제작대</small><h2 id="craftingTitle">조합</h2></div><button id="craftingClose" type="button" aria-label="조합창 닫기">×</button></header>
+        <nav class="craftingCategories" aria-label="제작 분류"><button type="button" data-craft-category="materials" aria-pressed="true">재료 가공</button><button type="button" data-craft-category="equipment" aria-pressed="false">장비</button></nav>
+        <div class="craftingBody"><div id="craftingRecipes" class="craftingRecipes" aria-label="제작 목록"></div><section id="craftingDetail" aria-label="제작 정보"></section></div>
+        <footer class="craftingFooter"><p id="craftingMessage" class="craftingMessage" role="status" aria-live="polite"></p><div class="craftingQuantityControl"><button id="craftingMinus" type="button" aria-label="제작 수량 줄이기">−</button><output id="craftingQuantity" aria-label="제작 수량">1</output><button id="craftingPlus" type="button" aria-label="제작 수량 늘리기">+</button><button id="craftingMax" type="button">최대</button></div><button id="craftingMake" class="craftingMake" type="button">제작하기</button></footer>
+      </div>
       <div id="inventoryDetailModal" class="inventoryDetailModal" role="dialog" aria-modal="true" aria-labelledby="inventoryDetailTitle" aria-hidden="true">
         <div class="inventoryDetailBackdrop"></div>
         <div class="inventoryDetailSheet">
@@ -311,6 +318,7 @@
   <script src="src/data/tree-dex-data.js"></script>
   <script src="src/data/sword-data.js"></script>
   <script src="src/data/hunting-data.js"></script>
+  <script src="src/data/crafting-data.js"></script>
   <script src="src/data/farming-data.js"></script>
   <script src="src/data/voyage-data.js"></script>
   <script src="src/world-time.js"></script>
@@ -347,6 +355,7 @@
   <script src="src/fishing-gear.js"></script>
   <script src="src/inventory.js"></script>
   <script src="src/market.js"></script>
+  <script src="src/crafting.js"></script>
   <script src="src/character-style.js"></script>
   <script src="src/voyage.js"></script>
   <script src="src/tool-hotbar.js"></script>

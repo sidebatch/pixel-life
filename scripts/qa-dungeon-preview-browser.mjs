@@ -44,12 +44,15 @@ try{
     });
     await page.screenshot({path:path.join(out,width+'-village.png')});
     assert.equal(await page.evaluate(()=>__walk(48,35)),'dungeonCrossroads');
+    const southArrival=await page.evaluate(()=>({x:player.x,y:player.y,face:player.face,distance:Math.abs(player.x-DUNGEON_HUB_DOORS[0].x)+Math.abs(player.y-DUNGEON_HUB_DOORS[0].y)}));
+    assert.deepEqual(southArrival,{x:25,y:41,face:'up',distance:4});
+    await page.screenshot({path:path.join(out,width+'-south-arrival-first-dungeon.png')});
     const before=await page.evaluate(()=>{saveGame();loadGame();return JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression,collections:GAME_STATE.collections});});
     const hub=await page.evaluate(()=>{
       validatePlayableRegion();const seen=__reachable();
       return {doors:WORLD_DEFINITION.dungeonDoors.length,allDoorsReachable:WORLD_DEFINITION.exits.every(e=>seen.has(key(e.x,e.y))),names:DUNGEON_REGIONS.map(r=>r.name)};
     });assert.equal(hub.doors,11);assert(hub.allDoorsReachable);
-    await page.evaluate(()=>__place(32,34));await page.screenshot({path:path.join(out,width+'-crossroads.png')});
+    await page.evaluate(()=>__place(32,39));await page.screenshot({path:path.join(out,width+'-crossroads.png')});
     const regions=[];
     for(let i=0;i<10;i++){
       const row=await page.evaluate(i=>{
@@ -57,11 +60,11 @@ try{
         if(GAME_STATE.regionId!==expected)throw Error('Wrong portal '+expected);validatePlayableRegion();const seen=__reachable();
         if(document.getElementById('locationName').textContent!==WORLD_DEFINITION.name)throw Error('HUD region name missing '+expected);
         const monsters=WORLD_DEFINITION.dungeonMonsters,anchors=new Set(monsters.map(m=>key(m.x,m.y)));
-        return {id:expected,species:new Set(monsters.map(m=>m.id)).size+(i===0?5:0),instances:monsters.length+(i===0?huntingState.animals.length:0),
+        return {id:expected,southStart:player.y>=38&&player.face==='up',species:new Set(monsters.map(m=>m.id)).size+(i===0?5:0),instances:monsters.length+(i===0?huntingState.animals.length:0),
           unique:anchors.size===monsters.length,approachable:monsters.every(m=>Object.values(dirVec).some(([dx,dy])=>seen.has(key(m.x+dx,m.y+dy)))),
-          blocked:monsters.every(m=>blocked.has(key(m.x,m.y))),exits:WORLD_DEFINITION.exits.every(e=>seen.has(key(e.x,e.y)))};
+          blocked:monsters.every(m=>m.combat?!!huntingAnimalAt(m.x,m.y):blocked.has(key(m.x,m.y))),exits:WORLD_DEFINITION.exits.every(e=>seen.has(key(e.x,e.y)))};
       },i);
-      assert(row.species===6&&row.instances===11&&row.unique&&row.approachable&&row.blocked&&row.exits,JSON.stringify(row));
+      assert(row.southStart&&row.species===6&&row.instances===11&&row.unique&&row.approachable&&row.blocked&&row.exits,JSON.stringify(row));
       if(width===393)await page.screenshot({path:path.join(out,'entry-'+row.id+'.png')});
       await page.evaluate(i=>i===0?__place(44,14):__place(14,36),i);
       await page.screenshot({path:path.join(out,width+'-'+row.id+'.png')});
@@ -89,6 +92,13 @@ try{
     // Helpers were lost on reload. Verify the final village route through actual movement.
     const returned=await page.evaluate(()=>{const exit=REGION_EXITS.dungeonCrossroads.find(e=>e.to==='lilacVillage');return __walk(exit.x,exit.y);});
     assert.equal(returned,'lilacVillage');
+    await page.evaluate(()=>{
+      saveGame();const save=JSON.parse(localStorage.getItem(SAVE_CONFIG.key));save.state.location={regionId:'dungeonCrossroads',x:8,y:27,face:'down'};
+      window.removeEventListener('pagehide',saveGame);saveGame=()=>true;localStorage.setItem(SAVE_CONFIG.key,JSON.stringify(save));
+    });
+    await page.reload({waitUntil:'load'});
+    await page.waitForFunction(()=>typeof imgs!=='undefined'&&imgs.dungeonStargraveGate?.width>0&&typeof player!=='undefined',null,{polling:100});
+    assert.deepEqual(await page.evaluate(()=>({region:GAME_STATE.regionId,x:player.x,y:player.y,face:player.face})),{region:'dungeonCrossroads',x:25,y:41,face:'up'},'An old hub position inside new walls must recover at the south entrance');
     if(width===393){
       const png=await page.evaluate(()=>{
         const sheet=document.createElement('canvas');sheet.width=1040;sheet.height=1360;const c=sheet.getContext('2d');c.imageSmoothingEnabled=false;

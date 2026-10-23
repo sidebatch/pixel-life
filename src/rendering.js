@@ -706,7 +706,8 @@ function forestryPlayerDrawDepth(){
 
 function drawPlayer(){
   const wx=player.px-camX,wy=player.py-camY;
-  const actorX=DESKTOP_SMOOTH_RENDER?wx:Math.round(wx),actorY=DESKTOP_SMOOTH_RENDER?wy:Math.round(wy);
+  const stairs=typeof getDungeonStairVisual==='function'?getDungeonStairVisual():null;
+  const actorX=DESKTOP_SMOOTH_RENDER?wx:Math.round(wx),actorY=DESKTOP_SMOOTH_RENDER?wy+(stairs?.drop||0):Math.round(wy+(stairs?.drop||0));
   ctx.fillStyle='rgba(10,25,26,.22)';
   ctx.beginPath();ctx.ellipse(actorX,actorY+13,18,7,0,0,Math.PI*2);ctx.fill();
   drawCharacterActor(actorX,actorY);
@@ -929,6 +930,7 @@ function drawWorld(){
   const voyageSea=typeof drawVoyageSea==='function'&&WORLD_DEFINITION.voyageDeck&&drawVoyageSea();
   if(!voyageSea)drawTerrain();
   if(typeof drawDungeonTerrain==='function')drawDungeonTerrain();
+  if(typeof drawDungeonStairs==='function')drawDungeonStairs();
   drawFarmGround({includeReady:false});
   drawRegionExits();
 

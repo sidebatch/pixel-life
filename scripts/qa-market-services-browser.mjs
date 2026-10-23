@@ -38,7 +38,7 @@ try{
       const panel=page.locator('#marketPanel');assert(await panel.evaluate(node=>node.classList.contains('marketServiceChooser')));
       assert.equal(await panel.locator('img').count(),0);assert.equal(await panel.locator('.marketWallet:visible,.marketFooter:visible').count(),0);
       const buttons=page.locator('[data-market-view]:visible'),rects=await buttons.evaluateAll(nodes=>nodes.map(node=>{const b=node.getBoundingClientRect();return {x:b.x,y:b.y,width:b.width,height:b.height,label:node.textContent};}));
-      assert(rects.every((rect,index)=>['구매','판매','업그레이드','수리','주문','꾸미기'].includes(rect.label)&&rect.height>=44&&(!index||rect.x===rects[0].x&&rect.y>=rects[index-1].y+rects[index-1].height)));
+      assert(rects.every((rect,index)=>['구매','판매','업그레이드','수리','주문','꾸미기','제작'].includes(rect.label)&&rect.height>=44&&(!index||rect.x===rects[0].x&&rect.y>=rects[index-1].y+rects[index-1].height)));
       const box=await panel.boundingBox();assert(box.width<=281&&box.height<=320&&box.x>=0&&box.y>=0&&box.x+box.width<=width+1&&box.y+box.height<=height+1);
       assert(await page.evaluate(()=>{const panel=document.getElementById('marketPanel').getBoundingClientRect();return [...document.querySelectorAll('#settingsBtn,.toolHotbarSlot')].some(button=>{const r=button.getBoundingClientRect(),x=r.x+r.width/2,y=r.y+r.height/2;if(x<0||y<0||x>=innerWidth||y>=innerHeight||(x>=panel.left&&x<=panel.right&&y>=panel.top&&y<=panel.bottom))return false;const hit=document.elementFromPoint(x,y);return hit!==button&&!button.contains(hit);});}),'Compact modal must block background controls');
     };
@@ -48,7 +48,7 @@ try{
     // Actual NPC interaction must open the service chooser, with no transaction list.
     await page.locator('#btnA').click();await page.waitForFunction(()=>isMarketOpen());
     assert.equal(await page.evaluate(()=>marketState.shop),'workshop');assert.equal(await page.evaluate(()=>marketState.view),'home');
-    assert.deepEqual(await views(),['supplies','wood','axes','axeRepairs']);assert.equal(await page.locator('#marketList:visible').count(),0);
+    assert.deepEqual(await views(),['supplies','wood','axes','axeRepairs','crafting']);assert.equal(await page.locator('#marketList:visible').count(),0);
     await checkChooser();
     await page.screenshot({path:path.join(out,`jun-home-${width}.png`)});
     await choose('supplies');assert.equal(await page.locator('[data-buy-return-item]').count(),1);assert.equal(await page.locator('.marketEquipmentCard').count(),0);
@@ -113,7 +113,7 @@ try{
       holder.innerHTML=['fishing','logging','farming'].map(id=>skillCardMarkup(id)).join('');document.getElementById('gameShell').append(holder);
       await Promise.all([...holder.querySelectorAll('img')].map(img=>img.decode()));return {regions,skills:[...holder.querySelectorAll('img')].map(img=>({width:img.naturalWidth,height:img.naturalHeight}))};
     });
-    assert.equal(iconReport.regions.length,22);assert(iconReport.regions.every(icon=>icon.width===128&&icon.height===128));assert(iconReport.skills.every(icon=>icon.width===128&&icon.height===128));
+    assert.equal(iconReport.regions.length,33);assert(iconReport.regions.every(icon=>icon.width===128&&icon.height===128));assert(iconReport.skills.every(icon=>icon.width===128&&icon.height===128));
     await page.screenshot({path:path.join(out,`skill-icons-${width}.png`)});await page.evaluate(()=>document.getElementById('qaSkillIcons').remove());
     // The generated icons fit actual HUDs, without changing their slot or clipping names.
     for(const id of ['lilacVillage','sunnyFields','forestEleven']){await page.evaluate(id=>{enterWorldRegion({to:id,entry:REGION_WORLDS[id].playerSpawn});updateWorldClockUI();},id);await page.screenshot({path:path.join(out,`hud-${id}-${width}.png`)});}
@@ -126,5 +126,5 @@ try{
     const sounds=await page.evaluate(()=>__soundEvents);for(const sound of ['spend','purchase:axe','repair:axe','repair:rod','sale'])assert(sounds.includes(sound));
     reports.push({width,height,icons:iconReport,sounds,emptyCategoriesHidden:true,transactionIsolation:true,saveRollback:true,buttonOrder:'reset, all'});await context.close();
   }
-  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({url,reports,errors},null,2)+'\n');console.log('Market service isolation, transactions, empty categories, 22 location icons and skill icons passed at 320/393/1280px.');
+  assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({url,reports,errors},null,2)+'\n');console.log('Market service isolation, transactions, empty categories, 33 location icons and skill icons passed at 320/393/1280px.');
 }finally{await browser.close();}

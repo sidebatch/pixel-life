@@ -1,0 +1,32 @@
+[
+  {
+    "key": "wooden",
+    "references": [
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/player/sword-v1/basic.png"
+    ],
+    "prompt": "Use case: stylized-concept. Production single held-weapon sprite for the existing cozy detailed pixel-art RPG; supplied silver sword is ONLY a reference for pixel density, diagonal orientation and the hand-grip axis. Make a starter WOODEN SWORD, a straight modest practice sword carved entirely from honey-brown wood, wooden crossguard and short dark-brown wrapped grip. Obvious visible wood grain. NO metal, no gold, no silver, no ivory, no glow. Full sword diagonally pommel bottom-left to blade tip top-right, same straight axis as reference. Short hilt centered around lower-left quarter, entire weapon centered with broad empty margins. Crisp pixel clusters, dark brown outline, clear readable silhouette. Actual transparent background; no text, ground or shadows.",
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-6bc2fcac-3429-455c-8bdd-99c198b83518.png",
+    "mode": "built-in generate with references"
+  },
+  {
+    "key": "brakSword",
+    "references": [
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/crafting/brak-tusk-v1.png",
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/crafting/iron-sword-v1.png"
+    ],
+    "prompt": "Use case: stylized-concept. Production single held-weapon sprite for a cozy detailed pixel RPG. Reference 1 is the ivory Brak tusk to use as actual blade material. Reference 2 supplies ONLY diagonal weapon orientation and crisp pixel density. Design BRAK'S SWORD: one large thick ivory boar tusk forms the slightly curved sharp blade, dark ridged brown root reinforces its base, compact handguard made of brown horn, dark reddish-brown leather-wrapped grip and small bone pommel. Recognizably a useful one-handed fantasy sword, pointed ivory tusk-blade toward top-right and short handle bottom-left. Do not copy a metal sword: NO steel, silver, gold, gems or glow. Large readable warm ivory blade, subtle striated bone texture, crisp brown outline, whole weapon centered with generous margins. True transparent background, no text, shadow or scene.",
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-83327182-60ec-41f7-9d51-c72488a8d6ab.png",
+    "mode": "built-in generate with references"
+  },
+  {
+    "key": "southExit",
+    "references": [
+      "C:/Users/leeks/Desktop/바이브코딩/4. open world/pixel-life-path-redesign-v5/pixel-life-path-redesign-v5/assets/hunting/cave-v1.png"
+    ],
+    "prompt": "Use case: stylized-concept. Single production terrain sprite for a top-down cozy detailed pixel RPG, matching the provided mossy cave's art style, stone shapes, palette and pixel detail. Create a cave EXIT STAIRWELL sunk into the ground: seen from above in a 3/4 overhead view, open accessible north/top edge, stone steps visibly descend SOUTH/down toward the bottom of the image into a dark tunnel. Low mossy rocky side walls on LEFT and RIGHT, small rocky lip only at bottom edge. The top edge must be wide OPEN for a character to walk down onto stairs; no upright arch, no canopy and no rocks across the entrance. Horizontal compact footprint, staircase itself centered and unblocked. Detailed clustered pixel art with natural moss-green and gray-brown rock. Fully contained centered sprite, generous transparent padding on every side. Transparent outside ground footprint. No background, text, arrows, torches, characters or glow.",
+    "source": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-f0eb3d75-009f-47de-81f1-73b1593cf9d5.png",
+    "mode": "built-in edit",
+    "initialSource": "C:\\Users\\leeks\\.codex\\generated_images\\01a12ec2-4758-78b2-aabb-48195ea5924c\\exec-7a320560-ba4a-4877-b8af-acde36845449.png",
+    "editPrompt": "Use case: precise-object-edit. Edit the supplied mossy stone stair sprite into a TOP-DOWN FLOOR STAIRWELL, correcting the direction. It must look like a hole in the ground with stairs descending from the TOP/NORTH edge down into a dark opening at the BOTTOM/SOUTH edge. Camera very high overhead, 75 degrees above ground. The upper edge is flat open ground, with the TOPMOST stair broad, light and nearest ground level. Each step progressively darker toward the LOWER edge; the BOTTOM quarter is the black underground tunnel. NO black hole at the upper edge, NO upright back wall, NO rocks blocking the upper central approach. Use low gray-brown stone rims with moss on the two side edges only. Compact rectangular horizontal footprint, entire sprite with generous empty margins, same crisp detailed pixel style. True transparent background outside stairwell. No labels, glow or characters."
+  }
+]

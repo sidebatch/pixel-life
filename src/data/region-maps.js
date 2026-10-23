@@ -831,7 +831,7 @@ const REGION_WORLDS=Object.freeze(Object.fromEntries(Object.entries({
 const REGION_EXITS=Object.freeze({
   ...(typeof DUNGEON_WORLD_DEFINITIONS!=='undefined'?Object.fromEntries(Object.entries(DUNGEON_WORLD_DEFINITIONS).map(([id,map])=>[id,map.exits])):{}),
   lilacVillage:Object.freeze([...FOREST_ROUTE_EXITS.lilacVillage,
-    typeof DUNGEON_WORLD_DEFINITIONS!=='undefined'?{x:48,y:35,to:'dungeonCrossroads',entry:{x:8,y:27,face:'down'},label:'던전 입구',dungeonDoor:true}:
+    typeof DUNGEON_WORLD_DEFINITIONS!=='undefined'?{x:48,y:35,to:'dungeonCrossroads',entry:{...DUNGEON_WORLD_DEFINITIONS.dungeonCrossroads.playerSpawn},label:'던전 입구',dungeonDoor:true}:
       {x:48,y:35,to:'wildwoodHunt',entry:{x:12,y:37,face:'up'},label:'들녘 사냥터'}]),
   wildwoodHunt:REGION_WORLDS.wildwoodHunt.exits,
   oldForest:REGION_WORLDS.oldForest.exits,

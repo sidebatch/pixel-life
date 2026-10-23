@@ -135,6 +135,11 @@ window.addEventListener('popstate',()=>{
   if(typeof isTreeDiscoveryOpen==='function'&&isTreeDiscoveryOpen())return;
   if(typeof isFishRewardRevealOpen==='function'&&isFishRewardRevealOpen()){pushGameOverlayHistory('fish-reward');return;}
   const layer=window.history.state?.pixelLifeOverlay;
+  if(layer==='crafting'){
+    if(!isInventoryOpen())openInventory({fromHistory:true});
+    openCrafting({fromHistory:true});return;
+  }
+  if(typeof isCraftingOpen==='function'&&isCraftingOpen())closeCrafting({fromHistory:true});
   if(layer!=='growth-status'&&typeof isGrowthStatusOpen==='function'&&isGrowthStatusOpen())closeGrowthStatus({fromHistory:true});
   if(layer==='harbor'){openHarbor({fromHistory:true});return;}
   if(typeof isHarborOpen==='function'&&isHarborOpen())closeHarbor({fromHistory:true});
@@ -406,7 +411,7 @@ window.addEventListener('keydown',e=>{
   if(worldDebugEnabled&&e.code==='BracketRight'&&!e.repeat){e.preventDefault();adjustWorldTimeDebug(30);return;}
   // Inventory buttons retain native Space/Enter activation and arrow scrolling.
   if(e.target?.closest?.('#toolHotbar,#growthStatusHud')&&['Space','Enter'].includes(e.code))return;
-  if(e.target?.closest?.('#inventoryPanel,#inventoryDetailModal,#characterStylePanel,#growthStatusOverlay')&&!['KeyX','Escape'].includes(e.code))return;
+  if(e.target?.closest?.('#inventoryPanel,#inventoryDetailModal,#craftingPanel,#characterStylePanel,#growthStatusOverlay')&&!['KeyX','Escape'].includes(e.code))return;
   if(keyMap[e.code]){e.preventDefault();const d=keyMap[e.code];inputs[d]=true;activeDir=d;lastDir=d;if(!e.repeat) bufferPlayerDirection(d);}
   if((e.code==='Space'||e.code==='KeyZ')&&!e.repeat){e.preventDefault();interact();}
   if((e.code==='KeyX'||e.code==='Escape')&&!e.repeat){e.preventDefault();pressB();}

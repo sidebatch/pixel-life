@@ -89,7 +89,7 @@ function equipmentDurabilityMarkup(durability){
 }
 
 function inventoryWearableCard(type,item,equipped){
-  const durability=type==='axe'?getForestryAxeDurability(item):type==='rod'?getFishingRodDurability(item):null;
+  const durability=type==='axe'?getForestryAxeDurability(item):type==='rod'?getFishingRodDurability(item):type==='sword'?getSwordDurability(item):null;
   const broken=durability?.broken;
   return `<div class="inventoryWearableSlot${equipped?' selected':''}">
     <button type="button" class="inventoryItemCard inventoryEquipmentCard${equipped?' equipped':''}${broken?' broken':''}" data-equip-type="${type}" data-equip-id="${item.id}" aria-pressed="${equipped}" aria-label="${item.name}${equipped?', 장착 중':broken?', 수리 필요':', 장착하기'}">
@@ -106,6 +106,7 @@ function inventoryWearableCard(type,item,equipped){
 function selectHeldTool(tool){
   if(!['none','axe','rod','sword','sickle'].includes(tool)) return false;
   if(tool==='rod'&&getFishingRodDurability()?.broken)return false;
+  if(tool==='sword'&&getSwordDurability()?.broken)return false;
   if((typeof isChoppingTree==='function'&&isChoppingTree())||
     (typeof isFishingActive==='function'&&isFishingActive()))return false;
   const previous=GAME_STATE.appearance;
@@ -202,20 +203,22 @@ function openInventoryDetail(type,id,options={}){
   const labels={axe:'벌목 도구',rod:'낚시 도구',sword:'검',sickle:'농사 도구',outfit:'옷',backpack:'가방'};
   const axeDurability=type==='axe'?getForestryAxeDurability(item):null;
   const rodDurability=type==='rod'?getFishingRodDurability(item):null;
+  const swordDurability=type==='sword'?getSwordDurability(item):null;
   const effects=type==='rod'?[...fishingRodEffectLabels(item),rodDurability.infinite?'내구도 무제한':`내구도 ${rodDurability.current} / ${rodDurability.max}`,
     ...(rodDurability.infinite?[]:['획득 시 내륙·해안 1 / 얕은 바다 6 / 중간 바다 8 / 심해 10 / 빙하 12 감소'])]:
     type==='axe'?[`타격 힘 ${item.damage}`,axeDurability.infinite?'내구도 무제한':`내구도 ${axeDurability.current} / ${axeDurability.max}`,
       `정상 위력으로 베는 나무: ${FOREST_SPECIES.filter(species=>FORESTRY_TREES[species].tier<=item.tier).map(species=>FOREST_WOOD[species]).join(' · ')}`,
       ...(getOwnedForestryAxes().some(axe=>axe.tier>item.tier)?
         ['획득한 상위 도끼 단계의 나무도 벌목 가능 · 단계 차이 1/2/3/4 이상: 위력 40%/25%/15%/10%']:[])]:
-    type==='sword'?[`검 단계 ${item.tier}`,nextSword()?'다음 검은 추후 구매 가능':'상위 검과 전투 콘텐츠는 추후 추가 예정']:
+    type==='sword'?[`공격력 ${item.damage}`,swordDurability.infinite?'내구도 무제한':`내구도 ${swordDurability.current} / ${swordDurability.max}`,
+      swordDurability.infinite?'튼튼한 가죽 3개 + 브락 엄니 1개로 브락의 검 제작 가능':'명중할 때 내구도 1 소모 · 준의 도구점에서 수리']:
     type==='sickle'?['다 자란 작물 한 칸 수확','내구도 무제한']:['외형용 · 능력치 변화 없음'];
   const description=item.description||(type==='axe'?'나무를 베는 도끼. 장착한 도끼의 힘으로 나무에 피해를 줍니다.':'여행자의 기본 의상. 걷기·낚시·벌목 동작에 함께 적용돼요.');
   document.getElementById('inventoryDetailContent').innerHTML=`<div class="inventoryDetailHero">
     <span>${inventoryWearableArt(type,{...item,id})}</span><div><small>${labels[type]}</small><h3 id="inventoryDetailTitle">${item.name}</h3></div></div>
-    ${equipmentDurabilityMarkup(axeDurability||rodDurability)}
+    ${equipmentDurabilityMarkup(axeDurability||rodDurability||swordDurability)}
     <p>${description}</p><ul>${effects.map(effect=>`<li>${effect}</li>`).join('')}</ul>
-    <footer>${equipped?'✓ 현재 장착 중':axeDurability?.broken?'망가짐 · 준의 도구점에서 수리해야 다시 장착할 수 있어요.':rodDurability?.broken?'망가짐 · 마을 엘리에게서 수리해야 다시 장착할 수 있어요.':'가방에서 카드를 누르면 장착할 수 있어요.'}</footer>`;
+    <footer>${equipped?'✓ 현재 장착 중':axeDurability?.broken||swordDurability?.broken?'망가짐 · 준의 도구점에서 수리해야 다시 장착할 수 있어요.':rodDurability?.broken?'망가짐 · 마을 엘리에게서 수리해야 다시 장착할 수 있어요.':'가방에서 카드를 누르면 장착할 수 있어요.'}</footer>`;
   inventoryState.detail={type,id};
   const modal=document.getElementById('inventoryDetailModal');
   modal.classList.add('show');modal.setAttribute('aria-hidden','false');
@@ -238,6 +241,8 @@ function closeInventoryDetail(options={}){
 
 function renderInventorySupplies(){
   const entries=[
+    ...HUNTING_MATERIALS.map(item=>({type:'material',id:item.id,name:item.name})),
+    {type:'utility',id:PORTABLE_WORKBENCH.id,name:PORTABLE_WORKBENCH.name},
     {type:'consumable',id:VILLAGE_RETURN_ITEM.id,icon:VILLAGE_RETURN_ITEM.icon,name:VILLAGE_RETURN_ITEM.name},
     {type:'material',id:'log',icon:'🪵',name:lifeItemName('material','log')},
     ...FOREST_SPECIES.map(species=>({type:'material',id:`${species}_log`,icon:'🪵',name:lifeItemName('material',`${species}_log`)})),
@@ -256,7 +261,7 @@ function renderInventorySupplies(){
   document.getElementById('inventoryScroll').innerHTML=entries.length?
     `<div class="inventoryItemGrid">${entries.map(item=>inventoryItemCardMarkup({name:item.name,count:item.count,
       art:lifeItemIconMarkup(item.type,item.id,item.icon),className:`inventorySupplyCard${item.type==='consumable'?' inventoryConsumableCard':''}`,
-      useItemId:item.type==='consumable'?item.id:''})).join('')}</div>`:
+      useItemId:['utility','consumable'].includes(item.type)?item.id:''})).join('')}</div>`:
     '<div class="inventoryEmpty"><span>🪵</span><b>아직 재료가 없어요</b><p>숲에서 벌목하거나 농장에서 씨앗을 심어 보세요.</p></div>';
 }
 
@@ -308,6 +313,7 @@ function openInventory(options={}){
 
 function closeInventory(options={}){
   if(!inventoryState.open) return;
+  if(typeof isCraftingOpen==='function'&&isCraftingOpen()){closeCrafting(options);if(!options.fromHistory)return;}
   if(isInventoryDetailOpen()){
     closeInventoryDetail(options);
     if(!options.fromHistory)return;
@@ -351,6 +357,7 @@ if(typeof document!=='undefined'){
     const card=event.target.closest('.inventoryItemCard');
     if(!card) return;
     if(card.dataset.useItemId){
+      if(card.dataset.useItemId===PORTABLE_WORKBENCH.id){openCrafting();return;}
       if(!useVillageReturnItem())document.getElementById('inventorySummary').textContent='귀환석을 사용하지 못했어요. 다시 시도해 주세요.';
       return;
     }
@@ -375,6 +382,7 @@ if(typeof document!=='undefined'){
       }else document.getElementById('inventorySummary').textContent=card.dataset.equipType==='axe'&&
         getForestryAxeDurability(card.dataset.equipId)?.broken?'망가진 도끼예요. 준의 도구점에서 먼저 수리해 주세요.':
         card.dataset.equipType==='rod'&&getFishingRodDurability(card.dataset.equipId)?.broken?'망가진 낚싯대예요. 마을 엘리에게서 먼저 수리해 주세요.':
+        card.dataset.equipType==='sword'&&getSwordDurability(card.dataset.equipId)?.broken?'망가진 검이에요. 준의 도구점에서 먼저 수리해 주세요.':
         '장착 상태를 저장하지 못했어요. 다시 시도해 주세요.';
       return;
     }

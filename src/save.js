@@ -23,6 +23,15 @@ function normalizeSavedInventory(rawInventory){
   const inventory=[];
   for(const item of rawInventory){
     if(!item) continue;
+    if(typeof HUNTING_MATERIAL_BY_ID!=='undefined'&&item.type==='material'&&HUNTING_MATERIAL_BY_ID.has(item.id)){
+      const existing=inventory.find(saved=>saved.type===item.type&&saved.id===item.id),quantity=saveClamp(Math.floor(saveFiniteNumber(item.quantity)),0,99999);
+      if(quantity){if(existing)existing.quantity=Math.min(99999,existing.quantity+quantity);else inventory.push({type:item.type,id:item.id,name:HUNTING_MATERIAL_BY_ID.get(item.id).name,quantity});}
+      continue;
+    }
+    if(typeof PORTABLE_WORKBENCH!=='undefined'&&item.type==='utility'&&item.id===PORTABLE_WORKBENCH.id){
+      if(saveFiniteNumber(item.quantity)>0&&!inventory.some(saved=>saved.type==='utility'&&saved.id===item.id))inventory.push({type:'utility',id:item.id,name:PORTABLE_WORKBENCH.name,quantity:1});
+      continue;
+    }
     if(item.type==='equipment'){
       const equipment=SAVE_EQUIPMENT[item.id];
       if(!equipment||inventory.some(saved=>saved.type==='equipment'&&saved.id===item.id)) continue;
@@ -252,10 +261,24 @@ function normalizeSavedForestryProgress(rawProgress){
 }
 
 function normalizeSavedSwordProgress(rawProgress){
-  const ids=Array.isArray(rawProgress?.ownedSwordIds)?rawProgress.ownedSwordIds:[];
+  const aliases=typeof SWORD_SAVE_ALIASES!=='undefined'?SWORD_SAVE_ALIASES:{};
+  const ids=Array.isArray(rawProgress?.ownedSwordIds)?rawProgress.ownedSwordIds.map(id=>aliases[id]||id):[];
   const ownedSwordIds=[...new Set([DEFAULT_SWORD_ID,...ids])].filter(id=>SWORD_BY_ID.has(id));
-  const swordId=ownedSwordIds.includes(rawProgress?.swordId)?rawProgress.swordId:DEFAULT_SWORD_ID;
-  return {swordId,ownedSwordIds};
+  const requested=aliases[rawProgress?.swordId]||rawProgress?.swordId;
+  const swordId=ownedSwordIds.includes(requested)?requested:DEFAULT_SWORD_ID;
+  const durabilityBySwordId={};
+  for(const id of ownedSwordIds){const sword=SWORD_BY_ID.get(id);if(!sword.maxDurability)continue;
+    const previousId=Object.keys(aliases).find(old=>aliases[old]===id);
+    const saved=rawProgress?.durabilityBySwordId?.[id]??rawProgress?.durabilityBySwordId?.[previousId];
+    durabilityBySwordId[id]=typeof saved==='number'&&Number.isFinite(saved)?saveClamp(Math.floor(saved),0,sword.maxDurability):sword.maxDurability;}
+  return {swordId,ownedSwordIds,durabilityBySwordId};
+}
+
+function normalizeSavedHuntingProgress(raw){
+  const defeatedUntil={},now=Date.now();
+  const ids=typeof HUNTING_SPAWNS!=='undefined'?[...HUNTING_SPAWNS.map(a=>a.id),'wildwood_brak']:[];
+  for(const id of ids){const until=Number(raw?.defeatedUntil?.[id]);if(Number.isFinite(until)&&until>now)defeatedUntil[id]=Math.min(until,now+(id==='wildwood_brak'?300000:60000));}
+  return {defeatedUntil};
 }
 
 function normalizeSavedProgressionFlags(rawFlags){
@@ -315,6 +338,7 @@ function createSaveData(){
         farmOrders:GAME_STATE.progression.farmOrders,
         forestry:GAME_STATE.progression.forestry,
         swords:GAME_STATE.progression.swords,
+        hunting:GAME_STATE.progression.hunting,
         voyage:GAME_STATE.progression.voyage
       }
     }
@@ -354,6 +378,9 @@ function applySaveData(saveData){
   if(GAME_STATE.appearance.activeTool==='axe'&&savedAxe?.maxDurability&&
     GAME_STATE.progression.forestry.durabilityByAxeId[savedAxe.id]===0) GAME_STATE.appearance.activeTool='none';
   GAME_STATE.progression.swords=normalizeSavedSwordProgress(savedState.progression?.swords);
+  GAME_STATE.progression.hunting=normalizeSavedHuntingProgress(savedState.progression?.hunting);
+  const savedSword=SWORD_BY_ID.get(GAME_STATE.progression.swords.swordId);
+  if(GAME_STATE.appearance.activeTool==='sword'&&savedSword?.maxDurability&&GAME_STATE.progression.swords.durabilityBySwordId[savedSword.id]===0)GAME_STATE.appearance.activeTool='none';
   if(typeof normalizeSavedVoyageProgress==='function'){
     GAME_STATE.progression.voyage=normalizeSavedVoyageProgress(savedState.progression?.voyage,voyageUnlockEvidence());
     restoreSavedVoyageLocation();

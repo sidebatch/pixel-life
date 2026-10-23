@@ -26,6 +26,7 @@ const scriptFiles = [
   'src/data/tree-dex-data.js',
   'src/data/sword-data.js',
   'src/data/hunting-data.js',
+  'src/data/crafting-data.js',
   'src/data/farming-data.js',
   'src/data/voyage-data.js',
   'src/world-time.js',
@@ -62,6 +63,7 @@ const scriptFiles = [
   'src/fishing-gear.js',
   'src/inventory.js',
   'src/market.js',
+  'src/crafting.js',
   'src/character-style.js',
   'src/voyage.js',
   'src/tool-hotbar.js',
@@ -165,7 +167,7 @@ assert((menuMarkup.match(/class="menuCard(?: |")/g)||[]).length===4&&
   'World menu must contain bag, fish-dex, tree-dex and growth overview cards');
 
 const assetPaths = [...read('src/assets.js').matchAll(/['"](assets\/[^'"]+\.png)['"]/g)].map((match) => match[1]);
-assert(assetPaths.length === 526, `Expected 526 runtime and archived-comparison asset references, found ${assetPaths.length}`);
+assert(assetPaths.length === 533, `Expected 533 runtime and archived-comparison asset references, found ${assetPaths.length}`);
 for (const assetPath of assetPaths) {
   assert(fs.existsSync(path.join(root, assetPath)), `Missing asset: ${assetPath}`);
 }
@@ -902,7 +904,7 @@ const inventoryContext={
   VILLAGE_RETURN_ITEM:{id:'village_return_charm',name:'귀환석',englishName:'Return Stone',icon:'🌀',price:100}
 };
 vm.createContext(inventoryContext);
-vm.runInContext(`${read('src/inventory.js')}\n`+
+vm.runInContext(`${read('src/data/crafting-data.js')}\n${read('src/inventory.js')}\n`+
   `globalThis.__grouped=groupInventoryFish([`+
   `{type:'fish',id:'fish.crucian_carp',sizeCm:22.5,price:26,quantity:1},`+
   `{type:'fish',id:'fish.goldfish',sizeCm:11.2,price:80,quantity:1},`+
@@ -952,6 +954,7 @@ assert(inventorySummaryNode.textContent==='보유 재료 10개'&&
   !inventoryScrollNode.innerHTML.includes('class="inventorySupply"'),
   'Material and seed items must use the same image grid and count badges as fish');
 inventoryContext.FISHING_RODS=[{id:'rod.basic',name:'기본 낚싯대',asset:'basic'}];
+inventoryContext.getSwordDurability=()=>({infinite:true,broken:false});
 inventoryContext.FISHING_ROD_URLS={basic:'assets/fishing/rods/basic.png'};
 inventoryContext.isFishingRodUnlocked=()=>true;
 inventoryContext.getEquippedFishingRod=()=>inventoryContext.FISHING_RODS[0];
@@ -959,8 +962,8 @@ inventoryContext.getFishingRodDurability=()=>({infinite:true,broken:false,curren
 inventoryContext.getEquippedForestryAxe=()=>({id:'axe.basic',name:'기본 도끼',asset:'basic'});
 inventoryContext.getOwnedForestryAxes=()=>[{id:'axe.basic',name:'기본 도끼',asset:'basic'},{id:'axe.iron',name:'철 도끼',asset:'iron'}];
 inventoryContext.getForestryAxeDurability=axe=>axe.id==='axe.basic'?{infinite:true,broken:false,current:null,max:null}:{infinite:false,broken:false,current:180,max:180};
-inventoryContext.getEquippedSword=()=>({id:'sword.basic',name:'기본 검',asset:'basic'});
-inventoryContext.getOwnedSwords=()=>[{id:'sword.basic',name:'기본 검',asset:'basic'}];
+inventoryContext.getEquippedSword=()=>({id:'sword.basic',name:'목검',asset:'basic'});
+inventoryContext.getOwnedSwords=()=>[{id:'sword.basic',name:'목검',asset:'basic'}];
 inventoryContext.FARM_SICKLE={id:'sickle.basic',name:'기본 낫',asset:'basic'};
 inventoryContext.SICKLE_TOOL_URLS={'sickle.basic':'/sickle.png'};
 inventoryContext.SWORD_TOOL_URLS={'sword.basic':'/sword.png'};
@@ -974,7 +977,7 @@ assert(inventoryScrollNode.innerHTML.includes('class="inventoryItemGrid"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 도끼, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('data-equip-type="axe" data-equip-id="axe.iron" aria-pressed="false" aria-label="철 도끼, 장착하기"')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 장착하기"')&&
-  inventoryScrollNode.innerHTML.includes('aria-label="기본 검, 장착하기"')&&
+  inventoryScrollNode.innerHTML.includes('aria-label="목검, 장착하기"')&&
   !inventoryScrollNode.innerHTML.includes('aria-label="기본 낚싯대, 장착 중"')&&
   inventoryScrollNode.innerHTML.includes('fishing/rods/basic.png')&&
   inventoryScrollNode.innerHTML.includes('aria-label="기본 낫, 장착하기"')&&
@@ -1520,6 +1523,7 @@ for(const [pose,definition] of Object.entries(rig.poses))for(const name of ['Bod
   characterContext.characterLayerImgs[pose+name]={id:pose+name,width:definition.columns*96,height:384};
 for(const key of Object.keys(rig.tools))characterContext.characterToolImgs[key]={id:key,width:96,height:96};
 characterContext.characterToolImgs['sword.basic']={id:'sword.basic',width:96,height:96};
+characterContext.characterToolImgs['sword.brak']={id:'sword.brak',width:96,height:96};
 characterContext.characterToolImgs['sickle.basic']={id:'sickle.basic',width:96,height:96};
 vm.createContext(characterContext);
 vm.runInContext(read('src/data/character-rig-data.js')+'\n'+read('src/data/sword-data.js')+'\n'+read('src/data/farming-data.js')+'\n'+read('src/character.js')+'\n'+read('src/rendering.js'),characterContext);
@@ -1649,6 +1653,8 @@ assert(vm.runInContext('forestryPlayerDrawDepth()',characterContext)===500&&
   'Air swings must use chopping animation with normal player depth and no missing-tree error');
 
 const marketContext={
+  // This legacy fixture owns axes only; crafting/iron is covered by qa-crafting.
+  renderSwordRepairsMarket(){},getOwnedSwords:()=>[],swordRepairCost:()=>0,hasPortableWorkbench:()=>false,
   skillCardMarkup:skillId=>`<div data-skill-card="${skillId}"></div>`,
   FISH_DATA:[{id:'fish.crucian_carp'},{id:'fish.goldfish'}],
   lifeItemCount:(type,id,inventory=marketContext.GAME_STATE.inventory)=>inventory.reduce((sum,item)=>sum+(item.type===type&&item.id===id?item.quantity:0),0),
@@ -1660,6 +1666,7 @@ const marketContext={
   ],appearance:{activeTool:'axe'},progression:{coins:100}}
 };
 vm.createContext(marketContext);
+vm.runInContext(read('src/data/crafting-data.js'),marketContext);
 vm.runInContext(`${read('src/data/world-map.js')}\n${read('src/data/region-maps.js')}\n${read('src/data/life-content-data.js')}\n`+
   `function lifeItemName(type,id){return id==='log'?'일반 목재':FOREST_WOOD[id.slice(0,-4)]||'';}\n`+
   `${read('src/market.js')}\n`+
@@ -2017,6 +2024,7 @@ await import('./qa-discovery-feedback.mjs');
 await import('./qa-startup-progress.mjs');
 await import('./qa-weather.mjs');
 await import('./qa-hunting.mjs');
+await import('./qa-crafting.mjs');
 await import('./qa-dungeon-preview.mjs');
 await import('./qa-hunting-terrain.mjs');
 await import('./qa-region-music-recovery.mjs');

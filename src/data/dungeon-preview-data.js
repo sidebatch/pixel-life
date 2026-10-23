@@ -17,8 +17,13 @@ const DUNGEON_BOSS_AURA_COLORS=Object.freeze({brak:'#e6b96b',torga:'#bedb7a',lug
 
 function dungeonDoor(x,y,to,entry,label,image){return {x,y,to,entry,label,image,dungeonDoor:true};}
 function dungeonDoorSolids(doors){
-  return doors.flatMap(({x,y})=>{
+  return doors.flatMap(({x,y,southExit})=>{
     const points=[];
+    if(southExit){
+      for(let dy=-1;dy<=1;dy++)for(const dx of [-2,2])points.push({x:x+dx,y:y+dy});
+      for(let dx=-2;dx<=2;dx++)points.push({x:x+dx,y:y+2});
+      return points;
+    }
     for(let dx=-2;dx<=2;dx++)for(let dy=-2;dy<=0;dy++)if(dy<0||dx!==0)points.push({x:x+dx,y:y+dy});
     return points;
   });
@@ -34,8 +39,13 @@ function dungeonWalls(floors){
   }
   return walls;
 }
-const DUNGEON_HUB_DOORS=Object.freeze(DUNGEON_REGIONS.map((r,i)=>dungeonDoor(12+(i%5)*10,i<5?13:30,r.id,
-  r.id==='wildwoodHunt'?{x:12,y:14,face:'down'}:{x:32,y:11,face:'down'},r.name,r.gate)));
+const DUNGEON_HUB_SPAWN=Object.freeze({x:25,y:41,face:'up'});
+// Walk north through five ordered pairs: 1/2 nearest the village, 9/10 deepest.
+const DUNGEON_HUB_DOORS=Object.freeze(DUNGEON_REGIONS.map((r,i)=>Object.freeze({
+  ...dungeonDoor(i%2===0?25:39,37-Math.floor(i/2)*7,r.id,
+    r.id==='wildwoodHunt'?{x:12,y:38,face:'up'}:{x:32,y:40,face:'up'},r.name,r.gate),order:i+1
+})));
+function dungeonSouthExit(x,y,to,entry,label){return {...dungeonDoor(x,y,to,entry,label,'dungeonSouthExit'),southExit:true};}
 function dungeonBase(id,name,palette,floors){
   const [ground,patchA,patchB,pathRim,pathCore]=palette;
   return {id,name,tileSize:48,width:64,height:48,dungeonPreview:true,
@@ -45,27 +55,30 @@ function dungeonBase(id,name,palette,floors){
 }
 const DUNGEON_WORLD_DEFINITIONS=Object.freeze(Object.fromEntries([
   ['dungeonCrossroads',(()=>{
-    const doors=[...DUNGEON_HUB_DOORS,dungeonDoor(8,24,'lilacVillage',{x:48,y:37,face:'down'},'라일락 마을','huntingGate')];
-    const floors=[{x:9,y:14,w:47,h:5},{x:9,y:31,w:47,h:5},{x:30,y:15,w:5,h:20},{x:6,y:25,w:7,h:10},
-      ...doors.map(d=>({x:d.x-3,y:d.y-3,w:7,h:8}))];
+    const doors=[...DUNGEON_HUB_DOORS,dungeonSouthExit(25,44,'lilacVillage',{x:48,y:37,face:'down'},'라일락 마을')];
+    const floors=[{x:30,y:6,w:5,h:37},{x:22,y:38,w:16,h:6},{x:22,y:41,w:7,h:6},
+      ...DUNGEON_HUB_DOORS.flatMap(d=>[{x:d.x-3,y:d.y-3,w:7,h:7},{x:22,y:d.y+1,w:21,h:3}])];
     const map=dungeonBase('dungeonCrossroads','던전 갈림길',['#7a806b','#3e4c42','#9b9d81','#767b62','#a1a283'],floors);
-    return Object.freeze({...map,playerSpawn:{x:8,y:27,face:'down'},paths:[{x1:12,y1:16,x2:52,y2:16},{x1:8,y1:33,x2:52,y2:33},
-      {x1:32,y1:16,x2:32,y2:33},{x1:8,y1:24,x2:8,y2:33}],
+    return Object.freeze({...map,playerSpawn:{...DUNGEON_HUB_SPAWN},paths:[{x1:32,y1:11,x2:32,y2:41},
+      ...[0,1,2,3,4].map(row=>({x1:25,y1:39-row*7,x2:39,y2:39-row*7})),
+      ...DUNGEON_HUB_DOORS.map(d=>({x1:d.x,y1:d.y,x2:d.x,y2:d.y+2})),
+      {x1:25,y1:39,x2:25,y2:44},{x1:25,y1:41,x2:32,y2:41}],
       dungeonDoors:doors,dungeonSolids:dungeonDoorSolids(doors),dungeonMonsters:[],exits:doors});
   })()],
   ...DUNGEON_REGIONS.slice(1).map((region,index)=>{
     const floors=[{x:7,y:7,w:15,h:13,cutCorners:true},{x:25,y:6,w:15,h:14,cutCorners:true},{x:43,y:7,w:15,h:13,cutCorners:true},
       {x:7,y:27,w:15,h:12,cutCorners:true},{x:25,y:27,w:15,h:13,cutCorners:true},{x:43,y:27,w:15,h:12,cutCorners:true},
-      {x:13,y:21,w:39,h:5},{x:13,y:14,w:3,h:21},{x:31,y:14,w:3,h:30},{x:49,y:14,w:3,h:21}];
+      {x:13,y:21,w:39,h:5},{x:13,y:14,w:3,h:21},{x:31,y:14,w:3,h:30},{x:49,y:14,w:3,h:21},
+      {x:29,y:39,w:7,h:8}];
     const map=dungeonBase(region.id,region.name,region.palette,floors),hubDoor=DUNGEON_HUB_DOORS[index+1];
-    const door=dungeonDoor(32,8,'dungeonCrossroads',{x:hubDoor.x,y:hubDoor.y+3,face:'down'},'던전 갈림길',region.gate);
-    const centers=[[14,33],[32,33],[50,33],[14,13],[32,13],[50,13]];
+    const door=dungeonSouthExit(32,43,'dungeonCrossroads',{x:hubDoor.x,y:hubDoor.y+2,face:'down'},'던전 갈림길');
+    const centers=[[32,33],[14,33],[50,33],[14,13],[32,13],[50,13]];
     const monsters=region.monsters.flatMap((monster,i)=>{
       const [cx,cy]=centers[i];return (monster.boss?[0]:[-2,2]).map((offset,n)=>({...monster,
         instanceId:region.id+'_'+monster.id+'_'+n,x:cx+offset,y:cy,atlas:region.atlas,size:monster.boss?168:104}));
     });
-    return [region.id,Object.freeze({...map,playerSpawn:{x:32,y:11,face:'down'},paths:[{x1:14,y1:23,x2:50,y2:23},
-      ...[14,32,50].map(x=>({x1:x,y1:13,x2:x,y2:33})),{x1:32,y1:8,x2:32,y2:13}],
+    return [region.id,Object.freeze({...map,playerSpawn:{x:32,y:40,face:'up'},paths:[{x1:14,y1:23,x2:50,y2:23},
+      ...[14,32,50].map(x=>({x1:x,y1:13,x2:x,y2:33})),{x1:32,y1:33,x2:32,y2:43}],
       dungeonDoors:[door],dungeonSolids:dungeonDoorSolids([door]),dungeonMonsters:monsters,exits:[door]})];
   })
 ]));
@@ -73,8 +86,8 @@ function attachDungeonPreview(definition){
   if(definition.id==='lilacVillage')return Object.freeze({...definition,huntingGate:{...definition.huntingGate,to:'dungeonCrossroads',label:'던전 입구'}});
   if(definition.id!=='wildwoodHunt')return definition;
   const hubDoor=DUNGEON_HUB_DOORS[0];
-  const door=dungeonDoor(12,11,'dungeonCrossroads',{x:hubDoor.x,y:hubDoor.y+3,face:'down'},'던전 갈림길','huntingGate');
-  return Object.freeze({...definition,playerSpawn:{x:12,y:14,face:'down'},
-    dungeonMonsters:[{id:'brak',name:'브락',boss:true,instanceId:'wildwood_brak',x:44,y:12,atlas:'dungeonBrak',frame:0,size:168,fourDirections:true}],
+  const door=dungeonSouthExit(12,42,'dungeonCrossroads',{x:hubDoor.x,y:hubDoor.y+2,face:'down'},'던전 갈림길');
+  return Object.freeze({...definition,playerSpawn:{x:12,y:38,face:'up'},paths:[...definition.paths,{x1:12,y1:40,x2:12,y2:42}],
+    dungeonMonsters:[{id:'brak',name:'브락',boss:true,combat:true,instanceId:'wildwood_brak',x:44,y:12,atlas:'dungeonBrak',frame:0,size:168,fourDirections:true}],
     dungeonDoors:[door],dungeonSolids:dungeonDoorSolids([door]),exits:[door]});
 }

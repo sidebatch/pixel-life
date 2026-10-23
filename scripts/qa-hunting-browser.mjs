@@ -31,8 +31,8 @@ try{
     const entered=await page.evaluate(()=>{
       __place(48,36);tryMove('up');update(player.duration);
       if(GAME_STATE.regionId!=='dungeonCrossroads')throw Error('Village entrance must lead to the dungeon crossroads');
-      __place(12,14);tryMove('up');update(player.duration);
-      const entry=GAME_STATE.regionId==='wildwoodHunt'&&player.x===12&&player.y===14;
+      const door=DUNGEON_HUB_DOORS[0];__place(door.x,door.y+1);tryMove('up');update(player.duration);
+      const entry=GAME_STATE.regionId==='wildwoodHunt'&&player.x===12&&player.y===38&&player.face==='up';
       updateHunting(0);drawWorld();return entry;
     });assert(entered,'Walking through the interior village gate must enter the hunting ground');
     assert.equal(await page.locator('#locationName').textContent(),'들녘 사냥터');
@@ -78,9 +78,10 @@ try{
         const defeated=a.mode==='down'&&!huntingAnimalAt(a.x,a.y);
         rows.push({type,angry,retaliated,defeated});huntingState.hp=100;
       }
-      __place(12,37);__advance(61000);
+      __place(12,37);for(const id of Object.keys(GAME_STATE.progression.hunting.defeatedUntil))GAME_STATE.progression.hunting.defeatedUntil[id]=Date.now()-1;__advance(61000);
       const respawn=huntingState.animals.every(a=>a.hp===WILDLIFE_TYPES[a.type].hp&&a.mode==='idle');
-      const unchanged=JSON.stringify({inventory:GAME_STATE.inventory,progression:GAME_STATE.progression,collections:GAME_STATE.collections})===__economy;
+      const baseline=JSON.parse(__economy),huntingMaterials=GAME_STATE.inventory.filter(item=>item.type==='material'&&HUNTING_MATERIAL_BY_ID.has(item.id));
+      const unchanged=GAME_STATE.progression.coins===baseline.progression.coins&&JSON.stringify(GAME_STATE.collections)===JSON.stringify(baseline.collections)&&huntingMaterials.reduce((sum,item)=>sum+item.quantity,0)===16;
       return {rows,respawn,unchanged};
     });assert(families.rows.every(r=>r.angry&&r.retaliated&&r.defeated)&&families.respawn&&families.unchanged,JSON.stringify(families));
     const tools=[];
@@ -104,9 +105,9 @@ try{
     });assert(safeguards.collision&&safeguards.walls&&safeguards.hpShown&&safeguards.healthFits,JSON.stringify(safeguards));
     await page.screenshot({path:path.join(out,`${width}-retaliation.png`)});
     const returned=await page.evaluate(()=>{
-      __place(12,12,'up');tryMove('up');update(player.duration);
+      const exit=REGION_EXITS.wildwoodHunt[0];__place(exit.x,exit.y-1,'down');tryMove('down');update(player.duration);
       if(GAME_STATE.regionId!=='dungeonCrossroads')throw Error('Hunting exit must return to the crossroads');
-      __place(8,25,'up');tryMove('up');update(player.duration);
+      const villageExit=REGION_EXITS.dungeonCrossroads.find(e=>e.to==='lilacVillage');__place(villageExit.x,villageExit.y-1,'down');tryMove('down');update(player.duration);
       const exited=GAME_STATE.regionId==='lilacVillage'&&player.x===48&&player.y===37&&document.getElementById('huntingHud').hidden;
       return {exited,calm:huntingState.animals.filter(a=>a.hp>0).every(a=>a.mode==='idle')};
     });assert(returned.exited&&returned.calm);
@@ -143,5 +144,5 @@ try{
     reports.push({width,entered,neutral,struck,combat,families,tools,safeguards,returned,reload,recovery,overlapRestore});await context.close();
   }
   assert.deepEqual(errors,[]);fs.writeFileSync(path.join(out,'report.json'),JSON.stringify({reports,errors},null,2));
-  console.log('Hunting browser QA passed: 320/393/1280px, village gate, five neutral species, individual retaliation, dodge/menu/leash/wall/collision, defeat/respawn, unchanged economy and reload.');
+  console.log('Hunting browser QA passed: 320/393/1280px, village gate, five neutral species, individual retaliation, dodge/menu/leash/wall/collision, defeat/respawn, 16 leather with coins/collections preserved and reload.');
 }finally{await browser.close();}

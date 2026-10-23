@@ -1,19 +1,51 @@
-// Wildlife combat is session state; it never rewrites money, items or life XP.
-const huntingState={active:false,clock:0,hp:HUNTING_RULES.maxHp,hurtUntil:0,visited:false,effects:[],
+// Actor motion is session state. Successful hits persist loot/cooldowns/sword wear atomically.
+const huntingState={active:false,clock:0,hp:HUNTING_RULES.maxHp,hurtUntil:0,playerSwingUntil:0,visited:false,effects:[],
   animals:HUNTING_SPAWNS.map((spawn,index)=>({...spawn,homeX:spawn.x,homeY:spawn.y,
     px:(spawn.x+.5)*TILE,py:(spawn.y+.5)*TILE,hp:WILDLIFE_TYPES[spawn.type].hp,
     face:'down',moving:false,t:0,mode:'idle',wait:900+index*113,step:index,
     lastHit:0,nextAttack:0,windup:null,attackRecovery:null,respawnAt:0,hitUntil:0}))};
+const huntingBoss={id:'wildwood_brak',type:'brak',boss:true,x:44,y:12,homeX:44,homeY:12,px:44.5*TILE,py:12.5*TILE,
+  hp:HUNTING_BOSS.hp,face:'down',moving:false,t:0,mode:'idle',wait:1200,step:0,lastHit:0,nextAttack:0,windup:null,attackRecovery:null,respawnAt:0,hitUntil:0};
+function huntingActors(){return [...huntingState.animals,huntingBoss];}
+function huntingType(a){return a.type==='brak'?HUNTING_BOSS:WILDLIFE_TYPES[a.type];}
+function huntingWindupMs(a){return huntingType(a).windupMs||HUNTING_RULES.windupMs;}
+function isHuntingSwingCoolingDown(){return isInHuntingGround()&&huntingState.clock<huntingState.playerSwingUntil;}
+function trackHuntingSwing(swing){
+  if(!isInHuntingGround())return;
+  const timing=swing.mode==='sword'?SWORD_SWING_TIMING:swing.mode==='sickle'?FARM_HARVEST_TIMING:FORESTRY_CHOP_TIMING;
+  swing.huntingReadyAt=huntingState.clock+timing.durationMs;
+}
+function cancelHuntingSwingForMovement(){
+  const swing=lifeUi.chop;
+  if(!isInHuntingGround()||!swing||swing.tree||swing.plot||swing.regionId!==GAME_STATE.regionId)return false;
+  const timing=swing.mode==='sword'?SWORD_SWING_TIMING:swing.mode==='sickle'?FARM_HARVEST_TIMING:FORESTRY_CHOP_TIMING;
+  const remaining=Math.max(0,timing.durationMs-Math.max(0,performance.now()-swing.startedAt));
+  // Moving cancels the pending strike/recovery, but never speeds up the next swing.
+  huntingState.playerSwingUntil=Math.max(huntingState.playerSwingUntil,swing.huntingReadyAt??huntingState.clock+remaining);
+  lifeUi.chop=null;return true;
+}
+function huntingAttackContainsPlayer(a,aim){
+  if(!aim)return false;
+  const dx=(player.px-aim.x)/(TILE*HUNTING_ATTACK_AREA.radiusX),dy=(player.py-aim.y)/(TILE*HUNTING_ATTACK_AREA.radiusY);
+  return dx*dx+dy*dy<=1&&Math.hypot(player.px-a.px,player.py-a.py)<TILE*HUNTING_ATTACK_AREA.reach&&
+    huntingLineClear(a.px/TILE,a.py/TILE,player.px/TILE,player.py/TILE);
+}
+function restoreHuntingCooldown(a){
+  const remaining=(GAME_STATE.progression.hunting?.defeatedUntil?.[a.id]||0)-Date.now();
+  if(remaining>0){a.hp=0;a.mode='down';a.moving=false;a.windup=null;a.attackRecovery=null;a.respawnAt=huntingState.clock+remaining;return true;}
+  return false;
+}
+for(const a of huntingActors())restoreHuntingCooldown(a);
 function isInHuntingGround(){return GAME_STATE.regionId===HUNTING_RULES.regionId;}
 function huntingAnimalAt(x,y,ignore=null){
   if(!isInHuntingGround())return null;
-  return huntingState.animals.find(a=>a!==ignore&&a.hp>0&&
+  return huntingActors().find(a=>a!==ignore&&a.hp>0&&
     ((a.x===x&&a.y===y)||(a.moving&&a.fromTileX===x&&a.fromTileY===y)))||null;
 }
 function resetHuntingAnimal(a){
   a.x=a.homeX;a.y=a.homeY;a.px=(a.x+.5)*TILE;a.py=(a.y+.5)*TILE;
   a.moving=false;a.t=0;a.mode='idle';a.windup=null;a.attackRecovery=null;a.wait=1200;
-  a.hp=WILDLIFE_TYPES[a.type].hp;a.nextAttack=0;
+  a.hp=huntingType(a).hp;a.nextAttack=0;
   // A saved player may occupy a previously defeated animal's home on reload.
   if(isInHuntingGround()&&!huntingTileFree(a,a.x,a.y)){
     for(const [dx,dy]of [[1,0],[-1,0],[0,1],[0,-1],[1,1],[-1,-1],[2,0],[-2,0]]){
@@ -24,7 +56,7 @@ function resetHuntingAnimal(a){
 }
 function onHuntingRegionChange(){
   // Aggression can never cross the village gate or survive a round trip.
-  for(const a of huntingState.animals)if(a.hp>0)resetHuntingAnimal(a);
+  for(const a of huntingActors())if(!restoreHuntingCooldown(a)&&a.hp>0)resetHuntingAnimal(a);
   huntingState.active=isInHuntingGround();huntingState.effects.length=0;
   if(huntingState.active&&!huntingState.visited){
     huntingState.visited=true;
@@ -53,7 +85,7 @@ function huntingLineClear(x1,y1,x2,y2){
 function huntingTargetForSwing(){
   if(!isInHuntingGround())return null;
   const [dx,dy]=dirVec[player.face],x=player.px/TILE,y=player.py/TILE;
-  return huntingState.animals.filter(a=>{
+  return huntingActors().filter(a=>{
     if(a.hp<=0)return false;
     const ax=a.px/TILE-x,ay=a.py/TILE-y,forward=ax*dx+ay*dy,side=Math.abs(ax*dy-ay*dx);
     return forward>=.2&&forward<=1.65&&side<=.7&&Math.hypot(ax,ay)<=1.7&&
@@ -88,19 +120,21 @@ function playHuntingImpact(playerHit=false){
 function strikeHuntingWildlife(chop){
   if(!isInHuntingGround()||chop.regionId!==GAME_STATE.regionId||document.hidden||menuOpen||dialogOpen)return false;
   // Legacy axe actions omit mode; preserve their existing shape/animation.
-  const damage=HUNTING_RULES.toolDamage[chop.mode||'axe'];if(!damage)return false;
+  const tool=chop.mode||'axe',damage=tool==='sword'&&typeof getEquippedSword==='function'?(getSwordDurability()?.broken?0:getEquippedSword().damage):HUNTING_RULES.toolDamage[tool];if(!damage)return false;
   const a=huntingTargetForSwing();if(!a||a.mode==='returning')return false;
   // Only a geometrically valid attack rolls once. A miss never provokes neutral wildlife.
   if(!rollHuntingHit()){huntingFeedback(a.px,a.py-40,'빗나감','#dbe7db');return false;}
+  if(typeof commitHuntingHitReward==='function'&&!commitHuntingHitReward(a,damage,tool)){showLifeToast('공격 결과를 저장하지 못했어요. 다시 시도해 주세요.');return false;}
   const now=huntingState.clock;
   a.hp=Math.max(0,a.hp-damage);a.lastHit=now;a.hitUntil=now+260;
   huntingFeedback(a.px,a.py-40,`−${damage}`,'#fff1b1');playHuntingImpact();
   if(a.hp===0){
-    a.mode='down';a.moving=false;a.windup=null;a.attackRecovery=null;a.respawnAt=now+HUNTING_RULES.respawnMs;
-    showLifeToast(`${WILDLIFE_TYPES[a.type].name}을 물리쳤어요.`);
+    a.mode='down';a.moving=false;a.windup=null;a.attackRecovery=null;a.respawnAt=now+(huntingType(a).respawnMs||HUNTING_RULES.respawnMs);
+    const loot=typeof HUNTING_LOOT!=='undefined'?` 일반 가죽 ${HUNTING_LOOT[a.type]}개${a.boss?' · 브락 엄니 1개':''} 획득!`:'';
+    showLifeToast(`${huntingType(a).name} 처치!${loot}`);
   }else{
     // This is the ONLY path into aggression. Nearby animals do not join in.
-    a.mode='aggro';a.wait=0;a.nextAttack=Math.max(a.nextAttack,now+HUNTING_RULES.windupMs);
+    a.mode='aggro';a.wait=0;a.nextAttack=Math.max(a.nextAttack,now+huntingWindupMs(a));
   }
   return true;
 }
@@ -109,7 +143,8 @@ function huntingTileFree(a,x,y){
   if(player.x===x&&player.y===y)return false;
   if(player.moving&&Math.floor(player.fromX/TILE)===x&&Math.floor(player.fromY/TILE)===y)return false;
   // Leave the village arrival/exit as a safe, unobstructed area.
-  if(Math.hypot(x-12,y-38)<4)return false;
+  const spawn=typeof WORLD_DEFINITION!=='undefined'?WORLD_DEFINITION.playerSpawn:{x:12,y:38};
+  if(Math.hypot(x-spawn.x,y-spawn.y)<3)return false;
   return Math.hypot(x-a.homeX,y-a.homeY)<=HUNTING_RULES.leash+2;
 }
 function huntingPathDirection(a,target){
@@ -139,7 +174,7 @@ function hurtHuntingPlayer(a){
   const now=huntingState.clock;
   if(a.mode!=='aggro'||now<huntingState.hurtUntil)return false;
   if(!rollHuntingHit()){huntingFeedback(player.px,player.py-52,'회피','#dbe7db');return false;}
-  const damage=WILDLIFE_TYPES[a.type].damage;
+  const damage=huntingType(a).damage;
   huntingState.hp=Math.max(0,huntingState.hp-damage);huntingState.hurtUntil=now+HUNTING_RULES.invulnerableMs;
   huntingFeedback(player.px,player.py-52,`−${damage}`,'#ffc1ad');playHuntingImpact(true);
   if(huntingState.hp===0){
@@ -157,10 +192,11 @@ function updateHunting(dt){
   if(!isInHuntingGround()){
     huntingState.hp=Math.min(HUNTING_RULES.maxHp,huntingState.hp+dt*.015);return;
   }
-  for(const a of huntingState.animals){
-    const type=WILDLIFE_TYPES[a.type];
+  for(const a of huntingActors()){
+    const type=huntingType(a);
     if(a.hp<=0){
-      if(now>=a.respawnAt&&Math.hypot(player.x-a.homeX,player.y-a.homeY)>3&&!huntingAnimalAt(a.homeX,a.homeY,a))resetHuntingAnimal(a);
+      const savedUntil=GAME_STATE.progression.hunting?.defeatedUntil?.[a.id]||0;
+      if((savedUntil?savedUntil<=Date.now():now>=a.respawnAt)&&Math.hypot(player.x-a.homeX,player.y-a.homeY)>3&&!huntingAnimalAt(a.homeX,a.homeY,a))resetHuntingAnimal(a);
       continue;
     }
     if(a.mode==='aggro'&&(now-a.lastHit>HUNTING_RULES.forgetMs||
@@ -174,15 +210,14 @@ function updateHunting(dt){
       continue;
     }
     if(a.windup){
-      if(!a.windup.sounded&&now-a.windup.at>=HUNTING_RULES.windupMs*HUNTING_ATTACK_MOTION.strikeStart){
+      if(!a.windup.sounded&&now-a.windup.at>=huntingWindupMs(a)*HUNTING_ATTACK_MOTION.strikeStart){
         a.windup.sounded=true;playHuntingSwing(a.type,true);
       }
-      if(now-a.windup.at>=HUNTING_RULES.windupMs){
+      if(now-a.windup.at>=huntingWindupMs(a)){
         const aim=a.windup;a.windup=null;a.attackRecovery={...aim,at:now};
-        a.nextAttack=now+HUNTING_RULES.attackCooldownMs;
-        if(Math.hypot(player.px-aim.x,player.py-aim.y)<TILE*.7&&
-          Math.hypot(player.px-a.px,player.py-a.py)<TILE*1.6&&
-          huntingLineClear(a.px/TILE,a.py/TILE,player.px/TILE,player.py/TILE))hurtHuntingPlayer(a);
+        a.nextAttack=now+(type.attackCooldownMs||HUNTING_RULES.attackCooldownMs);
+        if(huntingAttackContainsPlayer(a,aim))hurtHuntingPlayer(a);
+        else huntingFeedback(player.px,player.py-52,'회피','#dbe7db');
       }
       if(!isInHuntingGround())break;
       continue;
@@ -226,7 +261,7 @@ function addHuntingRenderables(renderables){
   }});
   if(!isInHuntingGround())return;
   addHuntingTerrainRenderables(renderables);
-  for(const a of huntingState.animals)if(a.hp>0&&onScreen(a.px,a.py,120,120))
+  for(const a of huntingActors())if(a.hp>0&&onScreen(a.px,a.py,190,220))
     renderables.push({y:a.py+TILE/2,draw:()=>drawHuntingAnimal(a)});
 }
 function addHuntingTerrainRenderables(renderables){
@@ -254,13 +289,13 @@ function addHuntingTerrainRenderables(renderables){
   }
 }
 function getHuntingAttackVisual(a,now=huntingState.clock,reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches===true){
-  const type=WILDLIFE_TYPES[a.type],motion=HUNTING_ATTACK_MOTION.species[a.type];
+  const type=huntingType(a),motion=HUNTING_ATTACK_MOTION.species[a.type];
   const result={phase:'idle',image:type.image,face:a.face,offsetX:0,offsetY:0,lift:0,scaleX:1,scaleY:1};
   if(a.hp<=0||a.mode!=='aggro'||!motion)return result;
   const windup=a.windup,recovery=a.attackRecovery;
   let distance=0;
   if(windup){
-    const p=Math.max(0,Math.min(1,(now-windup.at)/HUNTING_RULES.windupMs));
+    const p=Math.max(0,Math.min(1,(now-windup.at)/huntingWindupMs(a)));
     result.face=windup.face||a.face;
     if(p<HUNTING_ATTACK_MOTION.strikeStart){
       result.phase='windup';const charge=Math.sin(p/HUNTING_ATTACK_MOTION.strikeStart*Math.PI/2);
@@ -285,9 +320,10 @@ function getHuntingAttackVisual(a,now=huntingState.clock,reduced=window.matchMed
   return result;
 }
 function drawHuntingAnimal(a){
-  const type=WILDLIFE_TYPES[a.type],visual=getHuntingAttackVisual(a),frame={down:0,left:1,right:2,up:3}[visual.face],size=96*type.scale;
+  const type=huntingType(a),visual=getHuntingAttackVisual(a),frame={down:0,left:1,right:2,up:3}[visual.face],size=96*type.scale;
   const x=Math.round(a.px-camX),y=Math.round(a.py+TILE/2-camY),now=huntingState.clock;
   ctx.save();
+  if(a.boss&&typeof drawDungeonBossAura==='function')drawDungeonBossAura(getDungeonBossAuraState({id:'brak',boss:true},now,window.matchMedia?.('(prefers-reduced-motion: reduce)').matches),x,y,size);
   ctx.fillStyle='rgba(15,34,22,.22)';ctx.beginPath();ctx.ellipse(x,y-4,size*.29,7,0,0,Math.PI*2);ctx.fill();
   const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
   const bob=a.moving&&!reduced?Math.abs(Math.sin(a.t/75))*2:0;
@@ -296,11 +332,12 @@ function drawHuntingAnimal(a){
   ctx.drawImage(imgs[visual.image],(frame%2)*96,Math.floor(frame/2)*96,96,96,
     -size/2,-90*type.scale,size,size);ctx.restore();
   ctx.globalAlpha=1;
+  if(a.boss&&typeof drawDungeonLabel==='function')drawDungeonLabel(type.name,x,y-size-8,true);
   if(a.mode==='aggro'||a.mode==='returning'||a.hp<type.hp){
     ctx.fillStyle='#17392f';ctx.fillRect(x-26,y-size-13,52,7);
     ctx.fillStyle=a.mode==='returning'?'#8cb693':'#e38b66';ctx.fillRect(x-25,y-size-12,50*a.hp/type.hp,5);
     ctx.font='bold 12px sans-serif';ctx.textAlign='center';ctx.lineWidth=3;ctx.strokeStyle='#203b2a';
-    ctx.strokeText(type.name,x,y-size-20);ctx.fillStyle='#fff7df';ctx.fillText(type.name,x,y-size-20);
+    if(!a.boss){ctx.strokeText(type.name,x,y-size-20);ctx.fillStyle='#fff7df';ctx.fillText(type.name,x,y-size-20);}
   }
   if(a.mode==='aggro'){
     ctx.font='bold 20px sans-serif';ctx.textAlign='center';ctx.fillStyle='#ffe299';ctx.fillText('!',x,y-size-37);
@@ -310,10 +347,11 @@ function drawHuntingAnimal(a){
 function drawHuntingGroundEffects(){
   if(!isInHuntingGround())return;
   const now=huntingState.clock;ctx.save();
-  for(const a of huntingState.animals)if(a.windup){
-    const aim=a.windup,p=Math.min(1,(now-aim.at)/HUNTING_RULES.windupMs);
+  for(const a of huntingActors())if(a.windup){
+    const aim=a.windup,p=Math.min(1,(now-aim.at)/huntingWindupMs(a));
     ctx.fillStyle=`rgba(211,91,61,${.14+p*.16})`;ctx.strokeStyle='#ffd18c';ctx.lineWidth=2;
-    ctx.beginPath();ctx.ellipse(aim.x-camX,aim.y+10-camY,30,18,0,0,Math.PI*2);ctx.fill();ctx.stroke();
+    ctx.beginPath();ctx.ellipse(aim.x-camX,aim.y+HUNTING_ATTACK_AREA.feetOffset-camY,
+      TILE*HUNTING_ATTACK_AREA.radiusX,TILE*HUNTING_ATTACK_AREA.radiusY,0,0,Math.PI*2);ctx.fill();ctx.stroke();
   }
   for(const e of huntingState.effects){
     const p=(now-e.at)/750;ctx.globalAlpha=1-p;ctx.textAlign='center';ctx.font='bold 20px sans-serif';

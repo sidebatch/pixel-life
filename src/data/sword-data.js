@@ -17,15 +17,19 @@ const SWORD_ACTION=Object.freeze({
 });
 const SWORD_TOOLS=Object.freeze({
   'sword.basic':Object.freeze({grip:[25,69],tip:[81,15],nativeAngle:Math.atan2(-54,56),nativeLength:Math.hypot(56,54),
-    carryLength:30,swingLength:38})
+    carryLength:30,swingLength:38}),
+  'sword.brak':Object.freeze({grip:[25,69],tip:[81,15],nativeAngle:Math.atan2(-54,56),nativeLength:Math.hypot(56,54),carryLength:34,swingLength:44})
 });
 // New sword tiers change only their own artwork, true grip/tip, and target
 // lengths. The shared hand pivot, arc and head occlusion remain unchanged.
 function swordTargetLength(tool,pose){return pose==='sword'?tool.swingLength:tool.carryLength;}
 const SWORDS=Object.freeze([
-  Object.freeze({id:'sword.basic',name:'기본 검',tier:1,asset:'basic',
-    description:'처음부터 가지고 있는 검. 사냥터에서 야생동물을 공격할 수 있어요.'})
+  Object.freeze({id:'sword.basic',name:'목검',tier:1,asset:'basic',
+    damage:16,description:'처음부터 가지고 있는 나무로 만든 검. 내구도 제한 없이 사용할 수 있어요.'}),
+  Object.freeze({id:'sword.brak',name:'브락의 검',tier:2,asset:'brak',damage:24,maxDurability:200,
+    description:'브락의 큰 엄니로 날을 만들고 튼튼한 가죽으로 손잡이를 감싼 검. 명중하면 내구도가 1 줄어요.'})
 ]);
+const SWORD_SAVE_ALIASES=Object.freeze({'sword.iron':'sword.brak'});
 const SWORD_BY_ID=new Map(SWORDS.map(sword=>[sword.id,sword]));
 const DEFAULT_SWORD_ID='sword.basic';
 const SWORD_SWING_TIMING=Object.freeze({impactMs:270,durationMs:700});

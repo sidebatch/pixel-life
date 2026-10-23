@@ -1,0 +1,22 @@
+{
+  "id": "sword-materials-v2",
+  "date": "2026-10-22",
+  "authorization": "User requested starter wooden sword and Brak tusk sword. Preserve shared character/hand/swing geometry and archive previous metal art.",
+  "weapons": {
+    "sword.basic": {
+      "image": "assets/player/sword-v2/wooden.png",
+      "sha256": "f39b8a5ed5e1f0f242fe1d4abb70bdcab0fbc2da9f7877b3d4be4745ece2d1ea",
+      "name": "목검"
+    },
+    "sword.brak": {
+      "image": "assets/player/sword-v2/brak.png",
+      "sha256": "14cf68103c5e855567fad606f6f8e67f92ec191ac60477b8c0dde98f32ccc10b",
+      "name": "브락의 검"
+    }
+  },
+  "previousBasicImage": "assets/player/sword-v1/basic.png",
+  "previousCraftedImage": "assets/crafting/iron-sword-v1.png",
+  "saveAliases": {
+    "sword.iron": "sword.brak"
+  }
+}

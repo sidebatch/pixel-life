@@ -97,12 +97,15 @@ function equipForestryAxe(axeId){
 }
 
 function lifeItemIconMarkup(type,id,fallback=''){
+  if(typeof CRAFTING_ITEM_URLS!=='undefined'&&CRAFTING_ITEM_URLS[id])return `<img class="lifeItemIcon" src="${CRAFTING_ITEM_URLS[id]}" alt="">`;
   const asset=type==='material'?(id==='log'?LIFE_ITEM_URLS.log:LIFE_ITEM_URLS[`${id.slice(0,-4)}Log`]):
     type==='seed'?LIFE_ITEM_URLS[`${id}Seed`]:type==='crop'?LIFE_ITEM_URLS[`${id}Crop`]:null;
   return asset?`<img class="lifeItemIcon" src="${asset}" alt="">`:`<span aria-hidden="true">${fallback}</span>`;
 }
 
 function lifeItemName(type,id){
+  if(type==='utility'&&typeof PORTABLE_WORKBENCH!=='undefined'&&id===PORTABLE_WORKBENCH.id)return PORTABLE_WORKBENCH.name;
+  if(type==='material'&&typeof HUNTING_MATERIAL_BY_ID!=='undefined'&&HUNTING_MATERIAL_BY_ID.has(id))return HUNTING_MATERIAL_BY_ID.get(id).name;
   if(type==='material') return id==='log'?'일반 목재':FOREST_WOOD[id.slice(0,-4)]&&id.endsWith('_log')?FOREST_WOOD[id.slice(0,-4)]:'';
   if(type==='consumable'&&id===VILLAGE_RETURN_ITEM.id) return VILLAGE_RETURN_ITEM.name;
   const crop=LIFE_CROP_BY_ID.get(id);
@@ -147,6 +150,8 @@ function spendLogs(quantity){
 
 function addLifeItem(type,id,quantity){
   if(!Number.isSafeInteger(quantity)||quantity<1||!lifeItemName(type,id)) return false;
+  if(typeof HUNTING_MATERIAL_BY_ID!=='undefined'&&HUNTING_MATERIAL_BY_ID.has(id)&&lifeItemCount(type,id)+quantity>99999)return false;
+  if(type==='utility'&&lifeItemCount(type,id)+quantity>1)return false;
   const existing=GAME_STATE.inventory.find(item=>item.type===type&&item.id===id);
   if(existing) existing.quantity+=quantity;
   else GAME_STATE.inventory.push({type,id,name:lifeItemName(type,id),quantity});
@@ -175,6 +180,8 @@ function commitLifeChange(change){
   const beforeFarming=GAME_STATE.progression.farming?{...GAME_STATE.progression.farming}:null;
   const beforeFarmOrders=GAME_STATE.progression.farmOrders?JSON.parse(JSON.stringify(GAME_STATE.progression.farmOrders)):null;
   const beforeForestry=GAME_STATE.progression.forestry?JSON.parse(JSON.stringify(GAME_STATE.progression.forestry)):null;
+  const beforeSwords=GAME_STATE.progression.swords?JSON.parse(JSON.stringify(GAME_STATE.progression.swords)):null;
+  const beforeHunting=GAME_STATE.progression.hunting?JSON.parse(JSON.stringify(GAME_STATE.progression.hunting)):null;
   const beforeAppearance=GAME_STATE.appearance?{...GAME_STATE.appearance}:null;
   const result=change();
   if(result&&saveGame()) return result;
@@ -187,6 +194,8 @@ function commitLifeChange(change){
   if(beforeFarming) GAME_STATE.progression.farming=beforeFarming;
   if(beforeFarmOrders) GAME_STATE.progression.farmOrders=beforeFarmOrders;
   if(beforeForestry) GAME_STATE.progression.forestry=beforeForestry;
+  if(beforeSwords) GAME_STATE.progression.swords=beforeSwords;
+  if(beforeHunting) GAME_STATE.progression.hunting=beforeHunting;
   if(beforeAppearance) GAME_STATE.appearance=beforeAppearance;
   return null;
 }
@@ -321,10 +330,12 @@ function hitResourceTree(tree){
 function isChoppingTree(){return Boolean(lifeUi.chop);}
 
 function startAxeSwing(tree=null){
+  if(typeof isHuntingSwingCoolingDown==='function'&&isHuntingSwingCoolingDown())return false;
   if((GAME_STATE.appearance?.activeTool||'axe')!=='axe'||lifeUi.chop||player.moving||menuOpen||dialogOpen||
     (typeof isFishingActive==='function'&&isFishingActive())) return false;
   clearMovement();
   lifeUi.chop={tree,regionId:GAME_STATE.regionId,startedAt:performance.now(),struck:false};
+  if(typeof trackHuntingSwing==='function')trackHuntingSwing(lifeUi.chop);
   if(!tree&&typeof playHuntingSwing==='function')playHuntingSwing('axe');
   return true;
 }

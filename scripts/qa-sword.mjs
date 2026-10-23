@@ -12,10 +12,11 @@ try{
   page.on('pageerror',error=>errors.push(error.message));
   await page.addInitScript(()=>{window.requestAnimationFrame=()=>0;});
   await page.goto(base+'?time=12:00&weather=clear');
-  await page.waitForFunction(()=>characterToolImgs['sword.basic']&&characterLayerImgs.chopGrip);
+  await page.waitForFunction(()=>characterToolImgs['sword.basic']&&characterLayerImgs.chopGrip,null,{polling:100});
+  await page.evaluate(()=>document.getElementById('startupLoading')?.remove());
   const starter=await page.evaluate(()=>({owned:getOwnedSwords().map(sword=>sword.id),active:GAME_STATE.appearance.activeTool,
     swordId:GAME_STATE.progression.swords.swordId,next:nextSword()}));
-  assert.deepEqual(starter,{owned:['sword.basic'],active:'axe',swordId:'sword.basic',next:null});
+  assert.deepEqual({...starter,next:starter.next?.id},{owned:['sword.basic'],active:'axe',swordId:'sword.basic',next:'sword.brak'});
   await page.evaluate(()=>{openInventory();inventoryState.tab='equipment';renderInventory();});
   const card=page.locator('[data-equip-type="sword"][data-equip-id="sword.basic"]');
   assert.equal(await card.count(),1,await page.locator('#inventoryScroll').innerHTML());
@@ -116,7 +117,7 @@ try{
     return {legacyStarter:true,treeSwingNoDamage:true};
   });
   await page.reload();
-  await page.waitForFunction(()=>characterToolImgs['sword.basic']);
+  await page.waitForFunction(()=>characterToolImgs['sword.basic'],null,{polling:100});
   assert.equal(await page.evaluate(()=>GAME_STATE.appearance.activeTool),'sword');
   assert.deepEqual(errors,[]);
   fs.writeFileSync(path.join(output,'report.json'),JSON.stringify({...report,...legacy,reloaded:true,browserErrors:errors},null,2));

@@ -31,6 +31,12 @@ const auraChecks=vm.runInContext(`(()=>{
 })()`,context);
 assert(auraChecks.all&&auraChecks.regular&&auraChecks.reduced&&auraChecks.animated&&auraChecks.unchanged,JSON.stringify(auraChecks));
 assert.equal(data.regions.length,10);assert.equal(new Set(data.regions.flatMap(r=>r.monsters.map(m=>m.id))).size,60);
+const hub=data.maps.dungeonCrossroads;
+assert.deepEqual(JSON.parse(JSON.stringify(hub.playerSpawn)),{x:25,y:41,face:'up'});
+const ordered=hub.dungeonDoors.filter(door=>door.order);
+assert.equal(ordered.length,10);
+ordered.forEach((door,index)=>{assert.equal(door.order,index+1);assert.equal(door.to,data.regions[index].id);assert.equal(door.x,index%2===0?25:39);assert.equal(door.y,37-Math.floor(index/2)*7);assert(door.entry.y>=38&&door.entry.face==='up');});
+assert.equal(Math.abs(ordered[0].x-hub.playerSpawn.x)+Math.abs(ordered[0].y-hub.playerSpawn.y),4,'First dungeon must be directly four steps north of arrival');
 const brak=decodePNG(fs.readFileSync(data.assets.dungeonBrak));assert.equal(brak.width,192);assert.equal(brak.height,192);
 for(let frame=0;frame<4;frame++){
   const b=alphaBounds(crop(brak,frame%2*96,Math.floor(frame/2)*96,96,96));
@@ -57,10 +63,12 @@ const report=vm.runInContext(`Object.keys(DUNGEON_WORLD_DEFINITIONS).concat('wil
     seen.add(k);queue.push({x,y});
   }
   const near=p=>[[0,1],[1,0],[0,-1],[-1,0]].some(([dx,dy])=>seen.has(key(p.x+dx,p.y+dy)));
+  const south=REGION_EXITS[id].find(e=>e.southExit);
   return {id,label:WORLD_REGIONS[id].name===def.name,exits:REGION_EXITS[id].every(e=>seen.has(key(e.x,e.y))),
-    monsters:(def.dungeonMonsters||[]).every(m=>near(m)&&blocked.has(key(m.x,m.y))),count:def.dungeonMonsters?.length||0};
+    southStart:def.playerSpawn.y>=38&&def.playerSpawn.face==='up'&&south?.y>def.playerSpawn.y&&!blocked.has(key(south.x,south.y-1)),
+    monsters:(def.dungeonMonsters||[]).every(m=>near(m)&&(m.combat?!blocked.has(key(m.x,m.y)):blocked.has(key(m.x,m.y)))),count:def.dungeonMonsters?.length||0};
 })`,context);
-assert(report.every(r=>r.label&&r.exits&&r.monsters),JSON.stringify(report));
+assert(report.every(r=>r.label&&r.exits&&r.monsters&&r.southStart),JSON.stringify(report));
 assert.equal(report.reduce((n,r)=>n+r.count,0),100); // Plus the preserved 10 wildlife actors.
 assert.equal(vm.runInContext('REGION_EXITS.lilacVillage.find(e=>e.x===48&&e.y===35).to',context),'dungeonCrossroads');
 console.log('Dungeon preview data passed: 60 approved names, 55 new monsters with padded frames, nine cave sprites, all 11 maps/portals/approaches and 100 new actors.');

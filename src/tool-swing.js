@@ -3,6 +3,7 @@ const ROD_SWING_ACTION=Object.freeze({artPose:'chop',columns:2,frames:SWORD_ACTI
 
 function startHeldToolSwing(){
   const tool=GAME_STATE.appearance?.activeTool||'axe';
+  if(typeof isHuntingSwingCoolingDown==='function'&&isHuntingSwingCoolingDown())return false;
   if(!['axe','rod','sickle','sword'].includes(tool)||isChoppingTree()||player.moving||
     menuOpen||dialogOpen||isFishingActive()||
     (typeof isVoyageBoarding==='function'&&isVoyageBoarding())||
@@ -16,6 +17,7 @@ function startHeldToolSwing(){
   // No target: the common impact phase cannot harvest, damage, grant XP or wear.
   lifeUi.chop={mode:tool,tree:null,plot:null,regionId:GAME_STATE.regionId,
     startedAt:performance.now(),struck:false};
+  if(typeof trackHuntingSwing==='function')trackHuntingSwing(lifeUi.chop);
   if(typeof playHuntingSwing==='function')playHuntingSwing(tool);
   return true;
 }

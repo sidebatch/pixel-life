@@ -7,6 +7,7 @@ import {decodePNG} from './lib/png.mjs';
 import {validateTool} from './check-character-standard.mjs';
 
 const contract=JSON.parse(fs.readFileSync('docs/sword-action-v1.json','utf8'));
+const materials=JSON.parse(fs.readFileSync('docs/sword-materials-v2.json','utf8'));
 const digest=file=>crypto.createHash('sha256').update(fs.readFileSync(file)).digest('hex');
 const plain=value=>JSON.parse(JSON.stringify(value));
 export function checkSwordStandard(){
@@ -49,7 +50,11 @@ export function checkSwordStandard(){
       `${item.id}: invalid display lengths`);
     validateTool(decodePNG(fs.readFileSync(url)),tool,item.id);
   }
-  assert.equal(urls['sword.basic'],contract.basicImage);
+  for(const [id,weapon]of Object.entries(materials.weapons)){
+    assert.equal(urls[id],weapon.image,`${id}: use the approved material-specific artwork`);
+    assert.equal(digest(weapon.image),weapon.sha256,`${id}: approved artwork changed`);
+    assert.equal(items.find(item=>item.id===id)?.name,weapon.name);
+  }
   assert.deepEqual(timing,{impactMs:contract.impactMs,durationMs:contract.durationMs});
   assert(items.some(item=>item.id==='sword.basic'&&item.tier===1&&item.asset==='basic'));
   return {poses:contract.faces.length*2,tools:Object.keys(tools).length};

@@ -34,10 +34,11 @@ function bufferPlayerDirection(d){
 function clearPlayerInputBuffer(){ bufferedDir=null; }
 function tryMove(d){
   if(typeof isVoyageBoarding==='function'&&isVoyageBoarding())return;
-  if(!d||dialogOpen||menuOpen||player.moving||isChoppingTree()) return;
-  player.face=d;
+  if(!d||dialogOpen||menuOpen||player.moving) return;
   const [dx,dy]=dirVec[d], nx=player.x+dx,ny=player.y+dy;
-  if(isBlocked(nx,ny)) return;
+  if(isBlocked(nx,ny)){if(!isChoppingTree())player.face=d;return;}
+  if(isChoppingTree()&&!(typeof cancelHuntingSwingForMovement==='function'&&cancelHuntingSwingForMovement()))return;
+  player.face=d;
   player.fromX=player.px;player.fromY=player.py;
   player.toX=nx*TILE+TILE/2;player.toY=ny*TILE+TILE/2;
   player.x=nx;player.y=ny;player.t=0;player.moving=true;

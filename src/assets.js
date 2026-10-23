@@ -1,5 +1,7 @@
 const ASSET_URLS = Object.freeze({
   dungeonBrak:'assets/dungeons/brak-v2.png',
+  dungeonSouthExit:'assets/dungeons/south-exit-v1.png',
+  brakAttack:'assets/hunting/brak-attack-v1.png',
   dungeonMoss:'assets/dungeons/moss-v1.png',dungeonMossGate:'assets/dungeons/moss-gate-v1.png',
   dungeonRoots:'assets/dungeons/roots-v1.png',dungeonRootsGate:'assets/dungeons/roots-gate-v1.png',
   dungeonMine:'assets/dungeons/mine-v1.png',dungeonMineGate:'assets/dungeons/mine-gate-v1.png',
@@ -246,8 +248,10 @@ const CHARACTER_TOOL_URLS=Object.freeze({
 });
 const SICKLE_TOOL_URLS=Object.freeze({'sickle.basic':'assets/player/sickle-v2/basic.png'});
 const SWORD_TOOL_URLS=Object.freeze({
-  'sword.basic':'assets/player/sword-v1/basic.png'
+  'sword.basic':'assets/player/sword-v2/wooden.png',
+  'sword.brak':'assets/player/sword-v2/brak.png'
 });
+const CRAFTING_ITEM_URLS=Object.freeze({portable_workbench:'assets/crafting/workbench-v1.png',normal_leather:'assets/crafting/normal-leather-v1.png',sturdy_leather:'assets/crafting/sturdy-leather-v1.png',brak_tusk:'assets/crafting/brak-tusk-v1.png'});
 const LIFE_ITEM_URLS = Object.freeze({
   log:'assets/forestry/items/log.png',
   oakLog:'assets/forestry/items/oak.png',

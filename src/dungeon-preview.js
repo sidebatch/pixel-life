@@ -2,7 +2,7 @@
 let dungeonWelcomeShown=false;
 function onDungeonRegionChange(){
   if(GAME_STATE.regionId==='dungeonCrossroads'&&!dungeonWelcomeShown){
-    dungeonWelcomeShown=true;showLifeToast('굴 입구로 들어가 각 지역의 몬스터를 둘러보세요.');
+    dungeonWelcomeShown=true;showLifeToast('앞쪽은 들녘 숲이에요. 북쪽 길을 따라 다음 지역으로 가 보세요.');
   }
 }
 function drawDungeonTerrain(){
@@ -64,17 +64,42 @@ function drawDungeonBossCrown(x,y){
   pattern.forEach((row,iy)=>{for(let ix=0;ix<row.length;ix++)if(row[ix]==='1')ctx.fillRect(left+ix*2-1,top+iy*2-1,4,4);});
   pattern.forEach((row,iy)=>{ctx.fillStyle=iy<2?'#fff0ae':'#e7bd67';for(let ix=0;ix<row.length;ix++)if(row[ix]==='1')ctx.fillRect(left+ix*2,top+iy*2,2,2);});
 }
+function drawDungeonStairs(){
+  // Walkable stair treads belong to the floor, never the occluding object queue.
+  for(const door of WORLD_DEFINITION.dungeonDoors||[]){
+    if(!door.southExit)continue;
+    const wx=(door.x+.5)*TILE,wy=(door.y+1)*TILE;
+    if(!onScreen(wx,wy,192,260))continue;
+    const x=Math.round(wx-camX),y=Math.round(wy-camY);
+    ctx.drawImage(imgs[door.image],x-96,y-112,192,160);
+    drawDungeonLabel(door.label,x,y-126,false);
+  }
+}
+function getDungeonStairVisual(actor=player){
+  const feet=actor.py+20;
+  for(const door of WORLD_DEFINITION.dungeonDoors||[]){
+    if(!door.southExit||Math.abs(actor.px-(door.x+.5)*TILE)>TILE*.85)continue;
+    const edge=(door.y+1)*TILE;
+    if(feet<edge-96||feet>edge+12)continue;
+    const progress=Math.max(0,Math.min(1,(feet-(edge-96))/96));
+    // Move the complete shared rig down into the stairwell without resizing it.
+    return {progress,drop:progress*18};
+  }
+  return null;
+}
 function addDungeonRenderables(renderables){
   for(const door of WORLD_DEFINITION.dungeonDoors||[]){
+    if(door.southExit)continue;
     const wx=(door.x+.5)*TILE,wy=(door.y+1)*TILE;
     if(!onScreen(wx,wy,180,250))continue;
     renderables.push({y:wy,draw:()=>{
       const x=Math.round(wx-camX),y=Math.round(wy-camY);
       ctx.drawImage(imgs[door.image],x-144,y-230,288,230);
-      drawDungeonLabel(door.label,x,y+24,false);
+      drawDungeonLabel(door.order?`${door.order}. ${door.label}`:door.label,x,y+24,false);
     }});
   }
   for(const monster of WORLD_DEFINITION.dungeonMonsters||[]){
+    if(monster.combat)continue;
     const wx=(monster.x+.5)*TILE,wy=(monster.y+1)*TILE;
     if(!onScreen(wx,wy,190,220))continue;
     renderables.push({y:wy,draw:()=>{

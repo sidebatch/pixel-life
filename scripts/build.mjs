@@ -1,10 +1,13 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import crypto from 'node:crypto';
+import {validateSocialShare} from './qa-social-share.mjs';
 
 const root = process.cwd();
 const read = (file) => fs.readFileSync(path.join(root, file), 'utf8');
 const sourceHtml=read('index.html');
+const social=validateSocialShare(sourceHtml,file=>fs.readFileSync(path.join(root,file)));
+const publicationFiles=['manifest.webmanifest','assets/pwa/icon-192.png','assets/pwa/icon-512.png',social.relative];
 const sourceScriptBlock=sourceHtml.match(/<!-- build:scripts -->([\s\S]*?)<!-- \/build:scripts -->/)?.[1]||'';
 const scriptFiles=[...sourceScriptBlock.matchAll(/<script src="([^"]+)"><\/script>/g)].map(match=>match[1]);
 if(!scriptFiles.length)throw new Error('No source scripts found in the build block');
@@ -55,15 +58,15 @@ for(const track of ['meadow','woodland','lakeside']){
   fs.copyFileSync(path.join(root,relative),path.join(musicDirectory,`${track}.mp3`));
 }
 
-for(const relative of ['manifest.webmanifest','assets/pwa/icon-192.png','assets/pwa/icon-512.png']){
+for(const relative of publicationFiles){
   const source=path.join(root,relative),destination=path.join(outputDirectory,relative);
-  if(!fs.existsSync(source))throw new Error(`Missing PWA file: ${relative}`);
+  if(!fs.existsSync(source))throw new Error(`Missing publication file: ${relative}`);
   fs.mkdirSync(path.dirname(destination),{recursive:true});
   fs.copyFileSync(source,destination);
 }
 const serviceWorkerSource=read('service-worker.js');
 const buildHash=crypto.createHash('sha256').update(html).update(serviceWorkerSource);
-for(const relative of ['manifest.webmanifest','assets/pwa/icon-192.png','assets/pwa/icon-512.png',
+for(const relative of [...publicationFiles,
   'assets/audio/music/meadow.mp3','assets/audio/music/woodland.mp3','assets/audio/music/lakeside.mp3']){
   buildHash.update(fs.readFileSync(path.join(root,relative)));
 }
@@ -71,5 +74,6 @@ const buildId=buildHash.digest('hex').slice(0,12);
 const serviceWorker=serviceWorkerSource.replaceAll('__PIXEL_LIFE_BUILD_ID__',buildId);
 if(serviceWorker.includes('__PIXEL_LIFE_BUILD_ID__'))throw new Error('Service worker build ID was not replaced');
 fs.writeFileSync(path.join(outputDirectory,'service-worker.js'),serviceWorker);
+validateSocialShare(html,file=>fs.readFileSync(path.join(outputDirectory,file)));
 
 console.log(`Built and verified ${path.relative(root, outputFile)} (${fs.statSync(outputFile).size.toLocaleString()} bytes, PWA ${buildId})`);

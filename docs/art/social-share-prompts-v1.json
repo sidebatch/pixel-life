@@ -1,0 +1,22 @@
+{
+  "id": "social-share-v1",
+  "date": "2026-10-23",
+  "mode": "built-in image_gen",
+  "intent": "generate-with-style-references",
+  "prompt": "Use case: ads-marketing.\nAsset type: final social link-preview cover image for the browser game Pixel Life, especially KakaoTalk. Create a NEW cohesive cover illustration, not a collage of the reference sheets.\nInput images: Image 1 is the actual gameplay reference for the pixel rendering, trees, grass, paths and mossy dungeon cave. Image 2 is the game's blue-roof cottage STYLE/ARCHITECTURE reference. Image 3 is the orange-roof village shop STYLE/ARCHITECTURE reference. Image 4 is the character design reference: use ONLY the first two columns (brown-haired male and female adventurers in navy jackets, cream shirts, dark trousers, brown boots and small brown backpacks); ignore the other villagers and all reference labels.\nPrimary request: a beautiful readable share thumbnail that feels like the actual cozy top-down pixel life adventure game.\nScene: one connected sunny countryside village beside a blue pond, warm sandy paths, a little planted vegetable garden, leafy forest edge and a small mossy cave entrance farther back. Show the recognizable brown-haired male and female adventurers, full bodies, exploring and fishing beside the pond. Use the reference game's compact character proportions, clean silhouettes and detailed pixel clusters.\nComposition: wide landscape canvas, EXACT aspect 1200:630. Prominent centered game title in the upper-middle with calm darker foliage behind it for strong contrast, adventure scene below and around it. Keep the entire title and both main characters within the central 55% of image width so square center crops still work. Title should remain clearly readable in a 320px-wide message preview. Enough padding all around, no important objects cut off.\nStyle: crisp deliberate 16-bit pixel art, orthographic top-down RPG world with roof and front-wall visibility, dark fine pixel outlines, chunky pixel clusters, leaf greens, pond blues and warm cream timber buildings matching the references. Soft sunny lighting rendered as pixel art. Keep pixel edges sharp. No painterly brush texture, no glossy 3D, no anime poster rendering.\nText (verbatim): \"PIXEL LIFE\". Large cream/gold pixel lettering with dark teal outline and a subtle pixel shadow. The title is the only text. No invented tagline, no Korean letters, no UI controls, no HUD, no frame, no watermark.\nOpaque background. Delivery: polished production cover, 1200 by 630 pixels.",
+  "references": [
+    "output/deploy-crafting-dungeons-v2/public-dungeons/393-village.png",
+    "assets/buildings/home_cottage.png",
+    "assets/buildings/elli_market.png",
+    "assets/player/source/npc-body-v1/comparison-large.png"
+  ],
+  "source": "assets/social/source/share-v1.png",
+  "output": "assets/social/pixel-life-share-v1.png",
+  "normalization": "Nearest-neighbor size normalization only, with no scene or text edits.",
+  "size": {
+    "width": 1200,
+    "height": 630
+  },
+  "publicUrl": "https://sidebatch.github.io/pixel-life/assets/social/pixel-life-share-v1.png",
+  "sha256": "520f5a3718d52f578214f56902daa8ca276c8b85027628ba7777449d088365b1"
+}

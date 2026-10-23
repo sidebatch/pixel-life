@@ -1,5 +1,11 @@
 # Deployment
 
+2026-10-23 **제작·무기·던전 동선·계단/회피 공개 배포 완료.** 게임 변경 [6777367](https://github.com/sidebatch/pixel-life/commit/6777367618b38b93215d419acadcd0793c4e35e9), [게시 성공 #39901152537](https://github.com/sidebatch/pixel-life/actions/runs/39901152537), PWA `4bb3bb751994`. 공개 8파일 43,683,943 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. [변경·검증 기록](CRAFTING_DUNGEON_DEPLOYMENT_V2.md).
+
+휴대용 제작대·가죽 조합·브락 전투/가죽/엄니 보상·목검/브락의 검·과거 장비 저장 이전·10던전 남쪽 진입과 순서를 반영했다. 계단에서 캐릭터가 보이며 상행/하행 높이가 변하고, 공격 표시 범위 밖 이동은 피해 없이 회피한다. 사냥 중 이동으로 장비 동작을 취소하되 700ms 공격 간격 유지. 별도 숲 배치 실험은 보존하고 배포에서 제외했다.
+
+배포용 전체 검사 60 scripts/164 UI IDs/533 assets/74 fish와 빌드, 남녀 검 16자세를 통과했다. 로컬 배포본과 공개 사이트의 320/393/1280px에서 11개 계단, 6종×4방향×4상황(각 288 전투 시나리오), 4장비의 타격 전/후 취소·공격 간격, 실제 터치/방향키, 제작/수리/보상/저장 실패 복구와 과거 장비 ID 이전, 10지역 왕복/접근을 검증했다. 공개 새 PWA 캐시 7파일·오프라인 저장 복원·3곡 Range 206/100 bytes·강제 새로고침 없음 확인. 앱 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다. 결과 `output/deploy-crafting-dungeons-v2/`.
+
 ## 2026-10-21 마을 음악 복구·사냥터 지형 v3
 
 2026-10-21 마을 음악 복구·사냥터 지형 v3 공개 배포 완료. 게임 변경 [93040a7](https://github.com/sidebatch/pixel-life/commit/93040a76df855143d03f73ad822f998375283a93), [게시 성공 #39568380631](https://github.com/sidebatch/pixel-life/actions/runs/39568380631), PWA `1aa83dac4d82`. HTML 22,584,979 bytes / 공개 8파일 40,052,934 bytes가 독립 배포 빌드와 SHA-256까지 일치한다.

@@ -1,5 +1,7 @@
 # 던전 외형·우두머리 공개 배포
 
+후속 2026-10-23 [제작·무기·계단/회피 공개 배포](CRAFTING_DUNGEON_DEPLOYMENT_V2.md)가 최신이다. 아래는 2026-10-22 외형 배포 당시 기록이다.
+
 2026-10-22 · 공개 배포 완료
 
 2026-10-22 던전 외형·우두머리 공개 배포 완료. 게임 변경 [4b12adb](https://github.com/sidebatch/pixel-life/commit/4b12adbb27d164c87c5e592d50d0dd8eeac45f46), [게시 성공 #39875309357](https://github.com/sidebatch/pixel-life/actions/runs/39875309357), PWA `58ae0846bafc`. 공개 8파일 43,425,512 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. 10지역·60종·110마리와 왜가리/아르마딜로 교체·브락/보른 재제작·우두머리 후광/왕관을 공개 반영했다. [배포·검증 기록](DUNGEON_DEPLOYMENT_V1.md).

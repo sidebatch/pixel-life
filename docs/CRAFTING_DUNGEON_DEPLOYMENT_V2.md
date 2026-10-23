@@ -1,6 +1,8 @@
 # 제작 · 무기 · 던전 동선 · 계단과 회피 공개 배포
 
-2026-10-23 · 공개 배포 준비
+2026-10-23 **제작·무기·던전 동선·계단/회피 공개 배포 완료.** 게임 변경 [6777367](https://github.com/sidebatch/pixel-life/commit/6777367618b38b93215d419acadcd0793c4e35e9), [게시 성공 #39901152537](https://github.com/sidebatch/pixel-life/actions/runs/39901152537), PWA `4bb3bb751994`. 공개 8파일 43,683,943 bytes가 독립 배포 빌드와 SHA-256까지 일치한다.
+
+배포용 전체 검사 60 scripts/164 UI IDs/533 assets/74 fish와 빌드, 남녀 검 16자세를 통과했다. 로컬 배포본과 공개 사이트의 320/393/1280px에서 11개 계단, 6종×4방향×4상황(각 288 전투 시나리오), 4장비의 타격 전/후 취소·공격 간격, 실제 터치/방향키, 제작/수리/보상/저장 실패 복구와 과거 장비 ID 이전, 10지역 왕복/접근을 검증했다. 공개 새 PWA 캐시 7파일·오프라인 저장 복원·3곡 Range 206/100 bytes·강제 새로고침 없음 확인. 앱 설치 가능성은 비공개 창 제한(in-incognito)으로 확인하지 않았다.
 
 ## 포함한 변경
 
@@ -20,6 +22,16 @@
 
 큰 전체 소스 복사본을 만들지 않는다. 검증할 Git 트리의 텍스트를 읽기 전용으로 제공하여 전체 검사와 빌드를 실행하고, 원본 작업 파일은 덮어쓰지 않는다. 바이너리 리소스도 Git 트리 해시와 대조한다. `dist/`와 검증 결과는 Git 제외다.
 
-검사와 게시 결과는 완료 후 이 문서에 기록한다. 로컬 결과 경로는 `output/deploy-crafting-dungeons-v2/`이며 수정 전 버그 재현은 `output/dungeon-combat-qa/before-*`를 보존한다.
+공개 8파일/기본 접속 주소의 SHA-256까지 일치했고 공개 브라우저·오프라인 검사를 통과했다. 로컬 결과 경로는 `output/deploy-crafting-dungeons-v2/`이며 수정 전 버그 재현은 `output/dungeon-combat-qa/before-*`를 보존한다.
 
 상세 기준: [제작·보상](PORTABLE_CRAFTING_BRAK_V1.md), [무기·동선](WEAPONS_DUNGEON_ROUTE_V2.md), [계단·회피](DUNGEON_STAIRS_MELEE_FIX_V1.md).
+
+## 검증된 배포물
+
+- 게임 변경: `6777367618b38b93215d419acadcd0793c4e35e9`
+- 게시 성공: [39901152537](https://github.com/sidebatch/pixel-life/actions/runs/39901152537)
+- PWA: `pixel-life-4bb3bb751994`
+- HTML: 26,215,988 bytes
+- 공개 8파일 합계: 43,683,943 bytes
+- 캐시 7파일은 서비스 워커 자체를 제외한 앱/음악/아이콘/매니페스트다.
+- 문서 갱신도 같은 Pages 파이프라인을 실행한다. 게임 파일 내용은 동일하며 마지막 문서 커밋의 게시 성공은 GitHub Actions와 로컬 최종 기록에서 확인한다.

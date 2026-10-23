@@ -1,6 +1,8 @@
 # 던전 외형·우두머리 공개 배포
 
-2026-10-22 · 게시 검증 대기
+2026-10-22 · 공개 배포 완료
+
+2026-10-22 던전 외형·우두머리 공개 배포 완료. 게임 변경 [4b12adb](https://github.com/sidebatch/pixel-life/commit/4b12adbb27d164c87c5e592d50d0dd8eeac45f46), [게시 성공 #39875309357](https://github.com/sidebatch/pixel-life/actions/runs/39875309357), PWA `58ae0846bafc`. 공개 8파일 43,425,512 bytes가 독립 배포 빌드와 SHA-256까지 일치한다. 10지역·60종·110마리와 왜가리/아르마딜로 교체·브락/보른 재제작·우두머리 후광/왕관을 공개 반영했다. [배포·검증 기록](DUNGEON_DEPLOYMENT_V1.md).
 
 ## 배포 범위
 
@@ -26,6 +28,10 @@
 
 ## 검증 기록
 
-배포 전 독립 파일에서 모바일 320/393px와 PC 1280px의 던전 왕복·우두머리 표시·저장·경제 유지, 기존 5종 사냥의 중립/반격/피해/회피/재등장/마을 복귀를 확인한다. 게시 후에는 GitHub Actions 결과, 공개 8파일 SHA-256 일치, 같은 공개 브라우저 검사와 PWA 오프라인·음악 Range 응답을 확인한다.
+배포 전 독립 파일과 공개 사이트에서 모바일 320/393px와 PC 1280px의 던전 왕복·우두머리 표시·저장·경제 유지, 기존 5종 사냥의 중립/반격/피해/회피/재등장/마을 복귀를 확인한다. GitHub Actions 게시 성공, 공개 8파일 SHA-256 일치, 공개 브라우저 검사와 PWA 오프라인·음악 Range 206/100 bytes 응답을 확인했다.
 
-결과는 `output/deploy-dungeon-v2/` 아래 `check.log`, `release-scope.json`, `release-fingerprints.json`, `public-verification.json`, `qa/`에 기록한다. 게시 성공 링크와 공개 검증 결과는 확인 후 이 문서에 추가한다.
+결과는 `output/deploy-dungeon-v2/` 아래 `check.log`, `release-scope.json`, `release-fingerprints.json`, `public-verification.json`, `qa/`에 기록했다. 게시 성공 링크와 공개 검증 결과도 이 문서에 반영했다.
+
+공개 검사 결과: 320/393/1280px의 10지역 왕복·우두머리 표시·저장·경제 유지 통과. 새 PWA 캐시·제어권·오프라인 재시작과 음악 Range, 업데이트 시 강제 재시작 없음 확인. 설치 가능성 검사 결과: [{"errorId":"in-incognito","errorArguments":[]}].
+
+PWA 초기 원시 CDP 검사는 8초 로딩 제한과 이후 제어권 대기에서 완료되지 않았다. 제품 변경 없이 네트워크 완료·워커 제어권을 기다리는 Playwright 검사로 실제 7개 캐시 파일, 새 버전, 오프라인 33지역·60종·우두머리 10종과 음악 Range를 확인했다. 서비스 워커 자체는 앱 캐시에 포함하지 않으므로 게시 파일 8개와 캐시 파일 7개는 서로 다르다. 앱 설치 가능성은 비공개 컨텍스트 제한(in-incognito)으로 확인하지 않았다.

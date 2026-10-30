@@ -1,8 +1,8 @@
 {
   "channel": "production",
-  "revision": "09c2bfd71bf7fc4f20018a6546cf9c178d6759d4",
+  "revision": "7491c18229826242aef190ba04348c125bb77974",
   "saveVersion": 2,
-  "buildId": "6494511f61bc",
-  "cacheName": "pixel-life-6494511f61bc",
+  "buildId": "3bf30e1bc712",
+  "cacheName": "pixel-life-3bf30e1bc712",
   "runtimeCacheName": "pixel-life-runtime-v1"
 }

@@ -1,0 +1,56 @@
+name: Publish verified game files
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      revision:
+        description: Previously published commit to restore; leave empty for current
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          ref: ${{ inputs.revision || github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-node@v6
+        with:
+          node-version: 24
+      - name: Verify and package public files only
+        run: |
+          node --input-type=module <<'JS'
+          import fs from 'node:fs';
+          import path from 'node:path';
+          import crypto from 'node:crypto';
+          const manifest=JSON.parse(fs.readFileSync('release-manifest.json'));
+          if(manifest.format!==1||!['production','preview'].includes(manifest.channel))throw Error('Invalid publication');
+          for(const file of [...manifest.files,{path:'release-manifest.json'}]){
+            if(!/^(?:index\.html|service-worker\.js|manifest\.webmanifest|build-info\.json|release-manifest\.json|assets\/(?:runtime\/[a-f0-9]{24}\.png|pwa\/icon-(?:192|512)\.png|audio\/music\/(?:meadow|woodland|lakeside)\.mp3|social\/[a-zA-Z0-9_.-]+\.png))$/.test(file.path))throw Error('Not a public game file');
+            const bytes=fs.readFileSync(file.path);
+            if(file.sha256&&crypto.createHash('sha256').update(bytes).digest('hex')!==file.sha256)throw Error('Digest mismatch');
+            const output=path.join('site',file.path);fs.mkdirSync(path.dirname(output),{recursive:true});fs.writeFileSync(output,bytes);
+          }
+          JS
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v4
+        with:
+          path: site
+      - uses: actions/deploy-pages@v4
+        id: deployment

@@ -1,4 +1,4 @@
-const CACHE_NAME='pixel-life-1b9db41f907d';
+const CACHE_NAME='pixel-life-185bbd764114';
 const CACHE_FAMILY='pixel-life-';
 const PREVIEW_CACHE=false;
 function ownsShellCache(key){return !PREVIEW_CACHE?

@@ -1,9 +1,9 @@
 {
   "format": 1,
   "channel": "production",
-  "revision": "c165edbf6ec2022d4224926a908ff25850fac187",
+  "revision": "bfa085c81cb2e5696736dcba4dd6e3c44c3c0683",
   "saveVersion": 2,
-  "buildId": "8187a7b65eaa",
+  "buildId": "2bffad6ee065",
   "files": [
     {
       "path": "assets/audio/music/lakeside.mp3",
@@ -2818,12 +2818,12 @@
     {
       "path": "build-info.json",
       "bytes": 226,
-      "sha256": "ef3062bccd1b264466ca13c23df3bd6b3ac85884dcf7a7ac98f8b0a7e80e29c7"
+      "sha256": "23eee52292f0187b2959daaebd2d835fd9439dc5365c15984ac250a6fe188dc8"
     },
     {
       "path": "index.html",
-      "bytes": 1536530,
-      "sha256": "7db4d744a720eb3fed9b2ffdae65881d96b2ead5e7644cc919149185dae96175"
+      "bytes": 1536636,
+      "sha256": "c596f948bb14af737b2a075aea00a2582d9d7dca361fb226b9c5a2eb786e124f"
     },
     {
       "path": "manifest.webmanifest",
@@ -2833,7 +2833,7 @@
     {
       "path": "service-worker.js",
       "bytes": 89136,
-      "sha256": "3129168b2eafaa2eeb63f50212eb99ebc35af8a74883fb60ee1e200d07f87a12"
+      "sha256": "a8d318596f243ff484955c1c882b6f190d1a56bf407c622ef39ba3f193c93699"
     }
   ]
 }
